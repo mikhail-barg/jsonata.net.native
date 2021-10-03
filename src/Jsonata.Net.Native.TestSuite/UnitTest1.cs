@@ -58,10 +58,10 @@ namespace Jsonata.Net.Native.TestSuite
                 data = new JRaw((object?)null);
             }
 
-
             try
             {
-                JsonataQuery query = new JsonataQuery(caseInfo.expr);
+                Console.WriteLine($"Expr is '{caseInfo.expr}'");
+                JsonataQuery query = new JsonataQuery(caseInfo.expr!);
                 JToken result = query.Eval(data);
 
                 /*
@@ -104,8 +104,21 @@ namespace Jsonata.Net.Native.TestSuite
                 
         }
 
-        private static void AddCaseData(List<TestCaseData> results, CaseInfo caseInfo, string info)
+        private static void ProcessAndAddCaseData(string sourceFile, List<TestCaseData> results, CaseInfo caseInfo, string info)
         {
+            if (caseInfo.expr == null)
+            {
+                if (caseInfo.expr_file != null)
+                {
+                    string exprFile = Path.Combine(Path.GetDirectoryName(sourceFile)!, caseInfo.expr_file);
+                    caseInfo.expr = File.ReadAllText(exprFile);
+                }
+                else
+                {
+                    throw new ArgumentException($"Error processing case {info}: no 'expr' or 'expr-file' specified");
+                }
+            }
+
             TestCaseData caseData = new TestCaseData(caseInfo);
             //see https://docs.nunit.org/articles/nunit/running-tests/Template-Based-Test-Naming.html
             //caseData.SetName(info + " {a}"); can't use {a} to show parametetrs here becasue of https://github.com/nunit/nunit3-vs-adapter/issues/691
@@ -136,14 +149,14 @@ namespace Jsonata.Net.Native.TestSuite
                             {
                                 CaseInfo caseInfo = subTestToken.ToObject<CaseInfo>() ?? throw new Exception("null");
                                 ++index;
-                                AddCaseData(results, caseInfo, info + "[" + index + "]");
+                                ProcessAndAddCaseData(testFile, results, caseInfo, info + "[" + index + "]");
                             }
                         }
                         else
                         {
                             CaseInfo caseInfo = testToken.ToObject<CaseInfo>() ?? throw new Exception("null");
                             TestCaseData caseData = new TestCaseData(caseInfo);
-                            AddCaseData(results, caseInfo, info);
+                            ProcessAndAddCaseData(testFile, results, caseInfo, info);
                         }
                     }
                     catch (Exception e)

@@ -12,7 +12,11 @@ namespace Jsonata.Net.Native.TestSuite
     //see https://github.com/jsonata-js/jsonata/blob/master/test/test-suite/TESTSUITE.md
     public sealed class CaseInfo
     {
-        public string expr { get; set; } = "";
+        public string? expr { get; set; }
+        
+        [JsonProperty(PropertyName = "expr-file")] 
+        public string? expr_file { get; set; }
+        
         public JToken? data { get; set; }
         public string? dataset { get; set; }
         public int? timelimit { get; set; }
@@ -31,7 +35,7 @@ namespace Jsonata.Net.Native.TestSuite
 
         public override string ToString()
         {
-            return this.expr;
+            return this.expr ?? this.expr_file ?? "<some bad data?>";
         }
     }
 }
