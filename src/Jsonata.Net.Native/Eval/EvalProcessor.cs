@@ -21,6 +21,10 @@ namespace Jsonata.Net.Native.Eval
 				dataObj = new Sequence(data) { keepSingletons = true };
             }
 			object result = Eval(rootNode, data, environment);
+			if (result is Sequence seq)
+            {
+				result = seq.GetValue();
+            }
 			return ToJson(result);
 		}
 

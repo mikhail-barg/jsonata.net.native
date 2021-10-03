@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
+    [Newtonsoft.Json.JsonConverter(typeof(SequenceConverter))]
     internal sealed class Sequence
     {
         public readonly List<object> values;
@@ -37,4 +40,23 @@ namespace Jsonata.Net.Native.Eval
             }
         }
     }
+
+    internal sealed class SequenceConverter : Newtonsoft.Json.JsonConverter<Sequence>
+    {
+        public override void WriteJson(JsonWriter writer, Sequence? value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value!.values);
+        }
+
+        public override Sequence ReadJson(JsonReader reader, Type objectType, Sequence? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+            /*
+            string s = (string)reader.Value;
+
+            return new Version(s);
+            */
+        }
+    }
+
 }

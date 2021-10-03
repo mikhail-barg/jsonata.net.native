@@ -16,10 +16,39 @@ namespace Jsonata.Net.Native.Tests
             Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultStr}");
         }
 
-        [TestMethod]
-        public void TestSimple_1()
+        [TestMethod] public void TestSimple_1()
         {
             Check("a", "{'a': 'b'}", "'b'");
+        }
+
+        [TestMethod]
+        public void TestSimple_2()
+        {
+            Check("a", "[{'a': 'b'}]", "'b'");
+        }
+
+        [TestMethod]
+        public void TestSimple_3()
+        {
+            Check("a", "[{'a': 'b'}, {'a': 'd'}]", "['b', 'd']");
+        }
+
+        [TestMethod]
+        public void TestSimple_4()
+        {
+            Check("a.b", "{'a': {'b': 'c'}}", "'c'");
+        }
+
+        [TestMethod]
+        public void TestSimple_5()
+        {
+            Check("a.b", "[{'a': {'b': 'c'}}]", "'c'");
+        }
+
+        [TestMethod]
+        public void TestSimple_6()
+        {
+            Check("*.a", "[{'a': 'b'}, {'a': 'd'}]", "['b', 'd']");
         }
     }
 }
