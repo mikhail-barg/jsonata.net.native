@@ -17,12 +17,18 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseNumber(Token t)
         {
-            // Number literals are promoted to type float64.
-            if (!double.TryParse(t.value!, out double value))
+            if (Int64.TryParse(t.value!, out long longValue))
+            {
+                return new NumberIntNode(longValue);
+            }
+            else if (Double.TryParse(t.value!, out double doubleValue))
+            {
+                return new NumberDoubleNode(doubleValue);
+            }
+            else
             {
                 throw new ErrInvalidNumber(t);
             }
-            return new NumberNode(value);
         }
 
         private Node parseBoolean(Token t)

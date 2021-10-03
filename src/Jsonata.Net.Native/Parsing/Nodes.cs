@@ -22,7 +22,7 @@ namespace Jsonata.Net.Native.Parsing
         }
     }
 
-    internal sealed record NumberNode(double value) : Node
+    internal sealed record NumberDoubleNode(double value) : Node
     {
         internal override Node optimize()
         {
@@ -34,6 +34,20 @@ namespace Jsonata.Net.Native.Parsing
             return this.value.ToString();
         }
     }
+
+    internal sealed record NumberIntNode(long value) : Node
+    {
+        internal override Node optimize()
+        {
+            return this;
+        }
+
+        public override string ToString()
+        {
+            return this.value.ToString();
+        }
+    }
+
 
     internal sealed record BooleanNode(bool value) : Node
     {
@@ -117,11 +131,17 @@ namespace Jsonata.Net.Native.Parsing
         internal override Node optimize()
         {
             Node rhs = this.rhs.optimize();
-            if (rhs is NumberNode numberNode)
+            if (rhs is NumberDoubleNode numberDoubleNode)
             {
                 // If the operand is a number literal, negate it now
                 // instead of waiting for evaluation.
-                return new NumberNode(-numberNode.value);
+                return new NumberDoubleNode(-numberDoubleNode.value);
+            }
+            else if (rhs is NumberIntNode numberIntNode)
+            {
+                // If the operand is a number literal, negate it now
+                // instead of waiting for evaluation.
+                return new NumberIntNode(-numberIntNode.value);
             }
             else if (rhs != this.rhs)
             {
@@ -294,7 +314,8 @@ namespace Jsonata.Net.Native.Parsing
                 Node lhs = this.lhs.optimize();
                 switch (lhs)
                 {
-                case NumberNode:
+                case NumberDoubleNode:
+                case NumberIntNode:
                 case StringNode:
                 case BooleanNode:
                 case NullNode:
@@ -314,7 +335,8 @@ namespace Jsonata.Net.Native.Parsing
                 Node rhs = this.rhs.optimize();
                 switch (rhs)
                 {
-                case NumberNode:
+                case NumberDoubleNode:
+                case NumberIntNode:
                 case StringNode:
                 case BooleanNode:
                 case NullNode:

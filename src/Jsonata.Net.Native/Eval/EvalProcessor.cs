@@ -41,15 +41,17 @@ namespace Jsonata.Net.Native.Eval
 		{
 			switch (node)
 			{
+			case StringNode stringNode:
+				return evalString(stringNode, input, env);
+			case NumberDoubleNode numberDoubleNode:
+				return evalNumber(numberDoubleNode, input, env);
+			case NumberIntNode numberIntNode:
+				return evalNumber(numberIntNode, input, env);
+			case BooleanNode booleanNode:
+				return evalBoolean(booleanNode, input, env);
+			case NullNode nullNode:
+				return evalNull(nullNode, input, env);
 			/*
-			case StringNode:
-				return evalString(node, input, env);
-			case NumberNode:
-				return evalNumber(node, input, env);
-			case BooleanNode:
-				return evalBoolean(node, input, env);
-			case NullNode:
-				return evalNull(node, input, env);
 			case RegexNode:
 				return evalRegex(node, input, env);
 			case VariableNode:
@@ -114,9 +116,40 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static object evalArray(ArrayNode arrayNode, object input, Environment env)
+        private static object evalNull(NullNode nullNode, object input, Environment env)
         {
-			Sequence result = new Sequence(new List<object>(arrayNode.items.Count));
+			return JValue.CreateNull();
+        }
+
+        private static object evalBoolean(BooleanNode booleanNode, object input, Environment env)
+        {
+			//todo: think of JValue.Create*
+			return booleanNode.value;
+        }
+
+        private static object evalString(StringNode stringNode, object input, Environment env)
+        {
+			//todo: think of JValue.Create*
+			return stringNode.value;
+        }
+
+        private static object evalNumber(NumberDoubleNode numberNode, object input, Environment env)
+        {
+			//todo: think of JValue.Create*
+			return numberNode.value;
+        }
+
+		private static object evalNumber(NumberIntNode numberNode, object input, Environment env)
+		{
+			//todo: think of JValue.Create*
+			return numberNode.value;
+		}
+
+		private static object evalArray(ArrayNode arrayNode, object input, Environment env)
+        {
+			Sequence result = new Sequence(new List<object>(arrayNode.items.Count)) {
+				keepSingletons = true
+			};
 			foreach (Node node in arrayNode.items)
             {
 				object res = Eval(node, input, env);
