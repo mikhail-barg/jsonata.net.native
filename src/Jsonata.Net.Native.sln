@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native", "Jsonata.Net.Native\Jsonata.Net.Native.csproj", "{BEC03473-EAA4-4202-A57B-1E3A9148635E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.Tests", "Jsonata.Net.Native.Tests\Jsonata.Net.Native.Tests.csproj", "{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEC03473-EAA4-4202-A57B-1E3A9148635E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEC03473-EAA4-4202-A57B-1E3A9148635E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEC03473-EAA4-4202-A57B-1E3A9148635E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEC03473-EAA4-4202-A57B-1E3A9148635E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E149D3D-F4B0-4DEC-B098-99F26FE08855}
+	EndGlobalSection
+EndGlobal
