@@ -23,8 +23,12 @@ namespace Jsonata.Net.Native.Eval
 			object result = Eval(rootNode, data, environment);
 			if (result is Sequence seq)
             {
-				result = seq.GetValue();
-            }
+				//result = seq.GetValue();
+				if (seq.values.Count == 1 && !seq.keepSingletons)
+				{
+					result = seq.values[0];
+				}
+			}
 			return ToJson(result);
 		}
 
@@ -60,8 +64,10 @@ namespace Jsonata.Net.Native.Eval
 				return evalNegation(node, input, env);
 			case RangeNode:
 				return evalRange(node, input, env);
-			case ArrayNode:
-				return evalArray(node, input, env);
+			*/
+			case ArrayNode arrayNode:
+				return evalArray(arrayNode, input, env);
+			/*
 			case ObjectNode:
 				return evalObject(node, input, env);
 			case BlockNode:
@@ -107,6 +113,30 @@ namespace Jsonata.Net.Native.Eval
 				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static object evalArray(ArrayNode arrayNode, object input, Environment env)
+        {
+			Sequence result = new Sequence(new List<object>(arrayNode.items.Count));
+			foreach (Node node in arrayNode.items)
+            {
+				object res = Eval(node, input, env);
+				switch (res)
+                {
+				case Undefined:
+					break;
+				case Sequence sequence:
+					result.values.AddRange(sequence.values);
+					break;
+				case JArray array:
+					result.values.AddRange(array.Values());
+					break;
+				default:
+					result.values.Add(res);
+					break;
+				}
+			}
+			return result;
+        }
 
         private static object evalDescendent(DescendentNode descendentNode, object input, Environment env)
         {

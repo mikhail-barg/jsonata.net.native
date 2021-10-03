@@ -63,7 +63,7 @@ namespace Jsonata.Net.Native.TestSuite
                 Console.WriteLine($"Expr is '{caseInfo.expr}'");
                 JsonataQuery query = new JsonataQuery(caseInfo.expr!);
                 JToken result = query.Eval(data);
-
+                Console.WriteLine($"Result: '{result.ToString(Formatting.None)}'");
                 /*
                 In addition, (exactly) one of the following fields is specified for each test case:
 
@@ -71,16 +71,21 @@ namespace Jsonata.Net.Native.TestSuite
                     undefinedResult: A flag indicating the expected result of evaluation will be undefined
                     code: The code associated with the exception that is expected to be thrown when either compiling the expression or evaluating it
                  */
+
+
                 if (caseInfo.result != null)
                 {
+                    Console.WriteLine($"Expected: '{caseInfo.result.ToString(Formatting.None)}'");
                     Assert.IsTrue(JToken.DeepEquals(caseInfo.result, result), $"Expected '{caseInfo.result.ToString(Formatting.None)}', got '{result.ToString(Formatting.None)}'");
                 }
                 else if (caseInfo.undefinedResult.HasValue && caseInfo.undefinedResult.Value)
                 {
+                    Console.WriteLine($"Expected 'undefined'");
                     Assert.IsTrue(result.Type == JTokenType.Null, $"Expected 'undefined', got '{result.ToString(Formatting.None)}'");
                 }
                 else if (caseInfo.code != null)
                 {
+                    Console.WriteLine($"Expected error {caseInfo.code}");
                     Assert.Fail($"Expected error {caseInfo.code} ({caseInfo.token}), got '{result.ToString(Formatting.None)}'");
                 }
                 else
