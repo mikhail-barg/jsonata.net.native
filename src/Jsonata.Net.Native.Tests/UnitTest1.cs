@@ -46,9 +46,15 @@ namespace Jsonata.Net.Native.Tests
         }
 
         [TestMethod]
-        public void TestSimple_6()
+        public void TestSimple_6() //TODO: currently fails (
         {
             Check("*.a", "[{'a': 'b'}, {'a': 'd'}]", "['b', 'd']");
+        }
+
+        [TestMethod]
+        public void TestSimple_7()
+        {
+            Check("**.a", "[{'a': 'b'}, {'a': 'd'}, {'e': {'a': 'f'}}]", "['b', 'd', 'f']");
         }
     }
 }

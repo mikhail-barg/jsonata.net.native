@@ -73,9 +73,9 @@ namespace Jsonata.Net.Native.Eval
 			*/
 			case WildcardNode wildcardNode:
 				return evalWildcard(wildcardNode, input, env);
-			/*
-			case DescendentNode:
-				return evalDescendent(node, input, env);
+			case DescendentNode descendentNode:
+				return evalDescendent(descendentNode, input, env);
+			/*	
 			case GroupNode:
 				return evalGroup(node, input, env);
 			case PredicateNode:
@@ -107,6 +107,45 @@ namespace Jsonata.Net.Native.Eval
 				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static object evalDescendent(DescendentNode descendentNode, object input, Environment env)
+        {
+			Sequence result = new Sequence(new List<object>());
+			if (input != Undefined.Instance)
+			{
+				recurseDescendents(result, input);
+			}
+			return result.GetValue();
+		}
+
+        private static void recurseDescendents(Sequence result, object v)
+        {
+            switch (v)
+            {
+			case JArray array:
+				foreach (JToken child in array)
+                {
+					recurseDescendents(result, child);
+                }
+				break;
+			case Sequence sequence:
+				foreach (object child in sequence.values)
+				{
+					recurseDescendents(result, child);
+				}
+				break;
+			case JObject obj:
+				result.values.Add(obj);
+				foreach (JToken child in obj.PropertyValues())
+				{
+					recurseDescendents(result, child);
+				}
+				break;
+			default:
+				result.values.Add(v);
+				break;
+			}
+        }
 
         private static object evalWildcard(WildcardNode wildcardNode, object input, Environment env)
         {
