@@ -27,7 +27,7 @@ namespace Jsonata.Net.Native.TestSuite
             Console.WriteLine($"Loaded {this.m_datasets.Count} datasets");
         }
 
-        [Test, TestCaseSource(nameof(GetTestCases))]
+        [TestCaseSource(nameof(GetTestCases))]
         public void Test(CaseInfo caseInfo)
         {
             /*
@@ -104,9 +104,19 @@ namespace Jsonata.Net.Native.TestSuite
                 
         }
 
-        public static List<CaseInfo> GetTestCases()
+        private static void AddCaseData(List<TestCaseData> results, CaseInfo caseInfo, string info)
         {
-            List<CaseInfo> results = new List<CaseInfo>();
+            TestCaseData caseData = new TestCaseData(caseInfo);
+            //see https://docs.nunit.org/articles/nunit/running-tests/Template-Based-Test-Naming.html
+            //caseData.SetName(info + " {a}"); can't use {a} to show parametetrs here becasue of https://github.com/nunit/nunit3-vs-adapter/issues/691
+            caseData.SetName(info);
+            caseData.SetDescription(caseInfo.GetDescription()); //doens not do much for VS Test Executor (
+            results.Add(caseData);
+        }
+
+        public static List<TestCaseData> GetTestCases()
+        {
+            List<TestCaseData> results = new List<TestCaseData>();
             string caseGroupsDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, TEST_SUITE_ROOT, "groups");
             foreach (string groupDir in Directory.EnumerateDirectories(caseGroupsDirectory))
             {
@@ -115,7 +125,8 @@ namespace Jsonata.Net.Native.TestSuite
                 {
                     try
                     {
-                        string info = infoGroupPrefix + ":" + Path.GetFileNameWithoutExtension(testFile);
+                        //dot works like path separator in NUnit
+                        string info = infoGroupPrefix + "." + Path.GetFileNameWithoutExtension(testFile);
                         string testStr = File.ReadAllText(testFile);
                         JToken testToken = JToken.Parse(testStr);
                         if (testToken is JArray array)
@@ -124,16 +135,15 @@ namespace Jsonata.Net.Native.TestSuite
                             foreach (JToken subTestToken in array)
                             {
                                 CaseInfo caseInfo = subTestToken.ToObject<CaseInfo>() ?? throw new Exception("null");
-                                caseInfo.info = info + "[" + index + "]";
                                 ++index;
-                                results.Add(caseInfo);
+                                AddCaseData(results, caseInfo, info + "[" + index + "]");
                             }
                         }
                         else
                         {
                             CaseInfo caseInfo = testToken.ToObject<CaseInfo>() ?? throw new Exception("null");
-                            caseInfo.info = info;
-                            results.Add(caseInfo);
+                            TestCaseData caseData = new TestCaseData(caseInfo);
+                            AddCaseData(results, caseInfo, info);
                         }
                     }
                     catch (Exception e)

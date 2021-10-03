@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NUnit.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +24,14 @@ namespace Jsonata.Net.Native.TestSuite
         public string? code { get; set; }
         public string? token { get; set; }
 
-        public string info = "";
+        internal string GetDescription()
+        {
+            return $"expr: '{this.expr}';\n result: {this.result?.ToString(Formatting.None) ?? ((this.undefinedResult.HasValue && this.undefinedResult.Value) ? "undefined" : "error " + this.code)}";
+        }
 
         public override string ToString()
         {
-            return this.info;
+            return this.expr;
         }
     }
 }
