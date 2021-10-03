@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native", "Jsona
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.Tests", "Jsonata.Net.Native.Tests\Jsonata.Net.Native.Tests.csproj", "{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.TestSuite", "Jsonata.Net.Native.TestSuite\Jsonata.Net.Native.TestSuite.csproj", "{B9E0AE50-801A-4192-BB56-11C9556CBBD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
