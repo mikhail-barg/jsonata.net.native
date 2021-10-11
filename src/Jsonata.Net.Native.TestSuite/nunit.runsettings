@@ -5,5 +5,28 @@
   <NUnit>
     <TestOutputXml>..\..\..\TestReport</TestOutputXml>
   </NUnit>
+
+  <!-- Configuration for loggers
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console" enabled="True">
+        <Configuration>
+          <Verbosity>quiet</Verbosity>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="trx" enabled="True">
+        <Configuration>
+          <LogFileName>foo.trx</LogFileName>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="html" enabled="True">
+        <Configuration>
+          <LogFileName>foo.html</LogFileName>
+        </Configuration>
+      </Logger>
+      <Logger friendlyName="blame" enabled="True" />
+    </Loggers>
+  </LoggerRunSettings>
+   -->
 </RunSettings>
 

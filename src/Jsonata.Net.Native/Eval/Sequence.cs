@@ -8,31 +8,23 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
-    [Newtonsoft.Json.JsonConverter(typeof(SequenceConverter))]
-    internal sealed class Sequence
+    internal sealed class Sequence: JArray
     {
-        public readonly List<object> values;
         public bool keepSingletons;
 
-        public Sequence(List<object> values)
+        public Sequence()
         {
-            this.values = values ?? throw new ArgumentNullException(nameof(values));
         }
 
-        public Sequence(object singleValue)
+        public JToken Simplify()
         {
-            this.values = new List<object>() { singleValue };
-        }
-
-        public object GetValue()
-        {
-            if (this.values.Count == 0)
+            if (this.ChildrenTokens.Count == 0)
             {
-                return Undefined.Instance;
+                return EvalProcessor.UNDEFINED;
             }
-            else if (this.values.Count == 1 && !this.keepSingletons)
+            else if (this.ChildrenTokens.Count == 1 && !this.keepSingletons)
             {
-                return this.values[0];
+                return this.ChildrenTokens[0];
             }
             else
             {
@@ -41,6 +33,7 @@ namespace Jsonata.Net.Native.Eval
         }
     }
 
+    /*
     internal sealed class SequenceConverter : Newtonsoft.Json.JsonConverter<Sequence>
     {
         public override void WriteJson(JsonWriter writer, Sequence? value, JsonSerializer serializer)
@@ -51,12 +44,10 @@ namespace Jsonata.Net.Native.Eval
         public override Sequence ReadJson(JsonReader reader, Type objectType, Sequence? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException();
-            /*
-            string s = (string)reader.Value;
-
-            return new Version(s);
-            */
+            //string s = (string)reader.Value;
+            //return new Version(s);
         }
     }
+    */
 
 }

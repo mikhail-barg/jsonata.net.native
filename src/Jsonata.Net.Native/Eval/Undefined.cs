@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
+    /*
     public sealed class Undefined
     {
         public static readonly Undefined Instance = new Undefined();
 
         private Undefined() { }
     }
+    */
 }
