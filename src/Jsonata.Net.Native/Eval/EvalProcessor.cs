@@ -307,7 +307,7 @@ namespace Jsonata.Net.Native.Eval
 
         private static object evalNameArray(NameNode nameNode, JArray array, Environment env)
         {
-			Sequence result = new Sequence(array.Count);
+			Sequence result = new Sequence(new List<object>(array.Count));
 			foreach (JToken obj in array)
             {
 				object res = evalName(nameNode, obj, env);
