@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Jsonata.Net.Native.Parsing
             {
                 return new NumberIntNode(longValue);
             }
-            else if (Double.TryParse(t.value!, out double doubleValue))
+            else if (Double.TryParse(t.value!, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleValue))
             {
                 return new NumberDoubleNode(doubleValue);
             }
