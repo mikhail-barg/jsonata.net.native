@@ -462,7 +462,7 @@ namespace Jsonata.Net.Native.Eval
 				}
 				else if (v is JArray jarray)
 				{
-					resultSequence.values.AddRange(jarray.Values());
+					resultSequence.values.AddRange(jarray.Children());
 				}
 				else if (v is Sequence vSeq)
 				{
