@@ -23,21 +23,16 @@ namespace Jsonata.Net.Native.Eval
 				dataArr.Add(data);
 				data = dataArr;
             }
-			object result = Eval(rootNode, data, environment);
+			JToken result = Eval(rootNode, data, environment);
 			if (result is Sequence seq)
             {
 				//result = seq.GetValue();
 				if (seq.Count == 1 && !seq.keepSingletons)
 				{
-					result = seq.Children()[0];
+					result = seq.Children().First();
 				}
 			}
-			return ToJson(result);
-		}
-
-		private static JToken ToJson(object result)
-		{
-			return JToken.FromObject(result);
+			return result;
 		}
 
 		internal static JToken Eval(Node node, JToken input, Environment env)
