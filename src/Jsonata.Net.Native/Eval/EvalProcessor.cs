@@ -106,8 +106,11 @@ namespace Jsonata.Net.Native.Eval
 			/*
 			case ComparisonOperatorNode:
 				return evalComparisonOperator(node, input, env);
-			case BooleanOperatorNode:
-				return evalBooleanOperator(node, input, env);
+			*/
+
+			case BooleanOperatorNode booleanOperatorNode:
+				return evalBooleanOperator(booleanOperatorNode, input, env);
+			/*
 			case StringConcatenationNode:
 				return evalStringConcatenation(node, input, env);
 			*/
@@ -116,7 +119,68 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static JToken evalGroup(GroupNode groupNode, JToken input, Environment env)
+        private static JToken evalBooleanOperator(BooleanOperatorNode booleanOperatorNode, JToken input, Environment env)
+        {
+			bool lhs = boolean(Eval(booleanOperatorNode.lhs, input, env)) ?? false; //here undefined works as false? see boolize() in jsonata-js
+			bool rhs = boolean(Eval(booleanOperatorNode.rhs, input, env)) ?? false;
+
+			bool result = booleanOperatorNode.op switch {
+				BooleanOperatorNode.BooleanOperator.BooleanAnd => lhs && rhs,
+				BooleanOperatorNode.BooleanOperator.BooleanOr => lhs || rhs,
+				_ => throw new ArgumentException($"Unexpected operator '{booleanOperatorNode.op}'")
+			};
+			return new JValue(result);
+		}
+
+		//null for undefined
+		private static bool? boolean(JToken value)
+        {
+			// cast arg to its effective boolean value
+			// boolean: unchanged
+			// string: zero-length -> false; otherwise -> true
+			// number: 0 -> false; otherwise -> true
+			// null -> false
+			// array: empty -> false; length > 1 -> true
+			// object: empty -> false; non-empty -> true
+			// function -> false
+
+			switch (value.Type)
+            {
+			case JTokenType.Undefined:
+				return null;
+			case JTokenType.Array:
+                {
+					JArray array = (JArray)value;
+					if (array.Count == 0)
+                    {
+						return false;
+                    }
+					else if (array.Count == 1)
+                    {
+						return boolean(array.Children().First());
+					}
+                    else
+                    {
+						return array.Children().Any(c => boolean(c) == true);
+                    }
+                };
+			case JTokenType.String:
+				return ((string)value!).Length > 0;
+			case JTokenType.Integer:
+				return ((long)value) != 0;
+			case JTokenType.Float:
+				return ((double)value) != 0.0;
+			case JTokenType.Object:
+				return ((JObject)value!).Count > 0;
+			case JTokenType.Boolean:
+				return (bool)value;
+			default:
+				return false;
+			}
+        }
+
+
+		private static JToken evalGroup(GroupNode groupNode, JToken input, Environment env)
         {
 			JToken items = Eval(groupNode.expr, input, env);
 			return evalObject(groupNode.objectNode, items, env);

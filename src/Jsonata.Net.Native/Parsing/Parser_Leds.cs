@@ -97,8 +97,14 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseBooleanOperator(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            BooleanOperatorNode.BooleanOperator op = t.type switch {
+                TokenType.typeAnd => BooleanOperatorNode.BooleanOperator.BooleanAnd,
+                TokenType.typeOr => BooleanOperatorNode.BooleanOperator.BooleanOr,
+                _ => throw new Exception("Unexpected token " + t.type)
+            };
+
+            Node rhs = this.parseExpression(this.m_bps[t.type]);
+            return new BooleanOperatorNode(op, lhs, rhs);
         }
 
     }

@@ -519,4 +519,39 @@ namespace Jsonata.Net.Native.Parsing
             return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
         }
     }
+
+    internal sealed record BooleanOperatorNode(BooleanOperatorNode.BooleanOperator op, Node lhs, Node rhs) : Node
+    {
+        internal enum BooleanOperator
+        {
+            BooleanAnd,
+            BooleanOr,
+        }
+
+        internal static string OperatorToString(BooleanOperator op) => op switch {
+            BooleanOperator.BooleanAnd => "and",
+            BooleanOperator.BooleanOr => "or",
+            _ => throw new ArgumentException($"Unexpected operator '{op}'")
+        };
+
+        internal override Node optimize()
+        {
+            Node lhs = this.lhs.optimize();
+            Node rhs = this.rhs.optimize();
+
+            if (lhs != this.lhs || rhs != this.rhs)
+            {
+                return new BooleanOperatorNode(this.op, lhs, rhs);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
+        }
+    }
 }
