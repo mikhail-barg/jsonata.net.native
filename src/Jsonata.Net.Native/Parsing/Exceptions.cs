@@ -139,4 +139,13 @@ namespace Jsonata.Net.Native.Parsing
 
         }
     }
+
+    internal sealed class ErrGroupGroup: BaseException
+    {
+        public ErrGroupGroup()
+            :base("a path step can only have one grouping expression")
+        {
+
+        }
+    }
 }

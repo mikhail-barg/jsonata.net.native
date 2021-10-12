@@ -316,10 +316,13 @@ namespace Jsonata.Net.Native.Parsing
                 {
                 case NumberDoubleNode:
                 case NumberIntNode:
-                case StringNode:
                 case BooleanNode:
                 case NullNode:
                     throw new ErrPathLiteral(lhs.ToString());
+                case StringNode stringNode:
+                    //convert string to NameNode https://github.com/IBM/JSONata4Java/issues/25
+                    steps.Add(new NameNode(stringNode.value, escaped: true));
+                    break;
                 case PathNode pathNode:
                     steps.AddRange(pathNode.steps);
                     keepArrays |= pathNode.keepArrays;
@@ -337,10 +340,13 @@ namespace Jsonata.Net.Native.Parsing
                 {
                 case NumberDoubleNode:
                 case NumberIntNode:
-                case StringNode:
                 case BooleanNode:
                 case NullNode:
                     throw new ErrPathLiteral(rhs.ToString());
+                case StringNode stringNode:
+                    //convert string to NameNode https://github.com/IBM/JSONata4Java/issues/25
+                    steps.Add(new NameNode(stringNode.value, escaped: true));
+                    break;
                 case PathNode pathNode:
                     steps.AddRange(pathNode.steps);
                     keepArrays |= pathNode.keepArrays;
@@ -431,16 +437,30 @@ namespace Jsonata.Net.Native.Parsing
     }
 
     // A GroupNode represents a group expression.
-    internal sealed record GroupNode() : Node
+    internal sealed record GroupNode(Node expr, ObjectNode objectNode) : Node
     {
         internal override Node optimize()
         {
-            throw new NotImplementedException();
+            Node expr = this.expr.optimize();
+            if (expr is GroupNode)
+            {
+                throw new ErrGroupGroup();
+            };
+
+            ObjectNode objectNode = (ObjectNode)this.objectNode.optimize();
+            if (this.expr != expr || this.objectNode != objectNode)
+            {
+                return new GroupNode(expr, objectNode);
+            }
+            else
+            {
+                return this;
+            }
         }
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return $"{this.expr}{this.objectNode}";
         }
     }
 

@@ -32,8 +32,8 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseGroup(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            ObjectNode objectNode = this.parseObject(t);
+            return new GroupNode(lhs, objectNode);
         }
 
         private Node parseConditional(Token t, Node lhs)

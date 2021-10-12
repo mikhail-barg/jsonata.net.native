@@ -81,9 +81,9 @@ namespace Jsonata.Net.Native.Eval
 				return evalWildcard(wildcardNode, input, env);
 			case DescendentNode descendentNode:
 				return evalDescendent(descendentNode, input, env);
-			/*	
-			case GroupNode:
-				return evalGroup(node, input, env);
+			case GroupNode groupNode:
+				return evalGroup(groupNode, input, env);
+			/*
 			case PredicateNode:
 				return evalPredicate(node, input, env);
 			case SortNode:
@@ -116,7 +116,13 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private sealed class KeyIndex
+        private static JToken evalGroup(GroupNode groupNode, JToken input, Environment env)
+        {
+			JToken items = Eval(groupNode.expr, input, env);
+			return evalObject(groupNode.objectNode, items, env);
+        }
+
+        private sealed class KeyIndex
         {
 			internal readonly int pairIndex;
 			internal readonly Sequence inputs = new Sequence();

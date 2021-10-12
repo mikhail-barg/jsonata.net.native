@@ -130,7 +130,7 @@ namespace Jsonata.Net.Native.Parsing
         }
 
 
-        private Node parseObject(Token t)
+        private ObjectNode parseObject(Token t)
         {
             List<Tuple<Node, Node>> pairs = new List<Tuple<Node, Node>>();
             while (this.token.type != TokenType.typeBraceClose)  // TODO: disallow trailing commas
