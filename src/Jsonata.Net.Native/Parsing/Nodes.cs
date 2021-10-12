@@ -457,4 +457,46 @@ namespace Jsonata.Net.Native.Parsing
             return $"{this.expr}[{Helpers.JoinNodes(this.filters, ", ")}]";
         }
     }
+
+
+    internal sealed record NumericOperatorNode(NumericOperatorNode.NumericOperator op, Node lhs, Node rhs) : Node
+    {
+        internal enum NumericOperator
+        {
+            NumericAdd,
+            NumericSubtract,
+            NumericMultiply,
+            NumericDivide,
+            NumericModulo
+        }
+
+        internal static string OperatorToString(NumericOperator op) => op switch {
+            NumericOperator.NumericAdd => "+",
+            NumericOperator.NumericSubtract => "+",
+            NumericOperator.NumericMultiply => "+",
+            NumericOperator.NumericDivide => "+",
+            NumericOperator.NumericModulo => "+",
+            _ => throw new ArgumentException($"Unexpected operator '{op}'")
+        };
+
+        internal override Node optimize()
+        {
+            Node lhs = this.lhs.optimize();
+            Node rhs = this.rhs.optimize();
+
+            if (lhs != this.lhs || rhs != this.rhs)
+            {
+                return new NumericOperatorNode(this.op, lhs, rhs);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
+        }
+    }
 }

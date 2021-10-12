@@ -101,8 +101,10 @@ namespace Jsonata.Net.Native.Eval
 				return evalFunctionCall(node, input, env);
 			case FunctionApplicationNode:
 				return evalFunctionApplication(node, input, env);
-			case NumericOperatorNode:
-				return evalNumericOperator(node, input, env);
+			*/
+			case NumericOperatorNode numericOperatorNode:
+				return evalNumericOperator(numericOperatorNode, input, env);
+			/*
 			case ComparisonOperatorNode:
 				return evalComparisonOperator(node, input, env);
 			case BooleanOperatorNode:
@@ -115,23 +117,63 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		/*
-        private static object evalObject(ObjectNode objectNode, object input, Environment env)
+        private static JToken evalNumericOperator(NumericOperatorNode numericOperatorNode, JToken input, Environment env)
         {
-			JObject results = new JObject();
-
-			Dictionary<string, >
-
-			foreach ()
+			JToken lhs = Eval(numericOperatorNode.lhs, input, env);
+			JToken rhs = Eval(numericOperatorNode.rhs, input, env);
+			if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
             {
-
+				return EvalProcessor.UNDEFINED;
             }
+			else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Integer)
+            {
+				return evalIntOperator((long)lhs, (long)rhs, numericOperatorNode.op);
+            }
+			else if (lhs.Type == JTokenType.Float && rhs.Type == JTokenType.Float)
+            {
+				return evalDoubleOperator((double)lhs, (double)rhs, numericOperatorNode.op);
+			}
+			else if (lhs.Type == JTokenType.Float && rhs.Type == JTokenType.Integer)
+			{
+				return evalDoubleOperator((double)lhs, (double)(long)rhs, numericOperatorNode.op);
+			}
+			else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Float)
+			{
+				return evalDoubleOperator((double)(long)lhs, (double)rhs, numericOperatorNode.op);
+			}
+			else
+            {
+				throw new ErrBadNumericArguments(lhs, rhs, numericOperatorNode);
+			}
+		}
 
-			return results;
+        private static JToken evalIntOperator(long lhs, long rhs, NumericOperatorNode.NumericOperator op)
+        {
+			long result = op switch {
+				NumericOperatorNode.NumericOperator.NumericAdd => lhs + rhs,
+				NumericOperatorNode.NumericOperator.NumericSubtract => lhs - rhs,
+				NumericOperatorNode.NumericOperator.NumericMultiply => lhs * rhs,
+				NumericOperatorNode.NumericOperator.NumericDivide => lhs / rhs,
+				NumericOperatorNode.NumericOperator.NumericModulo => lhs % rhs,
+				_ => throw new ArgumentException($"Unexpected operator '{op}'")
+			};
+			return new JValue(result);
         }
-		*/
 
-        private static JToken evalNull(NullNode nullNode, JToken input, Environment env)
+		private static JToken evalDoubleOperator(double lhs, double rhs, NumericOperatorNode.NumericOperator op)
+		{
+			double result = op switch {
+				NumericOperatorNode.NumericOperator.NumericAdd => lhs + rhs,
+				NumericOperatorNode.NumericOperator.NumericSubtract => lhs - rhs,
+				NumericOperatorNode.NumericOperator.NumericMultiply => lhs * rhs,
+				NumericOperatorNode.NumericOperator.NumericDivide => lhs / rhs,
+				NumericOperatorNode.NumericOperator.NumericModulo => lhs % rhs,
+				_ => throw new ArgumentException($"Unexpected operator '{op}'")
+			};
+			return new JValue(result);
+		}
+
+		private static JToken evalNull(NullNode nullNode, JToken input, Environment env)
         {
 			return JValue.CreateNull();
         }
@@ -374,15 +416,20 @@ namespace Jsonata.Net.Native.Eval
 				}
 			}
 
-			if (node.keepArrays)
-			{
-				if (output is Sequence sequence)
-				{
-					sequence.keepSingletons = true;
-				}
-			}
+			
 
-			return output;
+			if (output is Sequence seq)
+			{
+				if (node.keepArrays)
+				{
+					seq.keepSingletons = true;
+				}
+				return seq.Simplify();
+			}
+			else
+			{
+				return output;
+			}
 		}
 		
 		private static List<JToken> evalOverArray(Node node, JArray array, Environment env)

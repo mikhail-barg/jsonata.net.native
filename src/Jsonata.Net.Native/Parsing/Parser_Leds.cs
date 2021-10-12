@@ -76,8 +76,17 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseNumericOperator(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            NumericOperatorNode.NumericOperator op = t.type switch {
+                TokenType.typePlus => NumericOperatorNode.NumericOperator.NumericAdd,
+                TokenType.typeMinus => NumericOperatorNode.NumericOperator.NumericSubtract,
+                TokenType.typeMult => NumericOperatorNode.NumericOperator.NumericMultiply,
+                TokenType.typeDiv => NumericOperatorNode.NumericOperator.NumericDivide,
+                TokenType.typeMod => NumericOperatorNode.NumericOperator.NumericModulo,
+                _ => throw new Exception("Unexpected token " + t.type)
+            };
+
+            Node rhs = this.parseExpression(this.m_bps[t.type]);
+            return new NumericOperatorNode(op, lhs, rhs);
         }
 
         private Node parseComparisonOperator(Token t, Node lhs)

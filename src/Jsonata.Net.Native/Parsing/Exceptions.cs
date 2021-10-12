@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Runtime.Serialization;
 
 namespace Jsonata.Net.Native.Parsing
@@ -130,4 +131,12 @@ namespace Jsonata.Net.Native.Parsing
         }
     }
 
+    internal sealed class ErrBadNumericArguments : BaseException
+    {
+        public ErrBadNumericArguments(JToken lhs, JToken rhs, NumericOperatorNode node)
+            : base($"Failed to evaluate numeric operation {lhs} {NumericOperatorNode.OperatorToString(node.op)} {rhs}")
+        {
+
+        }
+    }
 }
