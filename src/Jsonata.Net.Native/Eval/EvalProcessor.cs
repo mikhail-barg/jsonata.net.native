@@ -59,9 +59,9 @@ namespace Jsonata.Net.Native.Eval
 				return evalName(nameNode, input, env);
 			case PathNode pathNode:
 				return evalPath(pathNode, input, env);
+			case NegationNode negationNode:
+				return evalNegation(negationNode, input, env);
 			/*
-			case NegationNode:
-				return evalNegation(node, input, env);
 			case RangeNode:
 				return evalRange(node, input, env);
 			*/
@@ -117,6 +117,22 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
+        private static JToken evalNegation(NegationNode negationNode, JToken input, Environment env)
+        {
+			JToken rhs = Eval(negationNode.rhs, input, env);
+			switch (rhs.Type)
+			{
+			case JTokenType.Undefined:
+				return EvalProcessor.UNDEFINED;
+			case JTokenType.Integer:
+				return new JValue(-(long)rhs);
+			case JTokenType.Float:
+				return new JValue(-(double)rhs);
+			default:
+				throw new Exception($"Failed to evaluate a non-number {rhs} for a negation");
+			}
+        }
+
         private static JToken evalNumericOperator(NumericOperatorNode numericOperatorNode, JToken input, Environment env)
         {
 			JToken lhs = Eval(numericOperatorNode.lhs, input, env);
@@ -127,7 +143,15 @@ namespace Jsonata.Net.Native.Eval
             }
 			else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Integer)
             {
-				return evalIntOperator((long)lhs, (long)rhs, numericOperatorNode.op);
+				if (numericOperatorNode.op == NumericOperatorNode.NumericOperator.NumericDivide)
+				{
+					//divide is still in double
+					return evalDoubleOperator((long)lhs, (long)rhs, numericOperatorNode.op);
+				}
+				else
+				{
+					return evalIntOperator((long)lhs, (long)rhs, numericOperatorNode.op);
+				}
             }
 			else if (lhs.Type == JTokenType.Float && rhs.Type == JTokenType.Float)
             {

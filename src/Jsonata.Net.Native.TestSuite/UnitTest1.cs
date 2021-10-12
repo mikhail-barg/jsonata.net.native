@@ -81,7 +81,7 @@ namespace Jsonata.Net.Native.TestSuite
                 else if (caseInfo.undefinedResult.HasValue && caseInfo.undefinedResult.Value)
                 {
                     Console.WriteLine($"Expected 'undefined'");
-                    Assert.IsTrue(result.Type == JTokenType.Null, $"Expected 'undefined', got '{result.ToString(Formatting.None)}'");
+                    Assert.IsTrue(result.Type == JTokenType.Undefined, $"Expected 'undefined', got '{result.ToString(Formatting.None)}'");
                 }
                 else if (caseInfo.code != null)
                 {
