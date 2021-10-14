@@ -11,6 +11,7 @@ namespace Jsonata.Net.Native.Eval
     internal sealed class Sequence: JArray
     {
         public bool keepSingletons;
+        public bool outerWrapper;
 
         public Sequence()
         {

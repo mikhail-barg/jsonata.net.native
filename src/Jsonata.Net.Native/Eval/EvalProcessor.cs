@@ -17,9 +17,10 @@ namespace Jsonata.Net.Native.Eval
 		{
 			//TODO: prepare environment
 			Environment environment = new Environment();
-			if (data is JArray)
+			if (data.Type == JTokenType.Array)
             {
-				JArray dataArr = new Sequence() { keepSingletons = true };
+				// if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
+				JArray dataArr = new Sequence() { outerWrapper = true };
 				dataArr.Add(data);
 				data = dataArr;
             }
@@ -35,7 +36,24 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		internal static JToken Eval(Node node, JToken input, Environment env)
+		private static JToken Eval(Node node, JToken input, Environment env)
+		{
+			JToken result = EvalInternal(node, input, env);
+			if (result is Sequence sequence)
+            {
+				if (!sequence.HasValues)
+                {
+					return EvalProcessor.UNDEFINED;
+                }
+				else if (sequence.Count == 1 && !sequence.keepSingletons)
+                {
+					return sequence[0];
+                }
+            };
+			return result;
+		}
+
+		private static JToken EvalInternal(Node node, JToken input, Environment env)
 		{
 			switch (node)
 			{
@@ -680,9 +698,7 @@ namespace Jsonata.Net.Native.Eval
 
 		private static JToken evalArray(ArrayNode arrayNode, JToken input, Environment env)
         {
-			Sequence result = new Sequence() {
-				keepSingletons = true
-			};
+			JArray result = new JArray();
 			foreach (Node node in arrayNode.items)
             {
 				JToken res = Eval(node, input, env);
@@ -691,7 +707,14 @@ namespace Jsonata.Net.Native.Eval
 				case JTokenType.Undefined:
 					break;
 				case JTokenType.Array:
-					result.AddRange(res.Children());
+					if (res is Sequence sequence && !sequence.keepSingletons)
+					{
+						result.AddRange(res.Children());
+					}
+					else
+                    {
+						result.Add(res);
+                    }
 					break;
 				default:
 					result.Add(res);
@@ -736,16 +759,16 @@ namespace Jsonata.Net.Native.Eval
 
         private static JToken evalWildcard(WildcardNode wildcardNode, JToken input, Environment env)
         {
-			Sequence result = new Sequence();
-			if (input is JArray array 
-				&& (input is Sequence) //TODO:???
-				&& array.Count > 0
+			if (input is Sequence inputSequence
+				&& inputSequence.HasValues
+				&& inputSequence.outerWrapper
 			)
             {
-				input = array[0];
+				input = inputSequence[0];
             }
 
-            if (input is JObject obj)
+			Sequence result = new Sequence();
+			if (input is JObject obj)
             {
 				foreach (JToken value in obj.PropertyValues())
                 {
@@ -780,60 +803,36 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-		/*
-		private void appendWildcard(Sequence seq, object v)
-		{
-			switch (v) 
-			{
-			case JArray jArray:
-				break;
-
-			case jtypes.IsArray(v):
-				v = flattenArray(v)
-				for i, N := 0, v.Len(); i < N; i++ {
-					if vi := v.Index(i); vi.IsValid() && vi.CanInterface() {
-						seq.Append(vi.Interface())
-					}
-				}
-			default:
-				if v.IsValid() && v.CanInterface() {
-					seq.Append(v.Interface())
-				}
-			}
-		}
-		*/
-
 		private static JToken evalName(NameNode nameNode, JToken data, Environment env)
         {
             switch (data)
             {
 			case JObject obj:
-				if (!obj.TryGetValue(nameNode.value, out JToken? result))
-                {
-					return EvalProcessor.UNDEFINED;
-                }
-				return result;
+				{
+					if (!obj.TryGetValue(nameNode.value, out JToken? result))
+					{
+						return EvalProcessor.UNDEFINED;
+					}
+					return result;
+				}
 			case JArray array:
-				return evalNameArray(nameNode, array, env);
+                {
+					Sequence result = new Sequence();
+					foreach (JToken obj in array.Children())
+					{
+						JToken res = evalName(nameNode, obj, env);
+						if (res.Type != JTokenType.Undefined)
+						{
+							result.Add(res);
+						}
+					}
+					return result.Simplify();
+				}
 			default:
 				return EvalProcessor.UNDEFINED;
 			}
         }
-
-        private static JToken evalNameArray(NameNode nameNode, JArray array, Environment env)
-        {
-			Sequence result = new Sequence();
-			foreach (JToken obj in array.Children())
-            {
-				JToken res = evalName(nameNode, obj, env);
-				if (res.Type != JTokenType.Undefined)
-                {
-					result.Add(res);
-                }
-            }
-			return result.Simplify();
-		}
-
+       
         private static JToken evalPath(PathNode node, JToken data, Environment env)
 		{
 			if (node.steps.Count == 0)
@@ -841,135 +840,130 @@ namespace Jsonata.Net.Native.Eval
 				return EvalProcessor.UNDEFINED;
 			}
 
-			// expr is an array of steps
 			// if the first step is a variable reference ($...), including root reference ($$),
 			//   then the path is absolute rather than relative
+			bool isVar = node.steps[0] switch {
+                VariableNode => true,
+                PredicateNode predicateNode => predicateNode.expr is VariableNode,
+                _ => false,
+            };
 
-			bool isVar;
-			switch (node.steps[0])
+			JArray array;
+			if (data.Type == JTokenType.Array && !isVar)
+            {
+				//already an array
+				array = (JArray)data;
+            }
+			else
 			{
-			case VariableNode:
-				isVar = true;
-				break;
-			case PredicateNode predicateNode:
-				isVar = predicateNode.expr is VariableNode;
-				break;
-			default:
-				isVar = false;
-				break;
-			}
-
-			JToken output = data;
-			if (isVar || !(data is JArray || data is Sequence))
-			{
-				//output = new JArray() { data };
+				// if input is not an array, make it so
 				Sequence sequence = new Sequence();
 				sequence.Add(data);
-				output = sequence;
+				array = sequence;
 			};
 
 			int lastIndex = node.steps.Count - 1;
-			for (int i = 0; i < node.steps.Count; ++i)
+			for (int stepIndex = 0; stepIndex < node.steps.Count; ++stepIndex)
 			{
-				Node step = node.steps[i];
+				Node step = node.steps[stepIndex];
 				// if the first step is an explicit array constructor, then just evaluate that (i.e. don't iterate over a context array)
-				if (i == 0 && step is ArrayNode arrayStepNode)
+				if (stepIndex == 0 && step is ArrayNode arrayStepNode)
 				{
-					output = Eval(arrayStepNode, output, env);
+					array = (JArray)Eval(arrayStepNode, array, env);
 				}
 				else
 				{
-					output = evalPathStep(step, output, env, i == lastIndex);
+					array = evalPathStep(step, array, env, stepIndex == lastIndex);
 				};
 
-				if (output.Type == JTokenType.Undefined)
-				{
-					return output;
-				}
-
-				if (output is JArray jArray)
-				{
-					if (jArray.Count == 0)
-					{
-						return EvalProcessor.UNDEFINED;
-					}
-				}
+				if (!array.HasValues)
+                {
+					break;
+                }
 			}
 
-			
-
-			if (output is Sequence seq)
-			{
-				if (node.keepArrays)
+			if (node.keepArrays)
+            {
+				if (array is Sequence resultSequence)
 				{
-					seq.keepSingletons = true;
+
 				}
-				return seq.Simplify();
+				else
+				{
+					// if the array is explicitly constructed in the expression and marked to promote singleton sequences to array
+					resultSequence = new Sequence();
+					resultSequence.Add(array);
+				}
+				resultSequence.keepSingletons = true;
+				array = resultSequence;
 			}
-			else
-			{
-				return output;
-			}
+
+			return array;
 		}
-		
-		private static List<JToken> evalOverArray(Node node, JArray array, Environment env)
+
+		private static JArray evalPathStep(Node step, JArray array, Environment env, bool lastStep)
 		{
 			List<JToken> result = new List<JToken>(array.Count);
 			foreach (JToken obj in array.Children())
 			{
-				JToken res = Eval(node, obj, env);
-				if (res.Type != JTokenType.Undefined)
+				JToken resultToken = Eval(step, obj, env);
+				if (resultToken.Type != JTokenType.Undefined)
 				{
-					result.Add(res);
+					result.Add(resultToken);
 				}
-			}
-			return result;
-		}
-
-
-		private static JToken evalPathStep(Node step, JToken data, Environment env, bool lastStep)
-		{
-			List<JToken> results;
-			if (data is JArray array)
-			{
-				results = evalOverArray(step, array, env);
-			}
-			else
-            {
-				throw new Exception("Not an array or sequence");
-            }
+			};
 
 			if (lastStep 
-				&& results.Count == 1 
-				&& (results[0] is JArray)
+				&& result.Count == 1 
+				&& result[0].Type == JTokenType.Array
+				&& !(result[0] is Sequence)
 			)
 			{
-				return results[0];
-			}
+				return (JArray)result[0];
+			};
 
+			// flatten the sequence
+			/*
 			Sequence resultSequence = new Sequence();
 			bool isArrayConstructor = step is ArrayNode;
-			foreach (JToken v in results)
+			foreach (JToken resultToken in result)
 			{
 				//TODO: check http://docs.jsonata.org/processing#sequences
-				if (v.Type == JTokenType.Undefined)
+				if (isArrayConstructor)
 				{
-					continue;
+					resultSequence.Add(resultToken);
 				}
-				else if (isArrayConstructor)
-				{
-					resultSequence.Add(v);
-				}
-				else if (v is JArray jarray)
+				else if (resultToken is JArray jarray)
 				{
 					resultSequence.AddRange(jarray.Children());
 				}
 				else
 				{
-					resultSequence.Add(v);
+					resultSequence.Add(resultToken);
+				}
+			}
+			*/
+
+			// flatten the sequence
+			Sequence resultSequence = new Sequence();
+			foreach (JToken resultToken in result)
+			{
+				if (resultToken.Type != JTokenType.Array)
+                {
+					// it's not an array - just push into the result sequence
+					resultSequence.Add(resultToken);
+				}
+				else
+                {
+					// res is a sequence - flatten it into the parent sequence
+					foreach (JToken val in resultToken.Children())
+                    {
+						resultSequence.Add(val);
+                    }
 				}
 			}
 
+			/*
 			//???
 			//return resultSequence.GetValue();
 			/// or maybe
@@ -977,6 +971,7 @@ namespace Jsonata.Net.Native.Eval
             {
 				return EvalProcessor.UNDEFINED;
             }
+			*/
 			return resultSequence;
 		}
 

@@ -56,5 +56,52 @@ namespace Jsonata.Net.Native.Tests
         {
             Check("**.a", "[{'a': 'b'}, {'a': 'd'}, {'e': {'a': 'f'}}]", "['b', 'd', 'f']");
         }
+
+        [TestMethod]
+        public void TestFlatten_1()
+        {
+            Check(
+                "nest2.[nest3]", 
+                @"{
+                    'nest2': [
+                        {
+                            'nest3': [ 1 ]
+                        },
+                        {
+                            'nest3': [ 2 ]
+                        }
+                    ]
+                }",
+                "[[1],[2]]"
+            );
+        }
+
+        [TestMethod]
+        public void TestFlatten_2()
+        {
+            Check(
+                "nest2.[nest3]",
+                @"{
+                    'nest2': [
+                        {
+                            'nest3': [ 1 ]
+                        }
+                    ]
+                }",
+                "[1]"
+            );
+        }
+
+        [TestMethod]
+        public void TestFlatten_3()
+        {
+            Check(
+                "nest3",
+                @"{
+                    'nest3': [ 1 ]
+                }",
+                "[1]"
+            );
+        }
     }
 }
