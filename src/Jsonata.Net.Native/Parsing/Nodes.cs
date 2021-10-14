@@ -492,10 +492,10 @@ namespace Jsonata.Net.Native.Parsing
 
         internal static string OperatorToString(NumericOperator op) => op switch {
             NumericOperator.NumericAdd => "+",
-            NumericOperator.NumericSubtract => "+",
-            NumericOperator.NumericMultiply => "+",
-            NumericOperator.NumericDivide => "+",
-            NumericOperator.NumericModulo => "+",
+            NumericOperator.NumericSubtract => "-",
+            NumericOperator.NumericMultiply => "*",
+            NumericOperator.NumericDivide => "/",
+            NumericOperator.NumericModulo => "%",
             _ => throw new ArgumentException($"Unexpected operator '{op}'")
         };
 
@@ -507,6 +507,51 @@ namespace Jsonata.Net.Native.Parsing
             if (lhs != this.lhs || rhs != this.rhs)
             {
                 return new NumericOperatorNode(this.op, lhs, rhs);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
+        }
+    }
+
+    internal sealed record ComparisonOperatorNode(ComparisonOperatorNode.ComparisonOperator op, Node lhs, Node rhs) : Node
+    {
+        internal enum ComparisonOperator
+        {
+            ComparisonEqual,
+            ComparisonNotEqual,
+            ComparisonLess,
+            ComparisonLessEqual,
+            ComparisonGreater,
+            ComparisonGreaterEqual,
+            ComparisonIn
+        }
+
+        internal static string OperatorToString(ComparisonOperator op) => op switch {
+            ComparisonOperator.ComparisonEqual => "=",
+            ComparisonOperator.ComparisonNotEqual => "!=",
+            ComparisonOperator.ComparisonLess => "<",
+            ComparisonOperator.ComparisonLessEqual => "<=",
+            ComparisonOperator.ComparisonGreater => ">",
+            ComparisonOperator.ComparisonGreaterEqual => ">=",
+            ComparisonOperator.ComparisonIn => "in",
+            _ => throw new ArgumentException($"Unexpected operator '{op}'")
+        };
+
+        internal override Node optimize()
+        {
+            Node lhs = this.lhs.optimize();
+            Node rhs = this.rhs.optimize();
+
+            if (lhs != this.lhs || rhs != this.rhs)
+            {
+                return new ComparisonOperatorNode(this.op, lhs, rhs);
             }
             else
             {

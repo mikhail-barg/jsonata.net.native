@@ -103,11 +103,8 @@ namespace Jsonata.Net.Native.Eval
 			*/
 			case NumericOperatorNode numericOperatorNode:
 				return evalNumericOperator(numericOperatorNode, input, env);
-			/*
-			case ComparisonOperatorNode:
-				return evalComparisonOperator(node, input, env);
-			*/
-
+			case ComparisonOperatorNode comparisonOperatorNode:
+				return evalComparisonOperator(comparisonOperatorNode, input, env);
 			case BooleanOperatorNode booleanOperatorNode:
 				return evalBooleanOperator(booleanOperatorNode, input, env);
 			/*
@@ -116,6 +113,150 @@ namespace Jsonata.Net.Native.Eval
 			*/
 			default:
 				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
+			}
+		}
+
+		private static JToken evalComparisonOperator(ComparisonOperatorNode comparisonOperatorNode, JToken input, Environment env)
+		{
+			JToken lhs = Eval(comparisonOperatorNode.lhs, input, env);
+			JToken rhs = Eval(comparisonOperatorNode.rhs, input, env);
+			if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
+			{
+				switch (comparisonOperatorNode.op)
+				{
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonEqual:
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual:
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonIn:
+					return new JValue(false);
+				default:
+					return EvalProcessor.UNDEFINED;
+				}
+			};
+
+			if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Float)
+			{
+				lhs = new JValue((double)(int)lhs);
+			}
+			else if (rhs.Type == JTokenType.Integer && lhs.Type == JTokenType.Float)
+			{
+				rhs = new JValue((double)(int)rhs);
+			};
+
+			switch (comparisonOperatorNode.op)
+			{
+			case ComparisonOperatorNode.ComparisonOperator.ComparisonEqual:
+				return JToken.DeepEquals(lhs, rhs);
+			case ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual:
+				return !JToken.DeepEquals(lhs, rhs);
+			case ComparisonOperatorNode.ComparisonOperator.ComparisonIn:
+				{
+					if (rhs.Type == JTokenType.Array)
+					{
+						JArray rhsArray = (JArray)rhs;
+						foreach (JToken rhsSubtoken in rhsArray.Children())
+						{
+							if (JToken.DeepEquals(lhs, rhsSubtoken))
+							{
+								return true;
+							}
+						}
+						return false;
+					}
+					else
+					{
+						return JToken.DeepEquals(lhs, rhs);
+					}
+				}
+			default:
+                {
+					if (!IsComparable(lhs))
+                    {
+						throw new JsonataException("T2010", $"Argument '{lhs}' of comparison is not comparable");
+                    }
+					else if (!IsComparable(rhs))
+                    {
+						throw new JsonataException("T2010", $"Argument '{rhs}' of comparison is not comparable");
+					}
+					else if (lhs.Type != rhs.Type)
+                    {
+						throw new JsonataException("T2009", $"Arguments '{lhs}' and '{rhs}' of comparison are of different types");
+					};
+
+					if (lhs.Type == JTokenType.String)
+                    {
+						return CompareStrings(comparisonOperatorNode.op, (string)lhs!, (string)rhs!);
+                    }
+					else if (lhs.Type == JTokenType.Integer)
+					{
+						return CompareInts(comparisonOperatorNode.op, (long)lhs, (long)rhs);
+					}
+					else if (lhs.Type == JTokenType.Float)
+					{
+						return CompareDoubles(comparisonOperatorNode.op, (double)lhs, (double)rhs);
+					}
+					else
+                    {
+						throw new Exception("Should not happen");
+                    }
+				}
+			}
+
+			bool IsComparable(JToken token)
+            {
+				return token.Type == JTokenType.Integer
+					|| token.Type == JTokenType.Float
+					|| token.Type == JTokenType.String;
+			}
+
+			JToken CompareDoubles(ComparisonOperatorNode.ComparisonOperator op, double lhs, double rhs)
+			{
+				switch (op)
+                {
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
+					return lhs < rhs;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
+					return lhs <= rhs;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
+					return lhs > rhs;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
+					return lhs >= rhs;
+				default:
+					throw new Exception("Should not happen");
+				}
+			}
+
+			JToken CompareInts(ComparisonOperatorNode.ComparisonOperator op, long lhs, long rhs)
+			{
+				switch (op)
+				{
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
+					return lhs < rhs;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
+					return lhs <= rhs;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
+					return lhs > rhs;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
+					return lhs >= rhs;
+				default:
+					throw new Exception("Should not happen");
+				}
+			}
+
+			JToken CompareStrings(ComparisonOperatorNode.ComparisonOperator op, string lhs, string rhs)
+			{
+				switch (op)
+				{
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
+					return String.CompareOrdinal(lhs, rhs) < 0;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
+					return String.CompareOrdinal(lhs, rhs) <= 0;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
+					return String.CompareOrdinal(lhs, rhs) > 0;
+				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
+					return String.CompareOrdinal(lhs, rhs) >= 0;
+				default:
+					throw new Exception("Should not happen");
+				}
 			}
 		}
 
@@ -266,21 +407,6 @@ namespace Jsonata.Net.Native.Eval
                 }
 			}
 			return result;
-        }
-
-		private static IEnumerable<JToken> EvalOverTokenOrArray(Node node, JToken tokenOrArray, Environment env)
-        {
-			if (tokenOrArray.Type == JTokenType.Array)
-            {
-				foreach (JToken childToken in ((JArray)tokenOrArray).Children())
-                {
-					yield return Eval(node, childToken, env);
-                }
-            }
-			else
-            {
-				yield return Eval(node, tokenOrArray, env);
-			}
         }
 
         private static JToken evalNegation(NegationNode negationNode, JToken input, Environment env)

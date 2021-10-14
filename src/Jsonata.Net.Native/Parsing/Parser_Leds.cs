@@ -91,8 +91,19 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseComparisonOperator(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            ComparisonOperatorNode.ComparisonOperator op = t.type switch {
+                TokenType.typeEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonEqual,
+                TokenType.typeNotEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual,
+                TokenType.typeLess => ComparisonOperatorNode.ComparisonOperator.ComparisonLess,
+                TokenType.typeLessEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual,
+                TokenType.typeGreater => ComparisonOperatorNode.ComparisonOperator.ComparisonGreater,
+                TokenType.typeGreaterEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual,
+                TokenType.typeIn => ComparisonOperatorNode.ComparisonOperator.ComparisonIn,
+                _ => throw new Exception("Unexpected token " + t.type)
+            };
+
+            Node rhs = this.parseExpression(this.m_bps[t.type]);
+            return new ComparisonOperatorNode(op, lhs, rhs);
         }
 
         private Node parseBooleanOperator(Token t, Node lhs)
