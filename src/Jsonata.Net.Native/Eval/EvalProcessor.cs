@@ -107,16 +107,43 @@ namespace Jsonata.Net.Native.Eval
 				return evalComparisonOperator(comparisonOperatorNode, input, env);
 			case BooleanOperatorNode booleanOperatorNode:
 				return evalBooleanOperator(booleanOperatorNode, input, env);
-			/*
-			case StringConcatenationNode:
-				return evalStringConcatenation(node, input, env);
-			*/
+			case StringConcatenationNode stringConcatenationNode:
+				return evalStringConcatenation(stringConcatenationNode, input, env);
 			default:
 				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
 
-		private static JToken evalComparisonOperator(ComparisonOperatorNode comparisonOperatorNode, JToken input, Environment env)
+        private static JToken evalStringConcatenation(StringConcatenationNode stringConcatenationNode, JToken input, Environment env)
+        {
+            string lstr = stringify(Eval(stringConcatenationNode.lhs, input, env));
+			string rstr = stringify(Eval(stringConcatenationNode.rhs, input, env));
+			return lstr + rstr;
+		}
+
+        private static string stringify(JToken token)
+        {
+			switch (token.Type)
+            {
+			case JTokenType.Undefined:
+				return "";
+			case JTokenType.String:
+				return (string)token!;
+			case JTokenType.Array:
+                {
+					JArray array = (JArray)token;
+					if (array is Sequence sequence && !sequence.keepSingletons && sequence.Count == 1)
+                    {
+						return stringify(array.Children().First());
+                    }
+					return array.ToString(Newtonsoft.Json.Formatting.None);
+                }
+			default:
+				return token.ToString(Newtonsoft.Json.Formatting.None);
+			}
+        }
+
+        private static JToken evalComparisonOperator(ComparisonOperatorNode comparisonOperatorNode, JToken input, Environment env)
 		{
 			JToken lhs = Eval(comparisonOperatorNode.lhs, input, env);
 			JToken rhs = Eval(comparisonOperatorNode.rhs, input, env);

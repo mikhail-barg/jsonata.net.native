@@ -56,8 +56,10 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseStringConcatenation(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            return new StringConcatenationNode(
+                lhs: lhs,
+                rhs: this.parseExpression(this.m_bps[t.type])
+            );
         }
 
         private Node parseSort(Token t, Node lhs)

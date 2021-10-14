@@ -599,4 +599,27 @@ namespace Jsonata.Net.Native.Parsing
             return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
         }
     }
+
+    internal sealed record StringConcatenationNode(Node lhs, Node rhs) : Node
+    {
+        internal override Node optimize()
+        {
+            Node lhs = this.lhs.optimize();
+            Node rhs = this.rhs.optimize();
+
+            if (lhs != this.lhs || rhs != this.rhs)
+            {
+                return new StringConcatenationNode(lhs, rhs);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.lhs} & {this.rhs}";
+        }
+    }
 }
