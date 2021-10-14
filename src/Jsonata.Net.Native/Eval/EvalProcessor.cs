@@ -83,9 +83,9 @@ namespace Jsonata.Net.Native.Eval
 				return evalDescendent(descendentNode, input, env);
 			case GroupNode groupNode:
 				return evalGroup(groupNode, input, env);
+			case PredicateNode predicateNode:
+				return evalPredicate(predicateNode, input, env);
 			/*
-			case PredicateNode:
-				return evalPredicate(node, input, env);
 			case SortNode:
 				return evalSort(node, input, env);
 			case LambdaNode:
@@ -113,6 +113,143 @@ namespace Jsonata.Net.Native.Eval
 				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalPredicate(PredicateNode predicateNode, JToken input, Environment env)
+        {
+			JToken itemsToken = Eval(predicateNode.expr, input, env);
+			if (itemsToken.Type == JTokenType.Undefined)
+            {
+				return EvalProcessor.UNDEFINED;
+            };
+
+			JArray itemsArray;
+			if (itemsToken.Type == JTokenType.Array)
+            {
+				itemsArray = (JArray)itemsToken;
+            }
+            else
+            {
+				itemsArray = new Sequence();
+				itemsArray.Add(itemsToken);
+            };
+
+			foreach (Node filter in predicateNode.filters)
+            {
+				itemsArray = evalFilter(filter, itemsArray, env);
+				if (itemsArray.Count == 0)
+                {
+					return EvalProcessor.UNDEFINED;
+                }
+            }
+
+			if (itemsArray is Sequence sequence)
+            {
+				return sequence.Simplify();
+            }
+			return itemsArray;
+        }
+
+        private static JArray evalFilter(Node filter, JArray itemsArray, Environment env)
+        {
+			if (filter is NumberNode numberNode)
+			{
+				int index = numberNode.GetIntValue();
+				JToken resultToken = GetArrayElementByIndex(itemsArray, index);
+				if (resultToken.Type == JTokenType.Array)
+				{
+					return (JArray)resultToken;
+				}
+				else
+				{
+					Sequence result = new Sequence();
+					result.Add(resultToken);
+					return result;
+				}
+			}
+			else
+			{
+				Sequence result = new Sequence();
+				for (int index = 0; index < itemsArray.Count; ++index)
+				{
+					JToken item = itemsArray[index];
+					JToken res = Eval(filter, item, env);
+					if (res.Type == JTokenType.Integer || res.Type == JTokenType.Float)
+					{
+						CheckAppendToken(result, item, index, res);
+					}
+					else if (IsArrayOfNumbers(res))
+					{
+						foreach (JToken subtoken in ((JArray)res).Children())
+						{
+							CheckAppendToken(result, item, index, subtoken);
+						}
+					}
+					else if (booleanize(res) ?? false)
+                    {
+						result.Add(item);
+                    }
+				}
+				return result;
+			}
+
+			int WrapArrayIndex(JArray array, int index)
+			{
+				if (index < 0)
+				{
+					index = array.Count + index;
+				};
+				return index;
+			}
+
+			JToken GetArrayElementByIndex(JArray array, int index)
+			{
+				index = WrapArrayIndex(array, index);
+				if (index < 0 || index >= array.Count)
+				{
+					return EvalProcessor.UNDEFINED;
+				}
+				else
+				{
+					return array[index];
+				}
+			}
+
+			void CheckAppendToken(Sequence result, JToken item, int itemIndex, JToken indexToken)
+            {
+				if (indexToken.Type == JTokenType.Integer)
+				{
+					int indexTokenValue = WrapArrayIndex(itemsArray, (int)(long)indexToken);
+					if (indexTokenValue == itemIndex)
+					{
+						result.Add(item);
+					}
+				}
+				else if (indexToken.Type == JTokenType.Float)
+				{
+					int indexTokenValue = WrapArrayIndex(itemsArray, (int)(double)indexToken);
+					if (indexTokenValue == itemIndex)
+					{
+						result.Add(item);
+					}
+				}
+			}
+
+			bool IsArrayOfNumbers(JToken token)
+            {
+				if (token.Type != JTokenType.Array)
+                {
+					return false;
+                }
+				foreach (JToken subtoken in ((JArray)token).Children())
+                {
+					if (subtoken.Type != JTokenType.Integer && subtoken.Type != JTokenType.Float)
+                    {
+						return false;
+                    }
+                }
+				return true;
+            }
+        }
 
         private static JToken evalStringConcatenation(StringConcatenationNode stringConcatenationNode, JToken input, Environment env)
         {
@@ -289,8 +426,8 @@ namespace Jsonata.Net.Native.Eval
 
         private static JToken evalBooleanOperator(BooleanOperatorNode booleanOperatorNode, JToken input, Environment env)
         {
-			bool lhs = boolean(Eval(booleanOperatorNode.lhs, input, env)) ?? false; //here undefined works as false? see boolize() in jsonata-js
-			bool rhs = boolean(Eval(booleanOperatorNode.rhs, input, env)) ?? false;
+			bool lhs = booleanize(Eval(booleanOperatorNode.lhs, input, env)) ?? false; //here undefined works as false? see boolize() in jsonata-js
+			bool rhs = booleanize(Eval(booleanOperatorNode.rhs, input, env)) ?? false;
 
 			bool result = booleanOperatorNode.op switch {
 				BooleanOperatorNode.BooleanOperator.BooleanAnd => lhs && rhs,
@@ -301,7 +438,7 @@ namespace Jsonata.Net.Native.Eval
 		}
 
 		//null for undefined
-		private static bool? boolean(JToken value)
+		private static bool? booleanize(JToken value)
         {
 			// cast arg to its effective boolean value
 			// boolean: unchanged
@@ -325,11 +462,11 @@ namespace Jsonata.Net.Native.Eval
                     }
 					else if (array.Count == 1)
                     {
-						return boolean(array.Children().First());
+						return booleanize(array.Children().First());
 					}
                     else
                     {
-						return array.Children().Any(c => boolean(c) == true);
+						return array.Children().Any(c => booleanize(c) == true);
                     }
                 };
 			case JTokenType.String:

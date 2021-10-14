@@ -22,7 +22,12 @@ namespace Jsonata.Net.Native.Parsing
         }
     }
 
-    internal sealed record NumberDoubleNode(double value) : Node
+    internal abstract record NumberNode : Node
+    {
+        public abstract int GetIntValue();
+    }
+
+    internal sealed record NumberDoubleNode(double value) : NumberNode
     {
         internal override Node optimize()
         {
@@ -32,10 +37,15 @@ namespace Jsonata.Net.Native.Parsing
         public override string ToString()
         {
             return this.value.ToString();
+        }
+
+        public override int GetIntValue()
+        {
+            return (int)this.value;
         }
     }
 
-    internal sealed record NumberIntNode(long value) : Node
+    internal sealed record NumberIntNode(long value) : NumberNode
     {
         internal override Node optimize()
         {
@@ -45,6 +55,11 @@ namespace Jsonata.Net.Native.Parsing
         public override string ToString()
         {
             return this.value.ToString();
+        }
+
+        public override int GetIntValue()
+        {
+            return (int)this.value;
         }
     }
 
