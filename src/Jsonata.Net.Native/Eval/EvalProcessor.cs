@@ -137,7 +137,7 @@ namespace Jsonata.Net.Native.Eval
 			case StringConcatenationNode stringConcatenationNode:
 				return evalStringConcatenation(stringConcatenationNode, input, env);
 			default:
-				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
+				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
 

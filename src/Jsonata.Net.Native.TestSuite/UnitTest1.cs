@@ -67,16 +67,25 @@ namespace Jsonata.Net.Native.TestSuite
                     JsonataQuery query = new JsonataQuery(caseInfo.expr!);
                     result = query.Eval(data, caseInfo.bindings);
                 }
-                catch (Exception evalEx)
+                catch (NotImplementedException niEx)
                 {
 #if IGNORE_FAILED
-                    Assert.Ignore($"Failed with exception: {evalEx.Message} ({evalEx.GetType().Name})");
+                    Assert.Ignore($"Failed with exception: {niEx.Message}\n({niEx.GetType().Name})\n{niEx.StackTrace}");
                     return;
 #else
                     throw;
 #endif
                 }
-                     
+                catch (Exception ex) //TODO: remove
+                {
+#if IGNORE_FAILED
+                    Assert.Ignore($"Failed with exception: {ex.Message}\n({ex.GetType().Name})\n{ex.StackTrace}");
+                    return;
+#else
+                    throw;
+#endif
+                }
+
                 Console.WriteLine($"Result: '{result.ToString(Formatting.None)}'");
                 /*
                 In addition, (exactly) one of the following fields is specified for each test case:
@@ -107,11 +116,11 @@ namespace Jsonata.Net.Native.TestSuite
                     Assert.Fail("Bad test case?");
                 }
             }
-            catch (Exception)
+            catch (JsonataException jsonataEx)
             {
                 if (caseInfo.code != null)
                 {
-                    //that's fine — exception expected;
+                    Assert.Equals(caseInfo.code, jsonataEx.Code);
                     Assert.Pass("Expected to throw error with code " + caseInfo.code);
                 }
                 else
