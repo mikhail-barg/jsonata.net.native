@@ -12,11 +12,20 @@ namespace Jsonata.Net.Native.Eval
 	{
 		internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
-
-		internal static JToken EvaluateJson(Node rootNode, JToken data)
+		internal static JToken EvaluateJson(Node rootNode, JToken data, JObject? bindings)
 		{
-			//TODO: prepare environment
-			Environment environment = new Environment();
+			Environment environment = new Environment(null);
+			//TODO: add default bindings
+			if (bindings != null)
+            {
+				foreach (JProperty property in bindings.Properties())
+                {
+					environment.Bind(property.Name, property.Value);
+                }
+            };
+			// put the input document into the environment as the root object
+			environment.Bind("$", data);
+
 			if (data.Type == JTokenType.Array)
             {
 				// if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
@@ -70,9 +79,9 @@ namespace Jsonata.Net.Native.Eval
 			/*
 			case RegexNode:
 				return evalRegex(node, input, env);
-			case VariableNode:
-				return evalVariable(node, input, env);
 			*/
+			case VariableNode variableNode:
+				return evalVariable(variableNode, input, env);
 			case NameNode nameNode:
 				return evalName(nameNode, input, env);
 			case PathNode pathNode:
@@ -130,6 +139,15 @@ namespace Jsonata.Net.Native.Eval
 			default:
 				throw new Exception($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
+		}
+
+        private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)
+        {
+			if (variableNode.name == "")
+			{
+				return input;
+			};
+			return env.lookup(variableNode.name);
 		}
 
         private static JToken evalPredicate(PredicateNode predicateNode, JToken input, Environment env)

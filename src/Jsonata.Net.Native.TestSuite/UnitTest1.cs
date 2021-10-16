@@ -65,7 +65,7 @@ namespace Jsonata.Net.Native.TestSuite
                 try
                 {
                     JsonataQuery query = new JsonataQuery(caseInfo.expr!);
-                    result = query.Eval(data);
+                    result = query.Eval(data, caseInfo.bindings);
                 }
                 catch (Exception evalEx)
                 {

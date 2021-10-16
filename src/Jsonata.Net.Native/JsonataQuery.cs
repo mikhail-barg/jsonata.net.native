@@ -34,9 +34,9 @@ namespace Jsonata.Net.Native
             return result.ToString(formatting: Newtonsoft.Json.Formatting.Indented);
         }
 
-        public JToken Eval(JToken data)
+        public JToken Eval(JToken data, JObject? bindings = null)
         {
-            return EvalProcessor.EvaluateJson(this.m_node, data);
+            return EvalProcessor.EvaluateJson(this.m_node, data, bindings);
         }
     }
 }

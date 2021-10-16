@@ -21,7 +21,7 @@ namespace Jsonata.Net.Native.TestSuite
         public string? dataset { get; set; }
         public int? timelimit { get; set; }
         public int? depth { get; set; }
-        public Dictionary<string, object>? bindings { get; set; }
+        public JObject? bindings { get; set; }
 
         public JToken? result { get; set; }
         public bool? undefinedResult { get; set; }
