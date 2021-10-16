@@ -827,12 +827,21 @@ namespace Jsonata.Net.Native.Eval
 					foreach (JToken obj in array.Children())
 					{
 						JToken res = evalName(nameNode, obj, env);
-						if (res.Type != JTokenType.Undefined)
+						switch (res.Type)
 						{
+						case JTokenType.Undefined:
+							//ignore
+							break;
+						case JTokenType.Array:
+							result.AddRange(res.Children());
+							break;
+						default:
 							result.Add(res);
+							break;
 						}
 					}
-					return result.Simplify();
+					//return result.Simplify();r
+					return result;
 				}
 			default:
 				return EvalProcessor.UNDEFINED;
