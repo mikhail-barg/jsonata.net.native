@@ -774,13 +774,24 @@ namespace Jsonata.Net.Native.Eval
             }
 
 			Sequence result = new Sequence();
-			if (input is JObject obj)
-            {
+			switch (input.Type)
+			{
+			case JTokenType.Object:
+				JObject obj = (JObject)input;
 				foreach (JToken value in obj.PropertyValues())
-                {
+				{
 					result.AddRange(flattenArray(value));
-                }
-            }
+				}
+				break;
+			case JTokenType.Array:
+				foreach (JToken value in input.Children())
+				{
+					result.AddRange(flattenArray(value));
+				}
+				break;
+			default:
+				break;
+			}
 			return result;
         }
 
