@@ -62,7 +62,7 @@ namespace Jsonata.Net.Native.Parsing
 
 		private static bool isWhitespace(char c)
         {
-			return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == 'v');
+			return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
 		}
 
 		public Lexer(string queryText)
