@@ -707,7 +707,13 @@ namespace Jsonata.Net.Native.Eval
 				case JTokenType.Undefined:
 					break;
 				case JTokenType.Array:
-					if (res is Sequence sequence && !sequence.keepSingletons)
+					if (node is ArrayNode)
+                    {
+						result.Add(res);
+					}
+					else if (res.Type == JTokenType.Array
+						&& (!(res is Sequence sequence) || !sequence.keepSingletons)
+					)
 					{
 						result.AddRange(res.Children());
 					}
@@ -923,55 +929,25 @@ namespace Jsonata.Net.Native.Eval
 			};
 
 			// flatten the sequence
-			/*
+			//see also http://docs.jsonata.org/processing#sequences
 			Sequence resultSequence = new Sequence();
 			bool isArrayConstructor = step is ArrayNode;
 			foreach (JToken resultToken in result)
 			{
-				//TODO: check http://docs.jsonata.org/processing#sequences
-				if (isArrayConstructor)
+				if (resultToken.Type != JTokenType.Array   // <=  !Array.isArray(res)
+					|| isArrayConstructor				   // <=  res.cons
+				)
 				{
-					resultSequence.Add(resultToken);
-				}
-				else if (resultToken is JArray jarray)
-				{
-					resultSequence.AddRange(jarray.Children());
-				}
-				else
-				{
-					resultSequence.Add(resultToken);
-				}
-			}
-			*/
-
-			// flatten the sequence
-			Sequence resultSequence = new Sequence();
-			foreach (JToken resultToken in result)
-			{
-				if (resultToken.Type != JTokenType.Array)
-                {
 					// it's not an array - just push into the result sequence
 					resultSequence.Add(resultToken);
 				}
 				else
                 {
 					// res is a sequence - flatten it into the parent sequence
-					foreach (JToken val in resultToken.Children())
-                    {
-						resultSequence.Add(val);
-                    }
+					resultSequence.AddRange(resultToken.Children());
 				}
 			}
 
-			/*
-			//???
-			//return resultSequence.GetValue();
-			/// or maybe
-			if (resultSequence.Count == 0)
-            {
-				return EvalProcessor.UNDEFINED;
-            }
-			*/
 			return resultSequence;
 		}
 

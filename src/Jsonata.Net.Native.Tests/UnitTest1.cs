@@ -13,7 +13,7 @@ namespace Jsonata.Net.Native.Tests
             string resultStr = jsonata.Eval(data);
             JToken resultJson = JToken.Parse(resultStr);
             JToken expectedResultJson = JToken.Parse(expectedResult);
-            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultStr}");
+            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToString(Formatting.None)}");
         }
 
         [TestMethod] public void TestSimple_1()
@@ -101,6 +101,26 @@ namespace Jsonata.Net.Native.Tests
                     'nest3': [ 1 ]
                 }",
                 "[1]"
+            );
+        }
+
+        [TestMethod]
+        public void TestFlatten_4()
+        {
+            Check(
+                "[[1]]",
+                @"{}",
+                "[[1]]"
+            );
+        }
+
+        [TestMethod]
+        public void TestFlatten_5()
+        {
+            Check(
+                "[[1],[2]]",
+                @"{}",
+                "[[1],[2]]"
             );
         }
     }
