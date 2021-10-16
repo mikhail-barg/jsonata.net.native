@@ -698,7 +698,7 @@ namespace Jsonata.Net.Native.Eval
 
 		private static JToken evalArray(ArrayNode arrayNode, JToken input, Environment env)
         {
-			JArray result = new JArray();
+			JArray result = new ExplicitArray();
 			foreach (Node node in arrayNode.items)
             {
 				JToken res = Eval(node, input, env);
@@ -910,20 +910,25 @@ namespace Jsonata.Net.Native.Eval
 
 			if (node.keepArrays)
             {
-				if (array is Sequence resultSequence)
+				if (array is Sequence arraySequence)
 				{
-
+					arraySequence.keepSingletons = true;
+				}
+				else if (array is ExplicitArray)
+				{
+					// if the array is explicitly constructed in the expression and marked to promote singleton sequences to array
+					Sequence resultSequence = new Sequence() {
+						keepSingletons = true
+					};
+					resultSequence.Add(array);
+					array = resultSequence;
 				}
 				else
 				{
-					// if the array is explicitly constructed in the expression and marked to promote singleton sequences to array
-					resultSequence = new Sequence();
-					resultSequence.Add(array);
+					//this case is not explicitly defined in jsonata-js, because only sequences are expected to have keepSingletons, but still..
+					//maybe we'll need to convert current array to sequence to set keepSingletons
 				}
-				resultSequence.keepSingletons = true;
-				array = resultSequence;
 			}
-
 			return array;
 		}
 

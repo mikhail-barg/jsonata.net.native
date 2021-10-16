@@ -33,22 +33,4 @@ namespace Jsonata.Net.Native.Eval
             }
         }
     }
-
-    /*
-    internal sealed class SequenceConverter : Newtonsoft.Json.JsonConverter<Sequence>
-    {
-        public override void WriteJson(JsonWriter writer, Sequence? value, JsonSerializer serializer)
-        {
-            serializer.Serialize(writer, value!.values);
-        }
-
-        public override Sequence ReadJson(JsonReader reader, Type objectType, Sequence? existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-            //string s = (string)reader.Value;
-            //return new Version(s);
-        }
-    }
-    */
-
 }
