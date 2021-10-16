@@ -160,6 +160,15 @@ namespace Jsonata.Net.Native.Parsing
 					this.backup();
 					break;
 				}
+
+				if (chOrNull.Value == '@' || chOrNull.Value == '#')
+				{
+					//see https://github.com/jsonata-js/jsonata/pull/371
+					//#### 1.7.0 Milestone Release
+					// -New syntax(`@` operator) to support cross - referencing and complex data joins(issue #333)
+					// -New syntax(`#` operator) to get current context position in sequence (issue #187)
+					throw new NotImplementedException("Not supported yet: " + chOrNull.Value);
+				}
 			}
 
 			Token result;
