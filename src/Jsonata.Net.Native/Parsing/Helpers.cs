@@ -32,7 +32,7 @@ namespace Jsonata.Net.Native.Parsing
             return textWriter;
         }
 
-        public static string JoinNodes(List<Node> nodes, string separator) 
+        public static string JoinNodes(this List<Node> nodes, string separator) 
         {
             return String.Join(separator, nodes.Select(n => n.ToString()));
         }

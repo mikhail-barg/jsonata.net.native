@@ -637,4 +637,51 @@ namespace Jsonata.Net.Native.Parsing
             return $"{this.lhs} & {this.rhs}";
         }
     }
+
+    // A FunctionCallNode represents a call to a function.
+    internal sealed record FunctionCallNode(Node func, List<Node> args) : Node
+    {
+        internal override Node optimize()
+        {
+            Node func = this.func.optimize();
+            List<Node> args = this.args.Select(a => a.optimize()).ToList();
+            return new FunctionCallNode(func, args);
+        }
+
+        public override string ToString()
+        {
+            return $"{this.func}({this.args.JoinNodes(", ")})";
+        }
+    }
+
+    // A PartialNode represents a partially applied function.
+    internal sealed record PartialNode(Node func, List<Node> args) : Node
+    {
+        internal override Node optimize()
+        {
+            Node func = this.func.optimize();
+            List<Node> args = this.args.Select(a => a.optimize()).ToList();
+            return new PartialNode(func, args);
+        }
+
+        public override string ToString()
+        {
+            return $"{this.func}({this.args.JoinNodes(", ")})";
+        }
+    }
+
+    // A PlaceholderNode represents a placeholder argument
+    // in a partially applied function.
+    internal sealed record PlaceholderNode() : Node
+    {
+        internal override Node optimize()
+        {
+            return this;
+        }
+
+        public override string ToString()
+        {
+            return "?";
+        }
+    }
 }

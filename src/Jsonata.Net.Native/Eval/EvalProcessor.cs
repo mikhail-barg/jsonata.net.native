@@ -3,6 +3,8 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,7 +16,7 @@ namespace Jsonata.Net.Native.Eval
 
 		internal static JToken EvaluateJson(Node rootNode, JToken data, JObject? bindings)
 		{
-			Environment environment = new Environment(null);
+			Environment environment = new Environment(Environment.DefaultEnvironment);
 			//TODO: add default bindings
 			if (bindings != null)
             {
@@ -123,8 +125,10 @@ namespace Jsonata.Net.Native.Eval
 				return evalObjectTransformation(node, input, env);
 			case PartialNode:
 				return evalPartial(node, input, env);
-			case FunctionCallNode:
-				return evalFunctionCall(node, input, env);
+			*/
+			case FunctionCallNode functionCallNode:
+				return evalFunctionCall(functionCallNode, input, env);
+			/*
 			case FunctionApplicationNode:
 				return evalFunctionApplication(node, input, env);
 			*/
@@ -140,6 +144,93 @@ namespace Jsonata.Net.Native.Eval
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env)
+        {
+			JToken func = Eval(functionCallNode.func, input, env);
+			if (func is not FunctionToken function)
+            {
+				throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}'");
+            }
+
+			List<JToken> args = new List<JToken>(functionCallNode.args.Count);
+			foreach (Node argNode in functionCallNode.args)
+            {
+				JToken argValue = Eval(argNode, input, env);
+				args.Add(argValue);
+            }
+
+			JToken result = CallFunction(function.functionName, function.methodInfo, args);
+			return result;
+        }
+
+        private static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args)
+        {
+			ParameterInfo[] parameterList = methodInfo.GetParameters();
+			if (args.Count != parameterList.Length)
+            {
+				throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
+            }
+			if (parameterList.Length == 1 
+				&& parameterList[0].ParameterType == typeof(JArray)
+				&& (args.Count != 1 || !typeof(JArray).IsAssignableFrom(args[0].GetType()))
+			)
+            {
+				//convert args to array
+				JArray array = new JArray();
+				array.AddRange(args);
+				args = new List<JToken>() { array };
+            }
+			object[] parameters = new object[parameterList.Length];
+			for (int i = 0; i < parameterList.Length; ++i)
+            {
+				parameters[i] = ConvertFunctionArg(functionName, i, args[i], parameterList[i]);
+            }
+			object? resultObj;
+			try
+			{
+				resultObj = methodInfo.Invoke(null, parameters);
+			}
+			catch (TargetInvocationException ti)
+            {
+				if (ti.InnerException is JsonataException)
+                {
+					ExceptionDispatchInfo.Capture(ti.InnerException).Throw();
+				}
+				else
+                {
+					throw new Exception($"Error evaluating function '{functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
+                }
+				throw;
+            }
+			JToken result = ConvertFunctionResult(functionName, resultObj);
+			return result;
+        }
+
+        private static JToken ConvertFunctionResult(string functionName, object? resultObj)
+        {
+			if (resultObj is JToken token)
+			{
+				return token;
+			}
+			else if (resultObj == null)
+			{
+				return JValue.CreateNull();
+			}
+			else
+			{
+				return JToken.FromObject(resultObj);
+			}
+        }
+
+        private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo)
+        {
+			if (parameterInfo.ParameterType.IsAssignableFrom(argToken.GetType()))
+            {
+				return argToken;
+            }
+            throw new Exception("Todo!");
+        }
 
         private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)
         {

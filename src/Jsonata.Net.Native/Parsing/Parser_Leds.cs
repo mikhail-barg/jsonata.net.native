@@ -10,8 +10,65 @@ namespace Jsonata.Net.Native.Parsing
     {
         private Node parseFunctionCall(Token t, Node lhs)
         {
-            //todo: implement
+            (bool isLambda, bool isShorthand) = isLambdaName(lhs);
+            if (isLambda)
+            {
+                return this.ParseLambdaDefinition(isShorthand);
+            };
+
+            const TokenType placeholderTokenType = TokenType.typeCondition;
+
+            bool isPartial = false;
+            List<Node> args = new List<Node>();
+            while (this.token.type != TokenType.typeParenClose) //TODO: disallow trailing commas
+            {
+                Node arg;
+                if (this.token.type == placeholderTokenType)
+                {
+                    isPartial = true;
+                    arg = new PlaceholderNode();
+                    this.consume(placeholderTokenType, true);
+                }
+                else
+                {
+                    arg = this.parseExpression(0);
+                };
+                args.Add(arg);
+                if (this.token.type != TokenType.typeComma)
+                {
+                    break;
+                }
+                this.consume(TokenType.typeComma, true);
+            }
+            this.consume(TokenType.typeParenClose, false);
+            if (isPartial)
+            {
+                return new PartialNode(lhs, args);
+            }
+            else
+            {
+                return new FunctionCallNode(lhs, args);
+            }
+        }
+
+        private Node ParseLambdaDefinition(bool isShorthand)
+        {
             throw new NotImplementedException();
+        }
+
+        private static (bool isLambda, bool isShorthand) isLambdaName(Node node)
+        {
+            if (node is NameNode nameNode)
+            {
+                switch (nameNode.value)
+                {
+                case "function":
+                    return (true, false);
+                case "λ":
+                    return (true, true);
+                }
+            }
+            return (false, false);
         }
 
         private Node parsePredicate(Token t, Node lhs)
