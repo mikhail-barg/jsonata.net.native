@@ -217,19 +217,68 @@ namespace Jsonata.Net.Native.Eval
 			{
 				return JValue.CreateNull();
 			}
+			else if (resultObj is double resultDouble)
+            {
+				return ReturnDoubleResult(resultDouble);
+			}
+			else if (resultObj is float resultFloat)
+			{
+				return ReturnDoubleResult(resultFloat);
+			}
+			else if (resultObj is int resultInt)
+			{
+				return new JValue(resultInt);
+			}
+			else if (resultObj is long resultLong)
+			{
+				return new JValue(resultLong);
+			}
+			else if (resultObj is string resultString)
+			{
+				return new JValue(resultString);
+			}
 			else
 			{
 				return JToken.FromObject(resultObj);
 			}
         }
 
+		private static JToken ReturnDoubleResult(double resultDouble)
+        {
+			if (Double.IsNaN(resultDouble) || Double.IsInfinity(resultDouble))
+			{
+				throw new JsonataException("D3030", "Jsonata does not support NaNs or Infinity values");
+			};
+
+			long resultLong = (long)resultDouble;
+			if (resultLong == resultDouble)
+            {
+				return new JValue(resultLong);
+			}
+			else
+			{
+				return new JValue(resultDouble);
+			}
+		}
+
         private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo)
         {
+			//TODO: add support for broadcasting Undefined
 			if (parameterInfo.ParameterType.IsAssignableFrom(argToken.GetType()))
             {
 				return argToken;
             }
-            throw new Exception("Todo!");
+			else if (parameterInfo.ParameterType == typeof(double))
+            {
+				switch (argToken.Type)
+                {
+				case JTokenType.Integer:
+					return (double)(long)argToken;
+				case JTokenType.Float:
+					return (double)argToken;
+				}
+            }
+			throw new JsonataException("T0410", $"Argument {parameterIndex} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");
         }
 
         private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)
