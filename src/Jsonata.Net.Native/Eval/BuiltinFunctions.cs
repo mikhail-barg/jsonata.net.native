@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,69 @@ namespace Jsonata.Net.Native.Eval
 {
     internal static class BuiltinFunctions
     {
+        #region Numeric functions
+        /**
+         Signature: $number(arg)
+         Casts the arg parameter to a number using the following casting rules
+         */
+        //TODO: * If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg.
+        //["1", "2", "3", "4", "5"].$number() => [1, 2, 3, 4, 5]
+        public static JToken number(JToken arg)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Undefined:
+                // undefined inputs always return undefined
+                return arg;
+            case JTokenType.Integer:
+                //Numbers are unchanged
+                return arg;
+            case JTokenType.Float:
+                //Numbers are unchanged
+                return arg;
+            case JTokenType.String:
+                //Strings that contain a sequence of characters that represent a legal JSON number are converted to that number
+                {
+                    string str = (string)arg!;
+                    if (Int64.TryParse(str, out long longValue))
+                    {
+                        return new JValue(longValue);
+                    }
+                    else if (Double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleValue))
+                    {
+                        if (!Double.IsNaN(doubleValue) && !Double.IsInfinity(doubleValue))
+                        {
+                            long doubleAsLongValue = (long)doubleValue;
+                            if (doubleAsLongValue == doubleValue)
+                            {
+                                //support for 1e5 cases
+                                return new JValue(doubleAsLongValue);
+                            }
+                            else
+                            {
+                                return new JValue(doubleValue);
+                            }
+                        }
+                        else
+                        {
+                            throw new JsonataException("D3030", "Jsonata doe not support NaNs or Infinity values");
+                        }
+                    }
+                    else
+                    {
+                        throw new JsonataException("D3030", $"Failed to parse string to number: '{str}'");
+                    }
+                };
+            case JTokenType.Boolean:
+                //
+                return new JValue((bool)arg ? 1 : 0);
+            default:
+                //All other values cause an error to be thrown.
+                throw new JsonataException("D3030", $"Unable to cast value to a number. Value type is {arg.Type}");
+            }
+        }
+        #endregion
+
         #region Numeric aggregation functions
         /**
          Signature: $sum(array)
