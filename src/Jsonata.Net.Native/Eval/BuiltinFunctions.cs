@@ -71,6 +71,74 @@ namespace Jsonata.Net.Native.Eval
                 throw new JsonataException("D3030", $"Unable to cast value to a number. Value type is {arg.Type}");
             }
         }
+
+
+        /**
+         Signature: $abs(number)
+         Returns the absolute value of the number parameter, i.e. if the number is negative, it returns the positive value.
+        
+         TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
+         */
+
+        public static JToken abs(JToken number)
+        {
+            switch (number.Type)
+            {
+            case JTokenType.Undefined:
+                // undefined inputs always return undefined
+                return number;
+            case JTokenType.Integer:
+                return new JValue(Math.Abs((long)number));
+            case JTokenType.Float:
+                return new JValue(Math.Abs((double)number));
+            default:
+                throw new JsonataException("T0410", $"Argument of function {nameof(abs)} must be a number. Got {number.Type}");
+            }
+        }
+
+        /**
+         Signature: $floor(number)
+         Returns the value of number rounded down to the nearest integer that is smaller or equal to number.
+         
+         TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
+         */
+        public static JToken floor(JToken number)
+        {
+            switch (number.Type)
+            {
+            case JTokenType.Undefined:
+                // undefined inputs always return undefined
+                return number;
+            case JTokenType.Integer:
+                return number;
+            case JTokenType.Float:
+                return new JValue((long)Math.Floor((double)number));
+            default:
+                throw new JsonataException("T0410", $"Argument of function {nameof(floor)} must be a number. Got {number.Type}");
+            }
+        }
+
+        /**
+         Signature: $ceil(number)
+         Returns the value of number rounded up to the nearest integer that is greater than or equal to number
+         
+         TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
+         */
+        public static JToken ceil(JToken number)
+        {
+            switch (number.Type)
+            {
+            case JTokenType.Undefined:
+                // undefined inputs always return undefined
+                return number;
+            case JTokenType.Integer:
+                return number;
+            case JTokenType.Float:
+                return new JValue((long)Math.Ceiling((double)number));
+            default:
+                throw new JsonataException("T0410", $"Argument of function {nameof(ceil)} must be a number. Got {number.Type}");
+            }
+        }
         #endregion
 
         #region Numeric aggregation functions
