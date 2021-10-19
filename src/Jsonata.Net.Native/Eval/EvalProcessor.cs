@@ -181,11 +181,17 @@ namespace Jsonata.Net.Native.Eval
 				array.AddRange(args);
 				args = new List<JToken>() { array };
             }
+
 			object[] parameters = new object[parameterList.Length];
 			for (int i = 0; i < parameterList.Length; ++i)
             {
-				parameters[i] = ConvertFunctionArg(functionName, i, args[i], parameterList[i]);
-            }
+				parameters[i] = ConvertFunctionArg(functionName, i, args[i], parameterList[i], out bool returnUndefined);
+				if (returnUndefined)
+                {
+					return EvalProcessor.UNDEFINED;
+                }
+            };
+
 			object? resultObj;
 			try
 			{
@@ -261,8 +267,20 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo)
+        private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
         {
+			if (argToken.Type == JTokenType.Undefined 
+				&& parameterInfo.GetCustomAttribute<PropagateUndefinedAttribute>() != null
+			)
+            {
+				returnUndefined = true;
+				return EvalProcessor.UNDEFINED;
+            }
+			else
+            {
+				returnUndefined = false;
+            };
+
 			//TODO: add support for broadcasting Undefined
 			if (parameterInfo.ParameterType.IsAssignableFrom(argToken.GetType()))
             {

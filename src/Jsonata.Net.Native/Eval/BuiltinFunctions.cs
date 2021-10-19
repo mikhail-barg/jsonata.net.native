@@ -80,7 +80,7 @@ namespace Jsonata.Net.Native.Eval
          TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
 
-        public static double abs(double number)
+        public static double abs([PropagateUndefined] double number)
         {
             return Math.Abs(number);
         }
@@ -91,7 +91,7 @@ namespace Jsonata.Net.Native.Eval
          
          TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
-        public static long floor(double number)
+        public static long floor([PropagateUndefined] double number)
         {
             return (long)Math.Floor(number);
         }
@@ -102,7 +102,7 @@ namespace Jsonata.Net.Native.Eval
          
          TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
-        public static long ceil(double number)
+        public static long ceil([PropagateUndefined] double number)
         {
             return (long)Math.Ceiling(number);
         }
@@ -114,7 +114,7 @@ namespace Jsonata.Net.Native.Eval
          TODO: If base is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of base.
          An error is thrown if the values of base and exponent lead to a value that cannot be represented as a JSON number (e.g. Infinity, complex numbers).
          */
-        public static double power(double @base, double exponent)
+        public static double power([PropagateUndefined] double @base, double exponent)
         {
             return Math.Pow(@base, exponent);
         }
