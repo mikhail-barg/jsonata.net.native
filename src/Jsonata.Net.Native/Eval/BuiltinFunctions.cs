@@ -218,10 +218,22 @@ namespace Jsonata.Net.Native.Eval
          */
         public static string formatInteger([PropagateUndefined] long number, string picture)
         {
-            //TODO: try implementing or using proper XPath fn:format-number
+            //TODO: try implementing or using proper XPath fn:format-integer
             //picture = Regex.Replace(picture, @"[1-9]", "0");
             //picture = Regex.Replace(picture, @",", @"\,");
             return number.ToString(picture, CultureInfo.InvariantCulture);
+        }
+
+        /**
+         Signature: $parseInteger(string, picture)
+         Parses the contents of the string parameter to an integer (as a JSON number) using the format specified by the picture string. 
+         The picture string parameter has the same format as $formatInteger. 
+         Although the XPath specification does not have an equivalent function for parsing integers, this capability has been added to JSONata.
+         */
+        public static long parseInteger([PropagateUndefined] string str, [OptionalArgument(null)] string? picture)
+        {
+            //TODO: try implementing properly
+            return Int64.Parse(str);
         }
         #endregion
 
