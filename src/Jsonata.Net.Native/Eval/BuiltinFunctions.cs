@@ -133,16 +133,35 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-
         /**
          Signature: $power(base, exponent)
          Returns the value of base raised to the power of exponent (base ^ exponent).
          TODO: If base is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of base.
          An error is thrown if the values of base and exponent lead to a value that cannot be represented as a JSON number (e.g. Infinity, complex numbers).
          */
-                public static double power([PropagateUndefined] double @base, double exponent)
+        public static double power([PropagateUndefined] double @base, double exponent)
         {
             return Math.Pow(@base, exponent);
+        }
+
+        /**
+        Signature: $sqrt(number)
+        Returns the square root of the value of the number parameter.
+        TODO: If number is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of number.
+        An error is thrown if the value of number is negative.         
+        */
+        public static double sqrt([PropagateUndefined] double number)
+        {
+            return Math.Sqrt(number);
+        }
+
+        /**
+        Signature: $random()
+        Returns a pseudo random number greater than or equal to zero and less than one (0 ≤ n < 1)
+        */
+        public static double random([EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        {
+            return evalEnv.Random.NextDouble();
         }
         #endregion
 

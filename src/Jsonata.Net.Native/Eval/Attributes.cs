@@ -25,4 +25,10 @@ namespace Jsonata.Net.Native.Eval
             this.DefaultValue = defaultValue;
         }
     }
+
+    //provides support for builtin functions that require EvaluationEnvironment
+    [AttributeUsage(AttributeTargets.Parameter)]
+    internal sealed class EvalEnvironmentArgumentAttribute : Attribute
+    {
+    }
 }

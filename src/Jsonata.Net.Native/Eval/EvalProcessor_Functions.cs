@@ -11,7 +11,7 @@ namespace Jsonata.Net.Native.Eval
 {
     internal static class EvalProcessor_Functions
     {
-		internal static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args)
+		internal static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args, Environment env)
 		{
 			ParameterInfo[] parameterList = methodInfo.GetParameters();
 			if (parameterList.Length == 1
@@ -40,15 +40,24 @@ namespace Jsonata.Net.Native.Eval
 				if (i >= args.Count)
 				{
 					OptionalArgumentAttribute? optional = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>();
-					if (optional == null)
-					{
-						throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
-					}
-					else
+					if (optional != null)
 					{
 						//use default value
 						parameters[i] = optional.DefaultValue;
-					}
+						continue;
+					};
+					EvalEnvironmentArgumentAttribute? evalEnv = parameterInfo.GetCustomAttribute<EvalEnvironmentArgumentAttribute>();
+					if (evalEnv != null)
+                    {
+						if (parameterInfo.ParameterType != typeof(EvaluationEnvironment))
+                        {
+							throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(EvalEnvironmentArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationEnvironment)}");
+                        };
+						parameters[i] = env.GetEvaluationEnvironment();
+                    }
+
+
+					throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
 				}
 				else
 				{

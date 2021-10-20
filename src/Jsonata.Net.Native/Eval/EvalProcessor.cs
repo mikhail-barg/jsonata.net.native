@@ -14,7 +14,7 @@ namespace Jsonata.Net.Native.Eval
 
 		internal static JToken EvaluateJson(Node rootNode, JToken data, JObject? bindings)
 		{
-			Environment environment = new Environment(Environment.DefaultEnvironment);
+			Environment environment = Environment.CreateEvalEnvironment();
 			//TODO: add default bindings
 			if (bindings != null)
             {
@@ -158,7 +158,7 @@ namespace Jsonata.Net.Native.Eval
 				args.Add(argValue);
             }
 
-			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args);
+			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args, env);
 			return result;
         }
 
@@ -168,7 +168,7 @@ namespace Jsonata.Net.Native.Eval
 			{
 				return input;
 			};
-			return env.lookup(variableNode.name);
+			return env.Lookup(variableNode.name);
 		}
 
         private static JToken evalPredicate(PredicateNode predicateNode, JToken input, Environment env)
