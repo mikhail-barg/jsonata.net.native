@@ -3,8 +3,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -160,143 +158,8 @@ namespace Jsonata.Net.Native.Eval
 				args.Add(argValue);
             }
 
-			JToken result = CallFunction(function.functionName, function.methodInfo, args);
+			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args);
 			return result;
-        }
-
-        private static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args)
-        {
-			ParameterInfo[] parameterList = methodInfo.GetParameters();
-			if (args.Count != parameterList.Length)
-            {
-				throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
-            }
-			if (parameterList.Length == 1 
-				&& parameterList[0].ParameterType == typeof(JArray)
-				&& (args.Count != 1 || !typeof(JArray).IsAssignableFrom(args[0].GetType()))
-			)
-            {
-				//convert args to array
-				JArray array = new JArray();
-				array.AddRange(args);
-				args = new List<JToken>() { array };
-            }
-
-			object[] parameters = new object[parameterList.Length];
-			for (int i = 0; i < parameterList.Length; ++i)
-            {
-				parameters[i] = ConvertFunctionArg(functionName, i, args[i], parameterList[i], out bool returnUndefined);
-				if (returnUndefined)
-                {
-					return EvalProcessor.UNDEFINED;
-                }
-            };
-
-			object? resultObj;
-			try
-			{
-				resultObj = methodInfo.Invoke(null, parameters);
-			}
-			catch (TargetInvocationException ti)
-            {
-				if (ti.InnerException is JsonataException)
-                {
-					ExceptionDispatchInfo.Capture(ti.InnerException).Throw();
-				}
-				else
-                {
-					throw new Exception($"Error evaluating function '{functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
-                }
-				throw;
-            }
-			JToken result = ConvertFunctionResult(functionName, resultObj);
-			return result;
-        }
-
-        private static JToken ConvertFunctionResult(string functionName, object? resultObj)
-        {
-			if (resultObj is JToken token)
-			{
-				return token;
-			}
-			else if (resultObj == null)
-			{
-				return JValue.CreateNull();
-			}
-			else if (resultObj is double resultDouble)
-            {
-				return ReturnDoubleResult(resultDouble);
-			}
-			else if (resultObj is float resultFloat)
-			{
-				return ReturnDoubleResult(resultFloat);
-			}
-			else if (resultObj is int resultInt)
-			{
-				return new JValue(resultInt);
-			}
-			else if (resultObj is long resultLong)
-			{
-				return new JValue(resultLong);
-			}
-			else if (resultObj is string resultString)
-			{
-				return new JValue(resultString);
-			}
-			else
-			{
-				return JToken.FromObject(resultObj);
-			}
-        }
-
-		private static JToken ReturnDoubleResult(double resultDouble)
-        {
-			if (Double.IsNaN(resultDouble) || Double.IsInfinity(resultDouble))
-			{
-				throw new JsonataException("D3030", "Jsonata does not support NaNs or Infinity values");
-			};
-
-			long resultLong = (long)resultDouble;
-			if (resultLong == resultDouble)
-            {
-				return new JValue(resultLong);
-			}
-			else
-			{
-				return new JValue(resultDouble);
-			}
-		}
-
-        private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
-        {
-			if (argToken.Type == JTokenType.Undefined 
-				&& parameterInfo.GetCustomAttribute<PropagateUndefinedAttribute>() != null
-			)
-            {
-				returnUndefined = true;
-				return EvalProcessor.UNDEFINED;
-            }
-			else
-            {
-				returnUndefined = false;
-            };
-
-			//TODO: add support for broadcasting Undefined
-			if (parameterInfo.ParameterType.IsAssignableFrom(argToken.GetType()))
-            {
-				return argToken;
-            }
-			else if (parameterInfo.ParameterType == typeof(double))
-            {
-				switch (argToken.Type)
-                {
-				case JTokenType.Integer:
-					return (double)(long)argToken;
-				case JTokenType.Float:
-					return (double)argToken;
-				}
-            }
-			throw new JsonataException("T0410", $"Argument {parameterIndex} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");
         }
 
         private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)

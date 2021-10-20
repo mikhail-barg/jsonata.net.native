@@ -107,6 +107,32 @@ namespace Jsonata.Net.Native.Eval
             return (long)Math.Ceiling(number);
         }
 
+        /**
+         Signature: $round(number [, precision])
+
+         Returns the value of the number parameter rounded to the number of decimal places specified by the optional precision parameter.
+
+         The precision parameter (which must be an integer) species the number of decimal places to be present in the rounded number. If precision is not specified then it defaults to the value 0 and the number is rounded to the nearest integer. If precision is negative, then its value specifies which column to round to on the left side of the decimal place
+
+         This function uses the Round half to even strategy to decide which way to round numbers that fall exactly between two candidates at the specified precision. This strategy is commonly used in financial calculations and is the default rounding mode in IEEE 754.         
+         */
+        public static decimal round([PropagateUndefined] decimal number, [OptionalArgument(0)] int precision)
+        {
+            //This function uses decimal because Math.Round for double in C# does not exactly follow the expectations because of binary arithmetics issues
+            if (precision >= 0)
+            {
+                return Math.Round(number, precision, MidpointRounding.ToEven);
+            }
+            else
+            {
+                precision = -precision;
+                int power = (int)Math.Pow(10, precision);
+                number = Math.Round(number / power, 0, MidpointRounding.ToEven);
+                number *= power;
+                return number;
+            }
+        }
+
 
         /**
          Signature: $power(base, exponent)
@@ -114,7 +140,7 @@ namespace Jsonata.Net.Native.Eval
          TODO: If base is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of base.
          An error is thrown if the values of base and exponent lead to a value that cannot be represented as a JSON number (e.g. Infinity, complex numbers).
          */
-        public static double power([PropagateUndefined] double @base, double exponent)
+                public static double power([PropagateUndefined] double @base, double exponent)
         {
             return Math.Pow(@base, exponent);
         }

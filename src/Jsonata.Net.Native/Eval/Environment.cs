@@ -17,9 +17,10 @@ namespace Jsonata.Net.Native.Eval
             Environment.DefaultEnvironment = new Environment(null);
             foreach (MethodInfo mi in typeof(BuiltinFunctions).GetMethods(BindingFlags.Public | BindingFlags.Static))
             {
-                Environment.DefaultEnvironment.Bind(mi.Name, new FunctionToken(mi.Name, mi));
+                Environment.DefaultEnvironment.BindFunction(mi);
             }
         }
+
 
         private readonly Dictionary<string, JToken> m_bindings = new Dictionary<string, JToken>();
         private readonly Environment? m_parent;
@@ -32,6 +33,11 @@ namespace Jsonata.Net.Native.Eval
         internal void Bind(string name, JToken value)
         {
             this.m_bindings.Add(name, value);
+        }
+
+        internal void BindFunction(MethodInfo mi)
+        {
+            this.Bind(mi.Name, new FunctionToken(mi.Name, mi));
         }
 
         internal JToken lookup(string name)
