@@ -18,9 +18,9 @@ namespace Jsonata.Net.Native.Eval
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class OptionalArgumentAttribute : Attribute
     {
-        public readonly object DefaultValue;
+        public readonly object? DefaultValue;
 
-        public OptionalArgumentAttribute(object defaultValue)
+        public OptionalArgumentAttribute(object? defaultValue)
         {
             this.DefaultValue = defaultValue;
         }

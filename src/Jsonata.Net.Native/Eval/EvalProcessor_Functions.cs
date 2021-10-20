@@ -33,7 +33,7 @@ namespace Jsonata.Net.Native.Eval
 			};
 
 			//parepare parameters
-			object[] parameters = new object[parameterList.Length];
+			object?[] parameters = new object[parameterList.Length];
 			for (int i = 0; i < parameterList.Length; ++i)
 			{
 				ParameterInfo parameterInfo = parameterList[i];
@@ -54,9 +54,7 @@ namespace Jsonata.Net.Native.Eval
 							throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(EvalEnvironmentArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationEnvironment)}");
                         };
 						parameters[i] = env.GetEvaluationEnvironment();
-                    }
-
-
+                    };
 					throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
 				}
 				else
@@ -224,6 +222,14 @@ namespace Jsonata.Net.Native.Eval
 					return (decimal)(long)argToken;
 				case JTokenType.Float:
 					return (decimal)(double)argToken;
+				}
+			}
+			else if (parameterInfo.ParameterType == typeof(string))
+            {
+				switch (argToken.Type)
+				{
+				case JTokenType.String:
+					return (string)argToken!;
 				}
 			}
 			throw new JsonataException("T0410", $"Argument {parameterIndex} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
@@ -162,6 +163,65 @@ namespace Jsonata.Net.Native.Eval
         public static double random([EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
         {
             return evalEnv.Random.NextDouble();
+        }
+
+
+        /**
+        Signature: $formatNumber(number, picture [, options])
+        Casts the number to a string and formats it to a decimal representation as specified by the picture string.
+        The behaviour of this function is consistent with the XPath/XQuery function fn:format-number as defined in the XPath F&O 3.1 specification. 
+        The picture string parameter defines how the number is formatted and has the same syntax as fn:format-number.
+        The optional third argument options is used to override the default locale specific formatting characters such as the decimal separator. If supplied, this argument must be an object containing name/value pairs specified in the decimal format section of the XPath F&O 3.1 specification.         
+         */
+        public static string formatNumber([PropagateUndefined] double number, string picture, [OptionalArgument(null)] JObject? options)
+        {
+            //TODO: try implementing or using proper XPath fn:format-number
+            picture = Regex.Replace(picture, @"[1-9]", "0");
+            picture = Regex.Replace(picture, @",", @"\,");
+            return number.ToString(picture, CultureInfo.InvariantCulture);
+        }
+
+        /**
+        Signature: $formatBase(number [, radix])
+        Casts the number to a string and formats it to an integer represented in the number base specified by the radix argument.
+        If radix is not specified, then it defaults to base 10. radix can be between 2 and 36, otherwise an error is thrown.         
+        */
+        public static string formatBase([PropagateUndefined] long number, [OptionalArgument(10)] int radix)
+        {
+            if (radix < 2 || radix > 36)
+            {
+                throw new JsonataException("D3100", $"The radix of the {nameof(formatBase)} function must be between 2 and 36. It was given {radix}");
+            };
+
+            //TODO: implement properly
+            if (number < 0)
+            {
+                return "-" + formatBase(-number, radix);
+            };
+            switch (radix)
+            {
+            case 2:
+            case 8:
+            case 10:
+            case 16:
+                return Convert.ToString(number, radix);
+            default:
+                throw new NotImplementedException($"No support for radix={radix} in {nameof(formatBase)}() yet");
+            }
+        }
+
+        /**
+         Signature: $formatInteger(number, picture)
+         Casts the number to a string and formats it to an integer representation as specified by the picture string.
+         The behaviour of this function is consistent with the two-argument version of the XPath/XQuery function fn:format-integer as defined in the XPath F&O 3.1 specification. 
+         The picture string parameter defines how the number is formatted and has the same syntax as fn:format-integer.
+         */
+        public static string formatInteger([PropagateUndefined] long number, string picture)
+        {
+            //TODO: try implementing or using proper XPath fn:format-number
+            //picture = Regex.Replace(picture, @"[1-9]", "0");
+            //picture = Regex.Replace(picture, @",", @"\,");
+            return number.ToString(picture, CultureInfo.InvariantCulture);
         }
         #endregion
 
