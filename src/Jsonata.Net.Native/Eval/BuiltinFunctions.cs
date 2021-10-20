@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -11,6 +12,44 @@ namespace Jsonata.Net.Native.Eval
 {
     internal static class BuiltinFunctions
     {
+        #region String functions
+        /**
+        Signature: $string(arg, prettify)
+
+        Casts the arg parameter to a string using the following casting rules
+
+        If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg.
+
+        If prettify is true, then "prettified" JSON is produced. i.e One line per field and lines will be indented based on the field depth.
+        */
+        public static JToken @string(JToken arg, [OptionalArgument(false)] bool prettify)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Undefined:
+                // undefined inputs always return undefined
+                return arg;
+            case JTokenType.String:
+                //Strings are unchanged
+                return arg;
+            case JTokenType.Float:
+                {
+                    double value = (double)arg;
+                    if (Double.IsNaN(value) || Double.IsInfinity(value))
+                    {
+                        throw new JsonataException("D3001", "Attempting to invoke string function on Infinity or NaN");
+                    };
+                    return new JValue(arg.ToString(Formatting.None));
+                };
+            case FunctionToken.TYPE:
+                //Functions are converted to an empty string
+                return new JValue("");
+            default:
+                return new JValue(arg.ToString(formatting: prettify ? Formatting.Indented : Formatting.None));
+            }
+        }
+        #endregion
+
         #region Numeric functions
         /**
          Signature: $number(arg)

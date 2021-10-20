@@ -122,6 +122,10 @@ namespace Jsonata.Net.Native.Eval
 			{
 				return new JValue(resultString);
 			}
+			else if (resultObj is bool resultBool)
+			{
+				return new JValue(resultBool);
+			}
 			else
 			{
 				return JToken.FromObject(resultObj);
@@ -230,6 +234,14 @@ namespace Jsonata.Net.Native.Eval
 				{
 				case JTokenType.String:
 					return (string)argToken!;
+				}
+			}
+			else if (parameterInfo.ParameterType == typeof(bool))
+			{
+				switch (argToken.Type)
+				{
+				case JTokenType.Boolean:
+					return (bool)argToken;
 				}
 			}
 			throw new JsonataException("T0410", $"Argument {parameterIndex} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");
