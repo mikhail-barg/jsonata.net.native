@@ -48,6 +48,293 @@ namespace Jsonata.Net.Native.Eval
                 return new JValue(arg.ToString(formatting: prettify ? Formatting.Indented : Formatting.None));
             }
         }
+
+        /**
+         Signature: $length(str)
+         Returns the number of characters in the string str. 
+         If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. An error is thrown if str is not a string.
+         */
+        public static int length([PropagateUndefined] string str)
+        {
+            return str.Length;
+        }
+
+        /**
+        Signature: $substring(str, start[, length])
+        Returns a string containing the characters in the first parameter str starting at position start (zero-offset). If str is not specified (i.e. this function is invoked with only the numeric argument(s)), then the context value is used as the value of str. An error is thrown if str is not a string.
+        If length is specified, then the substring will contain maximum length characters.
+        If start is negative then it indicates the number of characters from the end of str. See substr for full definition.         
+         */
+        public static string substring([PropagateUndefined] string str, int start, [OptionalArgument(100000000)] int len)
+        {
+            //see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substr
+            if (start < 0)
+            {
+                start = str.Length + start;
+                if (start < 0)
+                {
+                    start = 0;
+                }
+            };
+            if (start + len > str.Length)
+            {
+                len = str.Length - start;
+            };
+            if (len < 0)
+            {
+                len = 0;
+            };
+            return str.Substring(start, len);
+        }
+
+        /**
+         Signature: $substringBefore(str, chars)
+         Returns the substring before the first occurrence of the character sequence chars in str. 
+         If str is not specified (i.e. this function is invoked with only one argument), then the context value is used as the value of str. 
+         If str does not contain chars, then it returns str. An error is thrown if str and chars are not strings.         
+         */
+        public static string substringBefore([PropagateUndefined] string str, string chars)
+        {
+            int index = str.IndexOf(chars);
+            if (index < 0)
+            {
+                return str;
+            }
+            else
+            {
+                return str.Substring(0, index);
+            }
+        }
+
+        /**
+          Signature: $substringAfter(str, chars)
+          Returns the substring after the first occurrence of the character sequence chars in str. 
+          If str is not specified (i.e. this function is invoked with only one argument), then the context value is used as the value of str. 
+          If str does not contain chars, then it returns str. An error is thrown if str and chars are not strings.         
+         */
+        public static string substringAfter([PropagateUndefined] string str, string chars)
+        {
+            int index = str.IndexOf(chars);
+            if (index < 0)
+            {
+                return str;
+            }
+            else
+            {
+                return str.Substring(index + chars.Length);
+            }
+        }
+
+        /**
+          Signature: $uppercase(str)
+          Returns a string with all the characters of str converted to uppercase. 
+          If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
+          An error is thrown if str is not a string.         
+         */
+        public static string uppercase([PropagateUndefined] string str)
+        {
+            return str.ToUpper();
+        }
+
+        /**
+          Signature: $lowercase(str)
+          Returns a string with all the characters of str converted to lowercase. 
+          If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
+          An error is thrown if str is not a string.         
+         */
+        public static string lowercase([PropagateUndefined] string str)
+        {
+            return str.ToLower();
+        }
+
+        /**
+         Signature: $trim(str)
+         Normalizes and trims all whitespace characters in str by applying the following steps:
+            All tabs, carriage returns, and line feeds are replaced with spaces.
+            Contiguous sequences of spaces are reduced to a single space.
+            Trailing and leading spaces are removed.
+          If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
+          An error is thrown if str is not a string.         
+         */
+        public static string trim([PropagateUndefined] string str)
+        {
+            str = Regex.Replace(str, @"\s+", " ");
+            return str.Trim();
+        }
+
+        /**
+         Signature: $pad(str, width [, char])
+         Returns a copy of the string str with extra padding, if necessary, so that its total number of characters is at least the absolute value of the width parameter. 
+         If width is a positive number, then the string is padded to the right; 
+         if negative, it is padded to the left. 
+         The optional char argument specifies the padding character(s) to use. 
+         If not specified, it defaults to the space character        
+         */
+        public static string pad([PropagateUndefined] string str, int width, [OptionalArgument(" ")] string chars)
+        {
+            if (chars == "")
+            {
+                chars = " ";
+            };
+
+            if (width >= 0)
+            {
+                bool changed = false;
+                while (str.Length < width)
+                {
+                    str += chars;
+                    changed = true;
+                };
+                if (changed && str.Length > width)
+                {
+                    str = str.Substring(0, width);
+                };
+            }
+            else
+            {
+                width = -width;
+                bool changed = false;
+                while (str.Length < width)
+                {
+                    str = chars + str;
+                    changed = true;
+                };
+                if (changed && str.Length > width)
+                {
+                    str = str.Substring(str.Length - width);
+                };
+            };
+
+            return str;
+        }
+
+        /**
+         Signature: $contains(str, pattern)
+         Returns true if str is matched by pattern, otherwise it returns false. 
+         If str is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of str.
+         The pattern parameter can either be a string or a regular expression (regex). 
+          If it is a string, the function returns true if the characters within pattern are contained contiguously within str. 
+          If it is a regex, the function will return true if the regex matches the contents of str.      
+        
+            Examples
+
+                $contains("abracadabra", "bra") => true
+                $contains("abracadabra", /a.*a/) => true
+                $contains("abracadabra", /ar.*a/) => false
+                $contains("Hello World", /wo/) => false
+                $contains("Hello World", /wo/i) => true
+         */
+        public static bool contains([PropagateUndefined] string str, string pattern)
+        {
+            //TODO: support RegExes!!
+            return str.Contains(pattern);
+        }
+
+        /**
+        Signature: $split(str, separator [, limit])
+
+        Splits the str parameter into an array of substrings. 
+        If str is not specified, then the context value is used as the value of str. 
+        It is an error if str is not a string.
+
+        The separator parameter can either be a string or a regular expression (regex). 
+        If it is a string, it specifies the characters within str about which it should be split. 
+        If it is the empty string, str will be split into an array of single characters. 
+        If it is a regex, it splits the string around any sequence of characters that match the regex.
+
+        The optional limit parameter is a number that specifies the maximum number of substrings to include in the resultant array. 
+        Any additional substrings are discarded. 
+        If limit is not specified, then str is fully split with no limit to the size of the resultant array. 
+        It is an error if limit is not a non-negative number.         
+         */
+        public static JArray split([PropagateUndefined] string str, string separator, [OptionalArgument(100000000)] int limit)
+        {
+            //TODO: support RegExes!!
+
+            if (limit < 0)
+            {
+                throw new JsonataException("D3020", $"Third argument of {nameof(split)} function must evaluate to a positive number. Passed {limit}");
+            }
+
+            JArray result = new JArray();
+            if (separator == "")
+            {
+                foreach (char c in str)
+                {
+                    if (result.Count >= limit)
+                    {
+                        break;
+                    }
+                    result.Add(new JValue(c));
+                }
+            }
+            else
+            {
+                foreach (string part in Regex.Split(str, Regex.Escape(separator)))
+                {
+                    if (result.Count >= limit)
+                    {
+                        break;
+                    }
+                    result.Add(new JValue(part));
+                }
+            }
+            return result;
+        }
+
+        /**
+        Signature: $join(array[, separator])
+        Joins an array of component strings into a single concatenated string with each component string separated by the optional separator parameter.
+        It is an error if the input array contains an item which isn't a string.
+        If separator is not specified, then it is assumed to be the empty string, i.e. no separator between the component strings. 
+        It is an error if separator is not a string.         
+        */
+        public static string join([PropagateUndefined] JToken array, [OptionalArgument(null)] JToken? separator)
+        {
+            string separatorString;
+            if (separator == null)
+            {
+                separatorString = "";
+            }
+            else
+            {
+                switch (separator.Type)
+                {
+                case JTokenType.Undefined:
+                    separatorString = "";
+                    break;
+                case JTokenType.String:
+                    separatorString = (string)separator!;
+                    break;
+                default:
+                    throw new JsonataException("T0410", $"Argument 2 of function {nameof(join)} is expected to be string. Specified {separator.Type}");
+                }
+            };
+
+            List<string> elements = new List<string>();
+            switch (array.Type)
+            {
+            case JTokenType.String:
+                elements.Add((string)array!);
+                break;
+            case JTokenType.Array:
+                foreach (JToken element in array.Children())
+                {
+                    if (element.Type != JTokenType.String)
+                    {
+                        throw new JsonataException("T0412", $"Argument 1 of function {nameof(join)} must be an array of strings");
+                    }
+                    else
+                    {
+                        elements.Add((string)element!);
+                    }
+                }
+                break;
+            default:
+                throw new JsonataException("T0410", $"Argument 1 of function {nameof(join)} is expected to be an Array. Specified {array.Type}");
+            }
+            return String.Join(separatorString, elements);
+        }
         #endregion
 
         #region Numeric functions
