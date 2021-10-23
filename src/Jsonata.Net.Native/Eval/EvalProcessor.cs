@@ -350,7 +350,18 @@ namespace Jsonata.Net.Native.Eval
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonIn:
 					return new JValue(false);
 				default:
-					return EvalProcessor.UNDEFINED;
+					if (lhs.Type != JTokenType.Undefined && !IsComparable(lhs))
+					{
+						throw new JsonataException("T2010", $"Argument '{lhs}' of comparison is not comparable");
+					}
+					else if (rhs.Type != JTokenType.Undefined && !IsComparable(rhs))
+					{
+						throw new JsonataException("T2010", $"Argument '{rhs}' of comparison is not comparable");
+					}
+					else
+					{
+						return EvalProcessor.UNDEFINED;
+					}
 				}
 			};
 
