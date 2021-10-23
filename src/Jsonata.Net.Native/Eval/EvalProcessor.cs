@@ -224,7 +224,7 @@ namespace Jsonata.Net.Native.Eval
 				args.Add(argValue);
             }
 
-			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args, env);
+			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args, input, env);
 			return result;
         }
 

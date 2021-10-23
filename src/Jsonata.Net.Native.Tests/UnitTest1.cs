@@ -123,5 +123,65 @@ namespace Jsonata.Net.Native.Tests
                 "[[1],[2]]"
             );
         }
+
+        [TestMethod]
+        public void TestFunctionContextBroadcast_1()
+        {
+            Check(
+                "['1', '2', '3', '4', '5'].$number($)",
+                @"{}",
+                "[1,2,3,4,5]"
+            );
+        }
+
+        [TestMethod]
+        public void TestFunctionContextBroadcast_2()
+        {
+            Check(
+                "['1', '2', '3', '4', '5'].$number()",
+                @"{}",
+                "[1,2,3,4,5]"
+            );
+        }
+
+        [TestMethod]
+        public void TestFunctionContextBroadcast_pad1()
+        {
+            Check(
+                "$pad('str', 5)",
+                @"'ctx'",
+                "'str  '"
+            );
+        }
+
+        [TestMethod]
+        public void TestFunctionContextBroadcast_pad2()
+        {
+            Check(
+                "$pad('str', 5, '-')",
+                @"'ctx'",
+                "'str--'"
+            );
+        }
+
+        [TestMethod]
+        public void TestFunctionContextBroadcast_pad3()
+        {
+            Check(
+                "$pad(5, '-')",
+                @"'ctx'",
+                "'ctx--'"
+            );
+        }
+
+        [TestMethod]
+        public void TestFunctionContextBroadcast_pad4()
+        {
+            Check(
+                "$pad(5)",
+                @"'ctx'",
+                "'ctx  '"
+            );
+        }
     }
 }

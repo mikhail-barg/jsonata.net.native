@@ -54,12 +54,12 @@ namespace Jsonata.Net.Native.TestSuite
                 else
                 {
                     data = datset;
-                }
+                };
             }
             else
             {
                 data = JValue.CreateUndefined();
-            }
+            };
 
             try
             {

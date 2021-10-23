@@ -22,7 +22,7 @@ namespace Jsonata.Net.Native.Eval
 
         If prettify is true, then "prettified" JSON is produced. i.e One line per field and lines will be indented based on the field depth.
         */
-        public static JToken @string(JToken arg, [OptionalArgument(false)] bool prettify)
+        public static JToken @string([AllowContextAsValue] JToken arg, [OptionalArgument(false)] bool prettify)
         {
             switch (arg.Type)
             {
@@ -52,20 +52,22 @@ namespace Jsonata.Net.Native.Eval
         /**
          Signature: $length(str)
          Returns the number of characters in the string str. 
-         If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. An error is thrown if str is not a string.
+         If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
+         An error is thrown if str is not a string.
          */
-        public static int length([PropagateUndefined] string str)
+        public static int length([AllowContextAsValue][PropagateUndefined] string str)
         {
             return str.Length;
         }
 
         /**
         Signature: $substring(str, start[, length])
-        Returns a string containing the characters in the first parameter str starting at position start (zero-offset). If str is not specified (i.e. this function is invoked with only the numeric argument(s)), then the context value is used as the value of str. An error is thrown if str is not a string.
+        Returns a string containing the characters in the first parameter str starting at position start (zero-offset). 
+        If str is not specified (i.e. this function is invoked with only the numeric argument(s)), then the context value is used as the value of str. An error is thrown if str is not a string.
         If length is specified, then the substring will contain maximum length characters.
         If start is negative then it indicates the number of characters from the end of str. See substr for full definition.         
          */
-        public static string substring([PropagateUndefined] string str, int start, [OptionalArgument(100000000)] int len)
+        public static string substring([AllowContextAsValue][PropagateUndefined] string str, int start, [OptionalArgument(100000000)] int len)
         {
             //see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substr
             if (start < 0)
@@ -93,7 +95,7 @@ namespace Jsonata.Net.Native.Eval
          If str is not specified (i.e. this function is invoked with only one argument), then the context value is used as the value of str. 
          If str does not contain chars, then it returns str. An error is thrown if str and chars are not strings.         
          */
-        public static string substringBefore([PropagateUndefined] string str, string chars)
+        public static string substringBefore([AllowContextAsValue][PropagateUndefined] string str, string chars)
         {
             int index = str.IndexOf(chars);
             if (index < 0)
@@ -112,7 +114,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with only one argument), then the context value is used as the value of str. 
           If str does not contain chars, then it returns str. An error is thrown if str and chars are not strings.         
          */
-        public static string substringAfter([PropagateUndefined] string str, string chars)
+        public static string substringAfter([AllowContextAsValue][PropagateUndefined] string str, string chars)
         {
             int index = str.IndexOf(chars);
             if (index < 0)
@@ -131,7 +133,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
           An error is thrown if str is not a string.         
          */
-        public static string uppercase([PropagateUndefined] string str)
+        public static string uppercase([AllowContextAsValue][PropagateUndefined] string str)
         {
             return str.ToUpper();
         }
@@ -142,7 +144,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
           An error is thrown if str is not a string.         
          */
-        public static string lowercase([PropagateUndefined] string str)
+        public static string lowercase([AllowContextAsValue][PropagateUndefined] string str)
         {
             return str.ToLower();
         }
@@ -156,7 +158,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
           An error is thrown if str is not a string.         
          */
-        public static string trim([PropagateUndefined] string str)
+        public static string trim([AllowContextAsValue][PropagateUndefined] string str)
         {
             str = Regex.Replace(str, @"\s+", " ");
             return str.Trim();
@@ -170,7 +172,7 @@ namespace Jsonata.Net.Native.Eval
          The optional char argument specifies the padding character(s) to use. 
          If not specified, it defaults to the space character        
          */
-        public static string pad([PropagateUndefined] string str, int width, [OptionalArgument(" ")] string chars)
+        public static string pad([AllowContextAsValue][PropagateUndefined] string str, int width, [OptionalArgument(" ")] string chars)
         {
             if (chars == "")
             {
@@ -224,7 +226,7 @@ namespace Jsonata.Net.Native.Eval
                 $contains("Hello World", /wo/) => false
                 $contains("Hello World", /wo/i) => true
          */
-        public static bool contains([PropagateUndefined] string str, string pattern)
+        public static bool contains([AllowContextAsValue][PropagateUndefined] string str, string pattern)
         {
             //TODO: support RegExes!!
             return str.Contains(pattern);
@@ -247,7 +249,7 @@ namespace Jsonata.Net.Native.Eval
         If limit is not specified, then str is fully split with no limit to the size of the resultant array. 
         It is an error if limit is not a non-negative number.         
          */
-        public static JArray split([PropagateUndefined] string str, string separator, [OptionalArgument(100000000)] int limit)
+        public static JArray split([AllowContextAsValue][PropagateUndefined] string str, string separator, [OptionalArgument(100000000)] int limit)
         {
             //TODO: support RegExes!!
 
@@ -341,10 +343,9 @@ namespace Jsonata.Net.Native.Eval
         /**
          Signature: $number(arg)
          Casts the arg parameter to a number using the following casting rules
-         */
-        //TODO: * If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg.
-        //["1", "2", "3", "4", "5"].$number() => [1, 2, 3, 4, 5]
-        public static JToken number(JToken arg)
+         If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg.
+        */
+        public static JToken number([AllowContextAsValue] JToken arg)
         {
             switch (arg.Type)
             {
@@ -404,10 +405,9 @@ namespace Jsonata.Net.Native.Eval
          Signature: $abs(number)
          Returns the absolute value of the number parameter, i.e. if the number is negative, it returns the positive value.
         
-         TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
+         If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
-
-        public static double abs([PropagateUndefined] double number)
+        public static double abs([AllowContextAsValue][PropagateUndefined] double number)
         {
             return Math.Abs(number);
         }
@@ -416,9 +416,9 @@ namespace Jsonata.Net.Native.Eval
          Signature: $floor(number)
          Returns the value of number rounded down to the nearest integer that is smaller or equal to number.
          
-         TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
+         If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
-        public static long floor([PropagateUndefined] double number)
+        public static long floor([AllowContextAsValue][PropagateUndefined] double number)
         {
             return (long)Math.Floor(number);
         }
@@ -427,9 +427,9 @@ namespace Jsonata.Net.Native.Eval
          Signature: $ceil(number)
          Returns the value of number rounded up to the nearest integer that is greater than or equal to number
          
-         TODO: If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
+         If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
-        public static long ceil([PropagateUndefined] double number)
+        public static long ceil([AllowContextAsValue][PropagateUndefined] double number)
         {
             return (long)Math.Ceiling(number);
         }
@@ -439,11 +439,14 @@ namespace Jsonata.Net.Native.Eval
 
          Returns the value of the number parameter rounded to the number of decimal places specified by the optional precision parameter.
 
-         The precision parameter (which must be an integer) species the number of decimal places to be present in the rounded number. If precision is not specified then it defaults to the value 0 and the number is rounded to the nearest integer. If precision is negative, then its value specifies which column to round to on the left side of the decimal place
+         The precision parameter (which must be an integer) species the number of decimal places to be present in the rounded number. 
+         If precision is not specified then it defaults to the value 0 and the number is rounded to the nearest integer. 
+         If precision is negative, then its value specifies which column to round to on the left side of the decimal place
 
-         This function uses the Round half to even strategy to decide which way to round numbers that fall exactly between two candidates at the specified precision. This strategy is commonly used in financial calculations and is the default rounding mode in IEEE 754.         
+         This function uses the Round half to even strategy to decide which way to round numbers that fall exactly between two candidates at the specified precision. 
+         This strategy is commonly used in financial calculations and is the default rounding mode in IEEE 754.         
          */
-        public static decimal round([PropagateUndefined] decimal number, [OptionalArgument(0)] int precision)
+        public static decimal round([AllowContextAsValue][PropagateUndefined] decimal number, [OptionalArgument(0)] int precision)
         {
             //This function uses decimal because Math.Round for double in C# does not exactly follow the expectations because of binary arithmetics issues
             if (precision >= 0)
@@ -463,10 +466,10 @@ namespace Jsonata.Net.Native.Eval
         /**
          Signature: $power(base, exponent)
          Returns the value of base raised to the power of exponent (base ^ exponent).
-         TODO: If base is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of base.
+         If base is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of base.
          An error is thrown if the values of base and exponent lead to a value that cannot be represented as a JSON number (e.g. Infinity, complex numbers).
          */
-        public static double power([PropagateUndefined] double @base, double exponent)
+        public static double power([AllowContextAsValue][PropagateUndefined] double @base, double exponent)
         {
             return Math.Pow(@base, exponent);
         }
@@ -474,10 +477,10 @@ namespace Jsonata.Net.Native.Eval
         /**
         Signature: $sqrt(number)
         Returns the square root of the value of the number parameter.
-        TODO: If number is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of number.
+        If number is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of number.
         An error is thrown if the value of number is negative.         
         */
-        public static double sqrt([PropagateUndefined] double number)
+        public static double sqrt([AllowContextAsValue][PropagateUndefined] double number)
         {
             return Math.Sqrt(number);
         }
@@ -497,9 +500,10 @@ namespace Jsonata.Net.Native.Eval
         Casts the number to a string and formats it to a decimal representation as specified by the picture string.
         The behaviour of this function is consistent with the XPath/XQuery function fn:format-number as defined in the XPath F&O 3.1 specification. 
         The picture string parameter defines how the number is formatted and has the same syntax as fn:format-number.
-        The optional third argument options is used to override the default locale specific formatting characters such as the decimal separator. If supplied, this argument must be an object containing name/value pairs specified in the decimal format section of the XPath F&O 3.1 specification.         
+        The optional third argument options is used to override the default locale specific formatting characters such as the decimal separator. 
+        If supplied, this argument must be an object containing name/value pairs specified in the decimal format section of the XPath F&O 3.1 specification.         
          */
-        public static string formatNumber([PropagateUndefined] double number, string picture, [OptionalArgument(null)] JObject? options)
+        public static string formatNumber([AllowContextAsValue][PropagateUndefined] double number, string picture, [OptionalArgument(null)] JObject? options)
         {
             //TODO: try implementing or using proper XPath fn:format-number
             picture = Regex.Replace(picture, @"[1-9]", "0");
@@ -512,7 +516,7 @@ namespace Jsonata.Net.Native.Eval
         Casts the number to a string and formats it to an integer represented in the number base specified by the radix argument.
         If radix is not specified, then it defaults to base 10. radix can be between 2 and 36, otherwise an error is thrown.         
         */
-        public static string formatBase([PropagateUndefined] long number, [OptionalArgument(10)] int radix)
+        public static string formatBase([AllowContextAsValue][PropagateUndefined] long number, [OptionalArgument(10)] int radix)
         {
             if (radix < 2 || radix > 36)
             {
@@ -542,7 +546,7 @@ namespace Jsonata.Net.Native.Eval
          The behaviour of this function is consistent with the two-argument version of the XPath/XQuery function fn:format-integer as defined in the XPath F&O 3.1 specification. 
          The picture string parameter defines how the number is formatted and has the same syntax as fn:format-integer.
          */
-        public static string formatInteger([PropagateUndefined] long number, string picture)
+        public static string formatInteger([AllowContextAsValue][PropagateUndefined] long number, string picture)
         {
             //TODO: try implementing or using proper XPath fn:format-integer
             //picture = Regex.Replace(picture, @"[1-9]", "0");
@@ -556,7 +560,7 @@ namespace Jsonata.Net.Native.Eval
          The picture string parameter has the same format as $formatInteger. 
          Although the XPath specification does not have an equivalent function for parsing integers, this capability has been added to JSONata.
          */
-        public static long parseInteger([PropagateUndefined] string str, [OptionalArgument(null)] string? picture)
+        public static long parseInteger([AllowContextAsValue][PropagateUndefined] string str, [OptionalArgument(null)] string? picture)
         {
             //TODO: try implementing properly
             return Int64.Parse(str);
@@ -627,7 +631,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $boolean(arg)
          Casts the argument to a Boolean using the following rules: http://docs.jsonata.org/boolean-functions#boolean 
          */
-        public static JToken boolean(JToken arg)
+        public static JToken boolean([AllowContextAsValue] JToken arg)
         {
             switch (arg.Type)
             {
@@ -680,7 +684,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $not(arg)
          Returns Boolean NOT on the argument. arg is first cast to a boolean
          */
-        public static JToken not(JToken arg)
+        public static JToken not([AllowContextAsValue] JToken arg)
         {
             arg = BuiltinFunctions.boolean(arg);
             if (arg.Type == JTokenType.Undefined)

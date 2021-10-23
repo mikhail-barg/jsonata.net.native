@@ -14,6 +14,14 @@ namespace Jsonata.Net.Native.Eval
     }
 
     //provides support for cases when
+    // "If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg"
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public sealed class AllowContextAsValueAttribute : Attribute
+    {
+    }
+
+
+    //provides support for cases when
     // "undefined inputs always return undefined"
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class OptionalArgumentAttribute : Attribute
