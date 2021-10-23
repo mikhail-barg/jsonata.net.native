@@ -96,9 +96,9 @@ namespace Jsonata.Net.Native.Eval
 				return evalArray(arrayNode, input, env);
 			case ObjectNode objectNode:
 				return evalObject(objectNode, input, env);
+			case BlockNode blockNode:
+				return evalBlock(blockNode, input, env);
 			/*
-			case BlockNode:
-				return evalBlock(node, input, env);
 			case ConditionalNode:
 				return evalConditional(node, input, env);
 			case AssignmentNode:
@@ -141,6 +141,22 @@ namespace Jsonata.Net.Native.Eval
 			default:
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
+		}
+
+        private static JToken evalBlock(BlockNode blockNode, JToken input, Environment env)
+        {
+			// create a new frame to limit the scope of variable assignments
+			// TODO, only do this if the post-parse stage has flagged this as required
+			Environment localEnvironment = Environment.CreateNestedEnvironment(env);
+
+			// invoke each expression in turn
+			// only return the result of the last one
+			JToken result = EvalProcessor.UNDEFINED;
+			foreach (Node expression in blockNode.expressions)
+            {
+				result = Eval(expression, input, localEnvironment);
+            }
+			return result;
 		}
 
         private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env)

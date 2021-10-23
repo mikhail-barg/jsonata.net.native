@@ -44,6 +44,13 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
+        internal static Environment CreateNestedEnvironment(Environment parent)
+        {
+            Environment result = new Environment(parent, parent.m_evaluationEnvironment);
+            return result;
+        }
+
+
         internal void Bind(string name, JToken value)
         {
             this.m_bindings.Add(name, value);
