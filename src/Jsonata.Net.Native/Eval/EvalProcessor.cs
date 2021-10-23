@@ -88,10 +88,8 @@ namespace Jsonata.Net.Native.Eval
 				return evalPath(pathNode, input, env);
 			case NegationNode negationNode:
 				return evalNegation(negationNode, input, env);
-			/*
-			case RangeNode:
-				return evalRange(node, input, env);
-			*/
+			case RangeNode rangeNode:
+				return evalRange(rangeNode, input, env);
 			case ArrayNode arrayNode:
 				return evalArray(arrayNode, input, env);
 			case ObjectNode objectNode:
@@ -141,6 +139,51 @@ namespace Jsonata.Net.Native.Eval
 			default:
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
+		}
+
+        private static JToken evalRange(RangeNode rangeNode, JToken input, Environment env)
+        {
+			JToken lhs = Eval(rangeNode.lhs, input, env);
+			JToken rhs = Eval(rangeNode.rhs, input, env);
+
+			if (lhs.Type != JTokenType.Undefined && lhs.Type != JTokenType.Integer)
+            {
+				throw new JsonataException("T2003", $"The left side of the range operator (..) must evaluate to an integer, got {lhs.Type}");
+			}
+			else if (rhs.Type != JTokenType.Undefined && rhs.Type != JTokenType.Integer)
+			{
+				throw new JsonataException("T2004", $"The right side of the range operator (..) must evaluate to an integer, got {rhs.Type}");
+			}
+			else if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
+            {
+				// if either side is undefined, the result is undefined
+				return EvalProcessor.UNDEFINED;
+            };
+
+			long lhsValue = (long)lhs;
+			long rhsValue = (long)rhs;
+
+			if (lhsValue > rhsValue)
+			{
+				// if the lhs is greater than the rhs, return undefined
+				return EvalProcessor.UNDEFINED;
+			};
+
+			// limit the size of the array to ten million entries (1e7)
+			// this is an implementation defined limit to protect against
+			// memory and performance issues.  This value may increase in the future.
+			long size = rhsValue - lhsValue + 1;
+			if (size > 1e7)
+			{
+				throw new JsonataException("D2014", $"The size of the sequence allocated by the range operator (..) must not exceed 1e7.  Attempted to allocate {size}.");
+			};
+
+			JArray result = new Sequence();
+			for (long value = lhsValue; value <= rhsValue; ++value)
+			{
+				result.Add(new JValue(value));
+			}
+			return result;
 		}
 
         private static JToken evalAssignment(AssignmentNode assignmentNode, JToken input, Environment env)
