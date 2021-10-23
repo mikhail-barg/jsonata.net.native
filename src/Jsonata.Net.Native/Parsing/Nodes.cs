@@ -701,4 +701,28 @@ namespace Jsonata.Net.Native.Parsing
             }
         }
     }
+
+    // A FunctionApplicationNode represents a function application
+    // operation.
+    internal sealed record FunctionApplicationNode(Node lhs, Node rhs) : Node
+    {
+        internal override Node optimize()
+        {
+            Node lhs = this.lhs.optimize();
+            Node rhs = this.rhs.optimize();
+            if (lhs !=this.lhs || rhs != this.rhs)
+            {
+                return new FunctionApplicationNode(lhs, rhs);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"{this.lhs} ~> {this.rhs}";
+        }
+    }
 }

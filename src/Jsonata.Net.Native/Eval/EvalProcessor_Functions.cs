@@ -11,7 +11,7 @@ namespace Jsonata.Net.Native.Eval
 {
     internal static class EvalProcessor_Functions
     {
-		internal static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args, JToken inputAsContext, Environment env)
+		internal static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args, JToken? inputAsContext, Environment env)
 		{
 			ParameterInfo[] parameterList = methodInfo.GetParameters();
 
@@ -32,7 +32,10 @@ namespace Jsonata.Net.Native.Eval
 			catch (JsonataException)
             {
 				//try binding with context if possible
-				if (args.Count < parameterList.Length && parameterList[0].IsDefined(typeof(AllowContextAsValueAttribute)))
+				if (inputAsContext != null 
+					&& args.Count < parameterList.Length 
+					&& parameterList[0].IsDefined(typeof(AllowContextAsValueAttribute))
+				)
 				{
 					List<JToken> newArgs = new List<JToken>(args.Count + 1);
 					newArgs.Add(inputAsContext);

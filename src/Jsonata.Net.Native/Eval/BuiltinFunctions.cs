@@ -695,6 +695,27 @@ namespace Jsonata.Net.Native.Eval
         }
         #endregion
 
+        #region Array functions
+        /**
+         Signature: $count(array)
+         Returns the number of items in the array parameter. 
+          If the array parameter is not an array, but rather a value of another JSON type, then the parameter is treated as a singleton array containing that value, and this function returns 1.
+         If array is not specified, then the context value is used as the value of array         
+         */
+        public static int count([AllowContextAsValue] JToken arg)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Undefined:
+                return 0;
+            case JTokenType.Array:
+                return arg.Count();
+            default:
+                return 1;
+            }
+        }
+        #endregion
+
         #region Object functions
         /**
          Signature:$type(value)

@@ -123,11 +123,9 @@ namespace Jsonata.Net.Native.Eval
 				return evalPartial(node, input, env);
 			*/
 			case FunctionCallNode functionCallNode:
-				return evalFunctionCall(functionCallNode, input, env);
-			/*
-			case FunctionApplicationNode:
-				return evalFunctionApplication(node, input, env);
-			*/
+				return evalFunctionCall(functionCallNode, input, env, null);
+			case FunctionApplicationNode functionApplicationNode:
+				return evalFunctionApplication(functionApplicationNode, input, env);
 			case NumericOperatorNode numericOperatorNode:
 				return evalNumericOperator(numericOperatorNode, input, env);
 			case ComparisonOperatorNode comparisonOperatorNode:
@@ -139,6 +137,18 @@ namespace Jsonata.Net.Native.Eval
 			default:
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
+		}
+
+        private static JToken evalFunctionApplication(FunctionApplicationNode functionApplicationNode, JToken input, Environment env)
+        {
+			JToken lhs = Eval(functionApplicationNode.lhs, input, env);
+			if (functionApplicationNode.rhs is FunctionCallNode functionCallNode)
+            {
+				// this is a function _invocation_; invoke it with lhs expression as the first argument
+				return evalFunctionCall(functionCallNode, input, env, evalutedFirstArgFromApplication: lhs);
+			}
+
+			throw new NotImplementedException("TODO: implement");
 		}
 
         private static JToken evalRange(RangeNode rangeNode, JToken input, Environment env)
@@ -209,7 +219,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-        private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env)
+        private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env, JToken? evalutedFirstArgFromApplication)
         {
 			JToken func = Eval(functionCallNode.func, input, env);
 			if (func is not FunctionToken function)
@@ -217,14 +227,19 @@ namespace Jsonata.Net.Native.Eval
 				throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}'");
             }
 
-			List<JToken> args = new List<JToken>(functionCallNode.args.Count);
+			List<JToken> args = new List<JToken>();
+			if (evalutedFirstArgFromApplication != null)
+            {
+				args.Add(evalutedFirstArgFromApplication);
+            };
 			foreach (Node argNode in functionCallNode.args)
             {
 				JToken argValue = Eval(argNode, input, env);
 				args.Add(argValue);
             }
 
-			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args, input, env);
+			JToken? context = evalutedFirstArgFromApplication != null ? null : input;
+			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args, context, env);
 			return result;
         }
 

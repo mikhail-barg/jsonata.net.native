@@ -165,6 +165,7 @@ namespace Jsonata.Net.Native.TestSuite
             //see https://docs.nunit.org/articles/nunit/running-tests/Template-Based-Test-Naming.html
             //caseData.SetName(info + " {a}"); // can't use {a} to show parametetrs here becasue of https://github.com/nunit/nunit3-vs-adapter/issues/691
             caseInfo.testName = info;
+            FixCaseInfo(caseInfo);
             caseData.SetName(info);
             caseData.SetDescription(caseInfo.GetDescription()); //doens not do much for VS Test Executor (
             results.Add(caseData);
@@ -209,6 +210,21 @@ namespace Jsonata.Net.Native.TestSuite
                 }
             }
             return results;
+        }
+
+        private static void FixCaseInfo(CaseInfo caseInfo)
+        {
+            switch (caseInfo.testName!)
+            {
+            case "range-operator.case021":
+                //TODO: old value was "10000000.0" for unclear reason. Why should count() return such value? Also https://try.jsonata.org/ does not return fractional zero here
+                caseInfo.result = 10000000; 
+                break;
+            case "range-operator.case024":
+                //TODO: old value was "10000000.0" for unclear reason. Why should count() return such value? Also https://try.jsonata.org/ does not return fractional zero here
+                caseInfo.result = 10000000;
+                break;
+            }
         }
     }
 }

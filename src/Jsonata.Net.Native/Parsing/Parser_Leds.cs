@@ -113,8 +113,10 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseFunctionApplication(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            return new FunctionApplicationNode(
+                lhs: lhs,
+                rhs: this.parseExpression(this.m_bps[t.type])
+            );
         }
 
         private Node parseStringConcatenation(Token t, Node lhs)
