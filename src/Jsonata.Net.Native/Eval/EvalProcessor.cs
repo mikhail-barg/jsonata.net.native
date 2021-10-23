@@ -759,7 +759,15 @@ namespace Jsonata.Net.Native.Eval
 				NumericOperatorNode.NumericOperator.NumericModulo => lhs % rhs,
 				_ => throw new ArgumentException($"Unexpected operator '{op}'")
 			};
-			return new JValue(result);
+			long longResult = (long)result;
+			if (longResult == result)
+			{
+				return new JValue(longResult);
+			}
+			else
+			{
+				return new JValue(result);
+			}
 		}
 
 		private static JToken evalNull(NullNode nullNode, JToken input, Environment env)
