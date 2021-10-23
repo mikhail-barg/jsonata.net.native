@@ -101,9 +101,9 @@ namespace Jsonata.Net.Native.Eval
 			/*
 			case ConditionalNode:
 				return evalConditional(node, input, env);
-			case AssignmentNode:
-				return evalAssignment(node, input, env);
 			*/
+			case AssignmentNode assignmentNode:
+				return evalAssignment(assignmentNode, input, env);
 			case WildcardNode wildcardNode:
 				return evalWildcard(wildcardNode, input, env);
 			case DescendentNode descendentNode:
@@ -142,6 +142,13 @@ namespace Jsonata.Net.Native.Eval
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalAssignment(AssignmentNode assignmentNode, JToken input, Environment env)
+        {
+			JToken value = Eval(assignmentNode.value, input, env);
+			env.Bind(assignmentNode.name, value);
+			return value;
+        }
 
         private static JToken evalBlock(BlockNode blockNode, JToken input, Environment env)
         {

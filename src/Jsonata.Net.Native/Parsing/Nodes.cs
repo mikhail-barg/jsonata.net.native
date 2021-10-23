@@ -684,4 +684,21 @@ namespace Jsonata.Net.Native.Parsing
             return "?";
         }
     }
+
+    // An AssignmentNode represents a variable assignment.
+    internal sealed record AssignmentNode(string name, Node value) : Node
+    {
+        internal override Node optimize()
+        {
+            Node value = this.value.optimize();
+            if (value != this.value)
+            {
+                return new AssignmentNode(this.name, value);
+            }
+            else
+            {
+                return this;
+            }
+        }
+    }
 }

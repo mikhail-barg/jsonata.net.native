@@ -101,8 +101,14 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseAssignment(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            if (lhs is not VariableNode variableNode)
+            {
+                throw new JsonataException("S0212", "The left side of := must be a variable name (start with $)");
+            };
+            return new AssignmentNode(
+                name: variableNode.name,
+                value: this.parseExpression(this.m_bps[t.type] - 1) // right-associative
+            );
         }
 
         private Node parseFunctionApplication(Token t, Node lhs)
