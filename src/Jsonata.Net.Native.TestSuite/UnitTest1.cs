@@ -60,6 +60,10 @@ namespace Jsonata.Net.Native.TestSuite
 
             try
             {
+                if (caseInfo.description != null)
+                {
+                    Console.WriteLine($"Description: '{caseInfo.description}'");
+                };
                 Console.WriteLine($"Expr is '{caseInfo.expr}'");
                 JToken result;
                 try

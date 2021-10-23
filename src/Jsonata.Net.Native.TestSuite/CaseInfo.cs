@@ -12,6 +12,7 @@ namespace Jsonata.Net.Native.TestSuite
     //see https://github.com/jsonata-js/jsonata/blob/master/test/test-suite/TESTSUITE.md
     public sealed class CaseInfo
     {
+        public string? description { get; set; }
         public string? expr { get; set; }
         
         [JsonProperty(PropertyName = "expr-file")] 

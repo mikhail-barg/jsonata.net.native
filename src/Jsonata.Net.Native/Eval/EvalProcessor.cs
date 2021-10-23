@@ -495,6 +495,24 @@ namespace Jsonata.Net.Native.Eval
         private static JToken evalBooleanOperator(BooleanOperatorNode booleanOperatorNode, JToken input, Environment env)
         {
 			bool lhs = booleanize(Eval(booleanOperatorNode.lhs, input, env)) ?? false; //here undefined works as false? see boolize() in jsonata-js
+			//short-cirquit the operators if possible:
+			switch (booleanOperatorNode.op)
+            {
+			case BooleanOperatorNode.BooleanOperator.BooleanAnd:
+				if (!lhs)
+                {
+					return new JValue(false);
+                }
+				break;
+			case BooleanOperatorNode.BooleanOperator.BooleanOr:
+				if (lhs)
+				{
+					return new JValue(true);
+				}
+				break;
+			};
+
+
 			bool rhs = booleanize(Eval(booleanOperatorNode.rhs, input, env)) ?? false;
 
 			bool result = booleanOperatorNode.op switch {

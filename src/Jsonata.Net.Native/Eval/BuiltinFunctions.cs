@@ -677,5 +677,43 @@ namespace Jsonata.Net.Native.Eval
             return !(bool)arg;
         }
         #endregion
+
+        #region Object functions
+        /**
+         Signature:$type(value)
+        Evaluates the type of value and returns one of the following strings:
+            "null"
+            "number"
+            "string"
+            "boolean"
+            "array"
+            "object"
+            "function" 
+        Returns (non-string) undefined when value is undefined.
+         */
+        public static string @type([PropagateUndefined] JToken value)
+        {
+            switch (value.Type)
+            {
+            case JTokenType.Null:
+                return "null";
+            case JTokenType.Integer:
+            case JTokenType.Float:
+                return "number";
+            case JTokenType.String:
+                return "string";
+            case JTokenType.Boolean:
+                return "boolean";
+            case JTokenType.Array:
+                return "array";
+            case JTokenType.Object:
+                return "object";
+            case FunctionToken.TYPE:
+                return "function";
+            default:
+                throw new Exception("Unexpected JToken type " + value.Type);
+            }
+        }
+        #endregion
     }
 }
