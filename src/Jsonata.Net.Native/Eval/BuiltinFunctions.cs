@@ -566,10 +566,23 @@ namespace Jsonata.Net.Native.Eval
         #region Numeric aggregation functions
         /**
          Signature: $sum(array)
-         Returns the arithmetic sum of an array of numbers. It is an error if the input array contains an item which isn't a number.
+         Returns the arithmetic sum of an array of numbers. 
+         It is an error if the input array contains an item which isn't a number.
          */
-        public static JToken sum(JArray arg)
+        public static JToken sum([PropagateUndefined] JToken arg)
         {
+            switch (arg.Type)
+            {
+            case JTokenType.Integer:
+            case JTokenType.Float:
+                return arg;
+            case JTokenType.Array:
+                //continue handling below
+                break;
+            default:
+                throw new JsonataException("T0410", $"Arguent 1 of function {nameof(sum)} should be array of numbers, but specified {arg.Type}");
+            }
+
             if (arg.Children().All(t => (t.Type == JTokenType.Integer || t.Type == JTokenType.Undefined)))
             {
                 //eval to int

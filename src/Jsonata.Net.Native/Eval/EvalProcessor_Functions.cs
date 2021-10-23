@@ -14,6 +14,7 @@ namespace Jsonata.Net.Native.Eval
 		internal static JToken CallFunction(string functionName, MethodInfo methodInfo, List<JToken> args, Environment env)
 		{
 			ParameterInfo[] parameterList = methodInfo.GetParameters();
+			/*
 			if (parameterList.Length == 1
 				&& parameterList[0].ParameterType == typeof(JArray)
 				&& (args.Count > 1 
@@ -26,6 +27,7 @@ namespace Jsonata.Net.Native.Eval
 				array.AddRange(args);
 				args = new List<JToken>() { array };
 			};
+			*/
 
 			if (args.Count > parameterList.Length)
 			{

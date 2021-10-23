@@ -29,6 +29,8 @@ namespace Jsonata.Net.Native.TestSuite
         public string? code { get; set; }
         public string? token { get; set; }
 
+        internal string? testName;
+
         internal string GetDescription()
         {
             return $"expr: '{this.expr}';\n result: {this.result?.ToString(Formatting.None) ?? ((this.undefinedResult.HasValue && this.undefinedResult.Value) ? "undefined" : "error " + this.code)}";
