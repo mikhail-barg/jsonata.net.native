@@ -24,7 +24,16 @@ namespace Jsonata.Net.Native.Parsing
             }
             else if (Double.TryParse(t.value!, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleValue))
             {
-                return new NumberDoubleNode(doubleValue);
+                longValue = (long)doubleValue;
+                if (longValue == doubleValue)
+                {
+                    //try to simplify double, for example 1e7 is expected to be int
+                    return new NumberIntNode(longValue);
+                }
+                else
+                {
+                    return new NumberDoubleNode(doubleValue);
+                }
             }
             else
             {
