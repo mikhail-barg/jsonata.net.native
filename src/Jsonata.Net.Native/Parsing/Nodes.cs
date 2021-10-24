@@ -725,4 +725,40 @@ namespace Jsonata.Net.Native.Parsing
             return $"{this.lhs} ~> {this.rhs}";
         }
     }
+
+
+    // A ConditionalNode represents an if-then-else expression.
+    internal sealed record ConditionalNode(Node predicate, Node expr1, Node? expr2): Node
+    {
+        internal override Node optimize()
+        {
+            Node predicate = this.predicate.optimize();
+            Node expr1 = this.expr1.optimize();
+            Node? expr2 = this.expr2?.optimize();
+
+            if (predicate != this.predicate 
+                || expr1 != this.expr1
+                || expr2 != this.expr2
+            )
+            {
+                return new ConditionalNode(predicate, expr1, expr2);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
+        public override string ToString()
+        {
+            if (this.expr2 != null)
+            {
+                return $"{this.predicate} ? {this.expr1} : {this.expr2}";
+            }
+            else
+            {
+                return $"{this.predicate} ? {this.expr1}";
+            }
+        }
+    }
 }

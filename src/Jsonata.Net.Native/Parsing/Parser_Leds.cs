@@ -95,8 +95,18 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseConditional(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            Node expr1 = this.parseExpression(0);
+            Node? expr2;
+            if (this.token.type == TokenType.typeColon)
+            {
+                this.consume(TokenType.typeColon, true);
+                expr2 = this.parseExpression(0);
+            }
+            else
+            {
+                expr2 = null;
+            };
+            return new ConditionalNode(lhs, expr1, expr2);
         }
 
         private Node parseAssignment(Token t, Node lhs)

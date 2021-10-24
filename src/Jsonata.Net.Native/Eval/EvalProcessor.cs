@@ -96,10 +96,8 @@ namespace Jsonata.Net.Native.Eval
 				return evalObject(objectNode, input, env);
 			case BlockNode blockNode:
 				return evalBlock(blockNode, input, env);
-			/*
-			case ConditionalNode:
-				return evalConditional(node, input, env);
-			*/
+			case ConditionalNode conditionalNode:
+				return evalConditional(conditionalNode, input, env);
 			case AssignmentNode assignmentNode:
 				return evalAssignment(assignmentNode, input, env);
 			case WildcardNode wildcardNode:
@@ -138,6 +136,23 @@ namespace Jsonata.Net.Native.Eval
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalConditional(ConditionalNode conditionalNode, JToken input, Environment env)
+        {
+			JToken condition = Eval(conditionalNode.predicate, input, env);
+			if (booleanize(condition) ?? false)
+            {
+				return Eval(conditionalNode.expr1, input, env);
+            }
+			else if (conditionalNode.expr2 != null)
+            {
+				return Eval(conditionalNode.expr2, input, env);
+			}
+            else
+            {
+				return EvalProcessor.UNDEFINED;
+            }
+        }
 
         private static JToken evalFunctionApplication(FunctionApplicationNode functionApplicationNode, JToken input, Environment env)
         {
@@ -646,6 +661,8 @@ namespace Jsonata.Net.Native.Eval
 				return ((JObject)value!).Count > 0;
 			case JTokenType.Boolean:
 				return (bool)value;
+			case FunctionToken.TYPE:
+				return false;
 			default:
 				return false;
 			}
