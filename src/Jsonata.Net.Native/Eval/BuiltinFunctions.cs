@@ -718,6 +718,49 @@ namespace Jsonata.Net.Native.Eval
 
         #region Object functions
         /**
+         Signature: $lookup(object, key)
+         Returns the value associated with key in object. If the first argument is an array of objects, then all of the objects in the array are searched, and the values associated with all occurrences of key are returned.         
+         */
+        public static JToken lookup(JToken arg, string key)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Array:
+                {
+                    JArray result = new Sequence();
+                    foreach (JToken child in arg.Children())
+                    {
+                        JToken res = lookup(child, key);
+                        if (res.Type == JTokenType.Array)
+                        {
+                            result.AddRange(res.Children());
+                        }
+                        else if (res.Type != JTokenType.Undefined)
+                        {
+                            result.Add(res);
+                        }
+                    }
+                    return result;
+                };
+            case JTokenType.Object:
+                {
+                    JObject obj = (JObject)arg;
+                    if (obj.TryGetValue(key, out JToken? result))
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return EvalProcessor.UNDEFINED;
+                    };
+                };
+            default:
+                return EvalProcessor.UNDEFINED;
+
+            }
+        }
+
+        /**
          Signature:$type(value)
         Evaluates the type of value and returns one of the following strings:
             "null"
