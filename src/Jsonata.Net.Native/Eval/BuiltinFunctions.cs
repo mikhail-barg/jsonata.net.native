@@ -12,6 +12,8 @@ namespace Jsonata.Net.Native.Eval
 {
     internal static class BuiltinFunctions
     {
+        private static readonly Encoding UTF8_NO_BOM = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+
         #region String functions
         /**
         Signature: $string(arg, prettify)
@@ -336,6 +338,28 @@ namespace Jsonata.Net.Native.Eval
                 throw new JsonataException("T0410", $"Argument 1 of function {nameof(join)} is expected to be an Array. Specified {array.Type}");
             }
             return String.Join(separatorString, elements);
+        }
+
+        /**
+          Signature: $base64encode()
+          Converts an ASCII string to a base 64 representation. 
+          Each each character in the string is treated as a byte of binary data. 
+          This requires that all characters in the string are in the 0x00 to 0xFF range, which includes all characters in URI encoded strings. 
+          Unicode characters outside of that range are not supported.         
+         */
+        public static string base64encode([AllowContextAsValue][PropagateUndefined] string str)
+        {
+            return Convert.ToBase64String(UTF8_NO_BOM.GetBytes(str));
+        }
+
+        /**
+          $base64decode()
+          Signature: $base64decode()
+          Converts base 64 encoded bytes to a string, using a UTF-8 Unicode codepage.        
+         */
+        public static string base64decode([AllowContextAsValue][PropagateUndefined] string str)
+        {
+            return UTF8_NO_BOM.GetString(Convert.FromBase64String(str));
         }
         #endregion
 
