@@ -77,7 +77,14 @@ namespace Jsonata.Net.Native.Parsing
 
 		internal Token next(bool allowRegex)
         {
-			this.skipWhitespace();
+			while (true)
+			{
+				this.skipWhitespace();
+				if (!this.skipComment())
+				{
+					break;
+				}
+			}
 
 			char? chOrNull = this.nextRune();
 			if (chOrNull == null) 
@@ -89,7 +96,7 @@ namespace Jsonata.Net.Native.Parsing
 			if (allowRegex && ch == '/')
 			{
 				this.ignore();
-				throw new NotImplementedException();
+				throw new NotImplementedException($"Regex start at pos {this.CurrentPos - 1}");
 				//return this.scanRegex(ch);
 			}
 
@@ -304,7 +311,29 @@ namespace Jsonata.Net.Native.Parsing
 			this.ignore();
 		}
 
-        private void backup()
+		private bool skipComment()
+		{
+			if (this.CurrentPos <= this.m_queryText.Length - 2)
+            {
+				if (this.m_queryText[this.CurrentPos] == '/'
+					&& this.m_queryText[this.CurrentPos + 1] == '*'
+				)
+                {
+					int closeIndex = this.m_queryText.IndexOf("*/", startIndex: this.CurrentPos + 2);
+					if (closeIndex < 0)
+                    {
+						throw new JsonataException("S0106", $"Comment has no closing tag. Open tag at {this.CurrentPos}");
+                    };
+					this.CurrentPos = closeIndex + 2;
+					this.ignore();
+
+					return true;
+				}
+            }
+			return false;
+		}
+
+		private void backup()
         {
 			--this.CurrentPos;
         }
