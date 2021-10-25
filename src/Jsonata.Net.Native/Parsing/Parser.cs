@@ -140,7 +140,7 @@ namespace Jsonata.Net.Native.Parsing
                 }
             }
 
-            foreach (TokenType tt in Enum.GetValues<TokenType>())
+            foreach (TokenType tt in Enum.GetValues(typeof(TokenType)))
             {
                 if (!results.ContainsKey(tt))
                 {
@@ -157,7 +157,7 @@ namespace Jsonata.Net.Native.Parsing
         // have a binding power.
         private static void ValidateBindingPowers(Dictionary<TokenType, int> bps, Dictionary<TokenType, Led> leds)
         {
-            foreach (TokenType tt in Enum.GetValues<TokenType>())
+            foreach (TokenType tt in Enum.GetValues(typeof(TokenType)))
             {
                 if (leds.ContainsKey(tt) && bps[tt] == 0)
                 {

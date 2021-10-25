@@ -660,7 +660,7 @@ namespace Jsonata.Net.Native.Parsing
     // A LambdaNode represents a user-defined JSONata function.
     internal sealed record LambdaNode(bool isShorthand, List<string> paramNames, LambdaNode.Signature? signature, Node body) : Node
     {
-        internal override LambdaNode optimize()
+        internal override Node optimize()
         {
             Node body = this.body.optimize();
             if (body != this.body)

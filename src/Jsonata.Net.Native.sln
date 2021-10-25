@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native", "Jsonata.Net.Native\Jsonata.Net.Native.csproj", "{BEC03473-EAA4-4202-A57B-1E3A9148635E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.Tests", "Jsonata.Net.Native.Tests\Jsonata.Net.Native.Tests.csproj", "{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native.Tests", "Jsonata.Net.Native.Tests\Jsonata.Net.Native.Tests.csproj", "{BE20B518-F1F6-4F51-95E8-AAA6D98D38C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.TestSuite", "Jsonata.Net.Native.TestSuite\Jsonata.Net.Native.TestSuite.csproj", "{B9E0AE50-801A-4192-BB56-11C9556CBBD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native.TestSuite", "Jsonata.Net.Native.TestSuite\Jsonata.Net.Native.TestSuite.csproj", "{B9E0AE50-801A-4192-BB56-11C9556CBBD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkApp", "BenchmarkApp\BenchmarkApp.csproj", "{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9E0AE50-801A-4192-BB56-11C9556CBBD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -183,7 +183,7 @@ namespace Jsonata.Net.Native.Parsing
 			{
 				result = this.newToken(TokenType.typeVariable);
 			}
-			else if (this.lookupKeyword(this.m_queryText[this.StartPos .. this.CurrentPos], out TokenType tt))
+			else if (this.lookupKeyword(this.m_queryText.Substring(this.StartPos, this.CurrentPos - this.StartPos), out TokenType tt))
 			{
 				result = this.newToken(tt);
 			}
@@ -386,7 +386,7 @@ namespace Jsonata.Net.Native.Parsing
 
 		private Token newToken(TokenType type)
         {
-			Token result = new Token(type, this.m_queryText[this.StartPos..this.CurrentPos], this.StartPos);
+			Token result = new Token(type, this.m_queryText.Substring(this.StartPos, this.CurrentPos - this.StartPos), this.StartPos);
 			this.StartPos = this.CurrentPos;
 			return result;
 		}
