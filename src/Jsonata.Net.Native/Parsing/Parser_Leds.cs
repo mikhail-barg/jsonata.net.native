@@ -53,7 +53,77 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node ParseLambdaDefinition(bool isShorthand)
         {
-            throw new NotImplementedException();
+            List<string> paramNames = this.extractParamNames();
+            string? signatureString = this.extractSignature();
+            LambdaNode.Signature? signature = signatureString != null ? SignatureParser.Parse(signatureString) : null;
+            this.consume(TokenType.typeBraceOpen, true);
+            Node body = this.parseExpression(0);
+            this.consume(TokenType.typeBraceClose, true);
+            return new LambdaNode(isShorthand, paramNames, signature, body);
+        }
+
+        
+        private string? extractSignature()
+        {
+            const TokenType typeSigStart = TokenType.typeLess;
+            const TokenType typeSigEnd = TokenType.typeGreater;
+
+            if (this.token.type != typeSigStart)
+            {
+                return null;
+            }
+
+            //TODO use substring instaed of string builder;
+            StringBuilder builder = new StringBuilder();
+            int depth = 1;
+            builder.Append(this.token.value);
+            while (this.token.type != TokenType.typeBraceOpen && this.token.type != TokenType.typeEOF)
+            {
+                this.advance(true);
+                builder.Append(this.token.value);
+                if (this.token.type == typeSigEnd)
+                {
+                    --depth;
+                    if (depth == 0)
+                    {
+                        break;
+                    }
+                }
+                else if (this.token.type == typeSigStart)
+                {
+                    ++depth;
+                };
+            }
+            this.consume(typeSigEnd, true);
+            return builder.ToString();
+        }
+
+        private List<string> extractParamNames()
+        {
+            List<string> names = new List<string>();
+            Token currToken = this.token;
+            while (this.token.type != TokenType.typeParenClose) // TODO: disallow trailing commas
+            {
+                Node arg = this.parseExpression(0);
+                if (arg is not VariableNode variable)
+                {
+                    //TODO: use proper code
+                    throw new JsonataException("????", $"Function argument declaration should be a variable name (starts with $), got {arg}");
+                };
+                if (names.Contains(variable.name))
+                {
+                    //TODO: use proper code
+                    throw new JsonataException("????", $"Function argument declaration should be a variable name (starts with $), got {arg}");
+                };
+                names.Add(variable.name);
+                if (this.token.type != TokenType.typeComma)
+                {
+                    break;
+                }
+                this.consume(TokenType.typeComma, true);
+            }
+            this.consume(TokenType.typeParenClose, false);
+            return names;
         }
 
         private static (bool isLambda, bool isShorthand) isLambdaName(Node node)
