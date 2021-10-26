@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
+using Jsonata.Net.Js;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ namespace BenchmarkApp
 
         private readonly string m_data;
         private readonly string m_query;
+        private readonly JsonataEngine m_jsEngine;
         private readonly int m_iterations = 1;
 
         public Program()
@@ -28,27 +30,27 @@ namespace BenchmarkApp
                   'mobile': Contact.Phone[type = 'mobile'].number
                 }
             ";
+
+            this.m_jsEngine = new Jsonata.Net.Js.JsonataEngine();
         }
 
         [Benchmark]
         public void ProcessNative()
         {
-            Jsonata.Net.Native.JsonataQuery evaluator = new Jsonata.Net.Native.JsonataQuery(this.m_query);
+            Jsonata.Net.Native.JsonataQuery query = new Jsonata.Net.Native.JsonataQuery(this.m_query);
             JToken json = JToken.Parse(this.m_data);
-
             for (int i = 0; i < this.m_iterations; ++i)
             {
-                evaluator.Eval(json);
+                query.Eval(json);
             }
         }
 
         [Benchmark]
         public void ProcessJs()
         {
-            Jsonata.Net.Js.JsonataEngine engine = new Jsonata.Net.Js.JsonataEngine();
             for (int i = 0; i < this.m_iterations; ++i)
             {
-                engine.Execute(this.m_query, this.m_data);
+                m_jsEngine.Execute(this.m_query, this.m_data);
             }
         }
     }
