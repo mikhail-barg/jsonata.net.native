@@ -738,6 +738,114 @@ namespace Jsonata.Net.Native.Eval
                 return 1;
             }
         }
+
+        /**
+        Signature: $append(array1, array2)
+
+        Returns an array containing the values in array1 followed by the values in array2. 
+        If either parameter is not an array, then it is treated as a singleton array containing that value.         
+         */
+        public static JToken append(JToken array1, JToken array2)
+        {
+            // disregard undefined args
+            if (array1.Type == JTokenType.Undefined)
+            {
+                return array2;
+            }
+            else if (array2.Type == JTokenType.Undefined)
+            {
+                return array1;
+            };
+            // if either argument is not an array, make it so
+            JArray result = new Sequence();
+            if (array1.Type == JTokenType.Array)
+            {
+                result.AddRange(array1.Children());
+            }
+            else
+            {
+                result.Add(array1);
+            };
+            if (array2.Type == JTokenType.Array)
+            {
+                result.AddRange(array2.Children());
+            }
+            else
+            {
+                result.Add(array2);
+            };
+            return result;
+        }
+
+        /**
+        Signature: $sort(array [, function])
+
+        Returns an array containing all the values in the array parameter, but sorted into order. 
+        If no function parameter is supplied, then the array parameter must contain only numbers or only strings, and they will be sorted in order of increasing number, or increasing unicode codepoint respectively.
+
+        If a comparator function is supplied, then is must be a function that takes two parameters: function(left, right)
+        This function gets invoked by the sorting algorithm to compare two values left and right. 
+        If the value of left should be placed after the value of right in the desired sort order, then the function must return Boolean true to indicate a swap. Otherwise it must return false.         
+         */
+        public static JArray sort([PropagateUndefined] JToken arrayToken, [OptionalArgument(null)] JToken? function)
+        {
+            if (arrayToken.Type != JTokenType.Array)
+            {
+                Sequence singletonArray = new Sequence();
+                singletonArray.keepSingletons = true;
+                singletonArray.Add(arrayToken);
+                return singletonArray;
+            }
+
+            JArray array = (JArray)arrayToken;
+            if (array.Count == 0)
+            {
+                return array;
+            }
+
+            System.Comparison<JToken> comparator;
+
+            if (function == null || function.Type == JTokenType.Undefined)
+            {
+                if (Helpers.IsArrayOfNumbers(array))
+                {
+                    comparator = (a, b) => Helpers.GetDoubleValue(a).CompareTo(Helpers.GetDoubleValue(b));
+                }
+                else if (Helpers.IsArrayOfStrings(array))
+                {
+                    comparator = (a, b) => String.CompareOrdinal((string)a!, (string)b!);
+                }
+                else
+                {
+                    throw new JsonataException("D3070", $"The single argument form of the {nameof(sort)} function can only be applied to an array of strings or an array of numbers.  Use the second argument to specify a comparison function");
+                }
+            }
+            else if (function.Type == FunctionToken.TYPE)
+            {
+                comparator = (a, b) => {
+                    JToken res = EvalProcessor.InvokeFunction(
+                        function: (FunctionToken)function,
+                        args: new List<JToken>() { a, b },
+                        context: null,
+                        env: null! //TODO: pass some real environment?
+                    );
+                    bool result = Helpers.Booleanize(res);
+                    return result ? 1 : -1; //may cause problems because of no zero (
+                };
+            }
+            else
+            {
+                //TODO: get proper code
+                throw new JsonataException("????", $"Argument 2 of function {nameof(sort)} should be a function(left, right) returning boolean");
+            }
+
+            List<JToken> tokens = array.Children().ToList();
+            tokens.Sort(comparator);
+            JArray result = new Sequence();
+            result.AddRange(tokens);
+            return result;
+        }
+
         #endregion
 
         #region Object functions

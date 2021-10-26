@@ -45,7 +45,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		private static JToken Eval(Node node, JToken input, Environment env)
+		internal static JToken Eval(Node node, JToken input, Environment env)
 		{
 			JToken result = EvalInternal(node, input, env);
 			if (result is Sequence sequence)
@@ -111,8 +111,10 @@ namespace Jsonata.Net.Native.Eval
 			/*
 			case SortNode:
 				return evalSort(node, input, env);
-			case LambdaNode:
-				return evalLambda(node, input, env);
+			*/
+			case LambdaNode lambdaNode:
+				return evalLambda(lambdaNode, input, env);
+			/*
 			case TypedLambdaNode:
 				return evalTypedLambda(node, input, env);
 			case ObjectTransformationNode:
@@ -137,10 +139,21 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
+        private static JToken evalLambda(LambdaNode lambdaNode, JToken input, Environment env)
+        {
+			return new FunctionTokenLambda(
+				signature: lambdaNode.signature,
+				paramNames: lambdaNode.paramNames,
+				body: lambdaNode.body,
+				context: input,
+				environment: env
+			);
+		}
+
         private static JToken evalConditional(ConditionalNode conditionalNode, JToken input, Environment env)
         {
 			JToken condition = Eval(conditionalNode.predicate, input, env);
-			if (booleanize(condition) ?? false)
+			if (Helpers.Booleanize(condition))
             {
 				return Eval(conditionalNode.expr1, input, env);
             }
@@ -236,26 +249,43 @@ namespace Jsonata.Net.Native.Eval
 
         private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env, JToken? evalutedFirstArgFromApplication)
         {
-			JToken func = Eval(functionCallNode.func, input, env);
-			if (func is not FunctionToken function)
+            JToken func = Eval(functionCallNode.func, input, env);
+            if (func is not FunctionToken function)
             {
-				throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}'");
+                throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}' got from '{functionCallNode.func}'");
             }
 
-			List<JToken> args = new List<JToken>();
-			if (evalutedFirstArgFromApplication != null)
+            List<JToken> args = new List<JToken>();
+            if (evalutedFirstArgFromApplication != null)
             {
-				args.Add(evalutedFirstArgFromApplication);
+                args.Add(evalutedFirstArgFromApplication);
             };
-			foreach (Node argNode in functionCallNode.args)
+            foreach (Node argNode in functionCallNode.args)
             {
-				JToken argValue = Eval(argNode, input, env);
-				args.Add(argValue);
+                JToken argValue = Eval(argNode, input, env);
+                args.Add(argValue);
             }
 
-			JToken? context = evalutedFirstArgFromApplication != null ? null : input;
-			JToken result = EvalProcessor_Functions.CallFunction(function.functionName, function.methodInfo, args, context, env);
-			return result;
+            JToken? context = evalutedFirstArgFromApplication != null ? null : input;
+
+            return InvokeFunction(function, args, context, env);
+        }
+
+        internal static JToken InvokeFunction(FunctionToken function, List<JToken> args, JToken? context, Environment env)
+        {
+            JToken result;
+            switch (function)
+            {
+            case FunctionTokenCsharp nativeFunction:
+                result = EvalProcessor_Functions.CallCsharpFunction(nativeFunction.functionName, nativeFunction.methodInfo, args, context, env);
+                break;
+            case FunctionTokenLambda lambdaFunction:
+                result = EvalProcessor_Lambda.CallLambdaFunction(lambdaFunction, args, context);
+                break;
+            default:
+                throw new Exception("Unexpected function token type " + function.GetType().Name);
+            }
+            return result;
         }
 
         private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)
@@ -330,14 +360,14 @@ namespace Jsonata.Net.Native.Eval
 					{
 						CheckAppendToken(result, item, index, res);
 					}
-					else if (IsArrayOfNumbers(res))
+					else if (Helpers.IsArrayOfNumbers(res))
 					{
 						foreach (JToken subtoken in ((JArray)res).Children())
 						{
 							CheckAppendToken(result, item, index, subtoken);
 						}
 					}
-					else if (booleanize(res) ?? false)
+					else if (Helpers.Booleanize(res))
                     {
 						result.Add(item);
                     }
@@ -386,22 +416,6 @@ namespace Jsonata.Net.Native.Eval
 					}
 				}
 			}
-
-			bool IsArrayOfNumbers(JToken token)
-            {
-				if (token.Type != JTokenType.Array)
-                {
-					return false;
-                }
-				foreach (JToken subtoken in ((JArray)token).Children())
-                {
-					if (subtoken.Type != JTokenType.Integer && subtoken.Type != JTokenType.Float)
-                    {
-						return false;
-                    }
-                }
-				return true;
-            }
         }
 
         private static JToken evalStringConcatenation(StringConcatenationNode stringConcatenationNode, JToken input, Environment env)
@@ -590,7 +604,7 @@ namespace Jsonata.Net.Native.Eval
 
         private static JToken evalBooleanOperator(BooleanOperatorNode booleanOperatorNode, JToken input, Environment env)
         {
-			bool lhs = booleanize(Eval(booleanOperatorNode.lhs, input, env)) ?? false; //here undefined works as false? see boolize() in jsonata-js
+			bool lhs = Helpers.Booleanize(Eval(booleanOperatorNode.lhs, input, env)); //here undefined works as false? see boolize() in jsonata-js
 			//short-cirquit the operators if possible:
 			switch (booleanOperatorNode.op)
             {
@@ -609,7 +623,7 @@ namespace Jsonata.Net.Native.Eval
 			};
 
 
-			bool rhs = booleanize(Eval(booleanOperatorNode.rhs, input, env)) ?? false;
+			bool rhs = Helpers.Booleanize(Eval(booleanOperatorNode.rhs, input, env));
 
 			bool result = booleanOperatorNode.op switch {
 				BooleanOperatorNode.BooleanOperator.BooleanAnd => lhs && rhs,
@@ -618,56 +632,6 @@ namespace Jsonata.Net.Native.Eval
 			};
 			return new JValue(result);
 		}
-
-		//null for undefined
-		private static bool? booleanize(JToken value)
-        {
-			// cast arg to its effective boolean value
-			// boolean: unchanged
-			// string: zero-length -> false; otherwise -> true
-			// number: 0 -> false; otherwise -> true
-			// null -> false
-			// array: empty -> false; length > 1 -> true
-			// object: empty -> false; non-empty -> true
-			// function -> false
-
-			switch (value.Type)
-            {
-			case JTokenType.Undefined:
-				return null;
-			case JTokenType.Array:
-                {
-					JArray array = (JArray)value;
-					if (array.Count == 0)
-                    {
-						return false;
-                    }
-					else if (array.Count == 1)
-                    {
-						return booleanize(array.Children().First());
-					}
-                    else
-                    {
-						return array.Children().Any(c => booleanize(c) == true);
-                    }
-                };
-			case JTokenType.String:
-				return ((string)value!).Length > 0;
-			case JTokenType.Integer:
-				return ((long)value) != 0;
-			case JTokenType.Float:
-				return ((double)value) != 0.0;
-			case JTokenType.Object:
-				return ((JObject)value!).Count > 0;
-			case JTokenType.Boolean:
-				return (bool)value;
-			case FunctionToken.TYPE:
-				return false;
-			default:
-				return false;
-			}
-        }
-
 
 		private static JToken evalGroup(GroupNode groupNode, JToken input, Environment env)
         {

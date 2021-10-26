@@ -58,7 +58,7 @@ namespace Jsonata.Net.Native.Eval
 
         internal void BindFunction(MethodInfo mi)
         {
-            this.Bind(mi.Name, new FunctionToken(mi.Name, mi));
+            this.Bind(mi.Name, new FunctionTokenCsharp(mi.Name, mi));
         }
 
         internal JToken Lookup(string name)
