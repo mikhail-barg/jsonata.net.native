@@ -17,6 +17,8 @@ namespace Jsonata.Net.Native.Eval
             :base(jsonName)
         {
         }
+
+        internal abstract int GetArgumentsCount();
     }
 
     internal sealed class FunctionTokenCsharp: FunctionToken
@@ -29,6 +31,11 @@ namespace Jsonata.Net.Native.Eval
         {
             this.functionName = funcName;
             this.methodInfo = methodInfo;
+        }
+
+        internal override int GetArgumentsCount()
+        {
+            return this.methodInfo.GetParameters().Length;
         }
     }
 
@@ -49,6 +56,11 @@ namespace Jsonata.Net.Native.Eval
             this.body = body;
             this.context = context;
             this.environment = environment;
+        }
+
+        internal override int GetArgumentsCount()
+        {
+            return this.paramNames.Count;
         }
     }
 }
