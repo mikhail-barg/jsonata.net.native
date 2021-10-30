@@ -893,6 +893,42 @@ namespace Jsonata.Net.Native.Eval
         }
 
         /**
+         Signature: $each(object, function)
+         Returns an array containing the values return by the function when applied to each key/value pair in the object.
+         The function parameter will get invoked with two arguments:
+            function(value, name)
+         where the value parameter is the value of each name/value pair in the object and name is its name. The name parameter is optional.* 
+         */
+        public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
+        {
+            int argsCount = function.GetArgumentsCount();
+            Sequence result = new Sequence();
+            foreach (JProperty prop in obj.Properties())
+            {
+                List<JToken> args = new List<JToken>();
+                if (argsCount >= 1)
+                {
+                    args.Add(prop.Value);
+                };
+                if (argsCount >= 2)
+                {
+                    args.Add(prop.Name);
+                };
+                JToken res = EvalProcessor.InvokeFunction(
+                    function: function,
+                    args: args,
+                    context: null,
+                    env: null! //TODO: pass some real environment?
+                );
+                if (res.Type != JTokenType.Undefined)
+                {
+                    result.Add(res);
+                };
+            }
+            return result;
+        }
+
+        /**
          Signature:$type(value)
         Evaluates the type of value and returns one of the following strings:
             "null"
@@ -977,7 +1013,8 @@ namespace Jsonata.Net.Native.Eval
                     result.Add(element);
                 }
             }
-            return result.Simplify();
+            //return result.Simplify();
+            return result;
 
             bool filterAcceptsElement(JToken element, int index, JArray array)
             {
