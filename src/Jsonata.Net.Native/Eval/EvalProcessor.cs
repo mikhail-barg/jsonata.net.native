@@ -115,13 +115,11 @@ namespace Jsonata.Net.Native.Eval
 			case LambdaNode lambdaNode:
 				return evalLambda(lambdaNode, input, env);
 			/*
-			case TypedLambdaNode:
-				return evalTypedLambda(node, input, env);
 			case ObjectTransformationNode:
 				return evalObjectTransformation(node, input, env);
-			case PartialNode:
-				return evalPartial(node, input, env);
 			*/
+			case PartialNode partialNode:
+				return evalPartial(partialNode, input, env);
 			case FunctionCallNode functionCallNode:
 				return evalFunctionCall(functionCallNode, input, env, null);
 			case FunctionApplicationNode functionApplicationNode:
@@ -137,6 +135,31 @@ namespace Jsonata.Net.Native.Eval
 			default:
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
+		}
+
+        private static JToken evalPartial(PartialNode partialNode, JToken input, Environment env)
+        {
+			JToken func = Eval(partialNode.func, input, env);
+
+			if (func is not FunctionToken function)
+			{
+				throw new JsonataException("T1008", $"Attempted to partially apply a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}' got from '{partialNode.func}'");
+			};
+
+			List<JToken?> argsOrNulls = new List<JToken?>(partialNode.args.Count);
+			foreach (Node argNode in partialNode.args)
+            {
+				if (argNode is PlaceholderNode)
+                {
+					argsOrNulls.Add(null);
+                }
+				else
+                {
+					JToken arg = Eval(argNode, input, env);
+					argsOrNulls.Add(arg);
+                }
+            }
+			return new FunctionTokenPartial(function, argsOrNulls);
 		}
 
         private static JToken evalLambda(LambdaNode lambdaNode, JToken input, Environment env)
@@ -175,8 +198,41 @@ namespace Jsonata.Net.Native.Eval
 				// this is a function _invocation_; invoke it with lhs expression as the first argument
 				return evalFunctionCall(functionCallNode, input, env, evalutedFirstArgFromApplication: lhs);
 			}
+			else
+            {
+				JToken rhs = Eval(functionApplicationNode.rhs, input, env);
+				if (rhs.Type != FunctionToken.TYPE)
+                {
+					throw new JsonataException("T2006", "The right side of the function application operator ~> must be a function");
+                };
+				if (lhs.Type == FunctionToken.TYPE)
+                {
+					// this is function chaining (func1 ~> func2)
+					// λ($f, $g) { λ($x){ $g($f($x)) } }
 
-			throw new NotImplementedException("TODO: implement");
+					//original jsonata-js used following AST here:
+					// var chainAST = parser('function($f, $g) { function($x){ $g($f($x)) } }');
+					/* TODO: use pre-compiled AST, or at least parse chainAST just once
+					return new FunctionTokenLambda(
+						signature: null,
+						paramNames: new List<string>() { "x" },
+						body: new FunctionCallNode(
+							new 
+						),
+						context: input,
+						environment: env
+					);
+					*/
+					JsonataQuery chainAST = new JsonataQuery("function($f, $g) { function($x){ $g($f($x)) } }");
+					JToken chain = chainAST.Eval(EvalProcessor.UNDEFINED); //TODO: probably need to provide env as an environment here
+					JToken result = InvokeFunction((FunctionToken)chain, new List<JToken>() { lhs, rhs }, null, env);
+					return result;
+				}
+				else
+                {
+					return InvokeFunction((FunctionToken)rhs, new List<JToken>() { lhs }, null, env);
+                }
+			}
 		}
 
         private static JToken evalRange(RangeNode rangeNode, JToken input, Environment env)
@@ -282,10 +338,53 @@ namespace Jsonata.Net.Native.Eval
             case FunctionTokenLambda lambdaFunction:
                 result = EvalProcessor_Lambda.CallLambdaFunction(lambdaFunction, args, context);
                 break;
-            default:
+			case FunctionTokenPartial partialFunction:
+				{
+					List<JToken> alignedArgs = AlignPartialFunctionArgs(partialFunction, args, context);
+					result = InvokeFunction(partialFunction.func, alignedArgs, null, env);
+				}
+				break;
+			default:
                 throw new Exception("Unexpected function token type " + function.GetType().Name);
             }
             return result;
+        }
+
+        private static List<JToken> AlignPartialFunctionArgs(FunctionTokenPartial partialFunction, List<JToken> args, JToken? context)
+        {
+			int expectedArgsCount = partialFunction.GetArgumentsCount();
+			bool useContext = false;
+			if (expectedArgsCount == args.Count + 1 && context != null)
+            {
+				useContext = true;
+            };
+			int nextArgIndex = 0;
+			List<JToken> result = new List<JToken>(partialFunction.argsOrPlaceholders.Count);
+			foreach (JToken? arg in partialFunction.argsOrPlaceholders)
+            {
+				if (arg == null)
+                {
+					if (useContext)
+                    {
+						result.Add(context!);
+						useContext = false;
+                    }
+					else if (nextArgIndex < args.Count)
+                    {
+						result.Add(args[nextArgIndex]);
+						++nextArgIndex;
+                    }
+					else
+                    {
+						result.Add(EvalProcessor.UNDEFINED);
+                    }
+                }
+                else
+                {
+					result.Add(arg);
+                }
+            };
+			return result;
         }
 
         private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)

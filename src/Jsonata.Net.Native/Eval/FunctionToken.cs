@@ -35,6 +35,7 @@ namespace Jsonata.Net.Native.Eval
 
         internal override int GetArgumentsCount()
         {
+            //todo: cache in ctor
             return this.methodInfo.GetParameters().Length;
         }
     }
@@ -61,6 +62,25 @@ namespace Jsonata.Net.Native.Eval
         internal override int GetArgumentsCount()
         {
             return this.paramNames.Count;
+        }
+    }
+
+    internal sealed class FunctionTokenPartial : FunctionToken
+    {
+        internal readonly FunctionToken func;
+        internal readonly List<JToken?> argsOrPlaceholders;
+
+        internal FunctionTokenPartial(FunctionToken func, List<JToken?> argsOrPlaceholders)
+            : base(func.Name + "_partial")
+        {
+            this.func = func;
+            this.argsOrPlaceholders = argsOrPlaceholders;
+        }
+
+        internal override int GetArgumentsCount()
+        {
+            //todo: cache in ctor
+            return this.argsOrPlaceholders.Count(t => t == null);
         }
     }
 }

@@ -81,6 +81,7 @@ namespace Jsonata.Net.Native.Eval
 				ParameterInfo parameterInfo = parameterList[i];
 				if (i >= args.Count)
 				{
+					//TODO: place all this reflection into FunctionTokenCsharp
 					OptionalArgumentAttribute? optional = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>();
 					if (optional != null)
 					{
@@ -187,6 +188,7 @@ namespace Jsonata.Net.Native.Eval
 
 		private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
 		{
+			//TODO: place all this reflection into FunctionTokenCsharp
 			if (argToken.Type == JTokenType.Undefined
 				&& parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false)
 			)
