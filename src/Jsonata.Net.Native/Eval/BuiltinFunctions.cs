@@ -798,7 +798,7 @@ namespace Jsonata.Net.Native.Eval
             }
 
             JArray array = (JArray)arrayToken;
-            if (array.Count == 0)
+            if (array.Count <= 1)
             {
                 return array;
             }
@@ -967,6 +967,53 @@ namespace Jsonata.Net.Native.Eval
 
         #region Higher order functions
         /**
+         Signature: $map(array, function)
+         Returns an array containing the results of applying the function parameter to each value in the array parameter.
+         The function that is supplied as the second parameter must have the following signature:
+            function(value [, index [, array]])
+         Each value in the input array is passed in as the first parameter in the supplied function. 
+         The index (position) of that value in the input array is passed in as the second parameter, if specified. 
+         The whole input array is passed in as the third parameter, if specified.
+         */
+        public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
+        {
+            int filterArgsCount = function.GetArgumentsCount();
+
+            Sequence result = new Sequence();
+
+            int index = 0;
+            foreach (JToken element in array.Children())
+            {
+                List<JToken> args = new List<JToken>();
+                if (filterArgsCount >= 1)
+                {
+                    args.Add(element);
+                };
+                if (filterArgsCount >= 2)
+                {
+                    args.Add(new JValue(index));
+                };
+                if (filterArgsCount >= 3)
+                {
+                    args.Add(array);
+                };
+                JToken res = EvalProcessor.InvokeFunction(
+                    function: function,
+                    args: args,
+                    context: null,
+                    env: null! //TODO: pass some real environment?
+                );
+                if (res.Type != JTokenType.Undefined)
+                {
+                    result.Add(res);
+                };
+                ++index;
+            }
+            return result;
+        }
+
+
+        /**
         Signature: $filter(array, function)
         Returns an array containing only the values in the array parameter that satisfy the function predicate (i.e. function returns Boolean true when passed the value).
         The function that is supplied as the second parameter must have the following signature:
@@ -975,41 +1022,17 @@ namespace Jsonata.Net.Native.Eval
         The index (position) of that value in the input array is passed in as the second parameter, if specified. 
         The whole input array is passed in as the third parameter, if specified.         
          */
-        public static JToken filter([PropagateUndefined] JToken arrayToken, FunctionToken function)
+        public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
         {
             int filterArgsCount = function.GetArgumentsCount();
 
-            if (arrayToken.Type != JTokenType.Array)
-            {
-                JArray sourceSequence;
-                if (filterArgsCount >= 3)
-                {
-                    sourceSequence = new Sequence();
-                    sourceSequence.Add(arrayToken);
-                }
-                else
-                {
-                    sourceSequence = default!;
-                };
-
-                if (filterAcceptsElement(arrayToken, 0, sourceSequence))
-                {
-                    return arrayToken;
-                }
-                else
-                {
-                    return EvalProcessor.UNDEFINED;
-                }
-            };
-
-            JArray array = (JArray)arrayToken;
             Sequence result = new Sequence();
-
             int index = 0;
             foreach (JToken element in array.Children())
             {
                 if (filterAcceptsElement(element, index, array))
                 {
+                    ++index;
                     result.Add(element);
                 }
             }

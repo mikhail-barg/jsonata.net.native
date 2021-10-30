@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-run id="0" name="Jsonata.Net.Native.TestSuite.dll" fullname="f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native.TestSuite\bin\Debug\net5.0\Jsonata.Net.Native.TestSuite.dll" runstate="Runnable" testcasecount="1611" result="Failed" total="146" passed="125" failed="2" inconclusive="0" skipped="19" asserts="85" engine-version="3.12.0.0" clr-version="5.0.10" start-time="2021-10-30 21:23:37Z" end-time="2021-10-30 21:23:37Z" duration="0.256349">
-  <command-line><![CDATA[f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native.TestSuite\bin\Debug\net5.0\testhost.dll --port 60158 --endpoint 127.0.0.1:060158 --role client --parentprocessid 27728 --telemetryoptedin false]]></command-line>
+<test-run id="0" name="Jsonata.Net.Native.TestSuite.dll" fullname="f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native.TestSuite\bin\Debug\net5.0\Jsonata.Net.Native.TestSuite.dll" runstate="Runnable" testcasecount="1611" result="Failed" total="146" passed="125" failed="2" inconclusive="0" skipped="19" asserts="85" engine-version="3.12.0.0" clr-version="5.0.10" start-time="2021-10-30 22:08:25Z" end-time="2021-10-30 22:08:25Z" duration="0.240647">
+  <command-line><![CDATA[f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native.TestSuite\bin\Debug\net5.0\testhost.dll --port 62941 --endpoint 127.0.0.1:062941 --role client --parentprocessid 27728 --telemetryoptedin false]]></command-line>
   <filter>
     <or>
       <test>Jsonata.Net.Native.TestSuite.Tests.token-conversion.case000</test>
@@ -151,11 +151,11 @@
       <test>Jsonata.Net.Native.TestSuite.Tests.wildcards.case009</test>
     </or>
   </filter>
-  <test-suite type="Assembly" id="0-2613" name="Jsonata.Net.Native.TestSuite.dll" fullname="f:/Projects/_NuGet/jsonata.net.native/src/Jsonata.Net.Native.TestSuite/bin/Debug/net5.0/Jsonata.Net.Native.TestSuite.dll" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5427081Z" end-time="2021-10-30T21:23:37.7738397Z" duration="0.231088" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
+  <test-suite type="Assembly" id="0-2613" name="Jsonata.Net.Native.TestSuite.dll" fullname="f:/Projects/_NuGet/jsonata.net.native/src/Jsonata.Net.Native.TestSuite/bin/Debug/net5.0/Jsonata.Net.Native.TestSuite.dll" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1519204Z" end-time="2021-10-30T22:08:25.3674927Z" duration="0.215526" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
     <environment framework-version="3.13.2.0" clr-version="5.0.10" os-version="Microsoft Windows 6.3.9600" platform="Win32NT" cwd="f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native.TestSuite\bin\Debug\net5.0" machine-name="ABC-BARG" user="barg_ma" user-domain="ABC" culture="ru-RU" uiculture="ru-RU" os-architecture="x64" />
     <settings>
       <setting name="SynchronousEvents" value="False" />
-      <setting name="RandomSeed" value="1515259252" />
+      <setting name="RandomSeed" value="489965759" />
       <setting name="SkipNonTestAssemblies" value="True" />
       <setting name="ProcessModel" value="InProcess" />
       <setting name="DomainUsage" value="Single" />
@@ -164,39 +164,39 @@
       <setting name="NumberOfTestWorkers" value="4" />
     </settings>
     <properties>
-      <property name="_PID" value="7628" />
+      <property name="_PID" value="7620" />
       <property name="_APPDOMAIN" value="testhost" />
     </properties>
     <failure>
       <message><![CDATA[One or more child tests had errors]]></message>
     </failure>
-    <test-suite type="TestSuite" id="0-2614" name="Jsonata" fullname="Jsonata" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5468775Z" end-time="2021-10-30T21:23:37.7736359Z" duration="0.226761" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
+    <test-suite type="TestSuite" id="0-2614" name="Jsonata" fullname="Jsonata" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1565215Z" end-time="2021-10-30T22:08:25.3674661Z" duration="0.210947" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
       <failure>
         <message><![CDATA[One or more child tests had errors]]></message>
       </failure>
-      <test-suite type="TestSuite" id="0-2615" name="Net" fullname="Jsonata.Net" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5471066Z" end-time="2021-10-30T21:23:37.7733688Z" duration="0.226265" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
+      <test-suite type="TestSuite" id="0-2615" name="Net" fullname="Jsonata.Net" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1567497Z" end-time="2021-10-30T22:08:25.3674586Z" duration="0.210712" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
         <failure>
           <message><![CDATA[One or more child tests had errors]]></message>
         </failure>
-        <test-suite type="TestSuite" id="0-2616" name="Native" fullname="Jsonata.Net.Native" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5471187Z" end-time="2021-10-30T21:23:37.7731720Z" duration="0.226056" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
+        <test-suite type="TestSuite" id="0-2616" name="Native" fullname="Jsonata.Net.Native" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1567596Z" end-time="2021-10-30T22:08:25.3674507Z" duration="0.210693" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
           <failure>
             <message><![CDATA[One or more child tests had errors]]></message>
           </failure>
-          <test-suite type="TestSuite" id="0-2617" name="TestSuite" fullname="Jsonata.Net.Native.TestSuite" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5471226Z" end-time="2021-10-30T21:23:37.7729754Z" duration="0.225856" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
+          <test-suite type="TestSuite" id="0-2617" name="TestSuite" fullname="Jsonata.Net.Native.TestSuite" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1567639Z" end-time="2021-10-30T22:08:25.3674338Z" duration="0.210673" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
             <failure>
               <message><![CDATA[One or more child tests had errors]]></message>
             </failure>
-            <test-suite type="TestFixture" id="0-1000" name="Tests" fullname="Jsonata.Net.Native.TestSuite.Tests" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5481544Z" end-time="2021-10-30T21:23:37.7728453Z" duration="0.224694" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
+            <test-suite type="TestFixture" id="0-1000" name="Tests" fullname="Jsonata.Net.Native.TestSuite.Tests" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1578342Z" end-time="2021-10-30T22:08:25.3673852Z" duration="0.209554" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="85">
               <failure>
                 <message><![CDATA[One or more child tests had errors]]></message>
               </failure>
               <output><![CDATA[Loaded 27 datasets
 ]]></output>
-              <test-suite type="ParameterizedMethod" id="0-2612" name="Test" fullname="Jsonata.Net.Native.TestSuite.Tests.Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T21:23:37.5629325Z" end-time="2021-10-30T21:23:37.7708937Z" duration="0.207964" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="84">
+              <test-suite type="ParameterizedMethod" id="0-2612" name="Test" fullname="Jsonata.Net.Native.TestSuite.Tests.Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" testcasecount="1611" result="Failed" site="Child" start-time="2021-10-30T22:08:25.1727182Z" end-time="2021-10-30T22:08:25.3654901Z" duration="0.192774" total="146" passed="125" failed="2" warnings="0" inconclusive="0" skipped="19" asserts="84">
                 <failure>
                   <message><![CDATA[One or more child tests had errors]]></message>
                 </failure>
-                <test-case id="0-2466" name="token-conversion.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1580988319" result="Passed" start-time="2021-10-30T21:23:37.5629874Z" end-time="2021-10-30T21:23:37.5903193Z" duration="0.027427" asserts="1">
+                <test-case id="0-2466" name="token-conversion.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="657491675" result="Passed" start-time="2021-10-30T22:08:25.1727732Z" end-time="2021-10-30T22:08:25.2001187Z" duration="0.027450" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$.'7a'';&#xA; result: 33" />
                   </properties>
@@ -205,7 +205,7 @@ Result: '33'
 Expected: '33'
 ]]></output>
                 </test-case>
-                <test-case id="0-2467" name="token-conversion.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="660407475" result="Passed" start-time="2021-10-30T21:23:37.5921048Z" end-time="2021-10-30T21:23:37.5922697Z" duration="0.000165" asserts="1">
+                <test-case id="0-2467" name="token-conversion.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="240704842" result="Passed" start-time="2021-10-30T22:08:25.2023181Z" end-time="2021-10-30T22:08:25.2025708Z" duration="0.000252" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$.'7'';&#xA; result: 88" />
                   </properties>
@@ -214,7 +214,7 @@ Result: '88'
 Expected: '88'
 ]]></output>
                 </test-case>
-                <test-case id="0-2468" name="token-conversion.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="462560461" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.5922881Z" end-time="2021-10-30T21:23:37.6228527Z" duration="0.030566" asserts="0">
+                <test-case id="0-2468" name="token-conversion.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="652166058" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2026040Z" end-time="2021-10-30T22:08:25.2319304Z" duration="0.029327" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$.7a';&#xA; result: error S0201" />
                   </properties>
@@ -228,7 +228,7 @@ Expected: '88'
                   <output><![CDATA[Expr is '$.7a'
 ]]></output>
                 </test-case>
-                <test-case id="0-2469" name="token-conversion.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1649500083" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6230061Z" end-time="2021-10-30T21:23:37.6241478Z" duration="0.001142" asserts="0">
+                <test-case id="0-2469" name="token-conversion.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.token-conversion.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2021178001" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2320638Z" end-time="2021-10-30T22:08:25.2331252Z" duration="0.001061" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$.7';&#xA; result: error S0213" />
                   </properties>
@@ -243,7 +243,7 @@ Expected: '88'
                   <output><![CDATA[Expr is '$.7'
 ]]></output>
                 </test-case>
-                <test-case id="0-2470" name="transform.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1692041135" result="Passed" start-time="2021-10-30T21:23:37.6242444Z" end-time="2021-10-30T21:23:37.6387350Z" duration="0.014491" asserts="1">
+                <test-case id="0-2470" name="transform.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="975491788" result="Passed" start-time="2021-10-30T22:08:25.2340344Z" end-time="2021-10-30T22:08:25.2464672Z" duration="0.012433" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '{'Order': Account.Order.{  'ID': OrderID,  'Product': Product.{    'SKU': ProductID,    'Details': {      'Weight': Description.Weight,      'Dimensions': Description.(Width &amp; ' x ' &amp; Height &amp; ' x ' &amp; Depth)    }  },  'Total Price': $sum(Product.(Price * Quantity))}}';&#xA; result: {&quot;Order&quot;:[{&quot;ID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;SKU&quot;:858383,&quot;Details&quot;:{&quot;Weight&quot;:0.75,&quot;Dimensions&quot;:&quot;300 x 200 x 210&quot;}},{&quot;SKU&quot;:858236,&quot;Details&quot;:{&quot;Weight&quot;:0.6,&quot;Dimensions&quot;:&quot;300 x 200 x 210&quot;}}],&quot;Total Price&quot;:90.57000000000001},{&quot;ID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;SKU&quot;:858383,&quot;Details&quot;:{&quot;Weight&quot;:0.75,&quot;Dimensions&quot;:&quot;300 x 200 x 210&quot;}},{&quot;SKU&quot;:345664,&quot;Details&quot;:{&quot;Weight&quot;:2,&quot;Dimensions&quot;:&quot;30 x 20 x 210&quot;}}],&quot;Total Price&quot;:245.79000000000002}]}" />
                   </properties>
@@ -252,7 +252,7 @@ Result: '{"Order":[{"ID":"order103","Product":[{"SKU":858383,"Details":{"Weight"
 Expected: '{"Order":[{"ID":"order103","Product":[{"SKU":858383,"Details":{"Weight":0.75,"Dimensions":"300 x 200 x 210"}},{"SKU":858236,"Details":{"Weight":0.6,"Dimensions":"300 x 200 x 210"}}],"Total Price":90.57000000000001},{"ID":"order104","Product":[{"SKU":858383,"Details":{"Weight":0.75,"Dimensions":"300 x 200 x 210"}},{"SKU":345664,"Details":{"Weight":2,"Dimensions":"30 x 20 x 210"}}],"Total Price":245.79000000000002}]}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2471" name="transform.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="788131531" result="Failed" label="Error" start-time="2021-10-30T21:23:37.6387589Z" end-time="2021-10-30T21:23:37.6493065Z" duration="0.010548" asserts="0">
+                <test-case id="0-2471" name="transform.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1156253727" result="Failed" label="Error" start-time="2021-10-30T22:08:25.2464896Z" end-time="2021-10-30T22:08:25.2572911Z" duration="0.010802" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '&#xA;        (&#xA;          $tempReadings := $count(state.tempReadings) = 5 ?&#xA;              [state.tempReadings[[1..4]], event.t] :&#xA;              [state.tempReadings, event.t];&#xA;        &#xA;          {&#xA;            &quot;tempReadings&quot;: $tempReadings,&#xA;            &quot;sumTemperatures&quot;: $sum($tempReadings),&#xA;            &quot;avgTemperature&quot;: $average($tempReadings) ~&gt; $round(2),&#xA;            &quot;maxTemperature&quot;: $max($tempReadings),&#xA;            &quot;minTemperature&quot;: $min($tempReadings)&#xA;          }&#xA;        )';&#xA; result: {&quot;tempReadings&quot;:[28.9,28,28.2,28.4,28.4],&quot;sumTemperatures&quot;:141.9,&quot;avgTemperature&quot;:28.38,&quot;maxTemperature&quot;:28.9,&quot;minTemperature&quot;:28}" />
                   </properties>
@@ -290,7 +290,7 @@ Expected: '{"Order":[{"ID":"order103","Product":[{"SKU":858383,"Details":{"Weigh
         )'
 ]]></output>
                 </test-case>
-                <test-case id="0-2472" name="transform.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="712091943" result="Passed" start-time="2021-10-30T21:23:37.6493530Z" end-time="2021-10-30T21:23:37.6495139Z" duration="0.000161" asserts="1">
+                <test-case id="0-2472" name="transform.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="995812031" result="Passed" start-time="2021-10-30T22:08:25.2573128Z" end-time="2021-10-30T22:08:25.2574315Z" duration="0.000119" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: {&quot;output&quot;:{&quot;is&quot;:{&quot;same&quot;:{&quot;as&quot;:&quot;input&quot;}}}}" />
                   </properties>
@@ -299,7 +299,7 @@ Result: '{"output":{"is":{"same":{"as":"input"}}}}'
 Expected: '{"output":{"is":{"same":{"as":"input"}}}}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2473" name="transform.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2128473165" result="Passed" start-time="2021-10-30T21:23:37.6495254Z" end-time="2021-10-30T21:23:37.6496135Z" duration="0.000088" asserts="1">
+                <test-case id="0-2473" name="transform.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1659699629" result="Passed" start-time="2021-10-30T22:08:25.2574399Z" end-time="2021-10-30T22:08:25.2575202Z" duration="0.000081" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo';&#xA; result: {&quot;bar&quot;:42}" />
                   </properties>
@@ -308,7 +308,7 @@ Result: '{"bar":42}'
 Expected: '{"bar":42}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2474" name="transform.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2102726872" result="Passed" start-time="2021-10-30T21:23:37.6496226Z" end-time="2021-10-30T21:23:37.6496993Z" duration="0.000077" asserts="1">
+                <test-case id="0-2474" name="transform.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="487559654" result="Passed" start-time="2021-10-30T22:08:25.2575281Z" end-time="2021-10-30T22:08:25.2576008Z" duration="0.000073" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'baz';&#xA; result: {&quot;gar&quot;:50}" />
                   </properties>
@@ -317,7 +317,7 @@ Result: '{"gar":50}'
 Expected: '{"gar":50}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2475" name="transform.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1307573481" result="Passed" start-time="2021-10-30T21:23:37.6497074Z" end-time="2021-10-30T21:23:37.6497847Z" duration="0.000078" asserts="1">
+                <test-case id="0-2475" name="transform.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="583996628" result="Passed" start-time="2021-10-30T22:08:25.2576081Z" end-time="2021-10-30T22:08:25.2576859Z" duration="0.000078" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'Foo';&#xA; result: {&quot;mama&quot;:45}" />
                   </properties>
@@ -326,7 +326,7 @@ Result: '{"mama":45}'
 Expected: '{"mama":45}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2476" name="transform.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1163685887" result="Passed" start-time="2021-10-30T21:23:37.6497922Z" end-time="2021-10-30T21:23:37.6498647Z" duration="0.000072" asserts="1">
+                <test-case id="0-2476" name="transform.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1402598358" result="Passed" start-time="2021-10-30T22:08:25.2576935Z" end-time="2021-10-30T22:08:25.2577644Z" duration="0.000071" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'food';&#xA; result: {&quot;wa&quot;:&quot;hume&quot;}" />
                   </properties>
@@ -335,7 +335,7 @@ Result: '{"wa":"hume"}'
 Expected: '{"wa":"hume"}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2477" name="transform.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1652144874" result="Passed" start-time="2021-10-30T21:23:37.6498719Z" end-time="2021-10-30T21:23:37.6499444Z" duration="0.000072" asserts="1">
+                <test-case id="0-2477" name="transform.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="386681884" result="Passed" start-time="2021-10-30T22:08:25.2577732Z" end-time="2021-10-30T22:08:25.2578743Z" duration="0.000101" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'maz.rar';&#xA; result: 42" />
                   </properties>
@@ -344,7 +344,7 @@ Result: '42'
 Expected: '42'
 ]]></output>
                 </test-case>
-                <test-case id="0-2478" name="transform.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2053578671" result="Passed" start-time="2021-10-30T21:23:37.6499519Z" end-time="2021-10-30T21:23:37.6500331Z" duration="0.000081" asserts="1">
+                <test-case id="0-2478" name="transform.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1689361759" result="Passed" start-time="2021-10-30T22:08:25.2578849Z" end-time="2021-10-30T22:08:25.2579724Z" duration="0.000088" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'jee.par.waa';&#xA; result: {&quot;bar&quot;:87}" />
                   </properties>
@@ -353,7 +353,7 @@ Result: '{"bar":87}'
 Expected: '{"bar":87}'
 ]]></output>
                 </test-case>
-                <test-case id="0-2479" name="transform.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1150489132" result="Passed" start-time="2021-10-30T21:23:37.6500407Z" end-time="2021-10-30T21:23:37.6501056Z" duration="0.000065" asserts="1">
+                <test-case id="0-2479" name="transform.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1497938936" result="Passed" start-time="2021-10-30T22:08:25.2579806Z" end-time="2021-10-30T22:08:25.2580485Z" duration="0.000068" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo';&#xA; result: undefined" />
                   </properties>
@@ -362,7 +362,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2480" name="transform.case010" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case010" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="800360641" result="Passed" start-time="2021-10-30T21:23:37.6501131Z" end-time="2021-10-30T21:23:37.6501961Z" duration="0.000083" asserts="1">
+                <test-case id="0-2480" name="transform.case010" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case010" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1330428328" result="Passed" start-time="2021-10-30T22:08:25.2580563Z" end-time="2021-10-30T22:08:25.2581230Z" duration="0.000067" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.bar';&#xA; result: undefined" />
                   </properties>
@@ -371,7 +371,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2481" name="transform.case011" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case011" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="370747816" result="Passed" start-time="2021-10-30T21:23:37.6502037Z" end-time="2021-10-30T21:23:37.6505430Z" duration="0.000339" asserts="1">
+                <test-case id="0-2481" name="transform.case011" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case011" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1560148558" result="Passed" start-time="2021-10-30T22:08:25.2581303Z" end-time="2021-10-30T22:08:25.2582347Z" duration="0.000105" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: &quot;foo&quot;" />
                   </properties>
@@ -380,7 +380,7 @@ Result: '"foo"'
 Expected: '"foo"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2482" name="transform.case012" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case012" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1933211115" result="Passed" start-time="2021-10-30T21:23:37.6511024Z" end-time="2021-10-30T21:23:37.6513402Z" duration="0.000238" asserts="1">
+                <test-case id="0-2482" name="transform.case012" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case012" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1652140859" result="Passed" start-time="2021-10-30T22:08:25.2583187Z" end-time="2021-10-30T22:08:25.2597054Z" duration="0.001387" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: &quot;foo&quot;" />
                   </properties>
@@ -389,7 +389,7 @@ Result: '"foo"'
 Expected: '"foo"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2483" name="transform.case013" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case013" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="502504108" result="Passed" start-time="2021-10-30T21:23:37.6515072Z" end-time="2021-10-30T21:23:37.6516545Z" duration="0.000147" asserts="1">
+                <test-case id="0-2483" name="transform.case013" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case013" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="865403940" result="Passed" start-time="2021-10-30T22:08:25.2599992Z" end-time="2021-10-30T22:08:25.2601272Z" duration="0.000128" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: 6754322" />
                   </properties>
@@ -398,7 +398,7 @@ Result: '6754322'
 Expected: '6754322'
 ]]></output>
                 </test-case>
-                <test-case id="0-2484" name="transform.case014" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case014" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="391426547" result="Passed" start-time="2021-10-30T21:23:37.6517221Z" end-time="2021-10-30T21:23:37.6518323Z" duration="0.000110" asserts="1">
+                <test-case id="0-2484" name="transform.case014" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case014" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="682190598" result="Passed" start-time="2021-10-30T22:08:25.2604607Z" end-time="2021-10-30T22:08:25.2605588Z" duration="0.000098" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: 0" />
                   </properties>
@@ -407,7 +407,7 @@ Result: '0'
 Expected: '0'
 ]]></output>
                 </test-case>
-                <test-case id="0-2485" name="transform.case015" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case015" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="465029401" result="Passed" start-time="2021-10-30T21:23:37.6518887Z" end-time="2021-10-30T21:23:37.6520077Z" duration="0.000119" asserts="1">
+                <test-case id="0-2485" name="transform.case015" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case015" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="480146534" result="Passed" start-time="2021-10-30T22:08:25.2605887Z" end-time="2021-10-30T22:08:25.2606545Z" duration="0.000066" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: -24" />
                   </properties>
@@ -416,7 +416,7 @@ Result: '-24'
 Expected: '-24'
 ]]></output>
                 </test-case>
-                <test-case id="0-2486" name="transform.case016" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case016" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1725130596" result="Passed" start-time="2021-10-30T21:23:37.6520439Z" end-time="2021-10-30T21:23:37.6522033Z" duration="0.000159" asserts="1">
+                <test-case id="0-2486" name="transform.case016" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case016" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="9293866" result="Passed" start-time="2021-10-30T22:08:25.2606784Z" end-time="2021-10-30T22:08:25.2607741Z" duration="0.000096" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: 6.54" />
                   </properties>
@@ -425,7 +425,7 @@ Result: '6.54'
 Expected: '6.54'
 ]]></output>
                 </test-case>
-                <test-case id="0-2487" name="transform.case017" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case017" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1368337026" result="Passed" start-time="2021-10-30T21:23:37.6522630Z" end-time="2021-10-30T21:23:37.6523702Z" duration="0.000107" asserts="1">
+                <test-case id="0-2487" name="transform.case017" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case017" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1221284410" result="Passed" start-time="2021-10-30T22:08:25.2607901Z" end-time="2021-10-30T22:08:25.2608737Z" duration="0.000084" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: true" />
                   </properties>
@@ -434,7 +434,7 @@ Result: 'true'
 Expected: 'true'
 ]]></output>
                 </test-case>
-                <test-case id="0-2488" name="transform.case018" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case018" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1889182089" result="Passed" start-time="2021-10-30T21:23:37.6524224Z" end-time="2021-10-30T21:23:37.6525408Z" duration="0.000119" asserts="1">
+                <test-case id="0-2488" name="transform.case018" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case018" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="295054685" result="Passed" start-time="2021-10-30T22:08:25.2608830Z" end-time="2021-10-30T22:08:25.2609561Z" duration="0.000073" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: false" />
                   </properties>
@@ -443,7 +443,7 @@ Result: 'false'
 Expected: 'false'
 ]]></output>
                 </test-case>
-                <test-case id="0-2489" name="transform.case019" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case019" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2127314180" result="Passed" start-time="2021-10-30T21:23:37.6525794Z" end-time="2021-10-30T21:23:37.6526959Z" duration="0.000117" asserts="1">
+                <test-case id="0-2489" name="transform.case019" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case019" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1563776557" result="Passed" start-time="2021-10-30T22:08:25.2609639Z" end-time="2021-10-30T22:08:25.2610264Z" duration="0.000062" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: null" />
                   </properties>
@@ -452,7 +452,7 @@ Result: 'null'
 Expected: 'null'
 ]]></output>
                 </test-case>
-                <test-case id="0-2490" name="transform.case020" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case020" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1976739907" result="Passed" start-time="2021-10-30T21:23:37.6527445Z" end-time="2021-10-30T21:23:37.6528484Z" duration="0.000104" asserts="1">
+                <test-case id="0-2490" name="transform.case020" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case020" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="897405298" result="Passed" start-time="2021-10-30T22:08:25.2610337Z" end-time="2021-10-30T22:08:25.2610983Z" duration="0.000065" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: null" />
                   </properties>
@@ -461,7 +461,7 @@ Result: 'null'
 Expected: 'null'
 ]]></output>
                 </test-case>
-                <test-case id="0-2491" name="transform.case021" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case021" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1350096626" result="Passed" start-time="2021-10-30T21:23:37.6529127Z" end-time="2021-10-30T21:23:37.6530105Z" duration="0.000098" asserts="1">
+                <test-case id="0-2491" name="transform.case021" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case021" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="313673226" result="Passed" start-time="2021-10-30T22:08:25.2611055Z" end-time="2021-10-30T22:08:25.2611695Z" duration="0.000064" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: undefined" />
                   </properties>
@@ -470,7 +470,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2492" name="transform.case022" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case022" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="160063432" result="Passed" start-time="2021-10-30T21:23:37.6530893Z" end-time="2021-10-30T21:23:37.6531886Z" duration="0.000100" asserts="1">
+                <test-case id="0-2492" name="transform.case022" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case022" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="217161485" result="Passed" start-time="2021-10-30T22:08:25.2611952Z" end-time="2021-10-30T22:08:25.2612574Z" duration="0.000062" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: undefined" />
                   </properties>
@@ -479,7 +479,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2493" name="transform.case023" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case023" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1156444627" result="Passed" start-time="2021-10-30T21:23:37.6532450Z" end-time="2021-10-30T21:23:37.6533561Z" duration="0.000111" asserts="1">
+                <test-case id="0-2493" name="transform.case023" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case023" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1349231511" result="Passed" start-time="2021-10-30T22:08:25.2612646Z" end-time="2021-10-30T22:08:25.2613316Z" duration="0.000067" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: &quot;\&quot;Hello\&quot;&quot;" />
                   </properties>
@@ -488,7 +488,7 @@ Result: '"\"Hello\""'
 Expected: '"\"Hello\""'
 ]]></output>
                 </test-case>
-                <test-case id="0-2494" name="transform.case024" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case024" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1521482787" result="Passed" start-time="2021-10-30T21:23:37.6534117Z" end-time="2021-10-30T21:23:37.6535158Z" duration="0.000104" asserts="1">
+                <test-case id="0-2494" name="transform.case024" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case024" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1532880122" result="Passed" start-time="2021-10-30T22:08:25.2613389Z" end-time="2021-10-30T22:08:25.2614011Z" duration="0.000062" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: &quot;\&quot;Hello\&quot;&quot;" />
                   </properties>
@@ -497,7 +497,7 @@ Result: '"\"Hello\""'
 Expected: '"\"Hello\""'
 ]]></output>
                 </test-case>
-                <test-case id="0-2495" name="transform.case025" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case025" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1281342052" result="Passed" start-time="2021-10-30T21:23:37.6535599Z" end-time="2021-10-30T21:23:37.6536773Z" duration="0.000117" asserts="1">
+                <test-case id="0-2495" name="transform.case025" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case025" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="205365469" result="Passed" start-time="2021-10-30T22:08:25.2614086Z" end-time="2021-10-30T22:08:25.2614678Z" duration="0.000059" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'bar';&#xA; result: &quot;'Hello'&quot;" />
                   </properties>
@@ -506,7 +506,7 @@ Result: '"'Hello'"'
 Expected: '"'Hello'"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2496" name="transform.case026" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case026" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1377787370" result="Passed" start-time="2021-10-30T21:23:37.6537123Z" end-time="2021-10-30T21:23:37.6538485Z" duration="0.000136" asserts="1">
+                <test-case id="0-2496" name="transform.case026" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case026" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1457880130" result="Passed" start-time="2021-10-30T22:08:25.2614795Z" end-time="2021-10-30T22:08:25.2615417Z" duration="0.000062" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$';&#xA; result: &quot;'Hello'&quot;" />
                   </properties>
@@ -515,7 +515,7 @@ Result: '"'Hello'"'
 Expected: '"'Hello'"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2497" name="transform.case027" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case027" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="623867038" result="Passed" start-time="2021-10-30T21:23:37.6538771Z" end-time="2021-10-30T21:23:37.6541422Z" duration="0.000265" asserts="1">
+                <test-case id="0-2497" name="transform.case027" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case027" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1427689094" result="Passed" start-time="2021-10-30T22:08:25.2615490Z" end-time="2021-10-30T22:08:25.2617404Z" duration="0.000192" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(Salutation)';&#xA; result: &quot;mr&quot;" />
                   </properties>
@@ -524,7 +524,7 @@ Result: '"mr"'
 Expected: '"mr"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2498" name="transform.case028" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case028" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1263215077" result="Passed" start-time="2021-10-30T21:23:37.6542986Z" end-time="2021-10-30T21:23:37.6544350Z" duration="0.000136" asserts="1">
+                <test-case id="0-2498" name="transform.case028" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case028" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2142727321" result="Passed" start-time="2021-10-30T22:08:25.2617491Z" end-time="2021-10-30T22:08:25.2618617Z" duration="0.000113" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(敷)';&#xA; result: &quot;steve&quot;" />
                   </properties>
@@ -533,7 +533,7 @@ Result: '"steve"'
 Expected: '"steve"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2499" name="transform.case029" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case029" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1843048139" result="Passed" start-time="2021-10-30T21:23:37.6544860Z" end-time="2021-10-30T21:23:37.6546789Z" duration="0.000193" asserts="1">
+                <test-case id="0-2499" name="transform.case029" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case029" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="308626857" result="Passed" start-time="2021-10-30T22:08:25.2618804Z" end-time="2021-10-30T22:08:25.2619921Z" duration="0.000112" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(Español)';&#xA; result: &quot;/ˈspænɪʃ/&quot;" />
                   </properties>
@@ -542,7 +542,7 @@ Result: '"/ˈspænɪʃ/"'
 Expected: '"/ˈspænɪʃ/"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2500" name="transform.case030" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case030" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1347384611" result="Passed" start-time="2021-10-30T21:23:37.6548531Z" end-time="2021-10-30T21:23:37.6550469Z" duration="0.000194" asserts="1">
+                <test-case id="0-2500" name="transform.case030" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case030" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="852020664" result="Passed" start-time="2021-10-30T22:08:25.2620000Z" end-time="2021-10-30T22:08:25.2621268Z" duration="0.000127" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$lowercase($.&quot;NI.Number&quot;)';&#xA; result: &quot;no10furbzness&quot;" />
                   </properties>
@@ -551,7 +551,7 @@ Result: '"no10furbzness"'
 Expected: '"no10furbzness"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2501" name="transform.case031" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case031" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="439712558" result="Passed" start-time="2021-10-30T21:23:37.6551021Z" end-time="2021-10-30T21:23:37.6562689Z" duration="0.001167" asserts="1">
+                <test-case id="0-2501" name="transform.case031" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case031" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2040510119" result="Passed" start-time="2021-10-30T22:08:25.2621379Z" end-time="2021-10-30T22:08:25.2622508Z" duration="0.000113" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(&quot;COMPENSATION IS : &quot; &amp; Employment.&quot;Executive.Compensation&quot;)';&#xA; result: &quot;compensation is : 1400000&quot;" />
                   </properties>
@@ -560,7 +560,7 @@ Result: '"compensation is : 1400000"'
 Expected: '"compensation is : 1400000"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2502" name="transform.case032" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case032" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1852931367" result="Passed" start-time="2021-10-30T21:23:37.6563283Z" end-time="2021-10-30T21:23:37.6564950Z" duration="0.000167" asserts="1">
+                <test-case id="0-2502" name="transform.case032" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case032" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1846044022" result="Passed" start-time="2021-10-30T22:08:25.2622587Z" end-time="2021-10-30T22:08:25.2623399Z" duration="0.000082" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '&quot;Hello&quot;';&#xA; result: &quot;Hello&quot;" />
                   </properties>
@@ -569,7 +569,7 @@ Result: '"Hello"'
 Expected: '"Hello"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2503" name="transform.case033" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case033" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1412460827" result="Passed" start-time="2021-10-30T21:23:37.6566423Z" end-time="2021-10-30T21:23:37.6568868Z" duration="0.000244" asserts="1">
+                <test-case id="0-2503" name="transform.case033" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case033" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1655948800" result="Passed" start-time="2021-10-30T22:08:25.2623477Z" end-time="2021-10-30T22:08:25.2625291Z" duration="0.000181" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Salutation)';&#xA; result: &quot;MR&quot;" />
                   </properties>
@@ -578,7 +578,7 @@ Result: '"MR"'
 Expected: '"MR"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2504" name="transform.case034" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case034" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="13631215" result="Passed" start-time="2021-10-30T21:23:37.6569372Z" end-time="2021-10-30T21:23:37.6570860Z" duration="0.000149" asserts="1">
+                <test-case id="0-2504" name="transform.case034" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case034" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="511784803" result="Passed" start-time="2021-10-30T22:08:25.2625376Z" end-time="2021-10-30T22:08:25.2626282Z" duration="0.000091" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(&quot;Hello World&quot;)';&#xA; result: &quot;HELLO WORLD&quot;" />
                   </properties>
@@ -587,7 +587,7 @@ Result: '"HELLO WORLD"'
 Expected: '"HELLO WORLD"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2505" name="transform.case035" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case035" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="743088176" result="Passed" start-time="2021-10-30T21:23:37.6574794Z" end-time="2021-10-30T21:23:37.6576505Z" duration="0.000171" asserts="1">
+                <test-case id="0-2505" name="transform.case035" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case035" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1680996382" result="Passed" start-time="2021-10-30T22:08:25.2626363Z" end-time="2021-10-30T22:08:25.2627190Z" duration="0.000083" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(&quot;鯵噂ソ竹&quot;)';&#xA; result: &quot;鯵噂ソ竹&quot;" />
                   </properties>
@@ -596,7 +596,7 @@ Result: '"鯵噂ソ竹"'
 Expected: '"鯵噂ソ竹"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2506" name="transform.case036" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case036" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="902395524" result="Passed" start-time="2021-10-30T21:23:37.6576822Z" end-time="2021-10-30T21:23:37.6578319Z" duration="0.000150" asserts="1">
+                <test-case id="0-2506" name="transform.case036" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case036" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1169710788" result="Passed" start-time="2021-10-30T22:08:25.2627269Z" end-time="2021-10-30T22:08:25.2628346Z" duration="0.000108" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'Employment.Name &amp; &quot; is happy&quot;';&#xA; result: &quot;IBM UK is happy&quot;" />
                   </properties>
@@ -605,7 +605,7 @@ Result: '"IBM UK is happy"'
 Expected: '"IBM UK is happy"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2507" name="transform.case037" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case037" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="102851204" result="Passed" start-time="2021-10-30T21:23:37.6578609Z" end-time="2021-10-30T21:23:37.6580300Z" duration="0.000169" asserts="1">
+                <test-case id="0-2507" name="transform.case037" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case037" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1286927127" result="Passed" start-time="2021-10-30T22:08:25.2628422Z" end-time="2021-10-30T22:08:25.2629759Z" duration="0.000134" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'Employment.Name &amp; &quot; is pleased to employ &quot; &amp; Salutation &amp; &quot; &quot; &amp; Surname';&#xA; result: &quot;IBM UK is pleased to employ Mr Smith&quot;" />
                   </properties>
@@ -614,7 +614,7 @@ Result: '"IBM UK is pleased to employ Mr Smith"'
 Expected: '"IBM UK is pleased to employ Mr Smith"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2508" name="transform.case038" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case038" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="633415609" result="Passed" start-time="2021-10-30T21:23:37.6580553Z" end-time="2021-10-30T21:23:37.6585190Z" duration="0.000464" asserts="1">
+                <test-case id="0-2508" name="transform.case038" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case038" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="642265871" result="Passed" start-time="2021-10-30T22:08:25.2629838Z" end-time="2021-10-30T22:08:25.2636280Z" duration="0.000645" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(&quot;Hello &quot; &amp; Salutation &amp; &quot; &quot; &amp; Surname)';&#xA; result: &quot;HELLO MR SMITH&quot;" />
                   </properties>
@@ -623,7 +623,7 @@ Result: '"HELLO MR SMITH"'
 Expected: '"HELLO MR SMITH"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2509" name="transform.case039" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case039" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="821776065" result="Passed" start-time="2021-10-30T21:23:37.6585368Z" end-time="2021-10-30T21:23:37.6587001Z" duration="0.000164" asserts="1">
+                <test-case id="0-2509" name="transform.case039" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case039" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="783070446" result="Passed" start-time="2021-10-30T22:08:25.2636446Z" end-time="2021-10-30T22:08:25.2638248Z" duration="0.000181" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Salutation &amp; &quot; &quot; &amp; Surname &amp; &quot; - has &quot; &amp; Cars &amp; &quot; registered cars&quot;)';&#xA; result: &quot;MR SMITH - HAS 3 REGISTERED CARS&quot;" />
                   </properties>
@@ -632,7 +632,7 @@ Result: '"MR SMITH - HAS 3 REGISTERED CARS"'
 Expected: '"MR SMITH - HAS 3 REGISTERED CARS"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2510" name="transform.case040" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case040" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="340865591" result="Passed" start-time="2021-10-30T21:23:37.6587149Z" end-time="2021-10-30T21:23:37.6588396Z" duration="0.000125" asserts="1">
+                <test-case id="0-2510" name="transform.case040" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case040" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1718885893" result="Passed" start-time="2021-10-30T22:08:25.2638335Z" end-time="2021-10-30T22:08:25.2639428Z" duration="0.000109" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Employment.ContractType)';&#xA; result: &quot;PERMANENT&quot;" />
                   </properties>
@@ -641,7 +641,7 @@ Result: '"PERMANENT"'
 Expected: '"PERMANENT"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2511" name="transform.case041" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case041" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2093754061" result="Passed" start-time="2021-10-30T21:23:37.6588486Z" end-time="2021-10-30T21:23:37.6590642Z" duration="0.000216" asserts="1">
+                <test-case id="0-2511" name="transform.case041" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case041" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1841103460" result="Passed" start-time="2021-10-30T22:08:25.2639507Z" end-time="2021-10-30T22:08:25.2641541Z" duration="0.000203" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;Hola&quot;, &quot;l&quot;)';&#xA; result: &quot;Ho&quot;" />
                   </properties>
@@ -650,7 +650,7 @@ Result: '"Ho"'
 Expected: '"Ho"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2512" name="transform.case042" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case042" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2146715961" result="Passed" start-time="2021-10-30T21:23:37.6590738Z" end-time="2021-10-30T21:23:37.6591704Z" duration="0.000097" asserts="1">
+                <test-case id="0-2512" name="transform.case042" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case042" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1173990916" result="Passed" start-time="2021-10-30T22:08:25.2641671Z" end-time="2021-10-30T22:08:25.2642607Z" duration="0.000094" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;Hola&quot;, 'l')';&#xA; result: &quot;Ho&quot;" />
                   </properties>
@@ -659,7 +659,7 @@ Result: '"Ho"'
 Expected: '"Ho"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2513" name="transform.case043" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case043" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="308732804" result="Passed" start-time="2021-10-30T21:23:37.6591789Z" end-time="2021-10-30T21:23:37.6592722Z" duration="0.000094" asserts="1">
+                <test-case id="0-2513" name="transform.case043" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case043" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1304772766" result="Passed" start-time="2021-10-30T22:08:25.2642685Z" end-time="2021-10-30T22:08:25.2643558Z" duration="0.000087" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;Hola&quot;, &quot;Q&quot;)';&#xA; result: &quot;Hola&quot;" />
                   </properties>
@@ -668,7 +668,7 @@ Result: '"Hola"'
 Expected: '"Hola"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2514" name="transform.case044" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case044" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2055772792" result="Passed" start-time="2021-10-30T21:23:37.6592803Z" end-time="2021-10-30T21:23:37.6593664Z" duration="0.000086" asserts="1">
+                <test-case id="0-2514" name="transform.case044" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case044" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1426946498" result="Passed" start-time="2021-10-30T22:08:25.2643630Z" end-time="2021-10-30T22:08:25.2644463Z" duration="0.000083" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;Hola&quot;, &quot;&quot;)';&#xA; result: &quot;&quot;" />
                   </properties>
@@ -677,7 +677,7 @@ Result: '""'
 Expected: '""'
 ]]></output>
                 </test-case>
-                <test-case id="0-2515" name="transform.case045" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case045" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="325638338" result="Passed" start-time="2021-10-30T21:23:37.6593739Z" end-time="2021-10-30T21:23:37.6594796Z" duration="0.000106" asserts="1">
+                <test-case id="0-2515" name="transform.case045" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case045" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="528660195" result="Passed" start-time="2021-10-30T22:08:25.2644536Z" end-time="2021-10-30T22:08:25.2645595Z" duration="0.000106" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;鯵噂ソ竹&quot;, &quot;ソ&quot;)';&#xA; result: &quot;鯵噂&quot;" />
                   </properties>
@@ -686,7 +686,7 @@ Result: '"鯵噂"'
 Expected: '"鯵噂"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2516" name="transform.case046" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case046" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1362716551" result="Passed" start-time="2021-10-30T21:23:37.6594874Z" end-time="2021-10-30T21:23:37.6596824Z" duration="0.000195" asserts="1">
+                <test-case id="0-2516" name="transform.case046" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case046" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="306821403" result="Passed" start-time="2021-10-30T22:08:25.2645674Z" end-time="2021-10-30T22:08:25.2647588Z" duration="0.000191" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(&quot;Coca&quot; &amp; &quot;Cola&quot;, &quot;ca&quot;)';&#xA; result: &quot;Cola&quot;" />
                   </properties>
@@ -695,7 +695,7 @@ Result: '"Cola"'
 Expected: '"Cola"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2517" name="transform.case047" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case047" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1958233763" result="Passed" start-time="2021-10-30T21:23:37.6597063Z" end-time="2021-10-30T21:23:37.6606638Z" duration="0.000958" asserts="1">
+                <test-case id="0-2517" name="transform.case047" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case047" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1395743118" result="Passed" start-time="2021-10-30T22:08:25.2647672Z" end-time="2021-10-30T22:08:25.2650667Z" duration="0.000300" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(Salutation &amp; &quot; &quot; &amp; MiddleName &amp;&quot; &quot; &amp; Surname, MiddleName)';&#xA; result: &quot; Smith&quot;" />
                   </properties>
@@ -704,7 +704,7 @@ Result: '" Smith"'
 Expected: '" Smith"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2518" name="transform.case048" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case048" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1205313658" result="Passed" start-time="2021-10-30T21:23:37.6606988Z" end-time="2021-10-30T21:23:37.6609732Z" duration="0.000274" asserts="1">
+                <test-case id="0-2518" name="transform.case048" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case048" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1470851467" result="Passed" start-time="2021-10-30T22:08:25.2650911Z" end-time="2021-10-30T22:08:25.2652484Z" duration="0.000157" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(Salutation &amp; &quot; &quot; &amp; Employment.Role, Salutation)';&#xA; result: &quot; Senior Physician&quot;" />
                   </properties>
@@ -713,7 +713,7 @@ Result: '" Senior Physician"'
 Expected: '" Senior Physician"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2519" name="transform.case049" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case049" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1660898518" result="Passed" start-time="2021-10-30T21:23:37.6609874Z" end-time="2021-10-30T21:23:37.6610979Z" duration="0.000111" asserts="1">
+                <test-case id="0-2519" name="transform.case049" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case049" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="683671836" result="Passed" start-time="2021-10-30T22:08:25.2652614Z" end-time="2021-10-30T22:08:25.2653516Z" duration="0.000091" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(&quot;Hola&quot;, 'l')';&#xA; result: &quot;a&quot;" />
                   </properties>
@@ -722,7 +722,7 @@ Result: '"a"'
 Expected: '"a"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2520" name="transform.case050" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case050" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="401760725" result="Passed" start-time="2021-10-30T21:23:37.6611066Z" end-time="2021-10-30T21:23:37.6612069Z" duration="0.000101" asserts="1">
+                <test-case id="0-2520" name="transform.case050" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case050" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="366964476" result="Passed" start-time="2021-10-30T22:08:25.2653595Z" end-time="2021-10-30T22:08:25.2654443Z" duration="0.000085" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(&quot;Hola&quot;, &quot;Q&quot;)';&#xA; result: &quot;Hola&quot;" />
                   </properties>
@@ -731,7 +731,7 @@ Result: '"Hola"'
 Expected: '"Hola"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2521" name="transform.case051" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case051" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="212651293" result="Passed" start-time="2021-10-30T21:23:37.6612150Z" end-time="2021-10-30T21:23:37.6613578Z" duration="0.000143" asserts="1">
+                <test-case id="0-2521" name="transform.case051" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case051" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1583690912" result="Passed" start-time="2021-10-30T22:08:25.2654522Z" end-time="2021-10-30T22:08:25.2655901Z" duration="0.000138" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(Employment.Role) &amp; &quot; (&quot; &amp; Employment.Role &amp; &quot;)&quot;';&#xA; result: &quot;senior physician (Senior Physician)&quot;" />
                   </properties>
@@ -740,7 +740,7 @@ Result: '"senior physician (Senior Physician)"'
 Expected: '"senior physician (Senior Physician)"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2522" name="transform.case052" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case052" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="918709033" result="Passed" start-time="2021-10-30T21:23:37.6613656Z" end-time="2021-10-30T21:23:37.6614779Z" duration="0.000113" asserts="1">
+                <test-case id="0-2522" name="transform.case052" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case052" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2093133804" result="Passed" start-time="2021-10-30T22:08:25.2656013Z" end-time="2021-10-30T22:08:25.2657024Z" duration="0.000101" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'Employment.Years &amp; &quot; years of employment&quot;';&#xA; result: &quot;12 years of employment&quot;" />
                   </properties>
@@ -749,7 +749,7 @@ Result: '"12 years of employment"'
 Expected: '"12 years of employment"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2523" name="transform.case053" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case053" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="482729928" result="Passed" start-time="2021-10-30T21:23:37.6614861Z" end-time="2021-10-30T21:23:37.6616428Z" duration="0.000157" asserts="1">
+                <test-case id="0-2523" name="transform.case053" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case053" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1235873148" result="Passed" start-time="2021-10-30T22:08:25.2657100Z" end-time="2021-10-30T22:08:25.2664148Z" duration="0.000705" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Salutation &amp; &quot; &quot; &amp; Surname &amp; &quot; - has &quot; &amp; Employment.Years &amp; &quot; years of employment&quot;)';&#xA; result: &quot;MR SMITH - HAS 12 YEARS OF EMPLOYMENT&quot;" />
                   </properties>
@@ -758,7 +758,7 @@ Result: '"MR SMITH - HAS 12 YEARS OF EMPLOYMENT"'
 Expected: '"MR SMITH - HAS 12 YEARS OF EMPLOYMENT"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2524" name="transform.case054" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case054" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1820243823" result="Passed" start-time="2021-10-30T21:23:37.6616524Z" end-time="2021-10-30T21:23:37.6619009Z" duration="0.000249" asserts="1">
+                <test-case id="0-2524" name="transform.case054" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case054" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1123772703" result="Passed" start-time="2021-10-30T22:08:25.2664435Z" end-time="2021-10-30T22:08:25.2667457Z" duration="0.000302" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substring(Employment.Role, 7,4)';&#xA; result: &quot;Phys&quot;" />
                   </properties>
@@ -767,7 +767,7 @@ Result: '"Phys"'
 Expected: '"Phys"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2525" name="transform.case055" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case055" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="341944509" result="Passed" start-time="2021-10-30T21:23:37.6619102Z" end-time="2021-10-30T21:23:37.6627651Z" duration="0.000855" asserts="1">
+                <test-case id="0-2525" name="transform.case055" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case055" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="661818562" result="Passed" start-time="2021-10-30T22:08:25.2667553Z" end-time="2021-10-30T22:08:25.2673295Z" duration="0.000574" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substring(Employment.Role, -4,4)';&#xA; result: &quot;cian&quot;" />
                   </properties>
@@ -776,7 +776,7 @@ Result: '"cian"'
 Expected: '"cian"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2526" name="transform.case056" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case056" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="628068099" result="Passed" start-time="2021-10-30T21:23:37.6627772Z" end-time="2021-10-30T21:23:37.6629118Z" duration="0.000135" asserts="1">
+                <test-case id="0-2526" name="transform.case056" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case056" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="939092242" result="Passed" start-time="2021-10-30T22:08:25.2673404Z" end-time="2021-10-30T22:08:25.2674816Z" duration="0.000142" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Hello World&quot;,Cars,5)';&#xA; result: &quot;lo Wo&quot;" />
                   </properties>
@@ -785,7 +785,7 @@ Result: '"lo Wo"'
 Expected: '"lo Wo"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2527" name="transform.case057" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case057" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1703130963" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6629209Z" end-time="2021-10-30T21:23:37.6636291Z" duration="0.000708" asserts="0">
+                <test-case id="0-2527" name="transform.case057" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case057" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1794064167" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2674958Z" end-time="2021-10-30T22:08:25.2681753Z" duration="0.000679" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(&quot;Missing close brackets&quot;';&#xA; result: error S0203" />
                   </properties>
@@ -802,7 +802,7 @@ Expected: '"lo Wo"'
                   <output><![CDATA[Expr is '$lowercase("Missing close brackets"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2528" name="transform.case058" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case058" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="606990378" result="Passed" start-time="2021-10-30T21:23:37.6636402Z" end-time="2021-10-30T21:23:37.6643780Z" duration="0.000737" asserts="0">
+                <test-case id="0-2528" name="transform.case058" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case058" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="126819507" result="Passed" start-time="2021-10-30T22:08:25.2681901Z" end-time="2021-10-30T22:08:25.2688971Z" duration="0.000707" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$unknown(Salutation)';&#xA; result: error T1006" />
                   </properties>
@@ -812,7 +812,7 @@ Expected: '"lo Wo"'
                   <output><![CDATA[Expr is '$unknown(Salutation)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2529" name="transform.case059" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case059" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="821384820" result="Passed" start-time="2021-10-30T21:23:37.6643925Z" end-time="2021-10-30T21:23:37.6647393Z" duration="0.000347" asserts="0">
+                <test-case id="0-2529" name="transform.case059" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case059" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="282194185" result="Passed" start-time="2021-10-30T22:08:25.2689083Z" end-time="2021-10-30T22:08:25.2692587Z" duration="0.000350" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$decrypt(Salutation)';&#xA; result: error T1006" />
                   </properties>
@@ -822,7 +822,7 @@ Expected: '"lo Wo"'
                   <output><![CDATA[Expr is '$decrypt(Salutation)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2530" name="transform.case060" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case060" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2077269758" result="Passed" start-time="2021-10-30T21:23:37.6647529Z" end-time="2021-10-30T21:23:37.6658297Z" duration="0.001077" asserts="0">
+                <test-case id="0-2530" name="transform.case060" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case060" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1273600145" result="Passed" start-time="2021-10-30T22:08:25.2692687Z" end-time="2021-10-30T22:08:25.2704212Z" duration="0.001153" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'Employment.authentication(Salutation)';&#xA; result: error T1006" />
                   </properties>
@@ -832,7 +832,7 @@ Expected: '"lo Wo"'
                   <output><![CDATA[Expr is 'Employment.authentication(Salutation)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2531" name="transform.case061" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case061" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="539818849" result="Passed" start-time="2021-10-30T21:23:37.6658418Z" end-time="2021-10-30T21:23:37.6660972Z" duration="0.000255" asserts="1">
+                <test-case id="0-2531" name="transform.case061" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case061" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2122392911" result="Passed" start-time="2021-10-30T22:08:25.2704342Z" end-time="2021-10-30T22:08:25.2705686Z" duration="0.000134" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Invalid)';&#xA; result: undefined" />
                   </properties>
@@ -841,7 +841,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2532" name="transform.case062" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case062" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="388929797" result="Passed" start-time="2021-10-30T21:23:37.6661071Z" end-time="2021-10-30T21:23:37.6662454Z" duration="0.000139" asserts="1">
+                <test-case id="0-2532" name="transform.case062" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case062" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="391438210" result="Passed" start-time="2021-10-30T22:08:25.2705770Z" end-time="2021-10-30T22:08:25.2706902Z" duration="0.000113" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Employment.Invalid)';&#xA; result: undefined" />
                   </properties>
@@ -850,7 +850,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2533" name="transform.case063" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case063" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="210530532" result="Passed" start-time="2021-10-30T21:23:37.6662538Z" end-time="2021-10-30T21:23:37.6666233Z" duration="0.000369" asserts="0">
+                <test-case id="0-2533" name="transform.case063" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case063" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1380734902" result="Passed" start-time="2021-10-30T22:08:25.2706984Z" end-time="2021-10-30T22:08:25.2710485Z" duration="0.000350" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(&quot;Coca&quot;, &quot;Cola&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -860,7 +860,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$lowercase("Coca", "Cola")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2534" name="transform.case064" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case064" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1950588168" result="Passed" start-time="2021-10-30T21:23:37.6666333Z" end-time="2021-10-30T21:23:37.6670447Z" duration="0.000412" asserts="0">
+                <test-case id="0-2534" name="transform.case064" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case064" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="645918272" result="Passed" start-time="2021-10-30T22:08:25.2710582Z" end-time="2021-10-30T22:08:25.2714681Z" duration="0.000410" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(Salary)';&#xA; result: error T0410" />
                   </properties>
@@ -870,7 +870,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$lowercase(Salary)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2535" name="transform.case065" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case065" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="360648083" result="Passed" start-time="2021-10-30T21:23:37.6670550Z" end-time="2021-10-30T21:23:37.6674574Z" duration="0.000403" asserts="0">
+                <test-case id="0-2535" name="transform.case065" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case065" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1437401856" result="Passed" start-time="2021-10-30T22:08:25.2714784Z" end-time="2021-10-30T22:08:25.2718337Z" duration="0.000355" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(20)';&#xA; result: error T0410" />
                   </properties>
@@ -880,7 +880,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$lowercase(20)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2536" name="transform.case066" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case066" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="665300096" result="Passed" start-time="2021-10-30T21:23:37.6674680Z" end-time="2021-10-30T21:23:37.6680771Z" duration="0.000609" asserts="0">
+                <test-case id="0-2536" name="transform.case066" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case066" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1861588183" result="Passed" start-time="2021-10-30T22:08:25.2718434Z" end-time="2021-10-30T22:08:25.2724583Z" duration="0.000615" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(20.55)';&#xA; result: error T0410" />
                   </properties>
@@ -890,7 +890,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$lowercase(20.55)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2537" name="transform.case067" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case067" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="520750288" result="Passed" start-time="2021-10-30T21:23:37.6680880Z" end-time="2021-10-30T21:23:37.6715477Z" duration="0.003460" asserts="0">
+                <test-case id="0-2537" name="transform.case067" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case067" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2143675706" result="Passed" start-time="2021-10-30T22:08:25.2724688Z" end-time="2021-10-30T22:08:25.2755545Z" duration="0.003086" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(Employment)';&#xA; result: error T0410" />
                   </properties>
@@ -900,7 +900,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$lowercase(Employment)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2538" name="transform.case068" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case068" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="488872893" result="Passed" start-time="2021-10-30T21:23:37.6715695Z" end-time="2021-10-30T21:23:37.6720033Z" duration="0.000434" asserts="0">
+                <test-case id="0-2538" name="transform.case068" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case068" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="353619137" result="Passed" start-time="2021-10-30T22:08:25.2755717Z" end-time="2021-10-30T22:08:25.2760840Z" duration="0.000512" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$lowercase(Qualifications)';&#xA; result: error T0410" />
                   </properties>
@@ -910,7 +910,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$lowercase(Qualifications)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2539" name="transform.case069" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case069" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1795822018" result="Passed" start-time="2021-10-30T21:23:37.6720144Z" end-time="2021-10-30T21:23:37.6724041Z" duration="0.000390" asserts="0">
+                <test-case id="0-2539" name="transform.case069" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case069" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1148677863" result="Passed" start-time="2021-10-30T22:08:25.2760958Z" end-time="2021-10-30T22:08:25.2764245Z" duration="0.000329" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(&quot;Coca&quot;, &quot;Cola&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -920,7 +920,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase("Coca", "Cola")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2540" name="transform.case070" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case070" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1710117524" result="Passed" start-time="2021-10-30T21:23:37.6724207Z" end-time="2021-10-30T21:23:37.6727884Z" duration="0.000368" asserts="0">
+                <test-case id="0-2540" name="transform.case070" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case070" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1457919393" result="Passed" start-time="2021-10-30T22:08:25.2764342Z" end-time="2021-10-30T22:08:25.2767891Z" duration="0.000355" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Salary)';&#xA; result: error T0410" />
                   </properties>
@@ -930,7 +930,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase(Salary)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2541" name="transform.case071" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case071" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1622279392" result="Passed" start-time="2021-10-30T21:23:37.6727990Z" end-time="2021-10-30T21:23:37.6731229Z" duration="0.000324" asserts="0">
+                <test-case id="0-2541" name="transform.case071" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case071" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="869850386" result="Passed" start-time="2021-10-30T22:08:25.2767997Z" end-time="2021-10-30T22:08:25.2771308Z" duration="0.000331" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(28)';&#xA; result: error T0410" />
                   </properties>
@@ -940,7 +940,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase(28)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2542" name="transform.case072" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case072" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="734921417" result="Passed" start-time="2021-10-30T21:23:37.6731368Z" end-time="2021-10-30T21:23:37.6734655Z" duration="0.000329" asserts="0">
+                <test-case id="0-2542" name="transform.case072" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case072" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="579018539" result="Passed" start-time="2021-10-30T22:08:25.2771408Z" end-time="2021-10-30T22:08:25.2774801Z" duration="0.000340" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(20.55)';&#xA; result: error T0410" />
                   </properties>
@@ -950,7 +950,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase(20.55)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2543" name="transform.case073" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case073" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1067406024" result="Passed" start-time="2021-10-30T21:23:37.6734749Z" end-time="2021-10-30T21:23:37.6738108Z" duration="0.000336" asserts="0">
+                <test-case id="0-2543" name="transform.case073" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case073" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1659467886" result="Passed" start-time="2021-10-30T22:08:25.2774900Z" end-time="2021-10-30T22:08:25.2778306Z" duration="0.000341" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Cars)';&#xA; result: error T0410" />
                   </properties>
@@ -960,7 +960,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase(Cars)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2544" name="transform.case074" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case074" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1786448589" result="Passed" start-time="2021-10-30T21:23:37.6738250Z" end-time="2021-10-30T21:23:37.6741640Z" duration="0.000339" asserts="0">
+                <test-case id="0-2544" name="transform.case074" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case074" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1992374311" result="Passed" start-time="2021-10-30T22:08:25.2778402Z" end-time="2021-10-30T22:08:25.2781874Z" duration="0.000347" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Employment)';&#xA; result: error T0410" />
                   </properties>
@@ -970,7 +970,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase(Employment)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2545" name="transform.case075" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case075" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2030469493" result="Passed" start-time="2021-10-30T21:23:37.6741957Z" end-time="2021-10-30T21:23:37.6745698Z" duration="0.000374" asserts="0">
+                <test-case id="0-2545" name="transform.case075" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case075" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1203785485" result="Passed" start-time="2021-10-30T22:08:25.2781979Z" end-time="2021-10-30T22:08:25.2785418Z" duration="0.000344" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$uppercase(Qualifications)';&#xA; result: error T0410" />
                   </properties>
@@ -980,7 +980,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$uppercase(Qualifications)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2546" name="transform.case076" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case076" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1350864312" result="Passed" start-time="2021-10-30T21:23:37.6745794Z" end-time="2021-10-30T21:23:37.6749809Z" duration="0.000401" asserts="0">
+                <test-case id="0-2546" name="transform.case076" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case076" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1287165957" result="Passed" start-time="2021-10-30T22:08:25.2785517Z" end-time="2021-10-30T22:08:25.2790133Z" duration="0.000462" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;Coca&quot; &amp; &quot;ca&quot;)';&#xA; result: error T0411" />
                   </properties>
@@ -990,7 +990,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore("Coca" & "ca")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2547" name="transform.case077" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case077" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1998814275" result="Passed" start-time="2021-10-30T21:23:37.6749906Z" end-time="2021-10-30T21:23:37.6754014Z" duration="0.000411" asserts="0">
+                <test-case id="0-2547" name="transform.case077" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case077" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1059872366" result="Passed" start-time="2021-10-30T22:08:25.2790244Z" end-time="2021-10-30T22:08:25.2793942Z" duration="0.000370" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(Salary,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1000,7 +1000,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore(Salary,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2548" name="transform.case078" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case078" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1248155482" result="Passed" start-time="2021-10-30T21:23:37.6754168Z" end-time="2021-10-30T21:23:37.6757510Z" duration="0.000334" asserts="0">
+                <test-case id="0-2548" name="transform.case078" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case078" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2069768660" result="Passed" start-time="2021-10-30T22:08:25.2794090Z" end-time="2021-10-30T22:08:25.2797453Z" duration="0.000337" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(22,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1010,7 +1010,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore(22,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2549" name="transform.case079" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case079" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1195844449" result="Passed" start-time="2021-10-30T21:23:37.6757606Z" end-time="2021-10-30T21:23:37.6760888Z" duration="0.000328" asserts="0">
+                <test-case id="0-2549" name="transform.case079" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case079" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1004219927" result="Passed" start-time="2021-10-30T22:08:25.2797553Z" end-time="2021-10-30T22:08:25.2804568Z" duration="0.000701" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(22.55,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1020,7 +1020,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore(22.55,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2550" name="transform.case080" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case080" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2066109148" result="Passed" start-time="2021-10-30T21:23:37.6760981Z" end-time="2021-10-30T21:23:37.6764317Z" duration="0.000334" asserts="0">
+                <test-case id="0-2550" name="transform.case080" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case080" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2046027713" result="Passed" start-time="2021-10-30T22:08:25.2804698Z" end-time="2021-10-30T22:08:25.2808553Z" duration="0.000385" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;22&quot;,2)';&#xA; result: error T0410" />
                   </properties>
@@ -1030,7 +1030,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore("22",2)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2551" name="transform.case081" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case081" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1567037254" result="Passed" start-time="2021-10-30T21:23:37.6764413Z" end-time="2021-10-30T21:23:37.6767640Z" duration="0.000323" asserts="0">
+                <test-case id="0-2551" name="transform.case081" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case081" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="62137012" result="Passed" start-time="2021-10-30T22:08:25.2808665Z" end-time="2021-10-30T22:08:25.2812015Z" duration="0.000335" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(&quot;22.55&quot;,5)';&#xA; result: error T0410" />
                   </properties>
@@ -1040,7 +1040,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore("22.55",5)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2552" name="transform.case082" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case082" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1566037027" result="Passed" start-time="2021-10-30T21:23:37.6767734Z" end-time="2021-10-30T21:23:37.6771203Z" duration="0.000347" asserts="0">
+                <test-case id="0-2552" name="transform.case082" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case082" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2104321274" result="Passed" start-time="2021-10-30T22:08:25.2812112Z" end-time="2021-10-30T22:08:25.2815671Z" duration="0.000356" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(Employment,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1050,7 +1050,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore(Employment,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2553" name="transform.case083" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case083" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1749800206" result="Passed" start-time="2021-10-30T21:23:37.6771299Z" end-time="2021-10-30T21:23:37.6778061Z" duration="0.000676" asserts="0">
+                <test-case id="0-2553" name="transform.case083" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case083" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1459055485" result="Passed" start-time="2021-10-30T22:08:25.2815768Z" end-time="2021-10-30T22:08:25.2819330Z" duration="0.000357" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringBefore(Qualifications,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1060,7 +1060,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringBefore(Qualifications,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2554" name="transform.case084" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case084" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1441287414" result="Passed" start-time="2021-10-30T21:23:37.6778188Z" end-time="2021-10-30T21:23:37.6782580Z" duration="0.000440" asserts="0">
+                <test-case id="0-2554" name="transform.case084" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case084" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2089146028" result="Passed" start-time="2021-10-30T22:08:25.2819429Z" end-time="2021-10-30T22:08:25.2822919Z" duration="0.000349" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(&quot;Coca&quot; &amp; &quot;ca&quot;)';&#xA; result: error T0411" />
                   </properties>
@@ -1070,7 +1070,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter("Coca" & "ca")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2555" name="transform.case085" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case085" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1134733318" result="Passed" start-time="2021-10-30T21:23:37.6782794Z" end-time="2021-10-30T21:23:37.6789137Z" duration="0.000635" asserts="0">
+                <test-case id="0-2555" name="transform.case085" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case085" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1415813399" result="Passed" start-time="2021-10-30T22:08:25.2823019Z" end-time="2021-10-30T22:08:25.2826553Z" duration="0.000353" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(Salary,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1080,7 +1080,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter(Salary,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2556" name="transform.case086" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case086" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1668487172" result="Passed" start-time="2021-10-30T21:23:37.6789263Z" end-time="2021-10-30T21:23:37.6792666Z" duration="0.000340" asserts="0">
+                <test-case id="0-2556" name="transform.case086" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case086" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2094859962" result="Passed" start-time="2021-10-30T22:08:25.2826653Z" end-time="2021-10-30T22:08:25.2830010Z" duration="0.000336" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(22,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1090,7 +1090,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter(22,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2557" name="transform.case087" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case087" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1370201439" result="Passed" start-time="2021-10-30T21:23:37.6792756Z" end-time="2021-10-30T21:23:37.6796019Z" duration="0.000326" asserts="0">
+                <test-case id="0-2557" name="transform.case087" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case087" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="610170874" result="Passed" start-time="2021-10-30T22:08:25.2830113Z" end-time="2021-10-30T22:08:25.2833388Z" duration="0.000328" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(22.55,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1100,7 +1100,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter(22.55,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2558" name="transform.case088" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case088" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1739700651" result="Passed" start-time="2021-10-30T21:23:37.6796113Z" end-time="2021-10-30T21:23:37.6799433Z" duration="0.000332" asserts="0">
+                <test-case id="0-2558" name="transform.case088" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case088" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="532176097" result="Passed" start-time="2021-10-30T22:08:25.2833484Z" end-time="2021-10-30T22:08:25.2836751Z" duration="0.000327" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(&quot;22&quot;,2)';&#xA; result: error T0410" />
                   </properties>
@@ -1110,7 +1110,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter("22",2)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2559" name="transform.case089" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case089" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1819170353" result="Passed" start-time="2021-10-30T21:23:37.6799530Z" end-time="2021-10-30T21:23:37.6802781Z" duration="0.000325" asserts="0">
+                <test-case id="0-2559" name="transform.case089" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case089" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1997449888" result="Passed" start-time="2021-10-30T22:08:25.2836896Z" end-time="2021-10-30T22:08:25.2840213Z" duration="0.000332" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(&quot;22.55&quot;,5)';&#xA; result: error T0410" />
                   </properties>
@@ -1120,7 +1120,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter("22.55",5)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2560" name="transform.case090" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case090" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="115020077" result="Passed" start-time="2021-10-30T21:23:37.6802881Z" end-time="2021-10-30T21:23:37.6806404Z" duration="0.000353" asserts="0">
+                <test-case id="0-2560" name="transform.case090" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case090" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="741904140" result="Passed" start-time="2021-10-30T22:08:25.2840310Z" end-time="2021-10-30T22:08:25.2843848Z" duration="0.000354" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(Employment,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1130,7 +1130,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter(Employment,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2561" name="transform.case091" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case091" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1346748208" result="Passed" start-time="2021-10-30T21:23:37.6806503Z" end-time="2021-10-30T21:23:37.6809854Z" duration="0.000335" asserts="0">
+                <test-case id="0-2561" name="transform.case091" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case091" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1523130268" result="Passed" start-time="2021-10-30T22:08:25.2843950Z" end-time="2021-10-30T22:08:25.2847382Z" duration="0.000344" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substringAfter(Qualifications,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1140,7 +1140,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substringAfter(Qualifications,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2562" name="transform.case092" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case092" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1643344473" result="Passed" start-time="2021-10-30T21:23:37.6809951Z" end-time="2021-10-30T21:23:37.6813042Z" duration="0.000309" asserts="0">
+                <test-case id="0-2562" name="transform.case092" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case092" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1160107620" result="Passed" start-time="2021-10-30T22:08:25.2847479Z" end-time="2021-10-30T22:08:25.2850727Z" duration="0.000325" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Coca&quot; &amp; &quot;ca&quot;, 2, 4, 5)';&#xA; result: error T0410" />
                   </properties>
@@ -1150,7 +1150,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring("Coca" & "ca", 2, 4, 5)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2563" name="transform.case093" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case093" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1959514436" result="Passed" start-time="2021-10-30T21:23:37.6813150Z" end-time="2021-10-30T21:23:37.6816420Z" duration="0.000327" asserts="0">
+                <test-case id="0-2563" name="transform.case093" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case093" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="360071686" result="Passed" start-time="2021-10-30T22:08:25.2850833Z" end-time="2021-10-30T22:08:25.2854087Z" duration="0.000326" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Coca&quot;, &quot;Mr&quot;, 4)';&#xA; result: error T0410" />
                   </properties>
@@ -1160,7 +1160,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring("Coca", "Mr", 4)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2564" name="transform.case094" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case094" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="891989954" result="Passed" start-time="2021-10-30T21:23:37.6816513Z" end-time="2021-10-30T21:23:37.6819701Z" duration="0.000319" asserts="0">
+                <test-case id="0-2564" name="transform.case094" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case094" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1656953948" result="Passed" start-time="2021-10-30T22:08:25.2854181Z" end-time="2021-10-30T22:08:25.2857510Z" duration="0.000333" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Coca&quot;, 3, &quot;Whoops&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1170,7 +1170,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring("Coca", 3, "Whoops")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2565" name="transform.case095" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case095" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1948530389" result="Passed" start-time="2021-10-30T21:23:37.6819795Z" end-time="2021-10-30T21:23:37.6823272Z" duration="0.000348" asserts="0">
+                <test-case id="0-2565" name="transform.case095" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case095" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1743976629" result="Passed" start-time="2021-10-30T22:08:25.2857604Z" end-time="2021-10-30T22:08:25.2863430Z" duration="0.000583" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(Salary,2,4)';&#xA; result: error T0410" />
                   </properties>
@@ -1180,7 +1180,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring(Salary,2,4)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2566" name="transform.case096" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case096" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1704824264" result="Passed" start-time="2021-10-30T21:23:37.6823369Z" end-time="2021-10-30T21:23:37.6826578Z" duration="0.000321" asserts="0">
+                <test-case id="0-2566" name="transform.case096" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case096" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1449665250" result="Passed" start-time="2021-10-30T22:08:25.2863557Z" end-time="2021-10-30T22:08:25.2867119Z" duration="0.000356" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Hello&quot;,&quot;World&quot;,5)';&#xA; result: error T0410" />
                   </properties>
@@ -1190,7 +1190,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring("Hello","World",5)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2567" name="transform.case097" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case097" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1936185429" result="Passed" start-time="2021-10-30T21:23:37.6826671Z" end-time="2021-10-30T21:23:37.6829874Z" duration="0.000320" asserts="0">
+                <test-case id="0-2567" name="transform.case097" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case097" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1940739661" result="Passed" start-time="2021-10-30T22:08:25.2867212Z" end-time="2021-10-30T22:08:25.2870983Z" duration="0.000377" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Hello&quot;,5,&quot;World&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1200,14 +1200,14 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring("Hello",5,"World")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2568" name="transform.case098" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case098" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="505628283" result="Failed" label="Error" start-time="2021-10-30T21:23:37.6829965Z" end-time="2021-10-30T21:23:37.6835142Z" duration="0.000518" asserts="0">
+                <test-case id="0-2568" name="transform.case098" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case098" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="658854494" result="Failed" label="Error" start-time="2021-10-30T22:08:25.2871137Z" end-time="2021-10-30T22:08:25.2876531Z" duration="0.000540" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(&quot;Hello World&quot;,5.5,5)';&#xA; result: &quot; Worl&quot;" />
                   </properties>
                   <failure>
                     <message><![CDATA[Jsonata.Net.Native.JsonataException : T0410: Argument 1 ('start') of function substring should be Int32 bun incompatible value of type Float was specified]]></message>
-                    <stack-trace><![CDATA[   at Jsonata.Net.Native.Eval.EvalProcessor_Functions.ConvertFunctionArg(String functionName, Int32 parameterIndex, JToken argToken, ParameterInfo parameterInfo, Boolean& returnUndefined) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor_Functions.cs:line 270
-   at Jsonata.Net.Native.Eval.EvalProcessor_Functions.BindFunctionArguments(String functionName, ParameterInfo[] parameterList, List`1 args, Environment env, Boolean& returnUndefined) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor_Functions.cs:line 104
+                    <stack-trace><![CDATA[   at Jsonata.Net.Native.Eval.EvalProcessor_Functions.ConvertFunctionArg(String functionName, Int32 parameterIndex, JToken argToken, ParameterInfo parameterInfo, Boolean& returnUndefined) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor_Functions.cs:line 278
+   at Jsonata.Net.Native.Eval.EvalProcessor_Functions.BindFunctionArguments(String functionName, ParameterInfo[] parameterList, List`1 args, Environment env, Boolean& returnUndefined) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor_Functions.cs:line 103
    at Jsonata.Net.Native.Eval.EvalProcessor_Functions.CallCsharpFunction(String functionName, MethodInfo methodInfo, List`1 args, JToken inputAsContext, Environment env) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor_Functions.cs:line 26
    at Jsonata.Net.Native.Eval.EvalProcessor.InvokeFunction(FunctionToken function, List`1 args, JToken context, Environment env) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor.cs:line 280
    at Jsonata.Net.Native.Eval.EvalProcessor.evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env, JToken evalutedFirstArgFromApplication) in f:\Projects\_NuGet\jsonata.net.native\src\Jsonata.Net.Native\Eval\EvalProcessor.cs:line 271
@@ -1220,7 +1220,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring("Hello World",5.5,5)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2569" name="transform.case099" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case099" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1695124709" result="Passed" start-time="2021-10-30T21:23:37.6835238Z" end-time="2021-10-30T21:23:37.6838921Z" duration="0.000369" asserts="0">
+                <test-case id="0-2569" name="transform.case099" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case099" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2137028289" result="Passed" start-time="2021-10-30T22:08:25.2876643Z" end-time="2021-10-30T22:08:25.2880670Z" duration="0.000402" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(Employment,&quot;xx&quot;)';&#xA; result: error T0410" />
                   </properties>
@@ -1230,7 +1230,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring(Employment,"xx")'
 ]]></output>
                 </test-case>
-                <test-case id="0-2570" name="transform.case100" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case100" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1807821889" result="Passed" start-time="2021-10-30T21:23:37.6839012Z" end-time="2021-10-30T21:23:37.6842486Z" duration="0.000347" asserts="0">
+                <test-case id="0-2570" name="transform.case100" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case100" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="814555659" result="Passed" start-time="2021-10-30T22:08:25.2880766Z" end-time="2021-10-30T22:08:25.2884265Z" duration="0.000350" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$substring(Qualifications,6,5)';&#xA; result: error T0410" />
                   </properties>
@@ -1240,7 +1240,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '$substring(Qualifications,6,5)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2571" name="transform.case101" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case101" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="841966263" result="Passed" start-time="2021-10-30T21:23:37.6842583Z" end-time="2021-10-30T21:23:37.6843458Z" duration="0.000088" asserts="1">
+                <test-case id="0-2571" name="transform.case101" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case101" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="310629344" result="Passed" start-time="2021-10-30T22:08:25.2884359Z" end-time="2021-10-30T22:08:25.2885270Z" duration="0.000091" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'detail.contents';&#xA; result: &quot;stuff&quot;" />
                   </properties>
@@ -1249,7 +1249,7 @@ Result: '"stuff"'
 Expected: '"stuff"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2572" name="transform.case102" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case102" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1469360870" result="Passed" start-time="2021-10-30T21:23:37.6843534Z" end-time="2021-10-30T21:23:37.6844285Z" duration="0.000075" asserts="1">
+                <test-case id="0-2572" name="transform.case102" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case102" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1042123981" result="Passed" start-time="2021-10-30T22:08:25.2885352Z" end-time="2021-10-30T22:08:25.2886061Z" duration="0.000071" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'detail.meta';&#xA; result: &quot;boo&quot;" />
                   </properties>
@@ -1258,7 +1258,7 @@ Result: '"boo"'
 Expected: '"boo"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2573" name="transform.case103" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case103" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1556975287" result="Passed" start-time="2021-10-30T21:23:37.6844364Z" end-time="2021-10-30T21:23:37.6845119Z" duration="0.000076" asserts="1">
+                <test-case id="0-2573" name="transform.case103" fullname="Jsonata.Net.Native.TestSuite.Tests.transform.case103" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="322173604" result="Passed" start-time="2021-10-30T22:08:25.2886182Z" end-time="2021-10-30T22:08:25.2886946Z" duration="0.000076" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'detail.meta';&#xA; result: 5" />
                   </properties>
@@ -1267,7 +1267,7 @@ Result: '5'
 Expected: '5'
 ]]></output>
                 </test-case>
-                <test-case id="0-2574" name="transforms.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2098264641" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6845236Z" end-time="2021-10-30T21:23:37.6866732Z" duration="0.002150" asserts="0">
+                <test-case id="0-2574" name="transforms.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1373236090" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2887024Z" end-time="2021-10-30T22:08:25.2903533Z" duration="0.001651" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; |Account.Order.Product|{&quot;Total&quot;:Price*Quantity},[&quot;Description&quot;, &quot;SKU&quot;]|';&#xA; result: {&quot;Account&quot;:{&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;Price&quot;:34.45,&quot;Quantity&quot;:2,&quot;Total&quot;:68.9},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;Price&quot;:21.67,&quot;Quantity&quot;:1,&quot;Total&quot;:21.67}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;Price&quot;:34.45,&quot;Quantity&quot;:4,&quot;Total&quot;:137.8},{&quot;ProductID&quot;:345664,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Price&quot;:107.99,&quot;Quantity&quot;:1,&quot;Total&quot;:107.99}]}]}}" />
                   </properties>
@@ -1284,7 +1284,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> |Account.Order.Product|{"Total":Price*Quantity},["Description", "SKU"]|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2575" name="transforms.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="926964980" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6866907Z" end-time="2021-10-30T21:23:37.6875327Z" duration="0.000842" asserts="0">
+                <test-case id="0-2575" name="transforms.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1644597737" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2903705Z" end-time="2021-10-30T22:08:25.2909079Z" duration="0.000538" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'Account.Order ~&gt; |Product|{&quot;Total&quot;:Price*Quantity},[&quot;Description&quot;, &quot;SKU&quot;]|';&#xA; result: [{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;Price&quot;:34.45,&quot;Quantity&quot;:2,&quot;Total&quot;:68.9},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;Price&quot;:21.67,&quot;Quantity&quot;:1,&quot;Total&quot;:21.67}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;Price&quot;:34.45,&quot;Quantity&quot;:4,&quot;Total&quot;:137.8},{&quot;ProductID&quot;:345664,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Price&quot;:107.99,&quot;Quantity&quot;:1,&quot;Total&quot;:107.99}]}]" />
                   </properties>
@@ -1301,7 +1301,7 @@ Expected: '5'
                   <output><![CDATA[Expr is 'Account.Order ~> |Product|{"Total":Price*Quantity},["Description", "SKU"]|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2576" name="transforms.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1625213523" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6875707Z" end-time="2021-10-30T21:23:37.6883042Z" duration="0.000738" asserts="0">
+                <test-case id="0-2576" name="transforms.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1004672373" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2909323Z" end-time="2021-10-30T22:08:25.2913417Z" duration="0.000409" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; |Account.Order.Product|{&quot;Total&quot;:Price*Quantity, &quot;Price&quot;: Price * 1.2}|';&#xA; result: {&quot;Account&quot;:{&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;0406654608&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Purple&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.75},&quot;Price&quot;:41.34,&quot;Quantity&quot;:2,&quot;Total&quot;:68.9},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;SKU&quot;:&quot;0406634348&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Orange&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.6},&quot;Price&quot;:26.004,&quot;Quantity&quot;:1,&quot;Total&quot;:21.67}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;040657863&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Purple&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.75},&quot;Price&quot;:41.34,&quot;Quantity&quot;:4,&quot;Total&quot;:137.8},{&quot;ProductID&quot;:345664,&quot;SKU&quot;:&quot;0406654603&quot;,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Black&quot;,&quot;Width&quot;:30,&quot;Height&quot;:20,&quot;Depth&quot;:210,&quot;Weight&quot;:2},&quot;Price&quot;:129.588,&quot;Quantity&quot;:1,&quot;Total&quot;:107.99}]}]}}" />
                   </properties>
@@ -1318,7 +1318,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> |Account.Order.Product|{"Total":Price*Quantity, "Price": Price * 1.2}|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2577" name="transforms.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1998786656" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6883302Z" end-time="2021-10-30T21:23:37.6914473Z" duration="0.003117" asserts="0">
+                <test-case id="0-2577" name="transforms.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="433665918" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2913531Z" end-time="2021-10-30T22:08:25.2917226Z" duration="0.000369" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; |Account.Order.Product|{},&quot;Description&quot;|';&#xA; result: {&quot;Account&quot;:{&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;0406654608&quot;,&quot;Price&quot;:34.45,&quot;Quantity&quot;:2},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;SKU&quot;:&quot;0406634348&quot;,&quot;Price&quot;:21.67,&quot;Quantity&quot;:1}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;040657863&quot;,&quot;Price&quot;:34.45,&quot;Quantity&quot;:4},{&quot;ProductID&quot;:345664,&quot;SKU&quot;:&quot;0406654603&quot;,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Price&quot;:107.99,&quot;Quantity&quot;:1}]}]}}" />
                   </properties>
@@ -1335,7 +1335,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> |Account.Order.Product|{},"Description"|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2578" name="transforms.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="843764986" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.6975213Z" end-time="2021-10-30T21:23:37.6983448Z" duration="0.000824" asserts="0">
+                <test-case id="0-2578" name="transforms.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1390982484" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2917329Z" end-time="2021-10-30T22:08:25.2921413Z" duration="0.000408" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; |Account.Order.Product|nomatch,&quot;Description&quot;|';&#xA; result: {&quot;Account&quot;:{&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;0406654608&quot;,&quot;Price&quot;:34.45,&quot;Quantity&quot;:2},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;SKU&quot;:&quot;0406634348&quot;,&quot;Price&quot;:21.67,&quot;Quantity&quot;:1}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;040657863&quot;,&quot;Price&quot;:34.45,&quot;Quantity&quot;:4},{&quot;ProductID&quot;:345664,&quot;SKU&quot;:&quot;0406654603&quot;,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Price&quot;:107.99,&quot;Quantity&quot;:1}]}]}}" />
                   </properties>
@@ -1352,7 +1352,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> |Account.Order.Product|nomatch,"Description"|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2579" name="transforms.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1937257977" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7051742Z" end-time="2021-10-30T21:23:37.7070820Z" duration="0.001908" asserts="0">
+                <test-case id="0-2579" name="transforms.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2067470865" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2921528Z" end-time="2021-10-30T22:08:25.2928389Z" duration="0.000686" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; |(Account.Order.Product)[0]|{&quot;Description&quot;:&quot;blah&quot;}|';&#xA; result: {&quot;Account&quot;:{&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;0406654608&quot;,&quot;Description&quot;:&quot;blah&quot;,&quot;Price&quot;:34.45,&quot;Quantity&quot;:2},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;SKU&quot;:&quot;0406634348&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Orange&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.6},&quot;Price&quot;:21.67,&quot;Quantity&quot;:1}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;040657863&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Purple&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.75},&quot;Price&quot;:34.45,&quot;Quantity&quot;:4},{&quot;ProductID&quot;:345664,&quot;SKU&quot;:&quot;0406654603&quot;,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Black&quot;,&quot;Width&quot;:30,&quot;Height&quot;:20,&quot;Depth&quot;:210,&quot;Weight&quot;:2},&quot;Price&quot;:107.99,&quot;Quantity&quot;:1}]}]}}" />
                   </properties>
@@ -1369,7 +1369,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> |(Account.Order.Product)[0]|{"Description":"blah"}|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2580" name="transforms.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1138563844" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7255900Z" end-time="2021-10-30T21:23:37.7265104Z" duration="0.000920" asserts="0">
+                <test-case id="0-2580" name="transforms.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1522136252" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2928516Z" end-time="2021-10-30T22:08:25.2939975Z" duration="0.001146" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; |foo.bar|{&quot;Description&quot;:&quot;blah&quot;}|';&#xA; result: {&quot;Account&quot;:{&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;0406654608&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Purple&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.75},&quot;Price&quot;:34.45,&quot;Quantity&quot;:2},{&quot;Product Name&quot;:&quot;Trilby hat&quot;,&quot;ProductID&quot;:858236,&quot;SKU&quot;:&quot;0406634348&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Orange&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.6},&quot;Price&quot;:21.67,&quot;Quantity&quot;:1}]},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:[{&quot;Product Name&quot;:&quot;Bowler Hat&quot;,&quot;ProductID&quot;:858383,&quot;SKU&quot;:&quot;040657863&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Purple&quot;,&quot;Width&quot;:300,&quot;Height&quot;:200,&quot;Depth&quot;:210,&quot;Weight&quot;:0.75},&quot;Price&quot;:34.45,&quot;Quantity&quot;:4},{&quot;ProductID&quot;:345664,&quot;SKU&quot;:&quot;0406654603&quot;,&quot;Product Name&quot;:&quot;Cloak&quot;,&quot;Description&quot;:{&quot;Colour&quot;:&quot;Black&quot;,&quot;Width&quot;:30,&quot;Height&quot;:20,&quot;Depth&quot;:210,&quot;Weight&quot;:2},&quot;Price&quot;:107.99,&quot;Quantity&quot;:1}]}]}}" />
                   </properties>
@@ -1386,7 +1386,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> |foo.bar|{"Description":"blah"}|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2581" name="transforms.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="776737471" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7276671Z" end-time="2021-10-30T21:23:37.7285416Z" duration="0.000875" asserts="0">
+                <test-case id="0-2581" name="transforms.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2026703523" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2940199Z" end-time="2021-10-30T22:08:25.2947299Z" duration="0.000710" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'Account ~&gt; |Order|{&quot;Product&quot;:&quot;blah&quot;},nomatch|';&#xA; result: {&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:&quot;blah&quot;},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:&quot;blah&quot;}]}" />
                   </properties>
@@ -1403,7 +1403,7 @@ Expected: '5'
                   <output><![CDATA[Expr is 'Account ~> |Order|{"Product":"blah"},nomatch|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2582" name="transforms.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="454975481" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7287484Z" end-time="2021-10-30T21:23:37.7295417Z" duration="0.000794" asserts="0">
+                <test-case id="0-2582" name="transforms.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1871779154" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.2947434Z" end-time="2021-10-30T22:08:25.3018464Z" duration="0.007103" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'foo ~&gt; |foo.bar|{&quot;Description&quot;:&quot;blah&quot;}|';&#xA; result: undefined" />
                   </properties>
@@ -1420,7 +1420,7 @@ Expected: '5'
                   <output><![CDATA[Expr is 'foo ~> |foo.bar|{"Description":"blah"}|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2583" name="transforms.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1558629576" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7325354Z" end-time="2021-10-30T21:23:37.7334229Z" duration="0.000887" asserts="0">
+                <test-case id="0-2583" name="transforms.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1270083227" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3055217Z" end-time="2021-10-30T22:08:25.3065532Z" duration="0.001031" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'Account ~&gt; |Order|5|';&#xA; result: error T2011" />
                   </properties>
@@ -1437,7 +1437,7 @@ Expected: '5'
                   <output><![CDATA[Expr is 'Account ~> |Order|5|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2584" name="transforms.case010" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case010" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="902759319" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7341670Z" end-time="2021-10-30T21:23:37.7350859Z" duration="0.000919" asserts="0">
+                <test-case id="0-2584" name="transforms.case010" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case010" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="383650119" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3093763Z" end-time="2021-10-30T22:08:25.3104540Z" duration="0.001078" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'Account ~&gt; |Order|{},5|';&#xA; result: error T2012" />
                   </properties>
@@ -1454,7 +1454,7 @@ Expected: '5'
                   <output><![CDATA[Expr is 'Account ~> |Order|{},5|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2585" name="transforms.case011" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case011" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="510232504" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7361029Z" end-time="2021-10-30T21:23:37.7368141Z" duration="0.000711" asserts="0">
+                <test-case id="0-2585" name="transforms.case011" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case011" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1211463133" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3145905Z" end-time="2021-10-30T22:08:25.3157041Z" duration="0.001114" asserts="0">
                   <properties>
                     <property name="Description" value="expr: 'Account ~&gt; |Order|{&quot;Product&quot;:&quot;blah&quot;},nomatch|';&#xA; result: {&quot;Account Name&quot;:&quot;Firefly&quot;,&quot;Order&quot;:[{&quot;OrderID&quot;:&quot;order103&quot;,&quot;Product&quot;:&quot;blah&quot;},{&quot;OrderID&quot;:&quot;order104&quot;,&quot;Product&quot;:&quot;blah&quot;}]}" />
                   </properties>
@@ -1471,7 +1471,7 @@ Expected: '5'
                   <output><![CDATA[Expr is 'Account ~> |Order|{"Product":"blah"},nomatch|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2586" name="transforms.case012" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case012" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1121265469" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7370055Z" end-time="2021-10-30T21:23:37.7377532Z" duration="0.000748" asserts="0">
+                <test-case id="0-2586" name="transforms.case012" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case012" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="18071637" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3289459Z" end-time="2021-10-30T22:08:25.3362944Z" duration="0.007360" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '{} ~&gt; |$|['one', 'two', 'three']|';&#xA; result: error T2011" />
                   </properties>
@@ -1488,7 +1488,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '{} ~> |$|['one', 'two', 'three']|'
 ]]></output>
                 </test-case>
-                <test-case id="0-2587" name="transforms.case013" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case013" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="786613238" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7384463Z" end-time="2021-10-30T21:23:37.7394413Z" duration="0.000995" asserts="0">
+                <test-case id="0-2587" name="transforms.case013" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case013" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1079866372" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3376359Z" end-time="2021-10-30T22:08:25.3385702Z" duration="0.000935" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; | ** ['hi'] | {'hello': hi}, ['hi'] |';&#xA; result: {&quot;hello&quot;:&quot;world&quot;,&quot;bye&quot;:null}" />
                   </properties>
@@ -1505,7 +1505,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> | ** ['hi'] | {'hello': hi}, ['hi'] |'
 ]]></output>
                 </test-case>
-                <test-case id="0-2588" name="transforms.case014" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case014" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="916726765" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7412329Z" end-time="2021-10-30T21:23:37.7417859Z" duration="0.000552" asserts="0">
+                <test-case id="0-2588" name="transforms.case014" fullname="Jsonata.Net.Native.TestSuite.Tests.transforms.case014" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1439072521" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3392723Z" end-time="2021-10-30T22:08:25.3398072Z" duration="0.000535" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '$ ~&gt; | ** [hi] | {'hello': hi}, ['hi'] |';&#xA; result: {&quot;bye&quot;:null,&quot;hello&quot;:&quot;world&quot;}" />
                   </properties>
@@ -1522,7 +1522,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '$ ~> | ** [hi] | {'hello': hi}, ['hi'] |'
 ]]></output>
                 </test-case>
-                <test-case id="0-2589" name="variables.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="815854850" result="Passed" start-time="2021-10-30T21:23:37.7430036Z" end-time="2021-10-30T21:23:37.7432119Z" duration="0.000208" asserts="1">
+                <test-case id="0-2589" name="variables.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1377588520" result="Passed" start-time="2021-10-30T22:08:25.3402519Z" end-time="2021-10-30T22:08:25.3404656Z" duration="0.000214" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$price.foo.bar';&#xA; result: 45" />
                   </properties>
@@ -1531,7 +1531,7 @@ Result: '45'
 Expected: '45'
 ]]></output>
                 </test-case>
-                <test-case id="0-2590" name="variables.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="839644558" result="Passed" start-time="2021-10-30T21:23:37.7446419Z" end-time="2021-10-30T21:23:37.7449818Z" duration="0.000340" asserts="1">
+                <test-case id="0-2590" name="variables.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1490025541" result="Passed" start-time="2021-10-30T22:08:25.3420547Z" end-time="2021-10-30T22:08:25.3422895Z" duration="0.000235" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$price.foo.bar';&#xA; result: 45" />
                   </properties>
@@ -1540,7 +1540,7 @@ Result: '45'
 Expected: '45'
 ]]></output>
                 </test-case>
-                <test-case id="0-2591" name="variables.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1442582304" result="Passed" start-time="2021-10-30T21:23:37.7452052Z" end-time="2021-10-30T21:23:37.7457978Z" duration="0.000593" asserts="1">
+                <test-case id="0-2591" name="variables.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1251417309" result="Passed" start-time="2021-10-30T22:08:25.3423378Z" end-time="2021-10-30T22:08:25.3427502Z" duration="0.000413" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$var[1]';&#xA; result: 2" />
                   </properties>
@@ -1549,7 +1549,7 @@ Result: '2'
 Expected: '2'
 ]]></output>
                 </test-case>
-                <test-case id="0-2592" name="variables.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="928533284" result="Passed" start-time="2021-10-30T21:23:37.7468154Z" end-time="2021-10-30T21:23:37.7470300Z" duration="0.000215" asserts="1">
+                <test-case id="0-2592" name="variables.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1611499609" result="Passed" start-time="2021-10-30T22:08:25.3434804Z" end-time="2021-10-30T22:08:25.3436229Z" duration="0.000142" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$.foo.bar';&#xA; result: 42" />
                   </properties>
@@ -1558,7 +1558,7 @@ Result: '42'
 Expected: '42'
 ]]></output>
                 </test-case>
-                <test-case id="0-2593" name="variables.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="817186187" result="Passed" start-time="2021-10-30T21:23:37.7493462Z" end-time="2021-10-30T21:23:37.7495050Z" duration="0.000158" asserts="1">
+                <test-case id="0-2593" name="variables.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="503652896" result="Passed" start-time="2021-10-30T22:08:25.3436890Z" end-time="2021-10-30T22:08:25.3441536Z" duration="0.000465" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$a := 5';&#xA; result: 5" />
                   </properties>
@@ -1567,7 +1567,7 @@ Result: '5'
 Expected: '5'
 ]]></output>
                 </test-case>
-                <test-case id="0-2594" name="variables.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1680801941" result="Passed" start-time="2021-10-30T21:23:37.7510165Z" end-time="2021-10-30T21:23:37.7511602Z" duration="0.000143" asserts="1">
+                <test-case id="0-2594" name="variables.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="406773723" result="Passed" start-time="2021-10-30T22:08:25.3445991Z" end-time="2021-10-30T22:08:25.3447322Z" duration="0.000133" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '$a := $b := 5';&#xA; result: 5" />
                   </properties>
@@ -1576,7 +1576,7 @@ Result: '5'
 Expected: '5'
 ]]></output>
                 </test-case>
-                <test-case id="0-2595" name="variables.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="363369316" result="Passed" start-time="2021-10-30T21:23:37.7516818Z" end-time="2021-10-30T21:23:37.7518210Z" duration="0.000139" asserts="1">
+                <test-case id="0-2595" name="variables.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2082272772" result="Passed" start-time="2021-10-30T22:08:25.3451700Z" end-time="2021-10-30T22:08:25.3452747Z" duration="0.000104" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '($a := $b := 5; $a)';&#xA; result: 5" />
                   </properties>
@@ -1585,7 +1585,7 @@ Result: '5'
 Expected: '5'
 ]]></output>
                 </test-case>
-                <test-case id="0-2596" name="variables.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2126418566" result="Passed" start-time="2021-10-30T21:23:37.7520969Z" end-time="2021-10-30T21:23:37.7522146Z" duration="0.000118" asserts="1">
+                <test-case id="0-2596" name="variables.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1857226413" result="Passed" start-time="2021-10-30T22:08:25.3459536Z" end-time="2021-10-30T22:08:25.3460907Z" duration="0.000137" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '($a := $b := 5; $b)';&#xA; result: 5" />
                   </properties>
@@ -1594,7 +1594,7 @@ Result: '5'
 Expected: '5'
 ]]></output>
                 </test-case>
-                <test-case id="0-2597" name="variables.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="922890628" result="Skipped" label="Ignored" start-time="2021-10-30T21:23:37.7525648Z" end-time="2021-10-30T21:23:37.7543669Z" duration="0.001802" asserts="0">
+                <test-case id="0-2597" name="variables.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="218946853" result="Skipped" label="Ignored" start-time="2021-10-30T22:08:25.3467327Z" end-time="2021-10-30T22:08:25.3489089Z" duration="0.002176" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '( $a := 5; $a := $a + 2; $a )';&#xA; result: 7" />
                   </properties>
@@ -1617,7 +1617,7 @@ Expected: '5'
                   <output><![CDATA[Expr is '( $a := 5; $a := $a + 2; $a )'
 ]]></output>
                 </test-case>
-                <test-case id="0-2598" name="variables.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="175416070" result="Passed" start-time="2021-10-30T21:23:37.7554012Z" end-time="2021-10-30T21:23:37.7555968Z" duration="0.000195" asserts="1">
+                <test-case id="0-2598" name="variables.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2513938" result="Passed" start-time="2021-10-30T22:08:25.3495045Z" end-time="2021-10-30T22:08:25.3496787Z" duration="0.000174" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '[1,2,3].$v';&#xA; result: undefined" />
                   </properties>
@@ -1626,7 +1626,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2599" name="variables.case010" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case010" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1985401847" result="Passed" start-time="2021-10-30T21:23:37.7562047Z" end-time="2021-10-30T21:23:37.7563478Z" duration="0.000143" asserts="1">
+                <test-case id="0-2599" name="variables.case010" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case010" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="248397682" result="Passed" start-time="2021-10-30T22:08:25.3497113Z" end-time="2021-10-30T22:08:25.3498492Z" duration="0.000138" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '( $foo := &quot;defined&quot;; ( $foo := nothing ); $foo )';&#xA; result: &quot;defined&quot;" />
                   </properties>
@@ -1635,7 +1635,7 @@ Result: '"defined"'
 Expected: '"defined"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2600" name="variables.case011" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case011" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="325645229" result="Passed" start-time="2021-10-30T21:23:37.7568996Z" end-time="2021-10-30T21:23:37.7570174Z" duration="0.000117" asserts="1">
+                <test-case id="0-2600" name="variables.case011" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case011" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1901603882" result="Passed" start-time="2021-10-30T22:08:25.3498927Z" end-time="2021-10-30T22:08:25.3500681Z" duration="0.000175" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '( $foo := &quot;defined&quot;; ( $foo := nothing; $foo ) )';&#xA; result: undefined" />
                   </properties>
@@ -1644,7 +1644,7 @@ Result: 'undefined'
 Expected 'undefined'
 ]]></output>
                 </test-case>
-                <test-case id="0-2601" name="variables.case012" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case012" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1562162530" result="Passed" start-time="2021-10-30T21:23:37.7574379Z" end-time="2021-10-30T21:23:37.7580419Z" duration="0.000604" asserts="0">
+                <test-case id="0-2601" name="variables.case012" fullname="Jsonata.Net.Native.TestSuite.Tests.variables.case012" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1493909943" result="Passed" start-time="2021-10-30T22:08:25.3508554Z" end-time="2021-10-30T22:08:25.3515207Z" duration="0.000660" asserts="0">
                   <properties>
                     <property name="Description" value="expr: '($a := [1,2]; $a[1]:=3; $a)';&#xA; result: error S0212" />
                   </properties>
@@ -1654,7 +1654,7 @@ Expected 'undefined'
                   <output><![CDATA[Expr is '($a := [1,2]; $a[1]:=3; $a)'
 ]]></output>
                 </test-case>
-                <test-case id="0-2602" name="wildcards.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1493185992" result="Passed" start-time="2021-10-30T21:23:37.7588630Z" end-time="2021-10-30T21:23:37.7611928Z" duration="0.002330" asserts="1">
+                <test-case id="0-2602" name="wildcards.case000" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case000" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="401017872" result="Passed" start-time="2021-10-30T22:08:25.3517381Z" end-time="2021-10-30T22:08:25.3562909Z" duration="0.004553" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.*';&#xA; result: [42,{&quot;baz&quot;:{&quot;fud&quot;:&quot;hello&quot;}},{&quot;baz&quot;:{&quot;fud&quot;:&quot;world&quot;}},{&quot;bazz&quot;:&quot;gotcha&quot;},&quot;here&quot;]" />
                   </properties>
@@ -1663,7 +1663,7 @@ Result: '[42,{"baz":{"fud":"hello"}},{"baz":{"fud":"world"}},{"bazz":"gotcha"},"
 Expected: '[42,{"baz":{"fud":"hello"}},{"baz":{"fud":"world"}},{"bazz":"gotcha"},"here"]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2603" name="wildcards.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1700514420" result="Passed" start-time="2021-10-30T21:23:37.7612514Z" end-time="2021-10-30T21:23:37.7615611Z" duration="0.000310" asserts="1">
+                <test-case id="0-2603" name="wildcards.case001" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case001" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="2080224018" result="Passed" start-time="2021-10-30T22:08:25.3563313Z" end-time="2021-10-30T22:08:25.3564955Z" duration="0.000164" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.*.baz';&#xA; result: [{&quot;fud&quot;:&quot;hello&quot;},{&quot;fud&quot;:&quot;world&quot;}]" />
                   </properties>
@@ -1672,7 +1672,7 @@ Result: '[{"fud":"hello"},{"fud":"world"}]'
 Expected: '[{"fud":"hello"},{"fud":"world"}]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2604" name="wildcards.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1535506207" result="Passed" start-time="2021-10-30T21:23:37.7616692Z" end-time="2021-10-30T21:23:37.7618781Z" duration="0.000209" asserts="1">
+                <test-case id="0-2604" name="wildcards.case002" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case002" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="189664268" result="Passed" start-time="2021-10-30T22:08:25.3565139Z" end-time="2021-10-30T22:08:25.3566305Z" duration="0.000117" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.*.bazz';&#xA; result: &quot;gotcha&quot;" />
                   </properties>
@@ -1681,7 +1681,7 @@ Result: '"gotcha"'
 Expected: '"gotcha"'
 ]]></output>
                 </test-case>
-                <test-case id="0-2605" name="wildcards.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1224142885" result="Passed" start-time="2021-10-30T21:23:37.7619324Z" end-time="2021-10-30T21:23:37.7621757Z" duration="0.000243" asserts="1">
+                <test-case id="0-2605" name="wildcards.case003" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case003" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1735398369" result="Passed" start-time="2021-10-30T22:08:25.3566625Z" end-time="2021-10-30T22:08:25.3570289Z" duration="0.000367" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.*.baz.*';&#xA; result: [&quot;hello&quot;,&quot;world&quot;]" />
                   </properties>
@@ -1690,7 +1690,7 @@ Result: '["hello","world"]'
 Expected: '["hello","world"]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2606" name="wildcards.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="97676384" result="Passed" start-time="2021-10-30T21:23:37.7622295Z" end-time="2021-10-30T21:23:37.7624891Z" duration="0.000260" asserts="1">
+                <test-case id="0-2606" name="wildcards.case004" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case004" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1167496678" result="Passed" start-time="2021-10-30T22:08:25.3572635Z" end-time="2021-10-30T22:08:25.3575201Z" duration="0.000257" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.*.baz.*';&#xA; result: [&quot;hello&quot;,&quot;world&quot;]" />
                   </properties>
@@ -1699,7 +1699,7 @@ Result: '["hello","world"]'
 Expected: '["hello","world"]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2607" name="wildcards.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="9061740" result="Passed" start-time="2021-10-30T21:23:37.7625893Z" end-time="2021-10-30T21:23:37.7628229Z" duration="0.000234" asserts="1">
+                <test-case id="0-2607" name="wildcards.case005" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case005" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1782147670" result="Passed" start-time="2021-10-30T22:08:25.3578838Z" end-time="2021-10-30T22:08:25.3580758Z" duration="0.000192" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'foo.*.baz.*';&#xA; result: [&quot;hello&quot;,&quot;world&quot;]" />
                   </properties>
@@ -1708,7 +1708,7 @@ Result: '["hello","world"]'
 Expected: '["hello","world"]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2608" name="wildcards.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1799019212" result="Passed" start-time="2021-10-30T21:23:37.7631514Z" end-time="2021-10-30T21:23:37.7634288Z" duration="0.000277" asserts="1">
+                <test-case id="0-2608" name="wildcards.case006" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case006" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="85819395" result="Passed" start-time="2021-10-30T22:08:25.3583759Z" end-time="2021-10-30T22:08:25.3589947Z" duration="0.000619" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '*[type=&quot;home&quot;]';&#xA; result: [{&quot;type&quot;:&quot;home&quot;,&quot;number&quot;:&quot;0203 544 1234&quot;},{&quot;type&quot;:&quot;home&quot;,&quot;address&quot;:[&quot;freddy@my-social.com&quot;,&quot;frederic.smith@very-serious.com&quot;]}]" />
                   </properties>
@@ -1717,7 +1717,7 @@ Result: '[{"type":"home","number":"0203 544 1234"},{"type":"home","address":["fr
 Expected: '[{"type":"home","number":"0203 544 1234"},{"type":"home","address":["freddy@my-social.com","frederic.smith@very-serious.com"]}]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2609" name="wildcards.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="514322434" result="Passed" start-time="2021-10-30T21:23:37.7643413Z" end-time="2021-10-30T21:23:37.7650682Z" duration="0.000727" asserts="1">
+                <test-case id="0-2609" name="wildcards.case007" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case007" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="444548291" result="Passed" start-time="2021-10-30T22:08:25.3595390Z" end-time="2021-10-30T22:08:25.3600537Z" duration="0.000515" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'Account[$$.Account.&quot;Account Name&quot; = &quot;Firefly&quot;].*[OrderID=&quot;order104&quot;].Product.Price';&#xA; result: [34.45,107.99]" />
                   </properties>
@@ -1726,7 +1726,7 @@ Result: '[34.45,107.99]'
 Expected: '[34.45,107.99]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2610" name="wildcards.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1657003442" result="Passed" start-time="2021-10-30T21:23:37.7670268Z" end-time="2021-10-30T21:23:37.7679532Z" duration="0.000926" asserts="1">
+                <test-case id="0-2610" name="wildcards.case008" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case008" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="411141026" result="Passed" start-time="2021-10-30T22:08:25.3612941Z" end-time="2021-10-30T22:08:25.3631545Z" duration="0.001861" asserts="1">
                   <properties>
                     <property name="Description" value="expr: 'Account[$$.Account.`Account Name` = &quot;Firefly&quot;].*[OrderID=&quot;order104&quot;].Product.Price';&#xA; result: [34.45,107.99]" />
                   </properties>
@@ -1735,7 +1735,7 @@ Result: '[34.45,107.99]'
 Expected: '[34.45,107.99]'
 ]]></output>
                 </test-case>
-                <test-case id="0-2611" name="wildcards.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1817184163" result="Passed" start-time="2021-10-30T21:23:37.7690934Z" end-time="2021-10-30T21:23:37.7692253Z" duration="0.000132" asserts="1">
+                <test-case id="0-2611" name="wildcards.case009" fullname="Jsonata.Net.Native.TestSuite.Tests.wildcards.case009" methodname="Test" classname="Jsonata.Net.Native.TestSuite.Tests" runstate="Runnable" seed="1661194044" result="Passed" start-time="2021-10-30T22:08:25.3637715Z" end-time="2021-10-30T22:08:25.3639306Z" duration="0.000159" asserts="1">
                   <properties>
                     <property name="Description" value="expr: '*';&#xA; result: [1,2,3]" />
                   </properties>

@@ -88,8 +88,7 @@ namespace Jsonata.Net.Native.Eval
 						parameters[i] = optional.DefaultValue;
 						continue;
 					};
-					EvalEnvironmentArgumentAttribute? evalEnv = parameterInfo.GetCustomAttribute<EvalEnvironmentArgumentAttribute>();
-					if (evalEnv != null)
+					if (parameterInfo.IsDefined(typeof(EvalEnvironmentArgumentAttribute), false))
 					{
 						if (parameterInfo.ParameterType != typeof(EvaluationEnvironment))
 						{
@@ -189,7 +188,7 @@ namespace Jsonata.Net.Native.Eval
 		private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
 		{
 			if (argToken.Type == JTokenType.Undefined
-				&& parameterInfo.GetCustomAttribute<PropagateUndefinedAttribute>() != null
+				&& parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false)
 			)
 			{
 				returnUndefined = true;
@@ -199,6 +198,15 @@ namespace Jsonata.Net.Native.Eval
 			{
 				returnUndefined = false;
 			};
+
+			if (parameterInfo.IsDefined(typeof(PackSingleValueToSequenceAttribute), false)
+				&& argToken.Type != JTokenType.Array
+			)
+            {
+				Sequence sequence = new Sequence();
+				sequence.Add(argToken);
+				argToken = sequence;
+            };
 
 			//TODO: add support for broadcasting Undefined
 			if (parameterInfo.ParameterType.IsAssignableFrom(argToken.GetType()))
