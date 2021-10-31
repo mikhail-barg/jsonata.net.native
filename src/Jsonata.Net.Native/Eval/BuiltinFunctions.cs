@@ -977,7 +977,7 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
         {
-            int filterArgsCount = function.GetArgumentsCount();
+            int funcArgsCount = function.GetArgumentsCount();
 
             Sequence result = new Sequence();
 
@@ -985,15 +985,15 @@ namespace Jsonata.Net.Native.Eval
             foreach (JToken element in array.Children())
             {
                 List<JToken> args = new List<JToken>();
-                if (filterArgsCount >= 1)
+                if (funcArgsCount >= 1)
                 {
                     args.Add(element);
                 };
-                if (filterArgsCount >= 2)
+                if (funcArgsCount >= 2)
                 {
                     args.Add(new JValue(index));
                 };
-                if (filterArgsCount >= 3)
+                if (funcArgsCount >= 3)
                 {
                     args.Add(array);
                 };
@@ -1065,7 +1065,68 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-        
+
+        /**
+          Signature: $reduce(array, function [, init])
+          Returns an aggregated value derived from applying the function parameter successively to each value in array in combination with the result of the previous application of the function.
+          The function must accept at least two arguments, and behaves like an infix operator between each value within the array. 
+          The signature of this supplied function must be of the form:
+            myfunc($accumulator, $value[, $index[, $array]])         
+          If the optional init parameter is supplied, then that value is used as the initial value in the aggregation (fold) process. 
+          If not supplied, the initial value is the first value in the array parameter.
+         */
+        public static JToken reduce([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function, [OptionalArgument(null)] JToken? init)
+        {
+            JToken accumulator;
+            IEnumerable<JToken> elements;
+            int index;
+            if (init == null || init.Type == JTokenType.Undefined)
+            {
+                if (!array.HasValues)
+                {
+                    return EvalProcessor.UNDEFINED;
+                };
+                accumulator = array.First();
+                elements = array.Children().Skip(1);
+                index = 1;
+            }
+            else
+            {
+                accumulator = init;
+                elements = array.Children();
+                index = 0;
+            };
+
+            int funcArgsCount = function.GetArgumentsCount();
+            if (funcArgsCount < 2)
+            {
+                throw new JsonataException("D3050", "The second argument of reduce function must be a function with at least two arguments");
+            }
+
+            foreach (JToken element in elements)
+            {
+                List<JToken> args = new List<JToken>(funcArgsCount);
+                args.Add(accumulator);
+                args.Add(element);
+                if (funcArgsCount >= 3)
+                {
+                    args.Add(new JValue(index));
+                };
+                if (funcArgsCount >= 4)
+                {
+                    args.Add(array);
+                };
+                accumulator = EvalProcessor.InvokeFunction(
+                    function: function,
+                    args: args,
+                    context: null,
+                    env: null! //TODO: pass some real environment?
+                );
+                ++index;
+            }
+            return accumulator;
+        }
+
         #endregion
     }
 }
