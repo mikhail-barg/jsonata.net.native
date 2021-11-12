@@ -846,6 +846,52 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
+        /**
+        Signature: $zip(array1, ...)
+        Returns a convolved (zipped) array containing grouped arrays of values from the array1 ... arrayN arguments from index 0, 1, 2, etc.
+        This function accepts a variable number of arguments. 
+        The length of the returned array is equal to the length of the shortest array in the arguments.         
+        */
+        public static JArray zip([VariableNumberArgumentAsArray] JArray args)
+        {
+            JArray result = new JArray();
+            int maxLength = int.MaxValue;
+            List<JArray> argsList = new List<JArray>(args.Count);
+            foreach (JToken arg in args.Children())
+            {
+                JArray arrayArg;
+                switch (arg.Type)
+                {
+                case JTokenType.Undefined:
+                    return result; //undefined has length of 0
+                case JTokenType.Array:
+                    arrayArg = (JArray)arg;
+                    break;
+                default:
+                    arrayArg = new JArray();    //length of 1
+                    arrayArg.Add(arg);
+                    break;
+                }
+                argsList.Add(arrayArg);
+                if (arrayArg.Count < maxLength)
+                {
+                    maxLength = arrayArg.Count;
+                }
+            };
+
+            for (int i = 0; i < maxLength; ++i)
+            {
+                JArray tuple = new JArray();
+                foreach (JArray arrayArg in argsList)
+                {
+                    tuple.Add(arrayArg[i]);
+                };
+                result.Add(tuple);
+            };
+
+            return result;
+        }
+
         #endregion
 
         #region Object functions

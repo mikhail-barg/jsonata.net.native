@@ -15,11 +15,6 @@ namespace Jsonata.Net.Native.Eval
 		{
 			ParameterInfo[] parameterList = methodInfo.GetParameters();
 
-			if (args.Count > parameterList.Length)
-			{
-				throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
-			};
-
 			object?[] parameters;
 			try
 			{
@@ -76,7 +71,8 @@ namespace Jsonata.Net.Native.Eval
         {
 			returnUndefined = false;
 			object?[] parameters = new object[parameterList.Length];
-			for (int i = 0; i < parameterList.Length; ++i)
+			int i = 0;
+			for (; i < parameterList.Length; ++i)
 			{
 				ParameterInfo parameterInfo = parameterList[i];
 				if (i >= args.Count)
@@ -99,6 +95,24 @@ namespace Jsonata.Net.Native.Eval
 					};
 					throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
 				}
+				else if (parameterInfo.IsDefined(typeof(VariableNumberArgumentAsArrayAttribute), false))
+                {
+					if (parameterInfo.ParameterType != typeof(JArray))
+					{
+						throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(VariableNumberArgumentAsArrayAttribute)}] can only be specified for arguments of type {nameof(JArray)}");
+					};
+
+					//pack all remaining args to vararg.
+					//TODO: Will not work if this is not last one in parameters list...
+					JArray vararg = new JArray();
+					for (int j = i; j < args.Count; ++j)
+                    {
+						vararg.Add(args[j]);
+                    };
+					parameters[i] = vararg;
+					i = args.Count;
+					break;
+                }
 				else
 				{
 					parameters[i] = ConvertFunctionArg(functionName, i, args[i], parameterInfo, out bool needReturnUndefined);
@@ -108,6 +122,12 @@ namespace Jsonata.Net.Native.Eval
 					}
 				}
 			};
+
+			if (i < args.Count)
+            {
+				throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
+			};
+
 			return parameters;
 		}
 
