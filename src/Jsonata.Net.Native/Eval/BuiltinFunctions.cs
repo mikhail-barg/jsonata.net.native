@@ -608,45 +608,74 @@ namespace Jsonata.Net.Native.Eval
                 //continue handling below
                 break;
             default:
-                throw new JsonataException("T0410", $"Arguent 1 of function {nameof(sum)} should be array of numbers, but specified {arg.Type}");
+                throw new JsonataException("T0410", $"Argument 1 of function {nameof(sum)} should be an array of numbers, but specified {arg.Type}");
             }
 
-            if (arg.Children().All(t => (t.Type == JTokenType.Integer || t.Type == JTokenType.Undefined)))
+            decimal result = 0;
+            foreach (JToken token in arg.Children())
             {
-                //eval to int
-                long result = 0;
-                foreach (JToken token in arg.Children())
+                switch (token.Type)
                 {
-                    if (token.Type != JTokenType.Undefined)
-                    {
-                        result += (long)token;
-                    }
+                case JTokenType.Integer:
+                    result += (long)token;
+                    break;
+                case JTokenType.Float:
+                    result += (decimal)token;
+                    break;
+                case JTokenType.Undefined:
+                    //just skip
+                    break;
+                default:
+                    throw new JsonataException("T0412", $"Argument of function {nameof(sum)} must be an array of numbers. Got {token.Type}");
                 }
-                return new JValue(result);
             }
-            else
+            return EvalProcessor_Functions.ReturnDecimalResult(result);
+        }
+
+        /**
+        Signature: $average(array)
+        Returns the mean value of an array of numbers. It is an error if the input array contains an item which isn't a number.         
+         */
+        public static JToken average([PropagateUndefined] JToken arg)
+        {
+            switch (arg.Type)
             {
-                //eval to double
-                double result = 0;
-                foreach (JToken token in arg.Children())
-                {
-                    switch (token.Type)
-                    {
-                    case JTokenType.Integer:
-                        result += (long)token;
-                        break;
-                    case JTokenType.Float:
-                        result += (double)token;
-                        break;
-                    case JTokenType.Undefined:
-                        //just skip
-                        break;
-                    default:
-                        throw new JsonataException("T0412", $"Argument of function {nameof(sum)} must be an array of numbers. Got {token.Type}");
-                    }
-                }
-                return new JValue(result);
+            case JTokenType.Integer:
+            case JTokenType.Float:
+                return arg;
+            case JTokenType.Array:
+                //continue handling below
+                break;
+            default:
+                throw new JsonataException("T0410", $"Argument 1 of function {nameof(average)} should be an array of numbers, but specified {arg.Type}");
             }
+
+            decimal result = 0;
+            int count = 0;
+            foreach (JToken token in arg.Children())
+            {
+                switch (token.Type)
+                {
+                case JTokenType.Integer:
+                    result += (long)token;
+                    ++count;
+                    break;
+                case JTokenType.Float:
+                    result += (decimal)token;
+                    ++count;
+                    break;
+                case JTokenType.Undefined:
+                    //just skip
+                    break;
+                default:
+                    throw new JsonataException("T0412", $"Argument of function {nameof(average)} must be an array of numbers. Got {token.Type}");
+                }
+            };
+            if (count == 0)
+            {
+                return EvalProcessor.UNDEFINED;
+            };
+            return EvalProcessor_Functions.ReturnDecimalResult(result / count);
         }
         #endregion
 

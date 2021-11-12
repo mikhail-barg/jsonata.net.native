@@ -175,7 +175,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private static JToken ReturnDoubleResult(double resultDouble)
+		internal static JToken ReturnDoubleResult(double resultDouble)
 		{
 			if (Double.IsNaN(resultDouble) || Double.IsInfinity(resultDouble))
 			{
@@ -193,7 +193,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private static JToken ReturnDecimalResult(decimal resultDecimal)
+		internal static JToken ReturnDecimalResult(decimal resultDecimal)
 		{
 			long resultLong = (long)resultDecimal;
 			if (resultLong == resultDecimal)
