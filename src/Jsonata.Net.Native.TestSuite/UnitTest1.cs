@@ -13,8 +13,13 @@ namespace Jsonata.Net.Native.TestSuite
     {
         private const string TEST_SUITE_ROOT = "../../../../../jsonata-js/test/test-suite";
         private Dictionary<string, JToken> m_datasets = new Dictionary<string, JToken>();
+        private readonly Dictionary<string, string> m_disabledTests = new Dictionary<string, string>() {
+            { "tail-recursion.case005", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" },
+            { "tail-recursion.case006", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" },
+            { "tail-recursion.case007", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" }
+        };
         private readonly Dictionary<string, string> m_suppressedTests = new Dictionary<string, string>() {
-            { "function-sum.case002", "The problem with precision: expected '90.57', got '90.57000000000001'. We may use decimal instead of double always, but it looks like an overill?" }
+            { "function-sum.case002", "The problem with precision: expected '90.57', got '90.57000000000001'. We may use decimal instead of double always, but it looks like an overill?" },
         };
 
         [OneTimeSetUp]
@@ -34,6 +39,15 @@ namespace Jsonata.Net.Native.TestSuite
         [TestCaseSource(nameof(GetTestCases))]
         public void Test(CaseInfo caseInfo)
         {
+            //check disabled tests
+            {
+                if (this.m_disabledTests.TryGetValue(caseInfo.testName!, out string? justification))
+                {
+                    Assert.Fail(justification);
+                    return;
+                }
+            }
+
             /*
              data or dataset: If data is defined, use the value of the data field as the input data for the test case. 
              Otherwise, the dataset field contains the name of the dataset (in the datasets directory) to use as input data. 
@@ -110,7 +124,7 @@ namespace Jsonata.Net.Native.TestSuite
                 if (caseInfo.result != null)
                 {
                     Console.WriteLine($"Expected: '{caseInfo.result.ToString(Formatting.None)}'");
-                    if (m_suppressedTests.TryGetValue(caseInfo.testName!, out string? justification))
+                    if (this.m_suppressedTests.TryGetValue(caseInfo.testName!, out string? justification))
                     {
                         Assert.Ignore(justification);
                         return;
