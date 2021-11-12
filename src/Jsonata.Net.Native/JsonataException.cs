@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native
 {
-    public sealed class JsonataException: Exception
+    public class JsonataException: Exception
     {
         public string Code { get; }
 
@@ -14,6 +14,20 @@ namespace Jsonata.Net.Native
             : base($"{code}: {message}")
         {
             this.Code = code;
+        }
+
+        protected JsonataException(string code, string message, bool noCodeInMessage)
+            : base(message)
+        {
+            this.Code = code;
+        }
+    }
+
+    public sealed class JsonataAssertFailedException: JsonataException
+    {
+        public JsonataAssertFailedException(string message)
+            : base("D3141", message, noCodeInMessage: true)
+        {
         }
     }
 }

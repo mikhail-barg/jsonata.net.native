@@ -975,6 +975,27 @@ namespace Jsonata.Net.Native.Eval
         }
 
         /**
+         Signature:$assert(condition, message)
+         If condition is true, the function returns undefined. 
+         If the condition is false, an exception is thrown with the message as the message of the exception.         
+         */
+        public static JToken assert(bool condition, [OptionalArgument(null)] string message)
+        {
+            if (!condition)
+            {
+                if (string.IsNullOrEmpty(message))
+                {
+                    message = "$assert() statement failed";
+                };
+                throw new JsonataAssertFailedException(message);
+            }
+            else
+            {
+                return EvalProcessor.UNDEFINED;
+            }
+        }
+
+        /**
          Signature:$type(value)
         Evaluates the type of value and returns one of the following strings:
             "null"

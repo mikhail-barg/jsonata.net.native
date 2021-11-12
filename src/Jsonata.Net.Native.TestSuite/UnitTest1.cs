@@ -146,12 +146,17 @@ namespace Jsonata.Net.Native.TestSuite
                     Assert.Fail("Bad test case?");
                 }
             }
-            catch (JsonataException /*jsonataEx*/)
+            catch (JsonataException jsonataEx)
             {
                 if (caseInfo.code != null)
                 {
                     //Assert.Equals(caseInfo.code, jsonataEx.Code); //TODO: enable code checking later
                     Assert.Pass("Expected to throw error with code " + caseInfo.code);
+                }
+                else if (caseInfo.error != null)
+                {
+                    Assert.AreEqual(caseInfo.error.code, jsonataEx.Code);
+                    Assert.AreEqual(caseInfo.error.message, jsonataEx.Message);
                 }
                 else
                 {

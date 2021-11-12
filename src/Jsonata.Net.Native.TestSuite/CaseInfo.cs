@@ -28,6 +28,7 @@ namespace Jsonata.Net.Native.TestSuite
         public bool? undefinedResult { get; set; }
         public string? code { get; set; }
         public string? token { get; set; }
+        public Error? error { get; set; }   //see function-assert group
 
         internal string? testName;
 
@@ -39,6 +40,12 @@ namespace Jsonata.Net.Native.TestSuite
         public override string ToString()
         {
             return this.expr ?? this.expr_file ?? "<some bad data?>";
+        }
+
+        public sealed class Error
+        {
+            public string? code { get; set; }
+            public string? message { get; set; }
         }
     }
 }
