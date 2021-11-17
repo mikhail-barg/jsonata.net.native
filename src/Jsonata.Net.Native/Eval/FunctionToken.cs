@@ -83,4 +83,36 @@ namespace Jsonata.Net.Native.Eval
             return this.argsOrPlaceholders.Count(t => t == null);
         }
     }
+
+    /**
+     ... ~> | ... | ... | (Transform)
+     */
+    internal sealed class FunctionTokenTransformation : FunctionToken
+    {
+        internal readonly Node pattern;
+        internal readonly Node updates;
+        internal readonly Node? deletes;
+        internal readonly Environment environment;
+
+        public FunctionTokenTransformation(Node pattern, Node updates, Node? deletes, Environment environment)
+            : base("transform")
+        {
+            this.pattern = pattern;
+            this.updates = updates;
+            this.deletes = deletes;
+            this.environment = environment;
+        }
+
+        /**
+            The ~> operator is the operator for function chaining 
+            and passes the value on the left hand side to the function on the right hand side as its first argument. 
+        
+            The expression on the right hand side must evaluate to a function, 
+            hence the |...|...| syntax generates a function with one argument.         
+         */
+        internal override int GetArgumentsCount()
+        {
+            return 1;
+        }
+    }
 }

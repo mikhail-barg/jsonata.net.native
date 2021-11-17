@@ -114,10 +114,8 @@ namespace Jsonata.Net.Native.Eval
 			*/
 			case LambdaNode lambdaNode:
 				return evalLambda(lambdaNode, input, env);
-			/*
-			case ObjectTransformationNode:
-				return evalObjectTransformation(node, input, env);
-			*/
+			case ObjectTransformationNode transformationNode:
+				return evalObjectTransformation(transformationNode, input, env);
 			case PartialNode partialNode:
 				return evalPartial(partialNode, input, env);
 			case FunctionCallNode functionCallNode:
@@ -136,6 +134,16 @@ namespace Jsonata.Net.Native.Eval
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalObjectTransformation(ObjectTransformationNode transformationNode, JToken input, Environment env)
+        {
+			return new FunctionTokenTransformation(
+				pattern: transformationNode.pattern,
+				updates: transformationNode.updates,
+				deletes: transformationNode.deletes,
+				environment: env
+			);
+        }
 
         private static JToken evalPartial(PartialNode partialNode, JToken input, Environment env)
         {
@@ -343,6 +351,11 @@ namespace Jsonata.Net.Native.Eval
 					List<JToken> alignedArgs = AlignPartialFunctionArgs(partialFunction, args, context);
 					result = InvokeFunction(partialFunction.func, alignedArgs, null, env);
 				}
+				break;
+			case FunctionTokenTransformation transformationFunction:
+                {
+					result = EvalProcessor_Transformation.CallTransformationFunction(transformationFunction, args, context);
+                }
 				break;
 			default:
                 throw new Exception("Unexpected function token type " + function.GetType().Name);

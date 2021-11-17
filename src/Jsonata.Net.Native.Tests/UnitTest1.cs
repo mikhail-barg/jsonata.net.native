@@ -183,5 +183,25 @@ namespace Jsonata.Net.Native.Tests
                 "'ctx  '"
             );
         }
+
+        [TestMethod]
+        public void TestTransform_1()
+        {
+            Check(
+                "$ ~> |$|{'x': 'y'}|",
+                @"{'a': 'b'}",
+                "{'a': 'b', 'x': 'y'}"
+            );
+        }
+
+        [TestMethod]
+        public void TestTransform_2()
+        {
+            Check(
+                "$ ~> |a|{'x': 'y'}|",
+                @"{'a': {'b': 'c'}}",
+                "{'a': {'b': 'c', 'x': 'y'}}"
+            );
+        }
     }
 }
