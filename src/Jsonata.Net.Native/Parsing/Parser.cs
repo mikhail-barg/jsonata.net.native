@@ -192,8 +192,8 @@ namespace Jsonata.Net.Native.Parsing
             {
                 if (this.token.type == TokenType.typeEOF)
                 {
-                    throw new ErrMissingToken(expected);
-                }
+                    throw new JsonataException("S0203", $"expected token '{Lexer.TokenTypeToString(expected)}' ({expected}) before end of expression");
+                };
                 throw new ErrUnexpectedToken(expected, this.token);
             }
 

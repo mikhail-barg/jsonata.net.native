@@ -12,7 +12,7 @@ namespace Jsonata.Net.Native.Parsing
 
 		// symbols1 maps 1-character symbols to the corresponding
 		// token types.
-		private readonly Dictionary<char, TokenType> m_symbols1 = new Dictionary<char, TokenType>() {
+		private static readonly Dictionary<char, TokenType> s_symbols1 = new Dictionary<char, TokenType>() {
 			{ '[', TokenType.typeBracketOpen },
 			{ ']', TokenType.typeBracketClose },
 			{ '{', TokenType.typeBraceOpen },
@@ -40,7 +40,7 @@ namespace Jsonata.Net.Native.Parsing
 
 		// symbols2 maps 2-character symbols to the corresponding
 		// token types.
-		private readonly Dictionary<char, ValueTuple<char, TokenType>> m_symbols2 = new Dictionary<char, ValueTuple<char, TokenType>>() {
+		private static readonly Dictionary<char, ValueTuple<char, TokenType>> s_symbols2 = new Dictionary<char, ValueTuple<char, TokenType>>() {
 			{ '!', ('=', TokenType.typeNotEqual) },
 			{ '<', ('=', TokenType.typeLessEqual) },
 			{ '>', ('=', TokenType.typeGreaterEqual) },
@@ -49,6 +49,30 @@ namespace Jsonata.Net.Native.Parsing
 			{ ':', ('=', TokenType.typeAssign) },
 			{ '*', ('*', TokenType.typeDescendent) },
 		};
+
+		private static readonly Dictionary<TokenType, string> s_tokenTypeToStr;
+
+		static Lexer()
+		{
+			Lexer.s_tokenTypeToStr = new Dictionary<TokenType, string>();
+			foreach (KeyValuePair<char, TokenType> s1 in Lexer.s_symbols1)
+            {
+				Lexer.s_tokenTypeToStr.Add(s1.Value, s1.Key.ToString());
+            }
+			foreach (KeyValuePair<char, ValueTuple<char, TokenType>> s2 in Lexer.s_symbols2)
+			{
+				Lexer.s_tokenTypeToStr.Add(s2.Value.Item2, "" + s2.Key + s2.Value.Item1);
+			}
+		}
+
+		internal static string TokenTypeToString(TokenType tokenType)
+        {
+			if (!Lexer.s_tokenTypeToStr.TryGetValue(tokenType, out string? result))
+            {
+				return "<unknown token>";
+            };
+			return result;
+        }
 
 		private static bool isDigit(char r)
 		{
@@ -101,7 +125,7 @@ namespace Jsonata.Net.Native.Parsing
 			}
 
 			ValueTuple<char, TokenType> symbol2;
-			if (this.m_symbols2.TryGetValue(ch, out symbol2))
+			if (Lexer.s_symbols2.TryGetValue(ch, out symbol2))
             {
 				if (this.acceptRune(symbol2.Item1))
                 {
@@ -109,7 +133,7 @@ namespace Jsonata.Net.Native.Parsing
                 }
             }
 
-			if (this.m_symbols1.TryGetValue(ch, out TokenType tt))
+			if (Lexer.s_symbols1.TryGetValue(ch, out TokenType tt))
             {
 				return this.newToken(tt);
             }
@@ -162,7 +186,7 @@ namespace Jsonata.Net.Native.Parsing
 				}
 
 				// ...or anything that looks like an operator.
-				if (this.m_symbols1.ContainsKey(chOrNull.Value) || this.m_symbols2.ContainsKey(chOrNull.Value)) 
+				if (Lexer.s_symbols1.ContainsKey(chOrNull.Value) || Lexer.s_symbols2.ContainsKey(chOrNull.Value)) 
 				{
 					this.backup();
 					break;

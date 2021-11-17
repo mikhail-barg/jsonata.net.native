@@ -261,6 +261,8 @@ namespace Jsonata.Net.Native.Eval
 				{
 				case JTokenType.Integer:
 					return (int)(long)argToken;
+				case JTokenType.Float:
+					return (int)(double)argToken; //jsonata seem to allow this
 				}
 			}
 			else if (parameterInfo.ParameterType == typeof(long))
@@ -269,6 +271,8 @@ namespace Jsonata.Net.Native.Eval
 				{
 				case JTokenType.Integer:
 					return (long)argToken;
+				case JTokenType.Float:
+					return (long)(double)argToken; //jsonata seem to allow this
 				}
 			}
 			else if (parameterInfo.ParameterType == typeof(decimal))

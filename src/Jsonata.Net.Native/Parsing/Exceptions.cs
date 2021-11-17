@@ -104,15 +104,6 @@ namespace Jsonata.Net.Native.Parsing
         }
     }
 
-    internal sealed class ErrMissingToken : BaseException
-    {
-        public ErrMissingToken(TokenType expected)
-            : base($"expected token '{expected}' before end of expression")
-        {
-
-        }
-    }
-
     internal sealed class ErrPathLiteral : BaseException
     {
         public ErrPathLiteral(string hint)
