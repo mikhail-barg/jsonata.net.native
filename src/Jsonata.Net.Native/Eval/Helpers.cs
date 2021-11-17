@@ -111,5 +111,26 @@ namespace Jsonata.Net.Native.Eval
                 return false;
             }
         }
+
+        internal static IEnumerable<decimal> EnumerateNumericArray(JToken array, string functionName, int argIndex)
+        {
+            foreach (JToken token in array.Children())
+            {
+                switch (token.Type)
+                {
+                case JTokenType.Integer:
+                    yield return (long)token;
+                    break;
+                case JTokenType.Float:
+                    yield return (decimal)token;
+                    break;
+                case JTokenType.Undefined:
+                    //just skip
+                    break;
+                default:
+                    throw new JsonataException("T0412", $"Argument {argIndex} of function {functionName} must be an array of numbers. Got {token.Type}");
+                }
+            }
+        }
     }
 }

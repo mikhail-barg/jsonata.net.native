@@ -611,24 +611,83 @@ namespace Jsonata.Net.Native.Eval
                 throw new JsonataException("T0410", $"Argument 1 of function {nameof(sum)} should be an array of numbers, but specified {arg.Type}");
             }
 
-            decimal result = 0;
-            foreach (JToken token in arg.Children())
+            decimal result = Helpers.EnumerateNumericArray(arg, nameof(sum), 1).Sum();
+            return EvalProcessor_Functions.ReturnDecimalResult(result);
+        }
+
+        /**
+        Signature: $max(array)
+        Returns the maximum number in an array of numbers. 
+        It is an error if the input array contains an item which isn't a number.
+         */
+        public static JToken max([PropagateUndefined] JToken arg)
+        {
+            switch (arg.Type)
             {
-                switch (token.Type)
-                {
-                case JTokenType.Integer:
-                    result += (long)token;
-                    break;
-                case JTokenType.Float:
-                    result += (decimal)token;
-                    break;
-                case JTokenType.Undefined:
-                    //just skip
-                    break;
-                default:
-                    throw new JsonataException("T0412", $"Argument of function {nameof(sum)} must be an array of numbers. Got {token.Type}");
-                }
+            case JTokenType.Integer:
+            case JTokenType.Float:
+                return arg;
+            case JTokenType.Array:
+                //continue handling below
+                break;
+            default:
+                throw new JsonataException("T0410", $"Argument 1 of function {nameof(max)} should be an array of numbers, but specified {arg.Type}");
             }
+
+            decimal result = Decimal.MinValue;
+            bool found = false;
+            foreach (decimal value in Helpers.EnumerateNumericArray(arg, nameof(max), 1))
+            {
+                if (value > result)
+                {
+                    result = value;
+                }
+                found = true;
+            };
+
+            if (!found)
+            {
+                return EvalProcessor.UNDEFINED;
+            }
+
+            return EvalProcessor_Functions.ReturnDecimalResult(result);
+        }
+
+        /**
+        Signature: min(array)
+        Returns the minimum number in an array of numbers.
+        It is an error if the input array contains an item which isn't a number.
+        */
+        public static JToken min([PropagateUndefined] JToken arg)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Integer:
+            case JTokenType.Float:
+                return arg;
+            case JTokenType.Array:
+                //continue handling below
+                break;
+            default:
+                throw new JsonataException("T0410", $"Argument 1 of function {nameof(min)} should be an array of numbers, but specified {arg.Type}");
+            }
+
+            decimal result = Decimal.MaxValue;
+            bool found = false;
+            foreach (decimal value in Helpers.EnumerateNumericArray(arg, nameof(min), 1))
+            {
+                if (value < result)
+                {
+                    result = value;
+                }
+                found = true;
+            };
+
+            if (!found)
+            {
+                return EvalProcessor.UNDEFINED;
+            }
+
             return EvalProcessor_Functions.ReturnDecimalResult(result);
         }
 
@@ -652,25 +711,12 @@ namespace Jsonata.Net.Native.Eval
 
             decimal result = 0;
             int count = 0;
-            foreach (JToken token in arg.Children())
+            foreach (decimal value in Helpers.EnumerateNumericArray(arg, nameof(average), 1))
             {
-                switch (token.Type)
-                {
-                case JTokenType.Integer:
-                    result += (long)token;
-                    ++count;
-                    break;
-                case JTokenType.Float:
-                    result += (decimal)token;
-                    ++count;
-                    break;
-                case JTokenType.Undefined:
-                    //just skip
-                    break;
-                default:
-                    throw new JsonataException("T0412", $"Argument of function {nameof(average)} must be an array of numbers. Got {token.Type}");
-                }
+                result += value;
+                ++count;
             };
+
             if (count == 0)
             {
                 return EvalProcessor.UNDEFINED;
