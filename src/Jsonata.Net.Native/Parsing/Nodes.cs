@@ -943,4 +943,59 @@ namespace Jsonata.Net.Native.Parsing
             }
         }
     }
+
+    
+    internal sealed record SortNode(Node expr, List<SortNode.Term> terms): Node
+    {
+
+        internal enum Direction
+        {
+            Default,
+            Ascending,
+            Descending
+        }
+
+        internal sealed record Term(Direction dir, Node expr)
+        {
+        }
+
+        internal override Node optimize()
+        {
+            Node expr = this.expr.optimize();
+            List<Term> terms = new List<Term>(this.terms.Count);
+            foreach (Term term in this.terms)
+            {
+                Term newTerm = new Term(term.dir, term.expr.optimize());
+                terms.Add(newTerm);
+            }
+            return new SortNode(expr, terms);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(this.expr.ToString());
+            builder.Append("^(");
+            foreach (Term term in this.terms)
+            {
+                switch (term.dir)
+                {
+                case Direction.Default:
+                    break;
+                case Direction.Ascending:
+                    builder.Append("<");
+                    break;
+                case Direction.Descending:
+                    builder.Append(">");
+                    break;
+                default:
+                    throw new Exception("Unexpected direction " + term.dir);
+                };
+                builder.Append(term.expr.ToString());
+            };
+            builder.Append(")");
+            return builder.ToString();
+        }
+    }
+
 }

@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -108,10 +109,8 @@ namespace Jsonata.Net.Native.Eval
 				return evalGroup(groupNode, input, env);
 			case PredicateNode predicateNode:
 				return evalPredicate(predicateNode, input, env);
-			/*
-			case SortNode:
-				return evalSort(node, input, env);
-			*/
+			case SortNode sortNode:
+				return evalSort(sortNode, input, env);
 			case LambdaNode lambdaNode:
 				return evalLambda(lambdaNode, input, env);
 			case ObjectTransformationNode transformationNode:
@@ -135,7 +134,111 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static JToken evalObjectTransformation(ObjectTransformationNode transformationNode, JToken input, Environment env)
+        private static JToken evalSort(SortNode sortNode, JToken input, Environment env)
+        {
+			JToken items = EvalProcessor.Eval(sortNode.expr, input, env);
+			switch (items.Type)
+            {
+			case JTokenType.Undefined:
+				return EvalProcessor.UNDEFINED;
+			case JTokenType.Array:
+				break;
+			default:
+				return items;
+            }
+			List<JToken> itemsList = items.Children().ToList();
+
+			try
+			{
+				itemsList.Sort(comparison);
+			}
+			catch (InvalidOperationException ex)
+            {
+				if (ex.InnerException != null)
+				{
+					ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				}
+				else
+                {
+					throw;
+                }
+			}
+
+			JArray result = new JArray();
+			foreach (JToken item in itemsList)
+            {
+				result.Add(item);
+            }
+			return result;
+
+			int comparison(JToken a, JToken b)
+			{
+				foreach (SortNode.Term term in sortNode.terms)
+				{
+					//evaluate the sort term in the context of a
+					JToken aa = EvalProcessor.Eval(term.expr, a, env);
+					//evaluate the sort term in the context of b
+					JToken bb = EvalProcessor.Eval(term.expr, b, env);
+
+					// undefined should be last in sort order
+					if (aa.Type == JTokenType.Undefined)
+                    {
+						if (bb.Type == JTokenType.Undefined)
+						{
+							continue;
+						}
+						else
+                        {
+							return 1;
+                        }
+                    }
+					else if (bb.Type == JTokenType.Undefined)
+                    {
+						return -1;
+                    }
+
+					if (aa.Type != JTokenType.String && aa.Type != JTokenType.Integer && aa.Type != JTokenType.Float)
+                    {
+						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {aa.Type} ({aa.ToString(Newtonsoft.Json.Formatting.None)})");
+                    };
+					if (bb.Type != JTokenType.String && bb.Type != JTokenType.Integer && bb.Type != JTokenType.Float)
+					{
+						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {bb.Type} ({bb.ToString(Newtonsoft.Json.Formatting.None)})");
+					};
+
+					if ((aa.Type == JTokenType.String) != (bb.Type == JTokenType.String))
+                    {
+						throw new JsonataException("T2007", $"Type mismatch when comparing values {aa.Type}({aa.ToString(Newtonsoft.Json.Formatting.None)}) and {bb.Type}({bb.ToString(Newtonsoft.Json.Formatting.None)}) in order-by clause");
+                    }
+
+					int comp;
+
+					if (aa.Type == JTokenType.String)
+                    {
+						comp = String.Compare((string)aa!, (string)bb!);
+                    }
+					else
+                    {
+						double aValue = aa.Type == JTokenType.Float ? (double)aa : (long)aa;
+						double bValue = bb.Type == JTokenType.Float ? (double)bb : (long)bb;
+						comp = aValue.CompareTo(bValue);
+					};
+
+					if (term.dir == SortNode.Direction.Descending)
+					{
+						comp = -comp;
+					};
+
+					if (comp != 0)
+					{
+						return comp;
+					}
+				};
+				return 0;
+			}
+		}
+
+		private static JToken evalObjectTransformation(ObjectTransformationNode transformationNode, JToken input, Environment env)
         {
 			return new FunctionTokenTransformation(
 				pattern: transformationNode.pattern,

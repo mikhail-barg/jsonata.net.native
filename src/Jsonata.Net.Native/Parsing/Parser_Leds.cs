@@ -209,8 +209,34 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseSort(Token t, Node lhs)
         {
-            //todo: implement
-            throw new NotImplementedException();
+            this.consume(TokenType.typeParenOpen, true);
+            List<SortNode.Term> terms = new List<SortNode.Term>();
+            while (true)
+            {
+                SortNode.Direction dir = SortNode.Direction.Default;
+                switch (this.token.type)
+                {
+                case TokenType.typeLess:
+                    dir = SortNode.Direction.Ascending;
+                    this.consume(this.token.type, true);
+                    break;
+                case TokenType.typeGreater:
+                    dir = SortNode.Direction.Descending;
+                    this.consume(this.token.type, true);
+                    break;
+                };
+                Node termExpr = this.parseExpression(0);
+                terms.Add(new SortNode.Term(dir, termExpr));
+
+                if (this.token.type != TokenType.typeComma)
+                {
+                    break;
+                }
+                this.consume(TokenType.typeComma, true);
+            }
+            this.consume(TokenType.typeParenClose, true);
+
+            return new SortNode(lhs, terms);
         }
 
         private Node parseDot(Token t, Node lhs)
