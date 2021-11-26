@@ -998,4 +998,16 @@ namespace Jsonata.Net.Native.Parsing
         }
     }
 
+    internal sealed record RegexNode(System.Text.RegularExpressions.Regex regex, string pattern) : Node
+    {
+        internal override Node optimize()
+        {
+            return this;
+        }
+
+        public override string ToString()
+        {
+            return "/" + this.pattern + "/";
+        }
+    }
 }

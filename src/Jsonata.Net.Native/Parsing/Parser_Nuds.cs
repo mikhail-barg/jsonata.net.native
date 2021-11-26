@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Parsing
@@ -66,26 +67,26 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseRegex(Token t)
         {
-            //TODO: implement!
-            throw new NotImplementedException();
-            /*
-	        if (t.Value == "") 
+            RegexToken regexToken = (RegexToken)t;
+
+            if (string.IsNullOrWhiteSpace(regexToken.value)) 
             {
-		        return nil, newError(ErrEmptyRegex, t)
+                //TODO:
+                throw new JsonataException("????", "Empty regex");
             }
 
-            re, err := regexp.Compile(t.Value)
-	        if (err != nil) 
+            Regex regex;
+            try
             {
-		        hint := "unknown error"
-		        if e, ok := err.(* syntax.Error); ok {
-			        hint = string (e.Code)
-                }
-                return nil, newErrorHint(ErrInvalidRegex, t, hint)
-	        }
+                regex = new Regex(regexToken.value, regexToken.flags);
+            }
+            catch (Exception e)
+            {
+                //TODO:
+                throw new JsonataException("????", "Invalid regex: " + e.Message);
+            }
 
-	        return &RegexNode{Value: re}, nil
-            */
+            return new RegexNode(regex, regexToken.value!);
         }
 
         private Node parseVariable(Token t)

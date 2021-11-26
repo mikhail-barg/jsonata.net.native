@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Jsonata.Net.Native.Parsing
 {
@@ -120,8 +121,7 @@ namespace Jsonata.Net.Native.Parsing
 			if (allowRegex && ch == '/')
 			{
 				this.ignore();
-				throw new NotImplementedException($"Regex start at pos {this.CurrentPos - 1}");
-				//return this.scanRegex(ch);
+				return this.scanRegex(ch);
 			}
 
 			ValueTuple<char, TokenType> symbol2;
@@ -158,6 +158,67 @@ namespace Jsonata.Net.Native.Parsing
 
 			this.backup();
 			return this.scanName();
+		}
+
+		private Token scanRegex(char delim)
+        {
+			int depth = 0;
+
+			while (true)
+			{
+				char? nextChar = this.nextRune();
+				if (nextChar == null || nextChar == '\n')
+				{
+					//TODO:
+					throw new JsonataException("????", "Unterminated regex");
+				}
+				else if (nextChar == delim)
+				{
+					break;
+				}
+				else if (nextChar == '(' || nextChar == '[' || nextChar == '{')
+				{
+					depth++;
+				}
+				else if (nextChar == ')' || nextChar == ']' || nextChar == '}')
+				{
+					depth--;
+				}
+				else if (nextChar == '\\')
+				{
+					nextChar = this.nextRune();
+					if (nextChar == null || nextChar == '\n')
+					{
+						//TODO:
+						throw new JsonataException("????", "Unterminated regex");
+					};
+				}
+			};
+
+			this.backup();
+
+			RegexToken result = new RegexToken(this.m_queryText.Substring(this.StartPos, this.CurrentPos - this.StartPos), this.StartPos);
+			this.StartPos = this.CurrentPos;
+
+			this.acceptRune(delim);
+			this.ignore();
+
+			if (this.acceptRune('i'))
+            {
+				result.flags |= RegexOptions.IgnoreCase;
+			}
+			else if (this.acceptRune('m'))
+			{
+				result.flags |= RegexOptions.Multiline;
+			};
+
+			//in case of 'mi'
+			if (this.acceptRune('i'))
+			{
+				result.flags |= RegexOptions.IgnoreCase;
+			}
+
+			return result;
 		}
 
 		// scanName reads from the current position and returns a name,

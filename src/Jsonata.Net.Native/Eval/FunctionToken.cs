@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
@@ -109,6 +110,26 @@ namespace Jsonata.Net.Native.Eval
         
             The expression on the right hand side must evaluate to a function, 
             hence the |...|...| syntax generates a function with one argument.         
+         */
+        internal override int GetArgumentsCount()
+        {
+            return 1;
+        }
+    }
+
+    internal sealed class FunctionTokenRegex : FunctionToken
+    {
+        internal readonly Regex regex;
+
+        public FunctionTokenRegex(Regex regex)
+            : base("regex")
+        {
+            this.regex = regex;
+        }
+
+        /**
+            The ~> is the chain operator, and its use here implies that the result of /regex/ is a function. 
+            We'll see below that this is in fact the case.         
          */
         internal override int GetArgumentsCount()
         {

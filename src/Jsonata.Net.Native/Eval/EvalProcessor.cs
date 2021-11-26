@@ -77,10 +77,8 @@ namespace Jsonata.Net.Native.Eval
 				return evalBoolean(booleanNode, input, env);
 			case NullNode nullNode:
 				return evalNull(nullNode, input, env);
-			/*
-			case RegexNode:
-				return evalRegex(node, input, env);
-			*/
+			case RegexNode regexNode:
+				return evalRegex(regexNode, input, env);
 			case VariableNode variableNode:
 				return evalVariable(variableNode, input, env);
 			case NameNode nameNode:
@@ -133,6 +131,11 @@ namespace Jsonata.Net.Native.Eval
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalRegex(RegexNode regexNode, JToken input, Environment env)
+        {
+			return new FunctionTokenRegex(regexNode.regex);
+        }
 
         private static JToken evalSort(SortNode sortNode, JToken input, Environment env)
         {
@@ -460,6 +463,8 @@ namespace Jsonata.Net.Native.Eval
 					result = EvalProcessor_Transformation.CallTransformationFunction(transformationFunction, args, context);
                 }
 				break;
+			case FunctionTokenRegex regexFunction:
+				throw new NotImplementedException("TODO: regex");
 			default:
                 throw new Exception("Unexpected function token type " + function.GetType().Name);
             }

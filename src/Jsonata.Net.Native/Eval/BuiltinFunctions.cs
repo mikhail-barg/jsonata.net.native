@@ -251,7 +251,7 @@ namespace Jsonata.Net.Native.Eval
         If limit is not specified, then str is fully split with no limit to the size of the resultant array. 
         It is an error if limit is not a non-negative number.         
          */
-        public static JArray split([AllowContextAsValue][PropagateUndefined] string str, string separator, [OptionalArgument(100000000)] int limit)
+        public static JArray split([PropagateUndefined] string str, JToken separator, [OptionalArgument(100000000)] int limit)
         {
             //TODO: support RegExes!!
 
@@ -261,27 +261,54 @@ namespace Jsonata.Net.Native.Eval
             }
 
             JArray result = new JArray();
-            if (separator == "")
+
+            switch (separator.Type)
             {
-                foreach (char c in str)
+            case JTokenType.String:
                 {
-                    if (result.Count >= limit)
+                    string separatorString = (string)separator!;
+                    if (separatorString == "")
                     {
-                        break;
+                        foreach (char c in str)
+                        {
+                            if (result.Count >= limit)
+                            {
+                                break;
+                            }
+                            result.Add(new JValue(c));
+                        }
                     }
-                    result.Add(new JValue(c));
+                    else
+                    {
+                        foreach (string part in Regex.Split(str, Regex.Escape(separatorString)))
+                        {
+                            if (result.Count >= limit)
+                            {
+                                break;
+                            }
+                            result.Add(new JValue(part));
+                        }
+                    }
                 }
-            }
-            else
-            {
-                foreach (string part in Regex.Split(str, Regex.Escape(separator)))
+                break;
+            case FunctionToken.TYPE:
                 {
-                    if (result.Count >= limit)
+                    if (separator is not FunctionTokenRegex regex)
                     {
-                        break;
-                    }
-                    result.Add(new JValue(part));
+                        throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed function {separator.GetType().Name})");
+                    };
+                    foreach (string part in regex.regex.Split(str))
+                    {
+                        if (result.Count >= limit)
+                        {
+                            break;
+                        }
+                        result.Add(new JValue(part));
+                    };
                 }
+                break;
+            default:
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed {separator.Type} ({separator.ToString(Formatting.None)})");
             }
             return result;
         }
