@@ -382,7 +382,88 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        
+        private static JObject ConvertRegexMatch(Match match)
+        {
+            JObject result = new JObject();
+            result.Add("match", match.Value);
+            result.Add("index", match.Index);
+            if (match.Groups.Count > 1) //0th is a whole regex
+            {
+                JArray groups = new JArray();
+                for (int i = 1; i < match.Groups.Count; ++i)
+                {
+                    groups.Add(match.Groups[i].Value);
+                };
+                result.Add("groups", groups);
+            }
+            return result;
+        }
+
+        /**
+          Signature: $match(str, pattern [, limit])
+
+          Applies the str string to the pattern regular expression and returns an array of objects, 
+            with each object containing information about each occurrence of a match withing str.
+
+          The object contains the following fields:
+            match - the substring that was matched by the regex.
+            index - the offset (starting at zero) within str of this match.
+            groups - if the regex contains capturing groups (parentheses), this contains an array of strings representing each captured group.
+
+        If str is not specified, then the context value is used as the value of str. It is an error if str is not a string.         
+        */
+        public static JArray match([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(null)] int? limit)
+        {
+            if (pattern is not FunctionTokenRegex regex)
+            {
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToString(Formatting.None)})");
+            };
+
+            if (limit != null && limit < 0)
+            {
+                throw new JsonataException("D3040", $"Third argument of {nameof(match)} function must evaluate to a positive number");
+            };
+
+            JArray result = new JArray();
+            foreach (Match match in regex.regex.Matches(str))
+            {
+                if (limit != null && result.Count >= limit)
+                {
+                    break;
+                };
+                result.Add(ConvertRegexMatch(match));
+            }
+
+            return result;
+        }
+
+
+        /**
+        Signature: $replace(str, pattern, replacement [, limit])
+        Finds occurrences of pattern within str and replaces them with replacement.
+
+        If str is not specified, then the context value is used as the value of str. It is an error if str is not a string.
+
+        The pattern parameter can either be a string or a regular expression (regex). 
+            If it is a string, it specifies the substring(s) within str which should be replaced. 
+            If it is a regex, its is used to find .
+
+        The replacement parameter can either be a string or a function. 
+            If it is a string, it specifies the sequence of characters that replace the substring(s) that are matched by pattern. 
+            If pattern is a regex, then the replacement string can refer to the characters that were matched by the regex as well as any of the captured groups 
+            using a $ followed by a number N:
+                If N = 0, then it is replaced by substring matched by the regex as a whole.
+                If N > 0, then it is replaced by the substring captured by the Nth parenthesised group in the regex.
+                If N is greater than the number of captured groups, then it is replaced by the empty string.
+                A literal $ character must be written as $$ in the replacement string
+
+        If the replacement parameter is a function, then it is invoked for each match occurrence of the pattern regex. 
+        The replacement function must take a single parameter which will be the object structure of a regex match 
+            as described in the $match function; and must return a string.
+
+        The optional limit parameter, is a number that specifies the maximum number of replacements to make before stopping. 
+        The remainder of the input beyond this limit will be copied to the output unchanged.         
+         */
 
         /**
           Signature: $base64encode()
@@ -1314,5 +1395,7 @@ namespace Jsonata.Net.Native.Eval
         }
 
         #endregion
+
+        
     }
 }
