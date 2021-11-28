@@ -301,7 +301,7 @@ namespace Jsonata.Net.Native.Eval
 					return (bool)argToken;
 				}
 			}
-			throw new JsonataException("T0410", $"Argument {parameterIndex} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");
+			throw new JsonataException("T0410", $"Argument {parameterIndex + 1} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");
 		}
 	}
 }

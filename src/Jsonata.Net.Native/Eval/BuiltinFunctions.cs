@@ -265,7 +265,7 @@ namespace Jsonata.Net.Native.Eval
         If limit is not specified, then str is fully split with no limit to the size of the resultant array. 
         It is an error if limit is not a non-negative number.         
          */
-        public static JArray split([PropagateUndefined] string str, JToken separator, [OptionalArgument(100000000)] int limit)
+        public static JArray split([PropagateUndefined] string str, JToken separator, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             //TODO: support RegExes!!
 
@@ -412,14 +412,14 @@ namespace Jsonata.Net.Native.Eval
 
         If str is not specified, then the context value is used as the value of str. It is an error if str is not a string.         
         */
-        public static JArray match([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(null)] int? limit)
+        public static JArray match([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             if (pattern is not FunctionTokenRegex regex)
             {
                 throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToString(Formatting.None)})");
             };
 
-            if (limit != null && limit < 0)
+            if (limit < 0)
             {
                 throw new JsonataException("D3040", $"Third argument of {nameof(match)} function must evaluate to a positive number");
             };
@@ -427,7 +427,7 @@ namespace Jsonata.Net.Native.Eval
             JArray result = new JArray();
             foreach (Match match in regex.regex.Matches(str))
             {
-                if (limit != null && result.Count >= limit)
+                if (result.Count >= limit)
                 {
                     break;
                 };
@@ -464,19 +464,16 @@ namespace Jsonata.Net.Native.Eval
         The optional limit parameter, is a number that specifies the maximum number of replacements to make before stopping. 
         The remainder of the input beyond this limit will be copied to the output unchanged.         
          */
-        public static string replace([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(null)] int? limit)
+        public static string replace([PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(Int32.MaxValue)] int limit)
         {
-            if (limit != null)
+            if (limit < 0)
             {
-                if (limit < 0)
-                {
-                    throw new JsonataException("D3011", $"Fourth argument of {nameof(replace)} function must evaluate to a positive number");
-                }
-                else if (limit == 0)
-                {
-                    return str;
-                }
-            };
+                throw new JsonataException("D3011", $"Fourth argument of {nameof(replace)} function must evaluate to a positive number");
+            }
+            else if (limit == 0)
+            {
+                return str;
+            }
 
             switch (pattern.Type)
             {
@@ -499,7 +496,7 @@ namespace Jsonata.Net.Native.Eval
                         int replaceStartAt = 0;
                         while (true)
                         {
-                            if (limit != null && replacesCount >= limit)
+                            if (replacesCount >= limit)
                             {
                                 break;
                             };
@@ -550,7 +547,7 @@ namespace Jsonata.Net.Native.Eval
                             int replaceStartAt = 0;
                             foreach (Match match in matches)
                             {
-                                if (limit != null && replacesCount >= limit)
+                                if (replacesCount >= limit)
                                 {
                                     break;
                                 };
@@ -584,7 +581,7 @@ namespace Jsonata.Net.Native.Eval
                             int replaceStartAt = 0;
                             foreach (Match match in matches)
                             {
-                                if (limit != null && replacesCount >= limit)
+                                if (replacesCount >= limit)
                                 {
                                     break;
                                 };
