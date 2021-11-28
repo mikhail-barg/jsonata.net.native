@@ -162,8 +162,6 @@ namespace Jsonata.Net.Native.Parsing
 
 		private Token scanRegex(char delim)
         {
-			int depth = 0;
-
 			while (true)
 			{
 				char? nextChar = this.nextRune();
@@ -175,14 +173,6 @@ namespace Jsonata.Net.Native.Parsing
 				else if (nextChar == delim)
 				{
 					break;
-				}
-				else if (nextChar == '(' || nextChar == '[' || nextChar == '{')
-				{
-					depth++;
-				}
-				else if (nextChar == ')' || nextChar == ']' || nextChar == '}')
-				{
-					depth--;
 				}
 				else if (nextChar == '\\')
 				{

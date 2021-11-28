@@ -228,10 +228,24 @@ namespace Jsonata.Net.Native.Eval
                 $contains("Hello World", /wo/) => false
                 $contains("Hello World", /wo/i) => true
          */
-        public static bool contains([AllowContextAsValue][PropagateUndefined] string str, string pattern)
+        public static bool contains([AllowContextAsValue][PropagateUndefined] string str, JToken pattern)
         {
-            //TODO: support RegExes!!
-            return str.Contains(pattern);
+            switch (pattern.Type)
+            {
+            case JTokenType.String:
+                return str.Contains((string)pattern!);
+            case FunctionToken.TYPE:
+                if (pattern is not FunctionTokenRegex regex)
+                {
+                    throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed function {pattern.GetType().Name})");
+                }
+                else
+                {
+                    return regex.regex.IsMatch(str);
+                }
+            default:
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed {pattern.Type} ({pattern.ToString(Formatting.None)})");
+            }
         }
 
         /**
@@ -366,6 +380,9 @@ namespace Jsonata.Net.Native.Eval
             }
             return String.Join(separatorString, elements);
         }
+
+
+        
 
         /**
           Signature: $base64encode()
