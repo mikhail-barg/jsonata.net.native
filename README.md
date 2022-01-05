@@ -1,5 +1,5 @@
 ## About
-.Net native implementation of [JSONata](http://jsonata.org) query and transformation language 
+.Net native implementation of [JSONata](http://jsonata.org) query and transformation language. 
 
 [![NuGet](https://img.shields.io/nuget/v/Jsonata.Net.Native.svg)](https://www.nuget.org/packages/Jsonata.Net.Native/)
 
@@ -42,8 +42,12 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 The goal of the project is to implement 100% of latest JSONata version ([1.8.5](https://github.com/jsonata-js/jsonata/releases/tag/v1.8.5) at the moment of writing these words), but it's still work in progress. Here's is a list of features in accordance to [manual](https://docs.jsonata.org/):
 
 * [x] [Simple Queries](https://docs.jsonata.org/simple) with support to arrays and sequence flattening.
-* [x] [Predicate Queries](https://docs.jsonata.org/predicate) and wildcards.
-* [x] [Functions and Expressions](https://docs.jsonata.org/expressions).
+* [ ] [Predicate Queries](https://docs.jsonata.org/predicate) and wildcards.
+* :heavy_check_mark: [Functions and Expressions](https://docs.jsonata.org/expressions).
+* :white_large_square:
+* :x:
+* :black_square_button:
+
 ***TODO: list all other implemented stuff***
 
 #### Detailed results for the reference test suite
