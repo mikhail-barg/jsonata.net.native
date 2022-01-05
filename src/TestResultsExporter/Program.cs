@@ -37,59 +37,67 @@ namespace TestResultsExporter
 
         private static void ProcessExportJsons(string extractFile, string jsonFilesDir)
         {
-            foreach (IGrouping<string, Status> testGroup in File.ReadLines(extractFile)
+            List<IGrouping<string, Status>> testGroups = File.ReadLines(extractFile)
                 .Select(l => l.Split(';'))
                 .Select(a => Tuple.Create(a[0].Substring(0, a[0].IndexOf('.')), Enum.Parse<Status>(a[1].ToLower())))
                 .GroupBy(t => t.Item1, t => t.Item2)
-            )
+                .ToList();
+            foreach (IGrouping<string, Status> testGroup in testGroups)
             {
-                Description description = new Description() {
-                    label = testGroup.Key
-                };
-
-                Dictionary<Status, int> statusCounts = testGroup
-                    .GroupBy(s => s)
-                    .ToDictionary(g => g.Key, g => g.Count());
-
-                StringBuilder messageBuilder = new StringBuilder();
-                foreach (Status status in Enum.GetValues<Status>())
-                {
-                    if (statusCounts.TryGetValue(status, out int statusCount))
-                    {
-                        if (messageBuilder.Length > 0)
-                        {
-                            messageBuilder.Append(", ");
-                        };
-                        messageBuilder.Append(statusCount)
-                            .Append(' ')
-                            .Append(status.ToString());
-                    }
-                };
-                description.message = messageBuilder.ToString();
-
-                if (statusCounts.Count != 1)
-                {
-                    description.color = "orange";
-                }
-                else 
-                {
-                    description.color = statusCounts.Keys.First() switch {
-                        Status.passed => "brightgreen",
-                        Status.failed => "red",
-                        _ => "yellow"
-                    };
-                };
-
-                File.WriteAllText(
-                    Path.Combine(jsonFilesDir, testGroup.Key + ".json"),
-                    JsonConvert.SerializeObject(description, Formatting.Indented)
-                );
+                WriteSingleBadge(testGroup.Key, testGroup, Path.Combine(jsonFilesDir, testGroup.Key + ".json"));
             } //foreach
+
+            WriteSingleBadge("all tests", testGroups.SelectMany(g => g), Path.Combine(jsonFilesDir, "_all.json"));
+        }
+
+        private static void WriteSingleBadge(string label, IEnumerable<Status> data, string targetFile)
+        {
+            Description description = new Description() {
+                label = label
+            };
+
+            Dictionary<Status, int> statusCounts = data
+                .GroupBy(s => s)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            StringBuilder messageBuilder = new StringBuilder();
+            foreach (Status status in Enum.GetValues<Status>())
+            {
+                if (statusCounts.TryGetValue(status, out int statusCount))
+                {
+                    if (messageBuilder.Length > 0)
+                    {
+                        messageBuilder.Append(", ");
+                    };
+                    messageBuilder.Append(statusCount)
+                        .Append(' ')
+                        .Append(status.ToString());
+                }
+            };
+            description.message = messageBuilder.ToString();
+
+            if (statusCounts.Count != 1)
+            {
+                description.color = "orange";
+            }
+            else
+            {
+                description.color = statusCounts.Keys.First() switch {
+                    Status.passed => "brightgreen",
+                    Status.failed => "red",
+                    _ => "yellow"
+                };
+            };
+
+            File.WriteAllText(
+                targetFile,
+                JsonConvert.SerializeObject(description, Formatting.Indented)
+            );
         }
 
         private static void ProcessGenerateReadmeBadges(string jsonFilesDir, string outputFile)
         {
-            const string style = "for-the-badge";   //see https://shields.io/ "styles"
+            const string style = "flat-square";   //see https://shields.io/ "styles"
 
             //see https://shields.io/endpoint
             //see https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images
@@ -98,6 +106,7 @@ namespace TestResultsExporter
                 outputFile,
                 Directory.EnumerateFiles(jsonFilesDir, "*.json")
                     .Select(f => Path.GetFileName(f))
+                    .OrderBy(f => f)
                     .Select(f => Tuple.Create(
                                     Path.GetFileNameWithoutExtension(f),
                                     $"https://raw.githubusercontent.com/mikhail-barg/jsonata.net.native/master/src/Jsonata.Net.Native.TestSuite/TestReport/extract/{f}"
