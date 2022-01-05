@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace TestResultsExporter
 {
@@ -13,10 +14,25 @@ namespace TestResultsExporter
         static void Main(string[] args)
         {
             string testReportDir = args[0];
+            string fullLogFile = Path.Combine(testReportDir, "Jsonata.Net.Native.TestSuite.xml");
             string extractFile = Path.Combine(testReportDir, "extract.txt");
             string jsonFilesDir = Path.Combine(testReportDir, "extract");
+            ProcessExtractFromLogs(fullLogFile, extractFile);
             ProcessExportJsons(extractFile, jsonFilesDir);
-            ProcessGenerateReadmeBadges(jsonFilesDir, Path.Combine(testReportDir, "readme_badges.md"));
+            //ProcessGenerateReadmeBadges(jsonFilesDir, Path.Combine(testReportDir, "readme_badges.md"));
+        }
+
+        private static void ProcessExtractFromLogs(string fullLogFile, string extractFile)
+        {
+            Regex regex = new Regex("^.* name=\"([^\"]+)\".* result=\"([^\"]+)\".*$", RegexOptions.Compiled);
+
+            File.WriteAllLines(
+                extractFile,
+                File.ReadLines(fullLogFile)
+                    .Where(l => l.Contains("<test-case"))
+                    .Select(l => regex.Match(l))
+                    .Select(m => m.Result("$1;$2"))
+            );
         }
 
         private enum Status
@@ -67,7 +83,7 @@ namespace TestResultsExporter
                 {
                     if (messageBuilder.Length > 0)
                     {
-                        messageBuilder.Append(", ");
+                        messageBuilder.Append("| ");
                     };
                     messageBuilder.Append(statusCount)
                         .Append(' ')

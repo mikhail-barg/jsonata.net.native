@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-substring",
-  "message": "12 passed, 7 failed",
+  "message": "12 passed| 7 failed",
   "color": "orange"
 }

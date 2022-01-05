@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-tomillis",
-  "message": "9 passed, 46 failed",
+  "message": "9 passed| 46 failed",
   "color": "orange"
 }
