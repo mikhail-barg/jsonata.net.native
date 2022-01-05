@@ -13,18 +13,9 @@ namespace Jsonata.Net.Native
     {
         private readonly Node m_node;
 
-        //TODO:
-        //private readonly Dictionary<string, object> m_registry = new Dictionary<string, object>();
-
         public JsonataQuery(string queryText)
         {
             this.m_node = Parser.Parse(queryText);
-
-            /*
-            globalRegistryMutex.RLock()
-            this.updateRegistry(globalRegistry)
-            globalRegistryMutex.RUnlock()
-            */
         }
 
         public string Eval(string dataJson)
