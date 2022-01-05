@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-formatInteger",
-  "message": "14 passed| 25 failed| 26 skipped",
+  "message": "14 passed | 25 failed | 26 skipped",
   "color": "orange"
 }

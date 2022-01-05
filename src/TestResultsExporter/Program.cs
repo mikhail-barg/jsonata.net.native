@@ -83,7 +83,7 @@ namespace TestResultsExporter
                 {
                     if (messageBuilder.Length > 0)
                     {
-                        messageBuilder.Append("| ");
+                        messageBuilder.Append(" | ");
                     };
                     messageBuilder.Append(statusCount)
                         .Append(' ')
