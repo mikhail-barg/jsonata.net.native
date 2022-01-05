@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace TestResultsExporter
@@ -11,7 +12,11 @@ namespace TestResultsExporter
     {
         static void Main(string[] args)
         {
-            ProcessExportJsons("../../../../Jsonata.Net.Native.TestSuite/TestReport/extract.txt", "../../../../Jsonata.Net.Native.TestSuite/TestReport/extract/");
+            string testReportDir = args[0];
+            string extractFile = Path.Combine(testReportDir, "extract.txt");
+            string jsonFilesDir = Path.Combine(testReportDir, "extract");
+            ProcessExportJsons(extractFile, jsonFilesDir);
+            ProcessGenerateReadmeBadges(jsonFilesDir, Path.Combine(testReportDir, "readme_badges.md"));
         }
 
         private enum Status
@@ -30,9 +35,9 @@ namespace TestResultsExporter
             public string color { get; set; } = "";
         }
 
-        private static void ProcessExportJsons(string extractFilePath, string targetJsonDirPath)
+        private static void ProcessExportJsons(string extractFile, string jsonFilesDir)
         {
-            foreach (IGrouping<string, Status> testGroup in File.ReadLines(extractFilePath)
+            foreach (IGrouping<string, Status> testGroup in File.ReadLines(extractFile)
                 .Select(l => l.Split(';'))
                 .Select(a => Tuple.Create(a[0].Substring(0, a[0].IndexOf('.')), Enum.Parse<Status>(a[1].ToLower())))
                 .GroupBy(t => t.Item1, t => t.Item2)
@@ -76,10 +81,29 @@ namespace TestResultsExporter
                 };
 
                 File.WriteAllText(
-                    Path.Combine(targetJsonDirPath, testGroup.Key + ".json"),
+                    Path.Combine(jsonFilesDir, testGroup.Key + ".json"),
                     JsonConvert.SerializeObject(description, Formatting.Indented)
                 );
             } //foreach
+        }
+
+        private static void ProcessGenerateReadmeBadges(string jsonFilesDir, string outputFile)
+        {
+            const string style = "for-the-badge";   //see https://shields.io/ "styles"
+
+            //see https://shields.io/endpoint
+            //see https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#images
+
+            File.WriteAllLines(
+                outputFile,
+                Directory.EnumerateFiles(jsonFilesDir, "*.json")
+                    .Select(f => Path.GetFileName(f))
+                    .Select(f => Tuple.Create(
+                                    Path.GetFileNameWithoutExtension(f),
+                                    $"https://raw.githubusercontent.com/mikhail-barg/jsonata.net.native/master/src/Jsonata.Net.Native.TestSuite/TestReport/extract/{f}"
+                                )
+                    ).Select(t => $"* ![{t.Item1}](https://img.shields.io/endpoint?style={style}&url={WebUtility.UrlEncode(t.Item2)})")
+            );
         }
     }
 }

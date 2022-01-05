@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestResultsExporter": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../../Jsonata.Net.Native.TestSuite/TestReport/"
+    }
+  }
+}
