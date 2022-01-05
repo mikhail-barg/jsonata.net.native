@@ -11,9 +11,7 @@ This implementation is about 100 times faster than [straightforward wrapping](ht
 
 For measurements code see [src/BenchmarkApp](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/BenchmarkApp/Program.cs) in this repo.
 
-# Usage
-
-[**Usage**](https://github.com/mikhail-barg/jsonata.net.js/blob/3563e702102cf675a63a048aaa5c9bb7c0fafc70/src/Jsonata.Net.TestApp/Program.cs#L12)
+# [Usage](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/TestApp/Program.cs)
 
 * simple case
 ```c#
