@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native.TestSuite", "Jsonata.Net.Native.TestSuite\Jsonata.Net.Native.TestSuite.csproj", "{B9E0AE50-801A-4192-BB56-11C9556CBBD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BenchmarkApp", "BenchmarkApp\BenchmarkApp.csproj", "{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkApp", "BenchmarkApp\BenchmarkApp.csproj", "{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{12CCE27F-BCF2-4DBC-9F3F-ACBE8BACF87F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA3F316-CAE2-47B4-BCDF-0E6411C50C71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12CCE27F-BCF2-4DBC-9F3F-ACBE8BACF87F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12CCE27F-BCF2-4DBC-9F3F-ACBE8BACF87F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12CCE27F-BCF2-4DBC-9F3F-ACBE8BACF87F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12CCE27F-BCF2-4DBC-9F3F-ACBE8BACF87F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
