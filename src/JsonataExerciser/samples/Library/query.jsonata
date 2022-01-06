@@ -1,0 +1,5 @@
+library.loans@$L.books@$B[$L.isbn=$B.isbn].customers[$L.customer=id].{
+  'customer': name,
+  'book': $B.title,
+  'due': $L.return
+}

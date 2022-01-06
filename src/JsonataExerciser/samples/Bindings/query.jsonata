@@ -1,0 +1,6 @@
+$cosine(angle * $pi/180)
+
+/*
+JSONata can be extended by binding variables to external functions and values.
+This is useful for experimenting with functions that are not built into JSONata.
+*/
