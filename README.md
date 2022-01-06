@@ -37,12 +37,15 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 * It is possible to provide additional variable bindings via `bindings` arg of `Eval()` call.
 	* Additional functional bindings are work in progress (***TODO***: functionality is same as for built-in function implementations, but need to provide user API)
 
+We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) which is a clone of original [JSONata Exerciser](https://try.jsonata.org/).
+![Exerciser](/misc/exerciser.png)
+
 ## JSONata language features support
 
 The goal of the project is to implement 100% of latest JSONata version ([1.8.5](https://github.com/jsonata-js/jsonata/releases/tag/v1.8.5) at the moment of writing these words), but it's still work in progress. Here's is a list of features in accordance to [manual](https://docs.jsonata.org/):
 
-* [x] [Simple Queries](https://docs.jsonata.org/simple) with support to arrays and sequence flattening.
-* [ ] [Predicate Queries](https://docs.jsonata.org/predicate) and wildcards.
+* :heavy_check_mark: [Simple Queries](https://docs.jsonata.org/simple) with support to arrays and sequence flattening.
+* :heavy_check_mark: [Predicate Queries](https://docs.jsonata.org/predicate) and wildcards.
 * :heavy_check_mark: [Functions and Expressions](https://docs.jsonata.org/expressions).
 * :white_large_square:
 * :x:
