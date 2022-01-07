@@ -7,7 +7,7 @@ This implementation is based on original [jsonata-js](https://github.com/jsonata
 
 ## Performance
 
-This implementation is about 100 times faster than [straightforward wrapping](https://github.com/mikhail-barg/jsonata.net.js) of original jsonata.js with Jint JS Engine for C# (the wrapping is published as [jsonata.net.js package](https://www.nuget.org/packages/Jsonata.Net.Js/).
+This implementation is about 100 times faster than [straightforward wrapping](https://github.com/mikhail-barg/jsonata.net.js) of original jsonata.js with Jint JS Engine for C# (the wrapping is published as [jsonata.net.js package](https://www.nuget.org/packages/Jsonata.Net.Js/)).
 
 For measurements code see [src/BenchmarkApp](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/BenchmarkApp/Program.cs) in this repo.
 
@@ -35,10 +35,10 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 
 * `JsonataQuery` objects are immutable and therefore reusable and thread-safe.
 * It is possible to provide additional variable bindings via `bindings` arg of `Eval()` call.
-	* Additional functional bindings are work in progress (***TODO***: functionality is same as for built-in function implementations, but need to provide user API)
-* Error codes are partially in sync with the [JS implementation](https://github.com/jsonata-js/jsonata/blob/65e854d6bfee1d1413ebff7f1a185834c6c42265/src/jsonata.js#L1919), but it hasn't been noticed from the start, so some cleanup is to be done later (***TODO***). 
+	* Additional functional bindings are work in progress (*TODO*: functionality is same as for built-in function implementations, but need to provide user API)
+* Error codes are partially in sync with the [JS implementation](https://github.com/jsonata-js/jsonata/blob/65e854d6bfee1d1413ebff7f1a185834c6c42265/src/jsonata.js#L1919), but it hasn't been noticed from the start, so some cleanup is to be done later (*TODO*). 
 
-We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) which is a clone of original [JSONata Exerciser](https://try.jsonata.org/):
+We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) with same functionality as in original [JSONata Exerciser](https://try.jsonata.org/):
 ![Exerciser](/misc/exerciser.png)
 
 ## JSONata language features support
@@ -55,7 +55,7 @@ The goal of the project is to implement 100% of latest JSONata version ([1.8.5](
 * :white_check_mark: [Functional Programming](http://docs.jsonata.org/programming) - Conditional operator, variables and bindings are implemented, as well as defining custom functions. 
 Function signatures are parsed but not checked yet (*TODO*). Recursive functions are supported, but additional checks are needed here (*TODO*). Tail call optimization is not supported. 
 Higher order functions are supported. 'Functions are closures', 'Partial function application' and 'Function chaining' features are supported.
-* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) ('_If N is greater than the number of captured groups, then it is replaced by the empty string_') which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
+* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) (_If N is greater than the number of captured groups, then it is replaced by the empty string_) which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
 * :white_check_mark: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
 ###### Operators
 * :white_check_mark: [Path Operators](http://docs.jsonata.org/path-operators):
