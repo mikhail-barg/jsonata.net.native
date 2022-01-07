@@ -37,7 +37,7 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 * It is possible to provide additional variable bindings via `bindings` arg of `Eval()` call.
 	* Additional functional bindings are work in progress (***TODO***: functionality is same as for built-in function implementations, but need to provide user API)
 
-We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) which is a clone of original [JSONata Exerciser](https://try.jsonata.org/).
+We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) which is a clone of original [JSONata Exerciser](https://try.jsonata.org/):
 ![Exerciser](/misc/exerciser.png)
 
 ## JSONata language features support
@@ -45,9 +45,17 @@ We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.n
 The goal of the project is to implement 100% of latest JSONata version ([1.8.5](https://github.com/jsonata-js/jsonata/releases/tag/v1.8.5) at the moment of writing these words), but it's still work in progress. Here's is a list of features in accordance to [manual](https://docs.jsonata.org/):
 
 * :heavy_check_mark: [Simple Queries](https://docs.jsonata.org/simple) with support to arrays and sequence flattening.
-* :heavy_check_mark: [Predicate Queries](https://docs.jsonata.org/predicate) and wildcards.
+* :heavy_check_mark: [Predicate Queries](https://docs.jsonata.org/predicate), singleton arrays and wildcards.
 * :heavy_check_mark: [Functions and Expressions](https://docs.jsonata.org/expressions).
-* :white_large_square:
+* :heavy_check_mark: [Result Structures](http://docs.jsonata.org/construction).
+* :heavy_check_mark: [Query Composition](http://docs.jsonata.org/composition).
+* :heavy_check_mark: [Sorting, Grouping and Aggregation](http://docs.jsonata.org/sorting-grouping).
+* :white_large_square: [Processing Model](http://docs.jsonata.org/processing) - Index (`seq#$var`) and Join (`seq@$var`) operators are not yet implemented (*TODO*).
+* :white_large_square: [Functional Programming](http://docs.jsonata.org/programming) - Conditional operator, variables and bindings are implemented, as well as defining custom functions. 
+Function signatures are parsed but not checked yet (*TODO*). Recursive functions are supported, but additional checks are needed here (*TODO*). Tail call optimization is not supported. 
+Higher order functions are supported. 'Functions are closures', 'Partial function application' and 'Function chaining' features are supported.
+* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex)
+* :white_large_square: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
 * :x:
 * :black_square_button:
 
