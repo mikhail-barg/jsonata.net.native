@@ -80,23 +80,23 @@ Higher order functions are supported. 'Functions are closures', 'Partial functio
 ###### Function Library
 * :white_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
   * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`
-  * :white_check_mark: ***TODO***: `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
+  * :white_check_mark: *TODO*: `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
 * :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions):
   * :heavy_check_mark: Implemented: `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, sqrt(), `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
 * :heavy_check_mark: [Aggregation Functions](http://docs.jsonata.org/aggregation-functions):
   * :heavy_check_mark: Implemented: `$sum()`, `$max()`, `$min()`, `$average()`
 * :white_check_mark: [Boolean Functions](http://docs.jsonata.org/boolean-functions):
   * :heavy_check_mark: Implemented: `$boolean()`, `$not()`
-  * :white_check_mark: ***TODO***: `$exists()`
+  * :white_check_mark: *TODO*: `$exists()`
 * :white_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
   * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$zip()`
-  * :white_check_mark: ***TODO***: `$reverse()`, `$shuffle()`, `$distinct()`
+  * :white_check_mark: *TODO*: `$reverse()`, `$shuffle()`, `$distinct()`
 * :white_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
   * :heavy_check_mark: Implemented: `$lookup()`, `$each()`, `$assert()`, `$type()`
-  * :white_check_mark: ***TODO***: `$keys()`, `$spread()`, `$merge()`, `$sift()`, `$error()`
+  * :white_check_mark: *TODO*: `$keys()`, `$spread()`, `$merge()`, `$sift()`, `$error()`
 * :white_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
   * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$reduce()`
-  * :white_check_mark: ***TODO***: `$single()`, `$sift()`
+  * :white_check_mark: *TODO*: `$single()`, `$sift()`
 
 
 #### Detailed results for the reference test suite
