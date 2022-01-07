@@ -36,6 +36,7 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 * `JsonataQuery` objects are immutable and therefore reusable and thread-safe.
 * It is possible to provide additional variable bindings via `bindings` arg of `Eval()` call.
 	* Additional functional bindings are work in progress (***TODO***: functionality is same as for built-in function implementations, but need to provide user API)
+* Error codes are partially in sync with the [JS implementation](https://github.com/jsonata-js/jsonata/blob/65e854d6bfee1d1413ebff7f1a185834c6c42265/src/jsonata.js#L1919), but it hasn't been noticed from the start, so some cleanup is to be done later (***TODO***). 
 
 We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) which is a clone of original [JSONata Exerciser](https://try.jsonata.org/):
 ![Exerciser](/misc/exerciser.png)
@@ -54,7 +55,7 @@ The goal of the project is to implement 100% of latest JSONata version ([1.8.5](
 * :white_check_mark: [Functional Programming](http://docs.jsonata.org/programming) - Conditional operator, variables and bindings are implemented, as well as defining custom functions. 
 Function signatures are parsed but not checked yet (*TODO*). Recursive functions are supported, but additional checks are needed here (*TODO*). Tail call optimization is not supported. 
 Higher order functions are supported. 'Functions are closures', 'Partial function application' and 'Function chaining' features are supported.
-* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) ('If N is greater than the number of captured groups, then it is replaced by the empty string') which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
+* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) ('_If N is greater than the number of captured groups, then it is replaced by the empty string_') which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
 * :white_check_mark: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
 ###### Operators
 * :white_check_mark: [Path Operators](http://docs.jsonata.org/path-operators):
@@ -78,14 +79,24 @@ Higher order functions are supported. 'Functions are closures', 'Partial functio
   * :heavy_check_mark: `... ~> | ... | ... |` (Transform)
 ###### Function Library
 * :white_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
-  * :heavy_check_mark: Implemented: $string(), $length(), $substring(), $substringBefore(), $substringAfter(), $uppercase(), $lowercase(), $trim(), $pad(), $contains(), $split(), $join(), $match(), $replace(), $base64encode(), $base64decode(), $eval()
-  * :white_check_mark: TODO: $encodeUrlComponent(), $encodeUrl(), $decodeUrlComponent(), $decodeUrl()
-
-***TODO: list all other implemented stuff***
-* :white_check_mark: []():
-  * :heavy_check_mark: Implemented:
-  * :white_check_mark: TODO: 
-
+  * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`
+  * :white_check_mark: ***TODO***: `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
+* :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions):
+  * :heavy_check_mark: Implemented: `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, sqrt(), `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
+* :heavy_check_mark: [Aggregation Functions](http://docs.jsonata.org/aggregation-functions):
+  * :heavy_check_mark: Implemented: `$sum()`, `$max()`, `$min()`, `$average()`
+* :white_check_mark: [Boolean Functions](http://docs.jsonata.org/boolean-functions):
+  * :heavy_check_mark: Implemented: `$boolean()`, `$not()`
+  * :white_check_mark: ***TODO***: `$exists()`
+* :white_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
+  * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$zip()`
+  * :white_check_mark: ***TODO***: `$reverse()`, `$shuffle()`, `$distinct()`
+* :white_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
+  * :heavy_check_mark: Implemented: `$lookup()`, `$each()`, `$assert()`, `$type()`
+  * :white_check_mark: ***TODO***: `$keys()`, `$spread()`, `$merge()`, `$sift()`, `$error()`
+* :white_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
+  * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$reduce()`
+  * :white_check_mark: ***TODO***: `$single()`, `$sift()`
 
 
 #### Detailed results for the reference test suite
