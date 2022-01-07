@@ -50,16 +50,43 @@ The goal of the project is to implement 100% of latest JSONata version ([1.8.5](
 * :heavy_check_mark: [Result Structures](http://docs.jsonata.org/construction).
 * :heavy_check_mark: [Query Composition](http://docs.jsonata.org/composition).
 * :heavy_check_mark: [Sorting, Grouping and Aggregation](http://docs.jsonata.org/sorting-grouping).
-* :white_large_square: [Processing Model](http://docs.jsonata.org/processing) - Index (`seq#$var`) and Join (`seq@$var`) operators are not yet implemented (*TODO*).
-* :white_large_square: [Functional Programming](http://docs.jsonata.org/programming) - Conditional operator, variables and bindings are implemented, as well as defining custom functions. 
+* :white_check_mark: [Processing Model](http://docs.jsonata.org/processing) - Index (`seq#$var`) and Join (`seq@$var`) operators are not yet implemented (*TODO*).
+* :white_check_mark: [Functional Programming](http://docs.jsonata.org/programming) - Conditional operator, variables and bindings are implemented, as well as defining custom functions. 
 Function signatures are parsed but not checked yet (*TODO*). Recursive functions are supported, but additional checks are needed here (*TODO*). Tail call optimization is not supported. 
 Higher order functions are supported. 'Functions are closures', 'Partial function application' and 'Function chaining' features are supported.
-* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex)
-* :white_large_square: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
-* :x:
-* :black_square_button:
+* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) ('If N is greater than the number of captured groups, then it is replaced by the empty string') which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
+* :white_check_mark: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
+###### Operators
+* :white_check_mark: [Path Operators](http://docs.jsonata.org/path-operators):
+  * :heavy_check_mark: `.` (Map)
+  * :heavy_check_mark: `[ ... ]` (Filter)
+  * :heavy_check_mark: `^( ... )` (Order-by)
+  * :heavy_check_mark: `{ ... }` (Reduce)
+  * :heavy_check_mark: `*` (Wildcard)
+  * :heavy_check_mark: `**` (Descendants)
+  * :white_check_mark: `%` (Parent) - not yet implemented. It's not clear how to implement this without significant rewrite of Json.Net code (*TODO*)
+  * :white_check_mark: `#` (Positional variable binding) - (*TODO*)
+  * :white_check_mark: `@` (Context variable binding) - (*TODO*)
+* :heavy_check_mark: [Numeric Operators](http://docs.jsonata.org/numeric-operators) - all, including `..` (Range) operator.
+* :heavy_check_mark: [Comparison Operators](http://docs.jsonata.org/comparison-operators) - all, including `in` (Inclusion) operator.
+* :heavy_check_mark: [Boolean Operators](http://docs.jsonata.org/boolean-operators).
+* :heavy_check_mark: [Other Operators](http://docs.jsonata.org/other-operators):
+  * :heavy_check_mark: `&` (Concatenation)
+  * :heavy_check_mark: `?` : (Conditional)
+  * :heavy_check_mark: `:=` (Variable binding)
+  * :heavy_check_mark: `~>` (Chain)
+  * :heavy_check_mark: `... ~> | ... | ... |` (Transform)
+###### Function Library
+* :white_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
+  * :heavy_check_mark: Implemented: $string(), $length(), $substring(), $substringBefore(), $substringAfter(), $uppercase(), $lowercase(), $trim(), $pad(), $contains(), $split(), $join(), $match(), $replace(), $base64encode(), $base64decode(), $eval()
+  * :white_check_mark: TODO: $encodeUrlComponent(), $encodeUrl(), $decodeUrlComponent(), $decodeUrl()
 
 ***TODO: list all other implemented stuff***
+* :white_check_mark: []():
+  * :heavy_check_mark: Implemented:
+  * :white_check_mark: TODO: 
+
+
 
 #### Detailed results for the reference test suite
 
