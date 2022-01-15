@@ -46,6 +46,9 @@ namespace Jsonata.Net.Native.TestSuite
         {
             public string? code { get; set; }
             public string? message { get; set; }
+
+            public string? functionName { get; set; }
+            public string? value { get; set; }
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -712,6 +713,53 @@ namespace Jsonata.Net.Native.Eval
         {
             return UTF8_NO_BOM.GetString(Convert.FromBase64String(str));
         }
+
+        /**
+        $encodeUrlComponent()
+        Signature: $encodeUrlComponent(str)
+        Encodes a Uniform Resource Locator(URL) component by replacing each instance of certain characters by one, two, three, or four escape sequences representing the UTF-8 encoding of the character.
+        */
+        public static string encodeUrlComponent([AllowContextAsValue][PropagateUndefined] string str)
+        {
+            //return WebUtility.UrlEncode(str);
+            return Uri.EscapeDataString(str);
+        }
+
+        /**
+        $encodeUrl()
+        Signature: $encodeUrl(str)
+        Encodes a Uniform Resource Locator (URL) by replacing each instance of certain characters by one, two, three, or four escape sequences representing the UTF-8 encoding of the character.
+        */
+        public static string encodeUrl([AllowContextAsValue][PropagateUndefined] string str)
+        {
+            //see https://stackoverflow.com/a/34189188/376066 and 
+            //    https://stackoverflow.com/questions/4396598/whats-the-difference-between-escapeuristring-and-escapedatastring/34189188#comment81544744_34189188
+            return Uri.EscapeUriString(str);
+        }
+
+
+        /**
+        $decodeUrlComponent()
+        Signature: $decodeUrlComponent(str)
+        Decodes a Uniform Resource Locator (URL) component previously created by encodeUrlComponent.
+        */
+        public static string decodeUrlComponent([AllowContextAsValue][PropagateUndefined] string str)
+        {
+            //return WebUtility.UrlEncode(str);
+            return Uri.UnescapeDataString(str);
+        }
+
+        /**
+        $decodeUrl()
+        Signature: $decodeUrl(str)
+        Decodes a Uniform Resource Locator (URL) previously created by encodeUrl.
+        */
+        public static string decodeUrl([AllowContextAsValue][PropagateUndefined] string str)
+        {
+            return Uri.UnescapeDataString(str); //there's no Uri.UnescapeUriString, but actually - what's the difference? 
+            // see https://stackoverflow.com/questions/747641/what-is-the-difference-between-decodeuricomponent-and-decodeuri#comment116291569_747700
+        }
+
         #endregion
 
         #region Numeric functions

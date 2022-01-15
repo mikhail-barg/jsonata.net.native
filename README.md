@@ -78,9 +78,8 @@ Higher order functions are supported. 'Functions are closures', 'Partial functio
   * :heavy_check_mark: `~>` (Chain)
   * :heavy_check_mark: `... ~> | ... | ... |` (Transform)
 ###### Function Library
-* :white_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
-  * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`
-  * :white_check_mark: *TODO*: `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
+* :heavy_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
+  * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
 * :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions):
   * :heavy_check_mark: Implemented: `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, sqrt(), `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
 * :heavy_check_mark: [Aggregation Functions](http://docs.jsonata.org/aggregation-functions):

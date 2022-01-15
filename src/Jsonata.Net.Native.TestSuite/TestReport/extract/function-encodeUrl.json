@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-encodeUrl",
-  "message": "3 failed",
-  "color": "red"
+  "message": "2 passed | 1 skipped",
+  "color": "orange"
 }
