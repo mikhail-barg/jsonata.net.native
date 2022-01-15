@@ -1191,6 +1191,16 @@ namespace Jsonata.Net.Native.Eval
             }
             return !(bool)arg;
         }
+
+        /**
+        $exists()
+        Signature: $exists(arg)
+        Returns Boolean true if the arg expression evaluates to a value, or false if the expression does not match anything (e.g. a path to a non-existent field reference).         
+        */
+        public static bool exists(JToken arg)
+        {
+            return arg.Type != JTokenType.Undefined;
+        }
         #endregion
 
         #region Array functions
