@@ -1642,6 +1642,9 @@ namespace Jsonata.Net.Native.Eval
         }
         #endregion
 
+        #region Date/Time functions
+        #endregion
+
         #region Higher order functions
         /**
          Signature: $map(array, function)

@@ -91,6 +91,9 @@ Higher order functions are supported. 'Functions are closures', 'Partial functio
 * :white_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
   * :heavy_check_mark: Implemented: `$lookup()`, `$each()`, `$assert()`, `$type()`
   * :white_check_mark: *TODO*: `$keys()`, `$spread()`, `$merge()`, `$sift()`, `$error()`
+* :white_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
+  * :heavy_check_mark: Implemented: 
+  * :white_check_mark: *TODO*: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
 * :white_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
   * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$reduce()`
   * :white_check_mark: *TODO*: `$single()`, `$sift()`
