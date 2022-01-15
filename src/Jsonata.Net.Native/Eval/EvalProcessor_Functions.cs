@@ -92,6 +92,7 @@ namespace Jsonata.Net.Native.Eval
 							throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(EvalEnvironmentArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationEnvironment)}");
 						};
 						parameters[i] = env.GetEvaluationEnvironment();
+						continue;
 					};
 					throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
 				}

@@ -1331,6 +1331,132 @@ namespace Jsonata.Net.Native.Eval
         }
 
         /**
+         $reverse()
+         Signature: $reverse(array)
+         Returns an array containing all the values from the array parameter, but in reverse order.
+         */
+        public static JArray reverse([PropagateUndefined] JToken arrayToken)
+        {
+            if (arrayToken.Type != JTokenType.Array)
+            {
+                Sequence singletonArray = new Sequence();
+                singletonArray.Add(arrayToken);
+                return singletonArray;
+            }
+
+            JArray array = (JArray)arrayToken;
+            if (array.Count <= 1)
+            {
+                return array;
+            }
+
+            JArray result = new JArray();
+            for (int i = array.Count - 1; i >= 0; --i)
+            {
+                result.Add(array[i]);
+            }
+            return result;
+        }
+
+        /**
+         $shuffle()
+         Signature: $shuffle(array)
+         Returns an array containing all the values from the array parameter, but shuffled into random order.
+         */
+        public static JArray shuffle([PropagateUndefined] JToken arrayToken, [EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        {
+            if (arrayToken.Type != JTokenType.Array)
+            {
+                Sequence singletonArray = new Sequence();
+                singletonArray.Add(arrayToken);
+                return singletonArray;
+            }
+
+            JArray array = (JArray)arrayToken;
+            if (array.Count <= 1)
+            {
+                return array;
+            }
+            JToken[] arr = new JToken[array.Count];
+            for (int i = 0; i < array.Count; ++i)
+            {
+                arr[i] = array[i]; 
+            }
+            for (int i = 0; i < arr.Length; ++i)
+            {
+                int j = evalEnv.Random.Next(i, arr.Length);
+                if (i != j)
+                {
+                    JToken tmp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = tmp;
+                }
+            }
+            JArray result = new JArray();
+            for (int i = 0; i < arr.Length; ++i)
+            {
+                result.Add(arr[i]);
+            }
+
+            return result;
+        }
+
+        /**
+          $distinct()
+          Signature $distinct(array)
+          Returns an array containing all the values from the array parameter, but with any duplicates removed. 
+          Values are tested for deep equality as if by using the equality operator.
+        */
+        public static JArray distinct([PropagateUndefined] JToken arrayToken)
+        {
+            if (arrayToken.Type != JTokenType.Array)
+            {
+                Sequence singletonArray = new Sequence();
+                singletonArray.Add(arrayToken);
+                return singletonArray;
+            }
+
+            JArray array = (JArray)arrayToken;
+            if (array.Count <= 1)
+            {
+                return array;
+            }
+
+            JArray result = new JArray();
+            foreach (JToken item in array.Children())
+            {
+                bool exists = false;
+                foreach (JToken existing in result.Children())
+                {
+                    if (DeepEquals(item, existing))
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists)
+                {
+                    result.Add(item);
+                }
+            }
+            return result;
+
+            bool DeepEquals(JToken a, JToken b)
+            {
+                if (a.Type == JTokenType.Integer && b.Type == JTokenType.Float)
+                {
+                    a = new JValue((double)(int)a);
+                }
+                else if (b.Type == JTokenType.Integer && b.Type == JTokenType.Float)
+                {
+                    b = new JValue((double)(int)b);
+                };
+                return JToken.DeepEquals(a, b);
+            }
+        }
+
+
+        /**
         Signature: $zip(array1, ...)
         Returns a convolved (zipped) array containing grouped arrays of values from the array1 ... arrayN arguments from index 0, 1, 2, etc.
         This function accepts a variable number of arguments. 

@@ -86,9 +86,8 @@ Higher order functions are supported. 'Functions are closures', 'Partial functio
   * :heavy_check_mark: Implemented: `$sum()`, `$max()`, `$min()`, `$average()`
 * :heavy_check_mark: [Boolean Functions](http://docs.jsonata.org/boolean-functions):
   * :heavy_check_mark: Implemented: `$boolean()`, `$not()`, `$exists()`
-* :white_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
-  * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$zip()`
-  * :white_check_mark: *TODO*: `$reverse()`, `$shuffle()`, `$distinct()`
+* :heavy_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
+  * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$reverse()`, `$shuffle()`, `$distinct()`, `$zip()`
 * :white_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
   * :heavy_check_mark: Implemented: `$lookup()`, `$each()`, `$assert()`, `$type()`
   * :white_check_mark: *TODO*: `$keys()`, `$spread()`, `$merge()`, `$sift()`, `$error()`
