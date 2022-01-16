@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-keys",
-  "message": "7 failed",
-  "color": "red"
+  "message": "7 passed",
+  "color": "brightgreen"
 }

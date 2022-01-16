@@ -1506,6 +1506,45 @@ namespace Jsonata.Net.Native.Eval
 
         #region Object functions
         /**
+         Signature: $keys(object)
+         Returns an array containing the keys in the object. 
+         If the argument is an array of objects, then the array returned contains a de-duplicated list of all the keys in all of the objects         
+         */
+        public static JToken keys([AllowContextAsValue][PropagateUndefined] JToken arg)
+        {
+            ICollection<string> keys;
+            switch (arg.Type)
+            {
+            case JTokenType.Object:
+                keys = ((IDictionary<string, JToken>)arg).Keys;
+                break;
+            case JTokenType.Array:
+                keys = arg.Children()
+                        .OfType<IDictionary<string, JToken>>()
+                        .SelectMany(d => d.Keys)
+                        .Distinct()
+                        .ToList();
+                break;
+            default:
+                return EvalProcessor.UNDEFINED;
+            }
+            if (keys.Count == 0)
+            {
+                return EvalProcessor.UNDEFINED;
+            }
+            else if (keys.Count == 1)
+            {
+                return new JValue(keys.First()!);
+            };
+            JArray result = new JArray();
+            foreach (string key in keys)
+            {
+                result.Add(key);
+            }
+            return result;
+        }
+
+        /**
          Signature: $lookup(object, key)
          Returns the value associated with key in object. If the first argument is an array of objects, then all of the objects in the array are searched, and the values associated with all occurrences of key are returned.         
          */
