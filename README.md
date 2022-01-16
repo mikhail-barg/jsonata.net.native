@@ -94,9 +94,8 @@ Also `match` object does not yet have `next` property (*TODO*).
 * :white_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
   * :heavy_check_mark: Implemented: 
   * :white_check_mark: *TODO*: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
-* :white_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
-  * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$reduce()`, `$sift()`
-  * :white_check_mark: *TODO*: `$single()`
+* :heavy_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
+  * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$single()`, `$reduce()`, `$sift()`
 
 Also, need to check all `TODO:` markers in the code (*TODO*).
 

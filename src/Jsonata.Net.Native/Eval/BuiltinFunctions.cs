@@ -1773,6 +1773,33 @@ namespace Jsonata.Net.Native.Eval
         #endregion
 
         #region Higher order functions
+
+        private static bool FilterAcceptsElement(FunctionToken function, JToken element, int index, JArray array)
+        {
+            int filterArgsCount = function.GetArgumentsCount();
+            List<JToken> args = new List<JToken>();
+            if (filterArgsCount >= 1)
+            {
+                args.Add(element);
+            };
+            if (filterArgsCount >= 2)
+            {
+                args.Add(new JValue(index));
+            };
+            if (filterArgsCount >= 3)
+            {
+                args.Add(array);
+            };
+            JToken res = EvalProcessor.InvokeFunction(
+                function: function,
+                args: args,
+                context: null,
+                env: null! //TODO: pass some real environment?
+            );
+            bool result = Helpers.Booleanize(res);
+            return result;
+        }
+
         /**
          Signature: $map(array, function)
          Returns an array containing the results of applying the function parameter to each value in the array parameter.
@@ -1831,47 +1858,61 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
         {
-            int filterArgsCount = function.GetArgumentsCount();
-
             Sequence result = new Sequence();
             int index = 0;
             foreach (JToken element in array.Children())
             {
-                if (filterAcceptsElement(element, index, array))
+                if (FilterAcceptsElement(function, element, index, array))
                 {
-                    ++index;
                     result.Add(element);
                 }
+                ++index;
             }
             //return result.Simplify();
             return result;
-
-            bool filterAcceptsElement(JToken element, int index, JArray array)
-            {
-                List<JToken> args = new List<JToken>();
-                if (filterArgsCount >= 1)
-                {
-                    args.Add(element);
-                };
-                if (filterArgsCount >= 2)
-                {
-                    args.Add(new JValue(index));
-                };
-                if (filterArgsCount >= 3)
-                {
-                    args.Add(array);
-                };
-                JToken res = EvalProcessor.InvokeFunction(
-                    function: function,
-                    args: args,
-                    context: null,
-                    env: null! //TODO: pass some real environment?
-                );
-                bool result = Helpers.Booleanize(res);
-                return result;
-            }
         }
 
+        /**
+          Signature: $single(array, function)
+          Returns the one and only one value in the array parameter that satisfy the function predicate (i.e. function returns Boolean true when passed the value).
+          Throws an exception if the number of matching values is not exactly one.
+
+          The function that is supplied as the second parameter must have the following signature:
+            function(value [, index [, array]])
+
+          Each value in the input array is passed in as the first parameter in the supplied function. 
+          The index (position) of that value in the input array is passed in as the second parameter, if specified. 
+          The whole input array is passed in as the third parameter, if specified.         
+         */
+        public static JToken single([PropagateUndefined][PackSingleValueToSequence] JArray array, [OptionalArgument(null)] FunctionToken? function)
+        {
+            JToken? result = null;
+            int index = 0;
+            foreach (JToken element in array.Children())
+            {
+                bool filterPassed = function != null ? 
+                    FilterAcceptsElement(function, element, index, array) 
+                    : true;
+                if (filterPassed)
+                {
+                    if (result != null)
+                    {
+                        throw new JsonataException("D3138", "The $single() function expected exactly 1 matching result.  Instead it matched more.");
+                    }
+                    else
+                    {
+                        result = element;
+                    }
+                }
+                ++index;
+            }
+            
+            if (result == null)
+            {
+                throw new JsonataException("D3139", "The $single() function expected exactly 1 matching result.  Instead it matched 0.");
+            }
+            return result;
+        }
 
         /**
           Signature: $reduce(array, function [, init])
