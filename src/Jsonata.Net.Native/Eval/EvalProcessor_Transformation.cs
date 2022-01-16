@@ -15,7 +15,7 @@ namespace Jsonata.Net.Native.Eval
 	{
 		internal static JToken CallTransformationFunction(FunctionTokenTransformation transformationFunction, List<JToken> args, JToken? inputAsContext)
 		{
-			if (args.Count != transformationFunction.GetArgumentsCount())
+			if (args.Count != transformationFunction.ArgumentsCount)
             {
 				throw new ApplicationException("Should not happen");
             }

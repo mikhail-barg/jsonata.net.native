@@ -473,7 +473,7 @@ namespace Jsonata.Net.Native.Eval
 
         private static List<JToken> AlignPartialFunctionArgs(FunctionTokenPartial partialFunction, List<JToken> args, JToken? context)
         {
-			int expectedArgsCount = partialFunction.GetArgumentsCount();
+			int expectedArgsCount = partialFunction.ArgumentsCount;
 			bool useContext = false;
 			if (expectedArgsCount == args.Count + 1 && context != null)
             {

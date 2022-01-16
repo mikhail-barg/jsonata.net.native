@@ -13,13 +13,14 @@ namespace Jsonata.Net.Native.Eval
     internal abstract class FunctionToken: JConstructor
     {
         internal const JTokenType TYPE = JTokenType.Constructor;
+        internal int ArgumentsCount { get; }
 
-        protected FunctionToken(string jsonName)
+        protected FunctionToken(string jsonName, int argumentsCount)
             :base(jsonName)
         {
+            this.ArgumentsCount = argumentsCount;
         }
-
-        internal abstract int GetArgumentsCount();
+        
     }
 
     internal sealed class FunctionTokenCsharp: FunctionToken
@@ -28,16 +29,10 @@ namespace Jsonata.Net.Native.Eval
         internal readonly string functionName;
 
         internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
-            : base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}")
+            : base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length)
         {
             this.functionName = funcName;
             this.methodInfo = methodInfo;
-        }
-
-        internal override int GetArgumentsCount()
-        {
-            //todo: cache in ctor
-            return this.methodInfo.GetParameters().Length;
         }
     }
 
@@ -51,18 +46,13 @@ namespace Jsonata.Net.Native.Eval
 
 
         internal FunctionTokenLambda(LambdaNode.Signature? signature, List<string> paramNames, Node body, JToken context, Environment environment)
-            : base("lambda")
+            : base("lambda", paramNames.Count)
         {
             this.signature = signature;
             this.paramNames = paramNames;
             this.body = body;
             this.context = context;
             this.environment = environment;
-        }
-
-        internal override int GetArgumentsCount()
-        {
-            return this.paramNames.Count;
         }
     }
 
@@ -72,16 +62,10 @@ namespace Jsonata.Net.Native.Eval
         internal readonly List<JToken?> argsOrPlaceholders;
 
         internal FunctionTokenPartial(FunctionToken func, List<JToken?> argsOrPlaceholders)
-            : base(func.Name + "_partial")
+            : base(func.Name + "_partial", argsOrPlaceholders.Count(t => t == null))
         {
             this.func = func;
             this.argsOrPlaceholders = argsOrPlaceholders;
-        }
-
-        internal override int GetArgumentsCount()
-        {
-            //todo: cache in ctor
-            return this.argsOrPlaceholders.Count(t => t == null);
         }
     }
 
@@ -96,7 +80,7 @@ namespace Jsonata.Net.Native.Eval
         internal readonly Environment environment;
 
         public FunctionTokenTransformation(Node pattern, Node updates, Node? deletes, Environment environment)
-            : base("transform")
+            : base("transform", 1)
         {
             this.pattern = pattern;
             this.updates = updates;
@@ -111,10 +95,6 @@ namespace Jsonata.Net.Native.Eval
             The expression on the right hand side must evaluate to a function, 
             hence the |...|...| syntax generates a function with one argument.         
          */
-        internal override int GetArgumentsCount()
-        {
-            return 1;
-        }
     }
 
     internal sealed class FunctionTokenRegex : FunctionToken
@@ -122,7 +102,7 @@ namespace Jsonata.Net.Native.Eval
         internal readonly Regex regex;
 
         public FunctionTokenRegex(Regex regex)
-            : base("regex")
+            : base("regex", 1)
         {
             this.regex = regex;
         }
@@ -131,9 +111,5 @@ namespace Jsonata.Net.Native.Eval
             The ~> is the chain operator, and its use here implies that the result of /regex/ is a function. 
             We'll see below that this is in fact the case.         
          */
-        internal override int GetArgumentsCount()
-        {
-            return 1;
-        }
     }
 }
