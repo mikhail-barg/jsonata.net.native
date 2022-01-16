@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-spread",
-  "message": "4 failed",
-  "color": "red"
+  "message": "4 passed",
+  "color": "brightgreen"
 }

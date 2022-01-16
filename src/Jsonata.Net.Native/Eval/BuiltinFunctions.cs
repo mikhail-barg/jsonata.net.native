@@ -1588,6 +1588,101 @@ namespace Jsonata.Net.Native.Eval
         }
 
         /**
+         Signature: $spread(object)
+         Splits an object containing key/value pairs into an array of objects, each of which has a single key/value pair from the input object. 
+         If the parameter is an array of objects, then the resultant array contains an object for every key/value pair in every object in the supplied array.
+         */
+        public static JToken spread([AllowContextAsValue][PropagateUndefined] JToken arg)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Object:
+                {
+                    JObject obj = (JObject)arg;
+                    if (obj.Count == 0)
+                    {
+                        return EvalProcessor.UNDEFINED;
+                    }
+                    JArray result = new JArray();
+                    foreach (JProperty property in obj.Properties())
+                    {
+                        JObject subResult = new JObject();
+                        subResult.Add(property.Name, property.Value);
+                        result.Add(subResult);
+                    };
+                    return result;
+                }
+            case JTokenType.Array:
+                {
+                    JArray array = (JArray)arg;
+                    if (array.Count == 0)
+                    {
+                        return EvalProcessor.UNDEFINED;
+                    }
+                    JArray result = new JArray();
+                    foreach (JToken element in array.Children())
+                    {
+                        JToken elementResult = spread(element);
+                        switch (elementResult.Type)
+                        {
+                        case JTokenType.Undefined:
+                            break;
+                        case JTokenType.Array:
+                            result.AddRange(elementResult.Children());
+                            break;
+                        default:
+                            result.Add(elementResult);
+                            break;
+                        }
+                    }
+                    return result;
+                }
+            default:
+                return arg;
+            }
+        }
+
+        /**
+         Signature: $merge(array<object>)
+         Merges an array of objects into a single object containing all the key/value pairs from each of the objects in the input array. 
+         If any of the input objects contain the same key, then the returned object will contain the value of the last one in the array. It is an error if the input array contains an item that is not an object.         
+         */
+        public static JObject merge([AllowContextAsValue][PropagateUndefined] JToken arg)
+        {
+            switch (arg.Type)
+            {
+            case JTokenType.Object:
+                return (JObject)arg;
+            case JTokenType.Array:
+                break;
+            default:
+                throw new JsonataException("T0412", $"Argument 1 of function \"{nameof(merge)}\" must be an array of \"objects\"");
+            };
+            JArray array = (JArray)arg;
+            JObject result = new JObject();
+            foreach (JToken element in array.Children())
+            {
+                switch (element.Type)
+                {
+                case JTokenType.Undefined:
+                    break;
+                case JTokenType.Object:
+                    {
+                        JObject obj = (JObject)element;
+                        foreach (JProperty property in obj.Properties())
+                        {
+                            result[property.Name] = property.Value;
+                        };
+                    }
+                    break;
+                default:
+                    throw new JsonataException("T0412", $"Argument 1 of function \"{nameof(merge)}\" must be an array of \"objects\"");
+                }
+            }
+            return result;
+        }
+
+        /**
          Signature: $each(object, function)
          Returns an array containing the values return by the function when applied to each key/value pair in the object.
          The function parameter will get invoked with two arguments:
