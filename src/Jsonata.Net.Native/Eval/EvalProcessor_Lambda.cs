@@ -57,5 +57,5 @@ namespace Jsonata.Net.Native.Eval
         {
             throw new NotImplementedException();
         }
-    }
+	}
 }

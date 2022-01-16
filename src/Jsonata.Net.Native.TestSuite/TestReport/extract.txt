@@ -277,7 +277,7 @@ function-applications.case017;Passed
 function-applications.case018;Passed
 function-applications.case019;Passed
 function-applications.case020;Passed
-function-applications.case021;Skipped
+function-applications.case021;Passed
 function-assert.case000;Passed
 function-assert.case001;Passed
 function-assert.case002;Passed
@@ -846,11 +846,11 @@ function-shuffle.case000;Passed
 function-shuffle.case001;Passed
 function-shuffle.case002;Passed
 function-shuffle.case003;Passed
-function-sift.case000;Failed
-function-sift.case001;Failed
-function-sift.case002;Failed
-function-sift.case003;Failed
-function-sift.case004;Failed
+function-sift.case000;Passed
+function-sift.case001;Passed
+function-sift.case002;Passed
+function-sift.case003;Passed
+function-sift.case004;Passed
 function-signatures.case000;Skipped
 function-signatures.case001;Skipped
 function-signatures.case002;Skipped

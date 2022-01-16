@@ -464,7 +464,7 @@ namespace Jsonata.Net.Native.Eval
                 }
 				break;
 			case FunctionTokenRegex regexFunction:
-				throw new NotImplementedException("TODO: regex");
+				return EvalProcessor_Regex.CallRegexFunction(regexFunction, args, context);
 			default:
                 throw new Exception("Unexpected function token type " + function.GetType().Name);
             }

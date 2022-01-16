@@ -383,23 +383,6 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        private static JObject ConvertRegexMatch(Match match)
-        {
-            JObject result = new JObject();
-            result.Add("match", match.Value);
-            result.Add("index", match.Index);
-            if (match.Groups.Count > 1) //0th is a whole regex
-            {
-                JArray groups = new JArray();
-                for (int i = 1; i < match.Groups.Count; ++i)
-                {
-                    groups.Add(match.Groups[i].Value);
-                };
-                result.Add("groups", groups);
-            }
-            return result;
-        }
-
         /**
           Signature: $match(str, pattern [, limit])
 
@@ -432,7 +415,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     break;
                 };
-                result.Add(ConvertRegexMatch(match));
+                result.Add(EvalProcessor_Regex.ConvertRegexMatch(match));
             }
 
             return result;
@@ -594,7 +577,7 @@ namespace Jsonata.Net.Native.Eval
                                 {
                                     builder.Append(str.Substring(replaceStartAt, match.Index - replaceStartAt));
                                 };
-                                JObject matchObject = ConvertRegexMatch(match);
+                                JObject matchObject = EvalProcessor_Regex.ConvertRegexMatch(match);
                                 JToken replacementToken = EvalProcessor.InvokeFunction(replacementFunction, new List<JToken>() { matchObject }, null, env);
                                 if (replacementToken.Type != JTokenType.String)
                                 {
@@ -1941,8 +1924,65 @@ namespace Jsonata.Net.Native.Eval
             return accumulator;
         }
 
+        /**
+         Signature: $sift(object, function)
+         Returns an object that contains only the key/value pairs from the object parameter that satisfy the predicate function passed in as the second parameter.
+         If object is not specified, then the context value is used as the value of object.
+         It is an error if object is not an object.
+
+         The function that is supplied as the second parameter must have the following signature:
+            function(value [, key [, object]])
+         Each value in the input object is passed in as the first parameter in the supplied function. 
+         The key (property name) of that value in the input object is passed in as the second parameter, if specified. 
+         The whole input object is passed in as the third parameter, if specified.
+         */
+        public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
+        {
+            int filterArgsCount = function.GetArgumentsCount();
+
+            JObject result = new JObject();
+            foreach (JProperty property in obj.Properties())
+            {
+                if (filterAcceptsElement(property.Value, property.Name, obj))
+                {
+                    result.Add(property.Name, property.Value);
+                }
+            }
+            if (result.Count == 0)
+            {
+                return EvalProcessor.UNDEFINED;
+            }
+            return result;
+
+            bool filterAcceptsElement(JToken value, string key, JObject obj)
+            {
+                List<JToken> args = new List<JToken>();
+                if (filterArgsCount >= 1)
+                {
+                    args.Add(value);
+                };
+                if (filterArgsCount >= 2)
+                {
+                    args.Add(new JValue(key));
+                };
+                if (filterArgsCount >= 3)
+                {
+                    args.Add(obj);
+                };
+                JToken res = EvalProcessor.InvokeFunction(
+                    function: function,
+                    args: args,
+                    context: null,
+                    env: null! //TODO: pass some real environment?
+                );
+                bool result = Helpers.Booleanize(res);
+                return result;
+            }
+        }
+
+
         #endregion
 
-        
+
     }
 }

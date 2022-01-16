@@ -55,7 +55,8 @@ The goal of the project is to implement 100% of latest JSONata version ([1.8.5](
 * :white_check_mark: [Functional Programming](http://docs.jsonata.org/programming) - Conditional operator, variables and bindings are implemented, as well as defining custom functions. 
 Function signatures are parsed but not checked yet (*TODO*). Recursive functions are supported, but additional checks are needed here (*TODO*). Tail call optimization is not supported. 
 Higher order functions are supported. 'Functions are closures', 'Partial function application' and 'Function chaining' features are supported.
-* :heavy_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) (_If N is greater than the number of captured groups, then it is replaced by the empty string_) which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
+* :white_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) (_If N is greater than the number of captured groups, then it is replaced by the empty string_) which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
+Also `match` object does not yet have `next` property (*TODO*).
 * :white_check_mark: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
 ###### Operators
 * :white_check_mark: [Path Operators](http://docs.jsonata.org/path-operators):
@@ -89,15 +90,16 @@ Higher order functions are supported. 'Functions are closures', 'Partial functio
 * :heavy_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
   * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$reverse()`, `$shuffle()`, `$distinct()`, `$zip()`
 * :white_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
-  * :heavy_check_mark: Implemented: `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$each()`, `$assert()`, `$type()`
-  * :white_check_mark: *TODO*: `$sift()`, `$error()`
+  * :heavy_check_mark: Implemented: `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$sift()`, `$each()`, `$assert()`, `$type()`
+  * :white_check_mark: *TODO*: `$error()`
 * :white_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
   * :heavy_check_mark: Implemented: 
   * :white_check_mark: *TODO*: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
 * :white_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
-  * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$reduce()`
-  * :white_check_mark: *TODO*: `$single()`, `$sift()`
+  * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$reduce()`, `$sift()`
+  * :white_check_mark: *TODO*: `$single()`
 
+Also, need to check all `TODO:` markers in the code (*TODO*).
 
 #### Detailed results for the reference test suite
 
