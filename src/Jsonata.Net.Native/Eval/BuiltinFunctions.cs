@@ -1702,6 +1702,16 @@ namespace Jsonata.Net.Native.Eval
         }
 
         /**
+         $error()
+         Signature:$error(message)
+         Deliberately throws an error with an optional message
+         */
+        public static JToken error([OptionalArgument(null)] string message)
+        {
+            throw new JsonataException("D3137", message ?? "$error() function evaluated");
+        }
+
+        /**
          Signature:$assert(condition, message)
          If condition is true, the function returns undefined. 
          If the condition is false, an exception is thrown with the message as the message of the exception.         

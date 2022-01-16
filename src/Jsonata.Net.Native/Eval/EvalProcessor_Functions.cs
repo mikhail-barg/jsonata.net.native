@@ -207,20 +207,25 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private static object ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
+		private static object? ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
 		{
 			//TODO: place all this reflection into FunctionTokenCsharp
-			if (argToken.Type == JTokenType.Undefined
-				&& parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false)
-			)
+			if (argToken.Type == JTokenType.Undefined)
 			{
-				returnUndefined = true;
-				return EvalProcessor.UNDEFINED;
-			}
-			else
-			{
-				returnUndefined = false;
+				if (parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false))
+				{
+					returnUndefined = true;
+					return EvalProcessor.UNDEFINED;
+				}
+				OptionalArgumentAttribute? optional = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>();
+				if (optional != null)
+				{
+					//use default value instead of Undefined. This seem to be the case in JS
+					returnUndefined = false;
+					return optional.DefaultValue;
+				};
 			};
+			returnUndefined = false;
 
 			if (parameterInfo.IsDefined(typeof(PackSingleValueToSequenceAttribute), false)
 				&& argToken.Type != JTokenType.Array

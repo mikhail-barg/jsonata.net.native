@@ -166,7 +166,7 @@ namespace Jsonata.Net.Native.TestSuite
                 else if (caseInfo.error != null)
                 {
                     Assert.AreEqual(caseInfo.error.code, jsonataEx.Code);
-                    Assert.AreEqual(caseInfo.error.message, jsonataEx.Message);
+                    Assert.AreEqual(caseInfo.error.message, jsonataEx.RawMessage);
                 }
                 else
                 {

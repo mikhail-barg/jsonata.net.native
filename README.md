@@ -89,9 +89,8 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: Implemented: `$boolean()`, `$not()`, `$exists()`
 * :heavy_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
   * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$reverse()`, `$shuffle()`, `$distinct()`, `$zip()`
-* :white_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
-  * :heavy_check_mark: Implemented: `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$sift()`, `$each()`, `$assert()`, `$type()`
-  * :white_check_mark: *TODO*: `$error()`
+* :heavy_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
+  * :heavy_check_mark: Implemented: `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$sift()`, `$each()`, `$error()`, `$assert()`, `$type()`
 * :white_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
   * :heavy_check_mark: Implemented: 
   * :white_check_mark: *TODO*: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
