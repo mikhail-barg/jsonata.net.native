@@ -79,16 +79,24 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: `~>` (Chain)
   * :heavy_check_mark: `... ~> | ... | ... |` (Transform)
 ###### Function Library
-* :heavy_check_mark: [String Functions](http://docs.jsonata.org/string-functions): `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
-* :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions): `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, `sqrt()`, `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
+* :heavy_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
+  * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
+* :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions):
+  * :heavy_check_mark: Implemented: `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, `sqrt()`, `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
   * :white_check_mark: Using C# [custom](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings) and [standard](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings) format strings for `picture` argument of `$formatNumber()`, `$formatInteger()` and `$parseInteger()` instead of [XPath format](https://docs.jsonata.org/numeric-functions#formatnumber) used in JSonataJS. 
-* :heavy_check_mark: [Aggregation Functions](http://docs.jsonata.org/aggregation-functions): `$sum()`, `$max()`, `$min()`, `$average()`
-* :heavy_check_mark: [Boolean Functions](http://docs.jsonata.org/boolean-functions): `$boolean()`, `$not()`, `$exists()`
-* :heavy_check_mark: [Array Functions](http://docs.jsonata.org/array-functions): `$count()`, `$append()`, `$sort()`, `$reverse()`, `$shuffle()`, `$distinct()`, `$zip()`
-* :heavy_check_mark: [Object Functions](http://docs.jsonata.org/object-functions): `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$sift()`, `$each()`, `$error()`, `$assert()`, `$type()`
-* :heavy_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions): `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
+* :heavy_check_mark: [Aggregation Functions](http://docs.jsonata.org/aggregation-functions):
+  * :heavy_check_mark: Implemented: `$sum()`, `$max()`, `$min()`, `$average()`
+* :heavy_check_mark: [Boolean Functions](http://docs.jsonata.org/boolean-functions):
+  * :heavy_check_mark: Implemented: `$boolean()`, `$not()`, `$exists()`
+* :heavy_check_mark: [Array Functions](http://docs.jsonata.org/array-functions):
+  * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$reverse()`, `$shuffle()`, `$distinct()`, `$zip()`
+* :heavy_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
+  * :heavy_check_mark: Implemented: `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$sift()`, `$each()`, `$error()`, `$assert()`, `$type()`
+* :heavy_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
+  * :heavy_check_mark: Implemented: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
   * :white_check_mark: Using C# [custom](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings) and [standard](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings) format strings for `picture` argument instead of [XPath format](https://docs.jsonata.org/date-time-functions#tomillis) used in JSonataJS. 
-* :heavy_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions): `$map()`, `$filter()`, `$single()`, `$reduce()`, `$sift()`
+* :heavy_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
+  * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$single()`, `$reduce()`, `$sift()`
 
 Also, need to check all `TODO:` markers in the code (*TODO*).
 
