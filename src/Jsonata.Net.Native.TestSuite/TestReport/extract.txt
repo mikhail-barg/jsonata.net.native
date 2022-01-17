@@ -535,8 +535,8 @@ function-formatNumber.case035;Failed
 function-formatNumber.case036;Passed
 function-fromMillis.case000;Failed
 function-fromMillis.case001;Failed
-function-fromMillis.case002;Failed
-function-fromMillis.formatDateTime[1];Failed
+function-fromMillis.case002;Passed
+function-fromMillis.formatDateTime[1];Passed
 function-fromMillis.formatDateTime[2];Failed
 function-fromMillis.formatDateTime[3];Failed
 function-fromMillis.formatDateTime[4];Failed
@@ -562,7 +562,7 @@ function-fromMillis.formatDateTime[23];Failed
 function-fromMillis.formatDateTime[24];Failed
 function-fromMillis.formatDateTime[25];Failed
 function-fromMillis.formatDateTime[26];Failed
-function-fromMillis.formatDateTime[27];Passed
+function-fromMillis.formatDateTime[27];Failed
 function-fromMillis.formatDateTime[28];Failed
 function-fromMillis.formatDateTime[29];Failed
 function-fromMillis.formatDateTime[30];Failed
@@ -603,8 +603,8 @@ function-fromMillis.formatDateTime[64];Failed
 function-fromMillis.formatDateTime[65];Failed
 function-fromMillis.formatDateTime[66];Failed
 function-fromMillis.formatDateTime[67];Failed
-function-fromMillis.formatDateTime[68];Passed
-function-fromMillis.formatDateTime[69];Passed
+function-fromMillis.formatDateTime[68];Failed
+function-fromMillis.formatDateTime[69];Failed
 function-fromMillis.isoWeekDate[1];Failed
 function-fromMillis.isoWeekDate[2];Failed
 function-fromMillis.isoWeekDate[3];Failed
@@ -991,7 +991,7 @@ function-sum.case004;Passed
 function-sum.case005;Passed
 function-sum.case006;Passed
 function-tomillis.case001;Failed
-function-tomillis.case002;Failed
+function-tomillis.case002;Passed
 function-tomillis.case003;Failed
 function-tomillis.case004;Failed
 function-tomillis.case005;Failed

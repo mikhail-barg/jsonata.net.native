@@ -57,7 +57,7 @@ Function signatures are parsed but not checked yet (*TODO*). Recursive functions
 Higher order functions are supported. 'Functions are closures', 'Partial function application' and 'Function chaining' features are supported.
 * :white_check_mark: [Regular Expressions](http://docs.jsonata.org/regex) - all is implemented, except for the unusual handling for excessive group indices in [`$replace()`](http://docs.jsonata.org/string-functions#replace) (_If N is greater than the number of captured groups, then it is replaced by the empty string_) which is not supported by .Net [`Regex.Replace()`](https://docs.microsoft.com/en-us/dotnet/api/system.text.regularexpressions.regex.replace?view=net-6.0).
 Also `match` object does not yet have `next` property (*TODO*).
-* :white_check_mark: [Date/Time Processing](http://docs.jsonata.org/date-time) - Not all built-in functions are implemented yet.
+* :heavy_check_mark: [Date/Time Processing](http://docs.jsonata.org/date-time) - All functions are implemented. 
 ###### Operators
 * :white_check_mark: [Path Operators](http://docs.jsonata.org/path-operators):
   * :heavy_check_mark: `.` (Map)
@@ -83,6 +83,7 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$base64encode()`, `$base64decode()`, `$eval()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
 * :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions):
   * :heavy_check_mark: Implemented: `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, sqrt(), `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
+  * :white_check_mark: Using Ñ# [custom](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings) and [standard](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings) format strings for `picture` argument of `$formatNumber()`, `$formatInteger()` and `$parseInteger()` instead of [XPath format](https://docs.jsonata.org/numeric-functions#formatnumber) used in JSonataJS. 
 * :heavy_check_mark: [Aggregation Functions](http://docs.jsonata.org/aggregation-functions):
   * :heavy_check_mark: Implemented: `$sum()`, `$max()`, `$min()`, `$average()`
 * :heavy_check_mark: [Boolean Functions](http://docs.jsonata.org/boolean-functions):
@@ -91,9 +92,9 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: Implemented: `$count()`, `$append()`, `$sort()`, `$reverse()`, `$shuffle()`, `$distinct()`, `$zip()`
 * :heavy_check_mark: [Object Functions](http://docs.jsonata.org/object-functions):
   * :heavy_check_mark: Implemented: `$keys()`, `$lookup()`, `$spread()`, `$merge()`, `$sift()`, `$each()`, `$error()`, `$assert()`, `$type()`
-* :white_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
-  * :heavy_check_mark: Implemented: 
-  * :white_check_mark: *TODO*: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
+* :heavy_check_mark: [Date/Time functions](http://docs.jsonata.org/date-time-functions):
+  * :heavy_check_mark: Implemented: `$now()`, `$millis()`, `$fromMillis()`, `$toMillis()`
+  * :white_check_mark: Using C# [custom](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings) and [standard](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings) format strings for `picture` argument instead of [XPath format](https://docs.jsonata.org/date-time-functions#tomillis) used in JSonataJS. 
 * :heavy_check_mark: [Higher Order Functions](http://docs.jsonata.org/higher-order-functions):
   * :heavy_check_mark: Implemented: `$map()`, `$filter()`, `$single()`, `$reduce()`, `$sift()`
 

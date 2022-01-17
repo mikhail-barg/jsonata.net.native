@@ -91,7 +91,9 @@ namespace Jsonata.Net.Native.Eval
     internal sealed class EvaluationEnvironment
     {
         private readonly Lazy<Random> m_random = new Lazy<Random>();
+        private readonly DateTimeOffset m_now = DateTimeOffset.UtcNow;
 
         internal Random Random => this.m_random.Value;
+        internal DateTimeOffset Now => this.m_now;
     }
 }

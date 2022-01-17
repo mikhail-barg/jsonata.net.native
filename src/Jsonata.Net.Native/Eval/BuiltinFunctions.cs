@@ -1770,6 +1770,68 @@ namespace Jsonata.Net.Native.Eval
         #endregion
 
         #region Date/Time functions
+
+        private const string UTC_FORMAT = @"yyyy-MM-dd\THH:mm:ss.fffzzz";
+
+        /**
+         Signature: $now([picture [, timezone]])
+         Generates a UTC timestamp in ISO 8601 compatible format and returns it as a string. All invocations of $now() within an evaluation of an expression will all return the same timestamp value.
+         If the optional picture and timezone parameters are supplied, then the current timestamp is formatted as described by the $fromMillis() function.         
+         */
+        public static string now([OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone, [EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        {
+            return fromMillis(millis(evalEnv), picture, timezone);
+        }
+
+        /**
+         $millis()
+         Signature: $millis()
+         Returns the number of milliseconds since the Unix Epoch (1 January, 1970 UTC) as a number. 
+         All invocations of $millis() within an evaluation of an expression will all return the same value.
+         */
+        public static long millis([EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        {
+            return evalEnv.Now.ToUnixTimeMilliseconds();
+        }
+
+        /**
+         $fromMillis()
+         Signature: $fromMillis(number [, picture [, timezone]])
+         Convert the number representing milliseconds since the Unix Epoch (1 January, 1970 UTC) to a formatted string representation of the timestamp as specified by the picture string.
+         If the optional picture parameter is omitted, then the timestamp is formatted in the ISO 8601 format.
+         If the optional picture string is supplied, then the timestamp is formatted occording to the representation specified in that string. The behaviour of this function is consistent with the two-argument version of the XPath/XQuery function fn:format-dateTime as defined in the XPath F&O 3.1 specification. The picture string parameter defines how the timestamp is formatted and has the same syntax as fn:format-dateTime.
+         If the optional timezone string is supplied, then the formatted timestamp will be in that timezone. The timezone string should be in the format "±HHMM", where ± is either the plus or minus sign and HHMM is the offset in hours and minutes from UTC. Positive offset for timezones east of UTC, negative offset for timezones west of UTC.         
+         */
+        public static string fromMillis([PropagateUndefined] long number, [OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone)
+        {
+            DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(number);
+            if (timezone != null)
+            {
+                if (!Int32.TryParse(timezone, out int offsetHhMm))
+                {
+                    throw new JsonataException("D3134", $"Failed to parse timezone offset value from '{timezone}'");
+                }
+                date = date.ToOffset(new TimeSpan(offsetHhMm / 100, offsetHhMm % 100, 0));
+            }
+            return date.ToString(picture);
+        }
+
+        /**
+         $toMillis()
+         Signature: $toMillis(timestamp [, picture])
+         Convert a timestamp string to the number of milliseconds since the Unix Epoch (1 January, 1970 UTC) as a number.
+         If the optional picture string is not specified, then the format of the timestamp is assumed to be ISO 8601. 
+         An error is thrown if the string is not in the correct format.
+         If the picture string is specified, then the format is assumed to be described by this picture string using the same syntax as the XPath/XQuery function fn:format-dateTime, defined in the XPath F&O 3.1 specification.         
+         */
+        public static long toMillis(string timestamp, [OptionalArgument(UTC_FORMAT)] string picture)
+        {
+            if (!DateTimeOffset.TryParseExact(timestamp, picture, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset result))
+            {
+                throw new JsonataException("D3136", $"Failed to parse tdate/time from '{timestamp}'");
+            }
+            return result.ToUnixTimeMilliseconds();
+        }
         #endregion
 
         #region Higher order functions
