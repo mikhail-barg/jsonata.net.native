@@ -953,7 +953,7 @@ namespace Jsonata.Net.Native.Eval
 			case JTokenType.Float:
 				return new JValue(-(double)rhs);
 			default:
-				throw new Exception($"Failed to evaluate a non-number {rhs} for a negation");
+				throw new JsonataException("D1002", $"Cannot negate a non-numeric value: {rhs}");
 			}
         }
 
@@ -989,9 +989,13 @@ namespace Jsonata.Net.Native.Eval
 			{
 				return evalDoubleOperator((double)(long)lhs, (double)rhs, numericOperatorNode.op);
 			}
+			else if (lhs.Type != JTokenType.Float && lhs.Type != JTokenType.Integer)
+            {
+				throw new JsonataException("T2001", $"The left side of the {NumericOperatorNode.OperatorToString(numericOperatorNode.op)} operator must evaluate to a number");
+			}
 			else
             {
-				throw new ErrBadNumericArguments(lhs, rhs, numericOperatorNode);
+				throw new JsonataException("T2002", $"The right side of the {NumericOperatorNode.OperatorToString(numericOperatorNode.op)} operator must evaluate to a number");
 			}
 		}
 

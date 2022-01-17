@@ -38,7 +38,7 @@ namespace Jsonata.Net.Native.Parsing
             }
             else
             {
-                throw new ErrInvalidNumber(t);
+                throw new JsonataException("S0102", $"Number out of range: '{t.value}'"); //TODO: is it a correct code?
             }
         }
 
@@ -54,7 +54,7 @@ namespace Jsonata.Net.Native.Parsing
                 b = false;
                 break;
             default: // should be unreachable
-                throw new ErrInvalidBool(t);
+                throw new JsonataException("????", $"invalid bool literal '{token.value}'");
             };
 
             return new BooleanNode(b);

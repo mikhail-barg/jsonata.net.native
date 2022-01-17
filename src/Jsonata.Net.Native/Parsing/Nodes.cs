@@ -335,7 +335,7 @@ namespace Jsonata.Net.Native.Parsing
                 case NumberIntNode:
                 case BooleanNode:
                 case NullNode:
-                    throw new ErrPathLiteral(lhs.ToString());
+                    throw new JsonataException("S0213", $"The literal value {lhs} cannot be used as a step within a path expression");
                 case StringNode stringNode:
                     //convert string to NameNode https://github.com/IBM/JSONata4Java/issues/25
                     steps.Add(new NameNode(stringNode.value, escaped: true));
@@ -359,7 +359,7 @@ namespace Jsonata.Net.Native.Parsing
                 case NumberIntNode:
                 case BooleanNode:
                 case NullNode:
-                    throw new ErrPathLiteral(rhs.ToString());
+                    throw new JsonataException("S0213", $"The literal value {rhs} cannot be used as a step within a path expression");
                 case StringNode stringNode:
                     //convert string to NameNode https://github.com/IBM/JSONata4Java/issues/25
                     steps.Add(new NameNode(stringNode.value, escaped: true));
@@ -399,7 +399,7 @@ namespace Jsonata.Net.Native.Parsing
             switch (lhs)
             {
             case GroupNode:
-                throw new ErrGroupPredicate();
+                throw new JsonataException("S0209", "A predicate cannot follow a grouping expression in a step"); //TODO: check if this is really not allowed
             case PathNode pathNode:
                 {
                     Node last = pathNode.steps[pathNode.steps.Count - 1];
@@ -461,7 +461,7 @@ namespace Jsonata.Net.Native.Parsing
             Node expr = this.expr.optimize();
             if (expr is GroupNode)
             {
-                throw new ErrGroupGroup();
+                throw new JsonataException("S0210", "Each step can only have one grouping expression");
             };
 
             ObjectNode objectNode = (ObjectNode)this.objectNode.optimize();

@@ -305,7 +305,7 @@ namespace Jsonata.Net.Native.Parsing
 				char? chOrNull = this.nextRune();
 				if (chOrNull == null || chOrNull.Value == '\n')
 				{
-					throw new ErrUnterminatedName(this.m_queryText.Substring(this.StartPos));
+					throw new JsonataException("S0105", $"Quoted property name must be terminated with a backquote (`): " + this.m_queryText.Substring(this.StartPos));
 				};
 				if (chOrNull.Value == quoteChar)
 				{
@@ -358,7 +358,7 @@ namespace Jsonata.Net.Native.Parsing
 				char? chOrNull = this.nextRune();
 				if (chOrNull == null)
                 {
-					throw new ErrUnterminatedString(this.m_queryText.Substring(this.StartPos));
+					throw new JsonataException("S0101", "String literal must be terminated by a matching quote: " + this.m_queryText.Substring(this.StartPos));
 				};
 				if (chOrNull.Value == quoteChar)
                 {
@@ -369,7 +369,7 @@ namespace Jsonata.Net.Native.Parsing
 					chOrNull = this.nextRune();
 					if (chOrNull == null)
 					{
-						throw new ErrUnterminatedString(this.m_queryText.Substring(this.StartPos));
+						throw new JsonataException("S0101", "String literal must be terminated by a matching quote: " + this.m_queryText.Substring(this.StartPos));
 					};
 				}
 			}

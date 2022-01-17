@@ -18,7 +18,7 @@ namespace Jsonata.Net.Native.Parsing
             Node result = parser.parseExpression(0);
             if (parser.token.type != TokenType.typeEOF) 
             {
-                throw new ErrSyntaxError(parser.token);
+                throw new JsonataException("S0201", $"Syntax error: {Lexer.TokenTypeToString(parser.token.type)} ({parser.token.type})");
             }
             return result.optimize();
         }
@@ -194,7 +194,7 @@ namespace Jsonata.Net.Native.Parsing
                 {
                     throw new JsonataException("S0203", $"expected token '{Lexer.TokenTypeToString(expected)}' ({expected}) before end of expression");
                 };
-                throw new ErrUnexpectedToken(expected, this.token);
+                throw new JsonataException("S0202", $"Expected '{Lexer.TokenTypeToString(expected)}', got {Lexer.TokenTypeToString(this.token.type)}");
             }
 
             this.advance(allowRegex);
@@ -208,14 +208,14 @@ namespace Jsonata.Net.Native.Parsing
         {
             if (this.token.type == TokenType.typeEOF)
             {
-                throw new ErrUnexpectedEOF(this.token);
+                throw new JsonataException("S0207", "Unexpected end of expression");
             }
             Token t = this.token;
             this.advance(false);
 
             if (!this.m_nuds.TryGetValue(t.type, out Nud? nud))
             {
-                throw new ErrPrefix(t);
+                throw new JsonataException("S0211", $"The symbol {Lexer.TokenTypeToString(t.type)} cannot be used as a unary operator");
             };
             Node lhs = nud(t);
             while (rbp < this.m_bps[this.token.type])
@@ -225,7 +225,7 @@ namespace Jsonata.Net.Native.Parsing
 
                 if (!this.m_leds.TryGetValue(t.type, out Led? led))
                 {
-                    throw new ErrInfix(t);
+                    throw new JsonataException("S0204", $"Unknown operator: {Lexer.TokenTypeToString(t.type)}");
                 }
                 lhs = led(t, lhs);
             }
