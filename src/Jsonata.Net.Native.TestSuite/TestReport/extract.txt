@@ -1594,7 +1594,7 @@ variables.case004;Passed
 variables.case005;Passed
 variables.case006;Passed
 variables.case007;Passed
-variables.case008;Skipped
+variables.case008;Passed
 variables.case009;Passed
 variables.case010;Passed
 variables.case011;Passed

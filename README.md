@@ -72,12 +72,12 @@ Also `match` object does not yet have `next` property (*TODO*).
 * :heavy_check_mark: [Numeric Operators](http://docs.jsonata.org/numeric-operators) - all, including `..` (Range) operator.
 * :heavy_check_mark: [Comparison Operators](http://docs.jsonata.org/comparison-operators) - all, including `in` (Inclusion) operator.
 * :heavy_check_mark: [Boolean Operators](http://docs.jsonata.org/boolean-operators).
-* :heavy_check_mark: [Other Operators](http://docs.jsonata.org/other-operators):
+* :white_check_mark: [Other Operators](http://docs.jsonata.org/other-operators):
   * :heavy_check_mark: `&` (Concatenation)
   * :heavy_check_mark: `?` : (Conditional)
   * :heavy_check_mark: `:=` (Variable binding)
   * :heavy_check_mark: `~>` (Chain)
-  * :heavy_check_mark: `... ~> | ... | ... |` (Transform)
+  * :white_check_mark: `... ~> | ... | ... |` (Transform) — Partially implemented, because of Json.Net "detaching" changed tokens (*TODO*)
 ###### Function Library
 * :heavy_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
   * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$eval()`, `$base64encode()`, `$base64decode()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`

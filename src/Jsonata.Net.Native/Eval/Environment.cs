@@ -53,12 +53,12 @@ namespace Jsonata.Net.Native.Eval
 
         internal void Bind(string name, JToken value)
         {
-            this.m_bindings.Add(name, value);
+            this.m_bindings[name] = value;  //allow overrides
         }
 
         internal void BindFunction(MethodInfo mi)
         {
-            this.Bind(mi.Name, new FunctionTokenCsharp(mi.Name, mi));
+            this.m_bindings.Add(mi.Name, new FunctionTokenCsharp(mi.Name, mi));
         }
 
         internal JToken Lookup(string name)
