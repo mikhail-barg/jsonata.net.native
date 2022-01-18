@@ -461,69 +461,7 @@ namespace Jsonata.Net.Native.Eval
 
         internal static JToken InvokeFunction(FunctionToken function, List<JToken> args, JToken? context, Environment env)
         {
-            JToken result;
-            switch (function)
-            {
-            case FunctionTokenCsharp nativeFunction:
-                result = EvalProcessor_Functions.CallCsharpFunction(nativeFunction, args, context, env);
-                break;
-            case FunctionTokenLambda lambdaFunction:
-                result = EvalProcessor_Lambda.CallLambdaFunction(lambdaFunction, args, context);
-                break;
-			case FunctionTokenPartial partialFunction:
-				{
-					List<JToken> alignedArgs = AlignPartialFunctionArgs(partialFunction, args, context);
-					result = InvokeFunction(partialFunction.func, alignedArgs, null, env);
-				}
-				break;
-			case FunctionTokenTransformation transformationFunction:
-                {
-					result = EvalProcessor_Transformation.CallTransformationFunction(transformationFunction, args, context);
-                }
-				break;
-			case FunctionTokenRegex regexFunction:
-				return EvalProcessor_Regex.CallRegexFunction(regexFunction, args, context);
-			default:
-                throw new Exception("Unexpected function token type " + function.GetType().Name);
-            }
-            return result;
-        }
-
-        private static List<JToken> AlignPartialFunctionArgs(FunctionTokenPartial partialFunction, List<JToken> args, JToken? context)
-        {
-			int expectedArgsCount = partialFunction.ArgumentsCount;
-			bool useContext = false;
-			if (expectedArgsCount == args.Count + 1 && context != null)
-            {
-				useContext = true;
-            };
-			int nextArgIndex = 0;
-			List<JToken> result = new List<JToken>(partialFunction.argsOrPlaceholders.Count);
-			foreach (JToken? arg in partialFunction.argsOrPlaceholders)
-            {
-				if (arg == null)
-                {
-					if (useContext)
-                    {
-						result.Add(context!);
-						useContext = false;
-                    }
-					else if (nextArgIndex < args.Count)
-                    {
-						result.Add(args[nextArgIndex]);
-						++nextArgIndex;
-                    }
-					else
-                    {
-						result.Add(EvalProcessor.UNDEFINED);
-                    }
-                }
-                else
-                {
-					result.Add(arg);
-                }
-            };
-			return result;
+			return function.Invoke(args, context, env);
         }
 
         private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)

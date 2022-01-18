@@ -415,7 +415,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     break;
                 };
-                result.Add(EvalProcessor_Regex.ConvertRegexMatch(match));
+                result.Add(FunctionTokenRegex.ConvertRegexMatch(match));
             }
 
             return result;
@@ -577,7 +577,7 @@ namespace Jsonata.Net.Native.Eval
                                 {
                                     builder.Append(str.Substring(replaceStartAt, match.Index - replaceStartAt));
                                 };
-                                JObject matchObject = EvalProcessor_Regex.ConvertRegexMatch(match);
+                                JObject matchObject = FunctionTokenRegex.ConvertRegexMatch(match);
                                 JToken replacementToken = EvalProcessor.InvokeFunction(replacementFunction, new List<JToken>() { matchObject }, null, env);
                                 if (replacementToken.Type != JTokenType.String)
                                 {
@@ -1008,7 +1008,7 @@ namespace Jsonata.Net.Native.Eval
             }
 
             decimal result = Helpers.EnumerateNumericArray(arg, nameof(sum), 1).Sum();
-            return EvalProcessor_Functions.ReturnDecimalResult(result);
+            return FunctionToken.ReturnDecimalResult(result);
         }
 
         /**
@@ -1046,7 +1046,7 @@ namespace Jsonata.Net.Native.Eval
                 return EvalProcessor.UNDEFINED;
             }
 
-            return EvalProcessor_Functions.ReturnDecimalResult(result);
+            return FunctionToken.ReturnDecimalResult(result);
         }
 
         /**
@@ -1084,7 +1084,7 @@ namespace Jsonata.Net.Native.Eval
                 return EvalProcessor.UNDEFINED;
             }
 
-            return EvalProcessor_Functions.ReturnDecimalResult(result);
+            return FunctionToken.ReturnDecimalResult(result);
         }
 
         /**
@@ -1117,7 +1117,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 return EvalProcessor.UNDEFINED;
             };
-            return EvalProcessor_Functions.ReturnDecimalResult(result / count);
+            return FunctionToken.ReturnDecimalResult(result / count);
         }
         #endregion
 
