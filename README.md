@@ -81,6 +81,7 @@ Also `match` object does not yet have `next` property (*TODO*).
 ###### Function Library
 * :heavy_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
   * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$eval()`, `$base64encode()`, `$base64decode()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`
+  * :white_check_mark: There's a discrepancy when handling UTF-16 surrogate pairs. For example `$length("\uD834\uDD1E")` would return 2, while in original Jsonata-JS it would return 1.
 * :heavy_check_mark: [Numeric Functions](http://docs.jsonata.org/numeric-functions):
   * :heavy_check_mark: Implemented: `$number()`, `$abs()`, `$floor()`, `$ceil()`, `$round()`, `$power()`, `sqrt()`, `$random()`, `$formatNumber()`, `$formatBase()`, `$formatInteger()`, `$parseInteger()`
   * :white_check_mark: Using C# [custom](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings) and [standard](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings) format strings for `picture` argument of `$formatNumber()`, `$formatInteger()` and `$parseInteger()` instead of [XPath format](https://docs.jsonata.org/numeric-functions#formatnumber) used in JSonataJS. 

@@ -28,6 +28,8 @@ namespace Jsonata.Net.Native.Eval
 				.ToList();
 			this.hasContextParameter = this.parameters.Any(p => p.allowContextAsValue);
 			this.hasEnvParameter = this.parameters.Any(p => p.isEvaluationEnvironment);
+
+			this.RequiredArgsCount = this.parameters.Where(p => !p.isOptional && !p.isEvaluationEnvironment).Count();
 		}
 
 		internal sealed class ArgumentInfo

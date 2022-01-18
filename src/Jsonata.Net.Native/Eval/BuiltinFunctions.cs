@@ -1684,7 +1684,7 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
         {
-            int argsCount = function.ArgumentsCount;
+            int argsCount = function.RequiredArgsCount;
             Sequence result = new Sequence();
             foreach (JProperty prop in obj.Properties())
             {
@@ -1848,7 +1848,7 @@ namespace Jsonata.Net.Native.Eval
 
         private static bool FilterAcceptsElement(FunctionToken function, JToken element, int index, JArray array)
         {
-            int filterArgsCount = function.ArgumentsCount;
+            int filterArgsCount = function.RequiredArgsCount;
             List<JToken> args = new List<JToken>();
             if (filterArgsCount >= 1)
             {
@@ -1883,7 +1883,7 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
         {
-            int funcArgsCount = function.ArgumentsCount;
+            int funcArgsCount = function.RequiredArgsCount;
 
             Sequence result = new Sequence();
 
@@ -2017,7 +2017,7 @@ namespace Jsonata.Net.Native.Eval
                 index = 0;
             };
 
-            int funcArgsCount = function.ArgumentsCount;
+            int funcArgsCount = function.RequiredArgsCount;
             if (funcArgsCount < 2)
             {
                 throw new JsonataException("D3050", "The second argument of reduce function must be a function with at least two arguments");
@@ -2078,7 +2078,7 @@ namespace Jsonata.Net.Native.Eval
             bool filterAcceptsElement(JToken value, string key, JObject obj)
             {
                 List<JToken> args = new List<JToken>();
-                int filterArgsCount = function.ArgumentsCount;
+                int filterArgsCount = function.RequiredArgsCount;
                 if (filterArgsCount >= 1)
                 {
                     args.Add(value);

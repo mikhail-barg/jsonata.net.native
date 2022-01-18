@@ -1078,7 +1078,7 @@ hof-filter.case002;Passed
 hof-filter.case003;Passed
 hof-map.case000;Passed
 hof-map.case001;Passed
-hof-map.case002;Failed
+hof-map.case002;Passed
 hof-map.case003;Passed
 hof-map.case004;Passed
 hof-map.case005;Passed

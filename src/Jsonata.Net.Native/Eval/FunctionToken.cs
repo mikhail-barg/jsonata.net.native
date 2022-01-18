@@ -14,11 +14,14 @@ namespace Jsonata.Net.Native.Eval
     {
         internal const JTokenType TYPE = JTokenType.Constructor;
         internal int ArgumentsCount { get; }
+        //used in High-order functions to implement filters properly
+        public int RequiredArgsCount { get; protected set; }
 
         protected FunctionToken(string jsonName, int argumentsCount)
             :base(jsonName)
         {
             this.ArgumentsCount = argumentsCount;
+            this.RequiredArgsCount = argumentsCount;
         }
 
         internal abstract JToken Invoke(List<JToken> args, JToken? context, Environment env);
