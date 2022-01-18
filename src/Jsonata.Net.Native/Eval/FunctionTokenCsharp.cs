@@ -15,6 +15,8 @@ namespace Jsonata.Net.Native.Eval
 		internal readonly MethodInfo methodInfo;
 		internal IReadOnlyList<ArgumentInfo> parameters;
 		internal readonly string functionName;
+		internal readonly bool hasContextParameter;
+		internal readonly bool hasEnvParameter;
 
 		internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
 			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length)
@@ -24,6 +26,8 @@ namespace Jsonata.Net.Native.Eval
 			this.parameters = this.methodInfo.GetParameters()
 				.Select(pi => new ArgumentInfo(funcName, pi))
 				.ToList();
+			this.hasContextParameter = this.parameters.Any(p => p.allowContextAsValue);
+			this.hasEnvParameter = this.parameters.Any(p => p.isEvaluationEnvironment);
 		}
 
 		internal sealed class ArgumentInfo
@@ -72,39 +76,14 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
-        {
-			object?[] parameters;
-			try
+		internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
+		{
+			object?[] parameters = this.BindFunctionArguments(args, context, env, out bool returnUndefined);
+			if (returnUndefined)
 			{
-				parameters = this.BindFunctionArguments(args, env, out bool returnUndefined);
-				if (returnUndefined)
-				{
-					return EvalProcessor.UNDEFINED;
-				}
-			}
-			catch (JsonataException)
-			{
-				//try binding with context if possible
-				if (context != null
-					&& args.Count < this.parameters.Count
-					&& this.parameters[0].allowContextAsValue
-				)
-				{
-					List<JToken> newArgs = new List<JToken>(args.Count + 1);
-					newArgs.Add(context);
-					newArgs.AddRange(args);
-					parameters = this.BindFunctionArguments(newArgs, env, out bool returnUndefined);
-					if (returnUndefined)
-					{
-						return EvalProcessor.UNDEFINED;
-					}
-				}
-				else
-				{
-					throw;
-				}
-			}
+				return EvalProcessor.UNDEFINED;
+			};
+
 			object? resultObj;
 			try
 			{
@@ -126,30 +105,58 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		private object?[] BindFunctionArguments(List<JToken> args, Environment env, out bool returnUndefined)
+		private object?[] BindFunctionArguments(List<JToken> args, JToken? context, Environment env, out bool returnUndefined)
+		{
+			try
+			{
+				return this.TryBindFunctionArguments(args, null, env, out returnUndefined);
+			}
+			catch (JsonataException)
+			{
+				//try binding with context if possible
+				if (context != null && this.hasContextParameter)
+				{
+					return this.TryBindFunctionArguments(args, context, env, out returnUndefined);
+				}
+				else
+				{
+					throw;
+				}
+			};
+		}
+
+
+		private object?[] TryBindFunctionArguments(List<JToken> args, JToken? context, Environment env, out bool returnUndefined)
 		{
 			returnUndefined = false;
-			object?[] parameters = new object[this.parameters.Count];
-			int i = 0;
-			for (; i < this.parameters.Count; ++i)
+			object?[] result = new object[this.parameters.Count];
+			int sourceIndex = 0;
+			for (int targetIndex = 0; targetIndex < this.parameters.Count; ++targetIndex)
 			{
-				FunctionTokenCsharp.ArgumentInfo argumentInfo = this.parameters[i];
-				if (i >= args.Count)
+				ArgumentInfo argumentInfo = this.parameters[targetIndex];
+				if (context != null && argumentInfo.allowContextAsValue)
+                {
+					//if we explicitly provide context, then hurry and use it!
+					result[targetIndex] = this.ConvertFunctionArg(targetIndex, context, argumentInfo, out bool needReturnUndefined);
+					if (needReturnUndefined)
+					{
+						returnUndefined = true;
+					}
+				}
+				else if (argumentInfo.isEvaluationEnvironment)
+                {
+					result[targetIndex] = env.GetEvaluationEnvironment();
+				}
+				else if (sourceIndex >= args.Count)
 				{
 					if (argumentInfo.isOptional)
 					{
 						//use default value
-						parameters[i] = argumentInfo.defaultValueForOptional;
-						continue;
-					}
-					else if (argumentInfo.isEvaluationEnvironment)
-					{
-						parameters[i] = env.GetEvaluationEnvironment();
-						continue;
+						result[targetIndex] = argumentInfo.defaultValueForOptional;
 					}
 					else
 					{
-						throw new JsonataException("T0410", $"Function '{functionName}' requires {this.parameters.Count} arguments. Passed {args.Count} arguments");
+						throw new JsonataException("T0410", $"Function '{functionName}' requires {this.parameters.Count + (this.hasEnvParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
 					}
 				}
 				else if (argumentInfo.isVariableArgumentsArray)
@@ -157,17 +164,17 @@ namespace Jsonata.Net.Native.Eval
 					//pack all remaining args to vararg.
 					//TODO: Will not work if this is not last one in parameters list...
 					JArray vararg = new JArray();
-					for (int j = i; j < args.Count; ++j)
-					{
-						vararg.Add(args[j]);
-					};
-					parameters[i] = vararg;
-					i = args.Count;
-					break;
+					while (sourceIndex < args.Count)
+                    {
+						vararg.Add(args[sourceIndex]);
+						++sourceIndex;
+					}
+					result[targetIndex] = vararg;
 				}
 				else
 				{
-					parameters[i] = this.ConvertFunctionArg(i, args[i], argumentInfo, out bool needReturnUndefined);
+					result[targetIndex] = this.ConvertFunctionArg(targetIndex, args[sourceIndex], argumentInfo, out bool needReturnUndefined);
+					++sourceIndex;
 					if (needReturnUndefined)
 					{
 						returnUndefined = true;
@@ -175,12 +182,12 @@ namespace Jsonata.Net.Native.Eval
 				}
 			};
 
-			if (i < args.Count)
+			if (sourceIndex < args.Count)
 			{
-				throw new JsonataException("T0410", $"Function '{functionName}' requires {this.parameters.Count} arguments. Passed {args.Count} arguments");
+				throw new JsonataException("T0410", $"Function '{functionName}' requires {this.parameters.Count + (this.hasEnvParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
 			};
 
-			return parameters;
+			return result;
 		}
 
 		private object? ConvertFunctionArg(int parameterIndex, JToken argToken, ArgumentInfo argumentInfo, out bool returnUndefined)

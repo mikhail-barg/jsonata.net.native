@@ -679,13 +679,9 @@ namespace Jsonata.Net.Native.Eval
         Parses and evaluates the string expr which contains literal JSON or a JSONata expression using the current context as the context for evaluation.         
         Optionally override the context by specifying the second parameter
          */
-        public static JToken eval([PropagateUndefined] string expr, [AllowContextAsValue][OptionalArgument(null)] JToken? context)
+        public static JToken eval([PropagateUndefined] string expr, [AllowContextAsValue] JToken context)
         {
             JsonataQuery query = new JsonataQuery(expr);
-            if (context == null)
-            {
-                context = EvalProcessor.UNDEFINED;
-            }
             return query.Eval(context);    //TODO: think of using bindings from current environment (custom bindings). Also propagating time from parentevaluationEnvironment
         }
 
