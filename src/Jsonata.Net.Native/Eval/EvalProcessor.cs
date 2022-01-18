@@ -317,7 +317,7 @@ namespace Jsonata.Net.Native.Eval
 				JToken rhs = Eval(functionApplicationNode.rhs, input, env);
 				if (rhs.Type != FunctionToken.TYPE)
                 {
-					throw new JsonataException("T2006", "The right side of the function application operator ~> must be a function");
+					throw new JsonataException("T2006", "The right side of the function application operator ~> must be a function, got " + rhs.Type);
                 };
 				if (lhs.Type == FunctionToken.TYPE)
                 {
@@ -339,12 +339,30 @@ namespace Jsonata.Net.Native.Eval
 					*/
 					JsonataQuery chainAST = new JsonataQuery("function($f, $g) { function($x){ $g($f($x)) } }");
 					JToken chain = chainAST.Eval(EvalProcessor.UNDEFINED); //TODO: probably need to provide env as an environment here
-					JToken result = InvokeFunction((FunctionToken)chain, new List<JToken>() { lhs, rhs }, null, env);
+					if (chain.Type != FunctionToken.TYPE)
+                    {
+						throw new Exception("should not happen 1");
+                    };
+					FunctionToken? chainFunction = chain as FunctionToken;
+					if (chainFunction == null)
+                    {
+						throw new Exception("should not happen 2");
+					}
+					JToken result = InvokeFunction(chainFunction, new List<JToken>() { lhs, rhs }, null, env);
 					return result;
 				}
 				else
                 {
-					return InvokeFunction((FunctionToken)rhs, new List<JToken>() { lhs }, null, env);
+					if (rhs.Type != FunctionToken.TYPE)
+					{
+						throw new Exception("should not happen 3");
+					};
+					FunctionToken? chainFunction = rhs as FunctionToken;
+					if (chainFunction == null)
+					{
+						throw new Exception("should not happen 4, " + rhs.GetType().Name);
+					}
+					return InvokeFunction(chainFunction, new List<JToken>() { lhs }, null, env);
                 }
 			}
 		}
@@ -447,7 +465,7 @@ namespace Jsonata.Net.Native.Eval
             switch (function)
             {
             case FunctionTokenCsharp nativeFunction:
-                result = EvalProcessor_Functions.CallCsharpFunction(nativeFunction.functionName, nativeFunction.methodInfo, args, context, env);
+                result = EvalProcessor_Functions.CallCsharpFunction(nativeFunction, args, context, env);
                 break;
             case FunctionTokenLambda lambdaFunction:
                 result = EvalProcessor_Lambda.CallLambdaFunction(lambdaFunction, args, context);

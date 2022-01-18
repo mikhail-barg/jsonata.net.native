@@ -26,6 +26,7 @@ namespace Jsonata.Net.Native.Eval
     internal sealed class FunctionTokenCsharp: FunctionToken
     {
         internal readonly MethodInfo methodInfo;
+        internal IReadOnlyList<ArgumentInfo> parameters;
         internal readonly string functionName;
 
         internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
@@ -33,6 +34,55 @@ namespace Jsonata.Net.Native.Eval
         {
             this.functionName = funcName;
             this.methodInfo = methodInfo;
+            this.parameters = this.methodInfo.GetParameters()
+                .Select(pi => new ArgumentInfo(funcName, pi))
+                .ToList();
+        }
+
+        internal sealed class ArgumentInfo
+        {
+            internal readonly string name;
+            internal readonly Type parameterType;
+            internal readonly bool propagateUndefined;
+            internal readonly bool allowContextAsValue;
+            internal readonly bool packSingleValueToSequence;
+            internal readonly bool isOptional;
+            internal readonly object? defaultValueForOptional;
+            internal readonly bool isEvaluationEnvironment;
+            internal readonly bool isVariableArgumentsArray;
+
+            internal ArgumentInfo(string functionName, ParameterInfo parameterInfo)
+            {
+                this.name = parameterInfo.Name!;
+                this.parameterType = parameterInfo.ParameterType;
+                this.propagateUndefined = parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false);
+                this.allowContextAsValue = parameterInfo.IsDefined(typeof(AllowContextAsValueAttribute), false);
+                this.packSingleValueToSequence = parameterInfo.IsDefined(typeof(PackSingleValueToSequenceAttribute), false);
+                
+                OptionalArgumentAttribute? optionalArgumentAttribute = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>(false);
+                if (optionalArgumentAttribute != null)
+                {
+                    this.isOptional = true;
+                    this.defaultValueForOptional = optionalArgumentAttribute.DefaultValue;
+                }
+                else
+                {
+                    this.isOptional = false;
+                    this.defaultValueForOptional = null;
+                };
+
+                this.isEvaluationEnvironment = parameterInfo.IsDefined(typeof(EvalEnvironmentArgumentAttribute), false);
+                if (this.isEvaluationEnvironment && parameterInfo.ParameterType != typeof(EvaluationEnvironment))
+                {
+                    throw new JsonataException("????", $"Declaration error for function '{functionName}': attribute [{nameof(EvalEnvironmentArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationEnvironment)}");
+                };
+
+                this.isVariableArgumentsArray = parameterInfo.IsDefined(typeof(VariableNumberArgumentAsArrayAttribute), false);
+                if (this.isVariableArgumentsArray && parameterInfo.ParameterType != typeof(JArray))
+                {
+                    throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(VariableNumberArgumentAsArrayAttribute)}] can only be specified for arguments of type {nameof(JArray)}");
+                };
+            }
         }
     }
 

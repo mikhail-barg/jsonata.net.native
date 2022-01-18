@@ -11,14 +11,12 @@ namespace Jsonata.Net.Native.Eval
 {
     internal static class EvalProcessor_Functions
     {
-		internal static JToken CallCsharpFunction(string functionName, MethodInfo methodInfo, List<JToken> args, JToken? inputAsContext, Environment env)
+		internal static JToken CallCsharpFunction(FunctionTokenCsharp function, List<JToken> args, JToken? inputAsContext, Environment env)
 		{
-			ParameterInfo[] parameterList = methodInfo.GetParameters();
-
 			object?[] parameters;
 			try
 			{
-				parameters = BindFunctionArguments(functionName, parameterList, args, env, out bool returnUndefined);
+				parameters = BindFunctionArguments(function.functionName, function.parameters, args, env, out bool returnUndefined);
 				if (returnUndefined)
                 {
 					return EvalProcessor.UNDEFINED;
@@ -28,14 +26,14 @@ namespace Jsonata.Net.Native.Eval
             {
 				//try binding with context if possible
 				if (inputAsContext != null 
-					&& args.Count < parameterList.Length 
-					&& parameterList[0].IsDefined(typeof(AllowContextAsValueAttribute))
+					&& args.Count < function.parameters.Count
+					&& function.parameters[0].allowContextAsValue
 				)
 				{
 					List<JToken> newArgs = new List<JToken>(args.Count + 1);
 					newArgs.Add(inputAsContext);
 					newArgs.AddRange(args);
-					parameters = BindFunctionArguments(functionName, parameterList, newArgs, env, out bool returnUndefined);
+					parameters = BindFunctionArguments(function.functionName, function.parameters, newArgs, env, out bool returnUndefined);
 					if (returnUndefined)
 					{
 						return EvalProcessor.UNDEFINED;
@@ -49,7 +47,7 @@ namespace Jsonata.Net.Native.Eval
 			object? resultObj;
 			try
 			{
-				resultObj = methodInfo.Invoke(null, parameters);
+				resultObj = function.methodInfo.Invoke(null, parameters);
 			}
 			catch (TargetInvocationException ti)
 			{
@@ -59,50 +57,42 @@ namespace Jsonata.Net.Native.Eval
 				}
 				else
 				{
-					throw new Exception($"Error evaluating function '{functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
+					throw new Exception($"Error evaluating function '{function.functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
 				}
 				throw;
 			}
-			JToken result = ConvertFunctionResult(functionName, resultObj);
+			JToken result = ConvertFunctionResult(function.functionName, resultObj);
 			return result;
 		}
 
-		private static object?[] BindFunctionArguments(string functionName, ParameterInfo[] parameterList, List<JToken> args, Environment env, out bool returnUndefined)
+		private static object?[] BindFunctionArguments(string functionName, IReadOnlyList<FunctionTokenCsharp.ArgumentInfo> parameterList, List<JToken> args, Environment env, out bool returnUndefined)
         {
 			returnUndefined = false;
-			object?[] parameters = new object[parameterList.Length];
+			object?[] parameters = new object[parameterList.Count];
 			int i = 0;
-			for (; i < parameterList.Length; ++i)
+			for (; i < parameterList.Count; ++i)
 			{
-				ParameterInfo parameterInfo = parameterList[i];
+				FunctionTokenCsharp.ArgumentInfo argumentInfo = parameterList[i];
 				if (i >= args.Count)
 				{
-					//TODO: place all this reflection into FunctionTokenCsharp
-					OptionalArgumentAttribute? optional = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>();
-					if (optional != null)
+					if (argumentInfo.isOptional)
 					{
 						//use default value
-						parameters[i] = optional.DefaultValue;
+						parameters[i] = argumentInfo.defaultValueForOptional;
 						continue;
-					};
-					if (parameterInfo.IsDefined(typeof(EvalEnvironmentArgumentAttribute), false))
+					}
+					else if (argumentInfo.isEvaluationEnvironment)
 					{
-						if (parameterInfo.ParameterType != typeof(EvaluationEnvironment))
-						{
-							throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(EvalEnvironmentArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationEnvironment)}");
-						};
 						parameters[i] = env.GetEvaluationEnvironment();
 						continue;
-					};
-					throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
-				}
-				else if (parameterInfo.IsDefined(typeof(VariableNumberArgumentAsArrayAttribute), false))
-                {
-					if (parameterInfo.ParameterType != typeof(JArray))
+					}
+					else
 					{
-						throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(VariableNumberArgumentAsArrayAttribute)}] can only be specified for arguments of type {nameof(JArray)}");
-					};
-
+						throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Count} arguments. Passed {args.Count} arguments");
+					}
+				}
+				else if (argumentInfo.isVariableArgumentsArray)
+                {
 					//pack all remaining args to vararg.
 					//TODO: Will not work if this is not last one in parameters list...
 					JArray vararg = new JArray();
@@ -116,7 +106,7 @@ namespace Jsonata.Net.Native.Eval
                 }
 				else
 				{
-					parameters[i] = ConvertFunctionArg(functionName, i, args[i], parameterInfo, out bool needReturnUndefined);
+					parameters[i] = ConvertFunctionArg(functionName, i, args[i], argumentInfo, out bool needReturnUndefined);
 					if (needReturnUndefined)
 					{
 						returnUndefined = true;
@@ -126,7 +116,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (i < args.Count)
             {
-				throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Length} arguments. Passed {args.Count} arguments");
+				throw new JsonataException("T0410", $"Function '{functionName}' requires {parameterList.Count} arguments. Passed {args.Count} arguments");
 			};
 
 			return parameters;
@@ -207,29 +197,26 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private static object? ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, ParameterInfo parameterInfo, out bool returnUndefined)
+		private static object? ConvertFunctionArg(string functionName, int parameterIndex, JToken argToken, FunctionTokenCsharp.ArgumentInfo argumentInfo, out bool returnUndefined)
 		{
 			//TODO: place all this reflection into FunctionTokenCsharp
 			if (argToken.Type == JTokenType.Undefined)
 			{
-				if (parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false))
+				if (argumentInfo.propagateUndefined)
 				{
 					returnUndefined = true;
 					return EvalProcessor.UNDEFINED;
 				}
-				OptionalArgumentAttribute? optional = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>();
-				if (optional != null)
+				if (argumentInfo.isOptional)
 				{
 					//use default value instead of Undefined. This seem to be the case in JS
 					returnUndefined = false;
-					return optional.DefaultValue;
+					return argumentInfo.defaultValueForOptional;
 				};
 			};
 			returnUndefined = false;
 
-			if (parameterInfo.IsDefined(typeof(PackSingleValueToSequenceAttribute), false)
-				&& argToken.Type != JTokenType.Array
-			)
+			if (argumentInfo.packSingleValueToSequence && argToken.Type != JTokenType.Array)
             {
 				Sequence sequence = new Sequence();
 				sequence.Add(argToken);
@@ -237,11 +224,11 @@ namespace Jsonata.Net.Native.Eval
             };
 
 			//TODO: add support for broadcasting Undefined
-			if (parameterInfo.ParameterType.IsAssignableFrom(argToken.GetType()))
+			if (argumentInfo.parameterType.IsAssignableFrom(argToken.GetType()))
 			{
 				return argToken;
 			}
-			else if (parameterInfo.ParameterType == typeof(double))
+			else if (argumentInfo.parameterType == typeof(double))
 			{
 				switch (argToken.Type)
 				{
@@ -251,7 +238,7 @@ namespace Jsonata.Net.Native.Eval
 					return (double)argToken;
 				}
 			}
-			else if (parameterInfo.ParameterType == typeof(float))
+			else if (argumentInfo.parameterType == typeof(float))
 			{
 				switch (argToken.Type)
 				{
@@ -261,7 +248,7 @@ namespace Jsonata.Net.Native.Eval
 					return (float)(double)argToken;
 				}
 			}
-			else if (parameterInfo.ParameterType == typeof(int))
+			else if (argumentInfo.parameterType == typeof(int))
 			{
 				switch (argToken.Type)
 				{
@@ -271,7 +258,7 @@ namespace Jsonata.Net.Native.Eval
 					return (int)(double)argToken; //jsonata seem to allow this
 				}
 			}
-			else if (parameterInfo.ParameterType == typeof(long))
+			else if (argumentInfo.parameterType == typeof(long))
 			{
 				switch (argToken.Type)
 				{
@@ -281,7 +268,7 @@ namespace Jsonata.Net.Native.Eval
 					return (long)(double)argToken; //jsonata seem to allow this
 				}
 			}
-			else if (parameterInfo.ParameterType == typeof(decimal))
+			else if (argumentInfo.parameterType == typeof(decimal))
 			{
 				switch (argToken.Type)
 				{
@@ -291,7 +278,7 @@ namespace Jsonata.Net.Native.Eval
 					return (decimal)(double)argToken;
 				}
 			}
-			else if (parameterInfo.ParameterType == typeof(string))
+			else if (argumentInfo.parameterType == typeof(string))
             {
 				switch (argToken.Type)
 				{
@@ -299,7 +286,7 @@ namespace Jsonata.Net.Native.Eval
 					return (string)argToken!;
 				}
 			}
-			else if (parameterInfo.ParameterType == typeof(bool))
+			else if (argumentInfo.parameterType == typeof(bool))
 			{
 				switch (argToken.Type)
 				{
@@ -307,7 +294,7 @@ namespace Jsonata.Net.Native.Eval
 					return (bool)argToken;
 				}
 			}
-			throw new JsonataException("T0410", $"Argument {parameterIndex + 1} ('{parameterInfo.Name}') of function {functionName} should be {parameterInfo.ParameterType.Name} bun incompatible value of type {argToken.Type} was specified");
+			throw new JsonataException("T0410", $"Argument {parameterIndex + 1} ('{argumentInfo.name}') of function {functionName} should be {argumentInfo.parameterType.Name} but incompatible value of type {argToken.Type} was specified");
 		}
 	}
 }
