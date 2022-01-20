@@ -560,7 +560,7 @@ namespace Jsonata.Net.Native.Eval
                         {
                             FunctionToken replacementFunction = (FunctionToken)replacement;
                             StringBuilder builder = new StringBuilder();
-                            Environment env = Environment.CreateEvalEnvironment(); //TODO: think of providing proper env. Maybe via a func param?
+                            EvaluationEnvironment env = EvaluationEnvironment.CreateEvalEnvironment(EvaluationEnvironment.DefaultEnvironment); //TODO: think of providing proper env. Maybe via a func param?
                             int replacesCount = 0;
                             int replaceStartAt = 0;
                             foreach (Match match in matches)
@@ -905,7 +905,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $random()
         Returns a pseudo random number greater than or equal to zero and less than one (0 ≤ n < 1)
         */
-        public static double random([EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        public static double random([EvalSupplementArgument] EvaluationSupplement evalEnv)
         {
             return evalEnv.Random.NextDouble();
         }
@@ -1356,7 +1356,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $shuffle(array)
          Returns an array containing all the values from the array parameter, but shuffled into random order.
          */
-        public static JArray shuffle([PropagateUndefined] JToken arrayToken, [EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        public static JArray shuffle([PropagateUndefined] JToken arrayToken, [EvalSupplementArgument] EvaluationSupplement evalEnv)
         {
             if (arrayToken.Type != JTokenType.Array)
             {
@@ -1788,7 +1788,7 @@ namespace Jsonata.Net.Native.Eval
          Generates a UTC timestamp in ISO 8601 compatible format and returns it as a string. All invocations of $now() within an evaluation of an expression will all return the same timestamp value.
          If the optional picture and timezone parameters are supplied, then the current timestamp is formatted as described by the $fromMillis() function.         
          */
-        public static string now([OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone, [EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        public static string now([OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone, [EvalSupplementArgument] EvaluationSupplement evalEnv)
         {
             return fromMillis(millis(evalEnv), picture, timezone);
         }
@@ -1799,7 +1799,7 @@ namespace Jsonata.Net.Native.Eval
          Returns the number of milliseconds since the Unix Epoch (1 January, 1970 UTC) as a number. 
          All invocations of $millis() within an evaluation of an expression will all return the same value.
          */
-        public static long millis([EvalEnvironmentArgument] EvaluationEnvironment evalEnv)
+        public static long millis([EvalSupplementArgument] EvaluationSupplement evalEnv)
         {
             return evalEnv.Now.ToUnixTimeMilliseconds();
         }

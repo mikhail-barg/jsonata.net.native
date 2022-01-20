@@ -27,7 +27,21 @@ namespace Jsonata.Net.Native
 
         public JToken Eval(JToken data, JObject? bindings = null)
         {
-            return EvalProcessor.EvaluateJson(this.m_node, data, bindings);
+            EvaluationEnvironment env;
+            if (bindings != null)
+            {
+                env = new EvaluationEnvironment(bindings);
+            }
+            else
+            {
+                env = EvaluationEnvironment.DefaultEnvironment;
+            };
+            return EvalProcessor.EvaluateJson(this.m_node, data, env);
+        }
+
+        public JToken Eval(JToken data, EvaluationEnvironment environment)
+        {
+            return EvalProcessor.EvaluateJson(this.m_node, data, environment);
         }
     }
 }

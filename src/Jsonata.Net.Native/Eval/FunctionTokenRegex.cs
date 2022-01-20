@@ -22,7 +22,7 @@ namespace Jsonata.Net.Native.Eval
             The ~> is the chain operator, and its use here implies that the result of /regex/ is a function. 
             We'll see below that this is in fact the case.         
          */
-        internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
+        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
             JToken arg;
             if (args.Count == 0 && context != null)

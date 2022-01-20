@@ -19,7 +19,7 @@ namespace Jsonata.Net.Native.Eval
             this.argsOrPlaceholders = argsOrPlaceholders;
         }
 
-        internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
+        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
             List<JToken> alignedArgs = this.AlignPartialFunctionArgs(args, context);
             JToken result = this.func.Invoke(alignedArgs, null, env);

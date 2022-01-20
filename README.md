@@ -35,7 +35,9 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 
 * `JsonataQuery` objects are immutable and therefore reusable and thread-safe.
 * It is possible to provide additional variable bindings via `bindings` arg of `Eval()` call.
-	* Additional functional bindings are work in progress (*TODO*: functionality is same as for built-in function implementations, but need to provide user API)
+* It is possible to provide additional functional bindings via `Eval(JToken data, EvaluationEnvironment environment)` call. See [example](src/TestApp/Program.cs)
+  * Functionality is same as for [built-in function implementations](src/Jsonata.Net.Native/Eval/BuiltinFunctions.cs)
+  * You may use a number of [argument attributes](src/Jsonata.Net.Native/Eval/Attributes.cs) to get fancy behavior if needed. Also refer to [built-in function implementations](src/Jsonata.Net.Native/Eval/BuiltinFunctions.cs)
 * Error codes are mostly in sync with the [JS implementation](https://github.com/jsonata-js/jsonata/blob/65e854d6bfee1d1413ebff7f1a185834c6c42265/src/jsonata.js#L1919), but some checkup is to be done later (*TODO*). 
 
 We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) with same functionality as in original [JSONata Exerciser](https://try.jsonata.org/):

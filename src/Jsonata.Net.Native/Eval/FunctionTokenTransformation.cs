@@ -19,9 +19,9 @@ namespace Jsonata.Net.Native.Eval
 		internal readonly Node pattern;
 		internal readonly Node updates;
 		internal readonly Node? deletes;
-		internal readonly Environment environment;
+		internal readonly EvaluationEnvironment environment;
 
-		public FunctionTokenTransformation(Node pattern, Node updates, Node? deletes, Environment environment)
+		public FunctionTokenTransformation(Node pattern, Node updates, Node? deletes, EvaluationEnvironment environment)
 			: base("transform", 1)
 		{
 			this.pattern = pattern;
@@ -38,7 +38,7 @@ namespace Jsonata.Net.Native.Eval
             hence the |...|...| syntax generates a function with one argument.         
          */
 
-        internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
+        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
 			if (args.Count != this.ArgumentsCount)
 			{

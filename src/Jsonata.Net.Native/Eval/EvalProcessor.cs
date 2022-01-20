@@ -13,19 +13,11 @@ namespace Jsonata.Net.Native.Eval
 	{
 		internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
-		internal static JToken EvaluateJson(Node rootNode, JToken data, JObject? bindings)
+		internal static JToken EvaluateJson(Node rootNode, JToken data, EvaluationEnvironment parentEnvironment)
 		{
-			Environment environment = Environment.CreateEvalEnvironment();
-			//TODO: add default bindings
-			if (bindings != null)
-            {
-				foreach (JProperty property in bindings.Properties())
-                {
-					environment.Bind(property.Name, property.Value);
-                }
-            };
-			// put the input document into the environment as the root object
-			environment.Bind("$", data);
+			EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
+
+			environment.BindValue("$", data);
 
 			if (data.Type == JTokenType.Array)
             {
@@ -46,7 +38,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		internal static JToken Eval(Node node, JToken input, Environment env)
+		internal static JToken Eval(Node node, JToken input, EvaluationEnvironment env)
 		{
 			JToken result = EvalInternal(node, input, env);
 			if (result is Sequence sequence)
@@ -63,7 +55,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		private static JToken EvalInternal(Node node, JToken input, Environment env)
+		private static JToken EvalInternal(Node node, JToken input, EvaluationEnvironment env)
 		{
 			switch (node)
 			{
@@ -132,12 +124,12 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static JToken evalRegex(RegexNode regexNode, JToken input, Environment env)
+        private static JToken evalRegex(RegexNode regexNode, JToken input, EvaluationEnvironment env)
         {
 			return new FunctionTokenRegex(regexNode.regex);
         }
 
-        private static JToken evalSort(SortNode sortNode, JToken input, Environment env)
+        private static JToken evalSort(SortNode sortNode, JToken input, EvaluationEnvironment env)
         {
 			JToken items = EvalProcessor.Eval(sortNode.expr, input, env);
 			switch (items.Type)
@@ -241,7 +233,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private static JToken evalObjectTransformation(ObjectTransformationNode transformationNode, JToken input, Environment env)
+		private static JToken evalObjectTransformation(ObjectTransformationNode transformationNode, JToken input, EvaluationEnvironment env)
         {
 			return new FunctionTokenTransformation(
 				pattern: transformationNode.pattern,
@@ -251,7 +243,7 @@ namespace Jsonata.Net.Native.Eval
 			);
         }
 
-        private static JToken evalPartial(PartialNode partialNode, JToken input, Environment env)
+        private static JToken evalPartial(PartialNode partialNode, JToken input, EvaluationEnvironment env)
         {
 			JToken func = Eval(partialNode.func, input, env);
 
@@ -276,7 +268,7 @@ namespace Jsonata.Net.Native.Eval
 			return new FunctionTokenPartial(function, argsOrNulls);
 		}
 
-        private static JToken evalLambda(LambdaNode lambdaNode, JToken input, Environment env)
+        private static JToken evalLambda(LambdaNode lambdaNode, JToken input, EvaluationEnvironment env)
         {
 			return new FunctionTokenLambda(
 				signature: lambdaNode.signature,
@@ -287,7 +279,7 @@ namespace Jsonata.Net.Native.Eval
 			);
 		}
 
-        private static JToken evalConditional(ConditionalNode conditionalNode, JToken input, Environment env)
+        private static JToken evalConditional(ConditionalNode conditionalNode, JToken input, EvaluationEnvironment env)
         {
 			JToken condition = Eval(conditionalNode.predicate, input, env);
 			if (Helpers.Booleanize(condition))
@@ -304,7 +296,7 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-        private static JToken evalFunctionApplication(FunctionApplicationNode functionApplicationNode, JToken input, Environment env)
+        private static JToken evalFunctionApplication(FunctionApplicationNode functionApplicationNode, JToken input, EvaluationEnvironment env)
         {
 			JToken lhs = Eval(functionApplicationNode.lhs, input, env);
 			if (functionApplicationNode.rhs is FunctionCallNode functionCallNode)
@@ -367,7 +359,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static JToken evalRange(RangeNode rangeNode, JToken input, Environment env)
+        private static JToken evalRange(RangeNode rangeNode, JToken input, EvaluationEnvironment env)
         {
 			JToken lhs = Eval(rangeNode.lhs, input, env);
 			JToken rhs = Eval(rangeNode.rhs, input, env);
@@ -412,18 +404,18 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-        private static JToken evalAssignment(AssignmentNode assignmentNode, JToken input, Environment env)
+        private static JToken evalAssignment(AssignmentNode assignmentNode, JToken input, EvaluationEnvironment env)
         {
 			JToken value = Eval(assignmentNode.value, input, env);
-			env.Bind(assignmentNode.name, value);
+			env.BindValue(assignmentNode.name, value);
 			return value;
         }
 
-        private static JToken evalBlock(BlockNode blockNode, JToken input, Environment env)
+        private static JToken evalBlock(BlockNode blockNode, JToken input, EvaluationEnvironment env)
         {
 			// create a new frame to limit the scope of variable assignments
 			// TODO, only do this if the post-parse stage has flagged this as required
-			Environment localEnvironment = Environment.CreateNestedEnvironment(env);
+			EvaluationEnvironment localEnvironment = EvaluationEnvironment.CreateNestedEnvironment(env);
 
 			// invoke each expression in turn
 			// only return the result of the last one
@@ -435,7 +427,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-        private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, Environment env, JToken? evalutedFirstArgFromApplication)
+        private static JToken evalFunctionCall(FunctionCallNode functionCallNode, JToken input, EvaluationEnvironment env, JToken? evalutedFirstArgFromApplication)
         {
             JToken func = Eval(functionCallNode.func, input, env);
             if (func is not FunctionToken function)
@@ -459,12 +451,12 @@ namespace Jsonata.Net.Native.Eval
             return InvokeFunction(function, args, context, env);
         }
 
-        internal static JToken InvokeFunction(FunctionToken function, List<JToken> args, JToken? context, Environment env)
+        internal static JToken InvokeFunction(FunctionToken function, List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
 			return function.Invoke(args, context, env);
         }
 
-        private static JToken evalVariable(VariableNode variableNode, JToken input, Environment env)
+        private static JToken evalVariable(VariableNode variableNode, JToken input, EvaluationEnvironment env)
         {
 			if (variableNode.name == "")
 			{
@@ -473,7 +465,7 @@ namespace Jsonata.Net.Native.Eval
 			return env.Lookup(variableNode.name);
 		}
 
-        private static JToken evalPredicate(PredicateNode predicateNode, JToken input, Environment env)
+        private static JToken evalPredicate(PredicateNode predicateNode, JToken input, EvaluationEnvironment env)
         {
 			JToken itemsToken = Eval(predicateNode.expr, input, env);
 			if (itemsToken.Type == JTokenType.Undefined)
@@ -508,7 +500,7 @@ namespace Jsonata.Net.Native.Eval
 			return itemsArray;
         }
 
-        private static JArray evalFilter(Node filter, JArray itemsArray, Environment env)
+        private static JArray evalFilter(Node filter, JArray itemsArray, EvaluationEnvironment env)
         {
 			if (filter is NumberNode numberNode)
 			{
@@ -594,7 +586,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-        private static JToken evalStringConcatenation(StringConcatenationNode stringConcatenationNode, JToken input, Environment env)
+        private static JToken evalStringConcatenation(StringConcatenationNode stringConcatenationNode, JToken input, EvaluationEnvironment env)
         {
             string lstr = stringify(Eval(stringConcatenationNode.lhs, input, env));
 			string rstr = stringify(Eval(stringConcatenationNode.rhs, input, env));
@@ -623,7 +615,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-        private static JToken evalComparisonOperator(ComparisonOperatorNode comparisonOperatorNode, JToken input, Environment env)
+        private static JToken evalComparisonOperator(ComparisonOperatorNode comparisonOperatorNode, JToken input, EvaluationEnvironment env)
 		{
 			JToken lhs = Eval(comparisonOperatorNode.lhs, input, env);
 			JToken rhs = Eval(comparisonOperatorNode.rhs, input, env);
@@ -778,7 +770,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static JToken evalBooleanOperator(BooleanOperatorNode booleanOperatorNode, JToken input, Environment env)
+        private static JToken evalBooleanOperator(BooleanOperatorNode booleanOperatorNode, JToken input, EvaluationEnvironment env)
         {
 			bool lhs = Helpers.Booleanize(Eval(booleanOperatorNode.lhs, input, env)); //here undefined works as false? see boolize() in jsonata-js
 			//short-cirquit the operators if possible:
@@ -809,7 +801,7 @@ namespace Jsonata.Net.Native.Eval
 			return new JValue(result);
 		}
 
-		private static JToken evalGroup(GroupNode groupNode, JToken input, Environment env)
+		private static JToken evalGroup(GroupNode groupNode, JToken input, EvaluationEnvironment env)
         {
 			JToken items = Eval(groupNode.expr, input, env);
 			return evalObject(groupNode.objectNode, items, env);
@@ -827,7 +819,7 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-        private static JToken evalObject(ObjectNode objectNode, JToken input, Environment env)
+        private static JToken evalObject(ObjectNode objectNode, JToken input, EvaluationEnvironment env)
         {
 			JArray inputArray;
 			if (input.Type == JTokenType.Array)
@@ -897,7 +889,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
         }
 
-        private static JToken evalNegation(NegationNode negationNode, JToken input, Environment env)
+        private static JToken evalNegation(NegationNode negationNode, JToken input, EvaluationEnvironment env)
         {
 			JToken rhs = Eval(negationNode.rhs, input, env);
 			switch (rhs.Type)
@@ -913,7 +905,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-        private static JToken evalNumericOperator(NumericOperatorNode numericOperatorNode, JToken input, Environment env)
+        private static JToken evalNumericOperator(NumericOperatorNode numericOperatorNode, JToken input, EvaluationEnvironment env)
         {
 			JToken lhs = Eval(numericOperatorNode.lhs, input, env);
 			JToken rhs = Eval(numericOperatorNode.rhs, input, env);
@@ -989,32 +981,32 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		private static JToken evalNull(NullNode nullNode, JToken input, Environment env)
+		private static JToken evalNull(NullNode nullNode, JToken input, EvaluationEnvironment env)
         {
 			return JValue.CreateNull();
         }
 
-        private static JToken evalBoolean(BooleanNode booleanNode, JToken input, Environment env)
+        private static JToken evalBoolean(BooleanNode booleanNode, JToken input, EvaluationEnvironment env)
         {
 			return new JValue(booleanNode.value);
         }
 
-        private static JToken evalString(StringNode stringNode, JToken input, Environment env)
+        private static JToken evalString(StringNode stringNode, JToken input, EvaluationEnvironment env)
         {
 			return JValue.CreateString(stringNode.value);
         }
 
-        private static JToken evalNumber(NumberDoubleNode numberNode, JToken input, Environment env)
+        private static JToken evalNumber(NumberDoubleNode numberNode, JToken input, EvaluationEnvironment env)
         {
 			return new JValue(numberNode.value);
         }
 
-		private static JToken evalNumber(NumberIntNode numberNode, JToken input, Environment env)
+		private static JToken evalNumber(NumberIntNode numberNode, JToken input, EvaluationEnvironment env)
 		{
 			return new JValue(numberNode.value);
 		}
 
-		private static JToken evalArray(ArrayNode arrayNode, JToken input, Environment env)
+		private static JToken evalArray(ArrayNode arrayNode, JToken input, EvaluationEnvironment env)
         {
 			JArray result = new ExplicitArray();
 			foreach (Node node in arrayNode.items)
@@ -1048,7 +1040,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
         }
 
-        private static JToken evalDescendent(DescendentNode descendentNode, JToken input, Environment env)
+        private static JToken evalDescendent(DescendentNode descendentNode, JToken input, EvaluationEnvironment env)
         {
 			Sequence result = new Sequence();
 			if (input.Type != JTokenType.Undefined)
@@ -1081,7 +1073,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-        private static JToken evalWildcard(WildcardNode wildcardNode, JToken input, Environment env)
+        private static JToken evalWildcard(WildcardNode wildcardNode, JToken input, EvaluationEnvironment env)
         {
 			if (input is Sequence inputSequence
 				&& inputSequence.HasValues
@@ -1138,7 +1130,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-		private static JToken evalName(NameNode nameNode, JToken data, Environment env)
+		private static JToken evalName(NameNode nameNode, JToken data, EvaluationEnvironment env)
         {
             switch (data)
             {
@@ -1177,7 +1169,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
        
-        private static JToken evalPath(PathNode node, JToken data, Environment env)
+        private static JToken evalPath(PathNode node, JToken data, EvaluationEnvironment env)
 		{
 			if (node.steps.Count == 0)
 			{
@@ -1250,7 +1242,7 @@ namespace Jsonata.Net.Native.Eval
 			return array;
 		}
 
-		private static JArray evalPathStep(Node step, JArray array, Environment env, bool lastStep)
+		private static JArray evalPathStep(Node step, JArray array, EvaluationEnvironment env, bool lastStep)
 		{
 			List<JToken> result = new List<JToken>(array.Count);
 			foreach (JToken obj in array.Children())

@@ -40,9 +40,9 @@ namespace Jsonata.Net.Native.Eval
         }
     }
 
-    //provides support for builtin functions that require EvaluationEnvironment
+    //provides support for builtin functions that require EvaluationSupplement
     [AttributeUsage(AttributeTargets.Parameter)]
-    internal sealed class EvalEnvironmentArgumentAttribute : Attribute
+    internal sealed class EvalSupplementArgumentAttribute : Attribute
     {
     }
 

@@ -16,10 +16,10 @@ namespace Jsonata.Net.Native.Eval
         internal readonly List<string> paramNames;
         internal readonly Node body;
         internal readonly JToken context;
-        internal readonly Environment environment;
+        internal readonly EvaluationEnvironment environment;
 
 
-        internal FunctionTokenLambda(LambdaNode.Signature? signature, List<string> paramNames, Node body, JToken context, Environment environment)
+        internal FunctionTokenLambda(LambdaNode.Signature? signature, List<string> paramNames, Node body, JToken context, EvaluationEnvironment environment)
             : base("lambda", paramNames.Count)
         {
             this.signature = signature;
@@ -29,7 +29,7 @@ namespace Jsonata.Net.Native.Eval
             this.environment = environment;
         }
 
-        internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
+        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
             if (this.signature != null)
             {
@@ -37,10 +37,10 @@ namespace Jsonata.Net.Native.Eval
             };
             List<(string, JToken)> alignedArgs = this.AlignArgs(args);
 
-            Environment executionEnv = Environment.CreateNestedEnvironment(this.environment);
+            EvaluationEnvironment executionEnv = EvaluationEnvironment.CreateNestedEnvironment(this.environment);
             foreach ((string name, JToken value) in alignedArgs)
             {
-                executionEnv.Bind(name, value);
+                executionEnv.BindValue(name, value);
             };
 
             JToken result = EvalProcessor.Eval(this.body, this.context, executionEnv);

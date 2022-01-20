@@ -15,15 +15,60 @@ namespace TestApp
             //from string
             {
                 string result = query.Eval("{\"a\": \"b\"}");
-                Debug.Assert(result == "\"b\"");
+                Check(result, "\"b\"");
             }
 
             //from Json.Net
             {
                 JToken data = JToken.Parse("{\"a\": \"b\"}");
                 JToken result = query.Eval(data);
-                Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
+                Check(result, "\"b\"");
             }
+
+            //with bindings
+            {
+                JToken data = JToken.Parse("{\"a\": \"b\"}");
+
+                JObject bindings = JObject.Parse("{\"x\": \"y\"}");
+
+                JsonataQuery query2 = new JsonataQuery("{'a': $.a, 'x': $x}");
+
+                JToken result = query2.Eval(data, bindings);
+                Check(result, "{\"a\":\"b\",\"x\":\"y\"}");
+            }
+
+            //with custom environment and function binding
+            {
+                JToken data = JToken.Parse("{\"a\": \"b\"}");
+
+                JObject bindings = JObject.Parse("{\"x\": \"y\"}");
+                EvaluationEnvironment env = new EvaluationEnvironment(bindings);
+                env.BindFunction(typeof(Program).GetMethod(nameof(foo)));
+
+                JsonataQuery query2 = new JsonataQuery("{'a': $.a, 'x': $x, 'z': $foo()}");
+
+                JToken result = query2.Eval(data, env);
+                Check(result, "{\"a\":\"b\",\"x\":\"y\",\"z\":\"bar\"}");
+            }
+        }
+
+        private static void Check(string value, string expected)
+        {
+            Console.WriteLine($"Expected: {expected}, got {value}");
+            if (expected != value)
+            {
+                throw new Exception("Check failed");
+            }
+        }
+
+        private static void Check(JToken value, string expected)
+        {
+            Check(value.ToString(Formatting.None), expected);
+        }
+
+        public static string foo()
+        {
+            return "bar";
         }
     }
 }

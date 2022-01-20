@@ -21,15 +21,20 @@ namespace Jsonata.Net.Native.Eval
 		internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
 			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length)
 		{
+			if (!methodInfo.IsStatic)
+            {
+				throw new ArgumentException("Only static methods are allowed to be bound as Jsonata functions");
+            }
+
 			this.functionName = funcName;
 			this.methodInfo = methodInfo;
 			this.parameters = this.methodInfo.GetParameters()
 				.Select(pi => new ArgumentInfo(funcName, pi))
 				.ToList();
 			this.hasContextParameter = this.parameters.Any(p => p.allowContextAsValue);
-			this.hasEnvParameter = this.parameters.Any(p => p.isEvaluationEnvironment);
+			this.hasEnvParameter = this.parameters.Any(p => p.isEvaluationSupplement);
 
-			this.RequiredArgsCount = this.parameters.Where(p => !p.isOptional && !p.isEvaluationEnvironment).Count();
+			this.RequiredArgsCount = this.parameters.Where(p => !p.isOptional && !p.isEvaluationSupplement).Count();
 		}
 
 		internal sealed class ArgumentInfo
@@ -41,7 +46,7 @@ namespace Jsonata.Net.Native.Eval
 			internal readonly bool packSingleValueToSequence;
 			internal readonly bool isOptional;
 			internal readonly object? defaultValueForOptional;
-			internal readonly bool isEvaluationEnvironment;
+			internal readonly bool isEvaluationSupplement;
 			internal readonly bool isVariableArgumentsArray;
 
 			internal ArgumentInfo(string functionName, ParameterInfo parameterInfo)
@@ -64,10 +69,10 @@ namespace Jsonata.Net.Native.Eval
 					this.defaultValueForOptional = null;
 				};
 
-				this.isEvaluationEnvironment = parameterInfo.IsDefined(typeof(EvalEnvironmentArgumentAttribute), false);
-				if (this.isEvaluationEnvironment && parameterInfo.ParameterType != typeof(EvaluationEnvironment))
+				this.isEvaluationSupplement = parameterInfo.IsDefined(typeof(EvalSupplementArgumentAttribute), false);
+				if (this.isEvaluationSupplement && parameterInfo.ParameterType != typeof(EvaluationSupplement))
 				{
-					throw new JsonataException("????", $"Declaration error for function '{functionName}': attribute [{nameof(EvalEnvironmentArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationEnvironment)}");
+					throw new JsonataException("????", $"Declaration error for function '{functionName}': attribute [{nameof(EvalSupplementArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationSupplement)}");
 				};
 
 				this.isVariableArgumentsArray = parameterInfo.IsDefined(typeof(VariableNumberArgumentAsArrayAttribute), false);
@@ -78,7 +83,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		internal override JToken Invoke(List<JToken> args, JToken? context, Environment env)
+		internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
 		{
 			object?[] parameters = this.BindFunctionArguments(args, context, env, out bool returnUndefined);
 			if (returnUndefined)
@@ -107,7 +112,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		private object?[] BindFunctionArguments(List<JToken> args, JToken? context, Environment env, out bool returnUndefined)
+		private object?[] BindFunctionArguments(List<JToken> args, JToken? context, EvaluationEnvironment env, out bool returnUndefined)
 		{
 			try
 			{
@@ -128,7 +133,7 @@ namespace Jsonata.Net.Native.Eval
 		}
 
 
-		private object?[] TryBindFunctionArguments(List<JToken> args, JToken? context, Environment env, out bool returnUndefined)
+		private object?[] TryBindFunctionArguments(List<JToken> args, JToken? context, EvaluationEnvironment env, out bool returnUndefined)
 		{
 			returnUndefined = false;
 			object?[] result = new object[this.parameters.Count];
@@ -145,9 +150,9 @@ namespace Jsonata.Net.Native.Eval
 						returnUndefined = true;
 					}
 				}
-				else if (argumentInfo.isEvaluationEnvironment)
+				else if (argumentInfo.isEvaluationSupplement)
                 {
-					result[targetIndex] = env.GetEvaluationEnvironment();
+					result[targetIndex] = env.GetEvaluationSupplement();
 				}
 				else if (sourceIndex >= args.Count)
 				{
