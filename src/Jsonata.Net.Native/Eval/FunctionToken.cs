@@ -58,14 +58,14 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-        internal override void ToIndentedString(StringBuilder builder, int indent)
+        internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
         {
             //throw new NotImplementedException("No supported for functions!");
             //builder.Append('$').Append(this.Name);
             builder.Append('"').Append('"');
         }
 
-        internal override void ToStringFlat(StringBuilder builder)
+        internal override void ToStringFlatImpl(StringBuilder builder)
         {
             //throw new NotImplementedException("No supported for functions!");
             //builder.Append('$').Append(this.Name);

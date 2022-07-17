@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
+    [DebuggerDisplay("{Type}: {ToStringFlat()}")]
     internal abstract class JToken
     {
         internal readonly JTokenType Type;
@@ -164,20 +166,20 @@ namespace Jsonata.Net.Native.Json
         internal string ToIndentedString()
         {
             StringBuilder builder = new StringBuilder();
-            this.ToIndentedString(builder, 0);
+            this.ToIndentedStringImpl(builder, 0);
             return builder.ToString();
         }
 
-        internal abstract void ToIndentedString(StringBuilder builder, int indent);
+        internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent);
 
         internal string ToStringFlat()
         {
             StringBuilder builder = new StringBuilder();
-            this.ToStringFlat(builder);
+            this.ToStringFlatImpl(builder);
             return builder.ToString();
         }
 
-        internal abstract void ToStringFlat(StringBuilder builder);
+        internal abstract void ToStringFlatImpl(StringBuilder builder);
 
         internal abstract Newtonsoft.Json.Linq.JToken ToNewtonsoft();
 

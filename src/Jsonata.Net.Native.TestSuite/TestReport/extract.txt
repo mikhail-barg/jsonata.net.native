@@ -1584,7 +1584,7 @@ transforms.case009;Passed
 transforms.case010;Passed
 transforms.case011;Passed
 transforms.case012;Passed
-transforms.case013;Failed
+transforms.case013;Passed
 transforms.case014;Passed
 variables.case000;Passed
 variables.case001;Passed

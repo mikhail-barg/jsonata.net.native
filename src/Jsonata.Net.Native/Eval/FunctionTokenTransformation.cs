@@ -58,7 +58,6 @@ namespace Jsonata.Net.Native.Eval
 
 			JToken arg = args[0].DeepClone();
 
-			//TODO: huge problem with transformations — here matches (or its content) may be already detached from arg ((
 			JToken matches = EvalProcessor.Eval(this.pattern, arg, this.environment);
 			if (matches.Type != JTokenType.Undefined)
 			{
@@ -82,7 +81,8 @@ namespace Jsonata.Net.Native.Eval
 			if (item.Type != JTokenType.Object)
 			{
 				//TODO:? 
-				throw new JsonataException("????", $"Update can be applied only to objects. Got {item.Type} ({item.ToStringFlat()})");
+				//throw new JsonataException("????", $"Update can be applied only to objects. Got {item.Type} ({item.ToStringFlat()})");
+				return;
 			};
 			JObject srcObj = (JObject)item;
 

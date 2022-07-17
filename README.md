@@ -79,7 +79,7 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: `?` : (Conditional)
   * :heavy_check_mark: `:=` (Variable binding)
   * :heavy_check_mark: `~>` (Chain)
-  * :white_check_mark: `... ~> | ... | ... |` (Transform) — Partially implemented, because of Json.Net "detaching" changed tokens (*TODO*)
+  * :heavy_check_mark: `... ~> | ... | ... |` (Transform)
 ###### Function Library
 * :heavy_check_mark: [String Functions](http://docs.jsonata.org/string-functions):
   * :heavy_check_mark: Implemented: `$string()`, `$length()`, `$substring()`, `$substringBefore()`, `$substringAfter()`, `$uppercase()`, `$lowercase()`, `$trim()`, `$pad()`, `$contains()`, `$split()`, `$join()`, `$match()`, `$replace()`, `$eval()`, `$base64encode()`, `$base64decode()`, `$encodeUrlComponent()`, `$encodeUrl()`, `$decodeUrlComponent()`, `$decodeUrl()`

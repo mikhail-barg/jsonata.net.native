@@ -43,7 +43,7 @@ namespace Jsonata.Net.Native.Json
             this.m_properties.Remove(key);
         }
 
-        internal override void ToIndentedString(StringBuilder builder, int indent)
+        internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
         {
             if (this.m_properties.Count == 0)
             {
@@ -57,7 +57,7 @@ namespace Jsonata.Net.Native.Json
             {
                 builder.Indent(indent + 1);
                 builder.Append('"').Append(prop.Key).Append('"').Append(':').Append(' ');
-                prop.Value.ToIndentedString(builder, indent + 1);
+                prop.Value.ToIndentedStringImpl(builder, indent + 1);
                 if (i < this.m_properties.Count - 1)
                 {
                     builder.Append(',');
@@ -69,14 +69,14 @@ namespace Jsonata.Net.Native.Json
             builder.Append('}');
         }
 
-        internal override void ToStringFlat(StringBuilder builder)
+        internal override void ToStringFlatImpl(StringBuilder builder)
         {
             builder.Append('{');
             int i = 0;
             foreach (KeyValuePair<string, JToken> prop in this.m_properties)
             {
                 builder.Append('"').Append(prop.Key).Append('"').Append(':');
-                prop.Value.ToStringFlat(builder);
+                prop.Value.ToStringFlatImpl(builder);
                 if (i < this.m_properties.Count - 1)
                 {
                     builder.Append(',');
