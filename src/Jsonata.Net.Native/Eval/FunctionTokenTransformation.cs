@@ -1,6 +1,5 @@
-﻿using Jsonata.Net.Native.Parsing;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,7 +68,8 @@ namespace Jsonata.Net.Native.Eval
 				}
 				else
 				{
-					foreach (JToken child in matches.Children())
+					JArray matchesArray = (JArray)matches;
+					foreach (JToken child in matchesArray.ChildrenTokens)
 					{
 						this.ProcessItem(child);
 					}
@@ -82,7 +82,7 @@ namespace Jsonata.Net.Native.Eval
 			if (item.Type != JTokenType.Object)
 			{
 				//TODO:? 
-				throw new JsonataException("????", $"Update can be applied only to objects. Got {item.Type} ({item.ToString(Formatting.None)})");
+				throw new JsonataException("????", $"Update can be applied only to objects. Got {item.Type} ({item.ToStringFlat()})");
 			};
 			JObject srcObj = (JObject)item;
 
@@ -93,10 +93,10 @@ namespace Jsonata.Net.Native.Eval
 				{
 					if (update.Type != JTokenType.Object)
 					{
-						throw new JsonataException("T2011", $"The insert/update clause of the transform expression must evaluate to an object. Got {update.Type} ({update.ToString(Formatting.None)})");
+						throw new JsonataException("T2011", $"The insert/update clause of the transform expression must evaluate to an object. Got {update.Type} ({update.ToStringFlat()})");
 					};
 
-					srcObj.Merge(update);
+					srcObj.Merge((JObject)update);
 				}
 			}
 
@@ -112,13 +112,16 @@ namespace Jsonata.Net.Native.Eval
 						this.Remove(srcObj, delete);
 						break;
 					case JTokenType.Array:
-						foreach (JToken child in delete.Children())
 						{
-							this.Remove(srcObj, child);
+							JArray deleteArray = (JArray)delete;
+							foreach (JToken child in deleteArray.ChildrenTokens)
+							{
+								this.Remove(srcObj, child);
+							}
 						}
 						break;
 					default:
-						throw new JsonataException("T2012", $"The delete clause of the transform expression must evaluate to a string or array of strings: {delete.Type} ({delete.ToString(Formatting.None)})");
+						throw new JsonataException("T2012", $"The delete clause of the transform expression must evaluate to a string or array of strings: {delete.Type} ({delete.ToStringFlat()})");
 					}
 				}
 			}
@@ -128,9 +131,14 @@ namespace Jsonata.Net.Native.Eval
 		{
 			if (keyToRemove.Type != JTokenType.String)
 			{
-				throw new JsonataException("T2012", $"The delete clause of the transform expression must evaluate to a string or array of strings: {keyToRemove.Type} ({keyToRemove.ToString(Formatting.None)})");
+				throw new JsonataException("T2012", $"The delete clause of the transform expression must evaluate to a string or array of strings: {keyToRemove.Type} ({keyToRemove.ToStringFlat()})");
 			}
 			srcObj.Remove((string)keyToRemove!);
+		}
+
+		internal override JToken DeepClone()
+		{
+			return new FunctionTokenTransformation(this.pattern, this.updates, this.deletes, this.environment);
 		}
 	}
 }
