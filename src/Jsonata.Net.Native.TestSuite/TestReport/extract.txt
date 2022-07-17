@@ -474,7 +474,7 @@ function-formatInteger.formatInteger[40];Skipped
 function-formatInteger.formatInteger[41];Skipped
 function-formatInteger.formatInteger[42];Skipped
 function-formatInteger.formatInteger[43];Skipped
-function-formatInteger.formatInteger[44];Skipped
+function-formatInteger.formatInteger[44];Failed
 function-formatInteger.formatInteger[45];Skipped
 function-formatInteger.formatInteger[46];Failed
 function-formatInteger.formatInteger[47];Failed
@@ -925,13 +925,13 @@ function-sqrt.case001;Passed
 function-sqrt.case002;Passed
 function-sqrt.case003;Passed
 function-string.case000;Passed
-function-string.case001;Failed
-function-string.case002;Passed
-function-string.case003;Passed
-function-string.case004;Failed
+function-string.case001;Passed
+function-string.case002;Failed
+function-string.case003;Failed
+function-string.case004;Passed
 function-string.case005;Failed
-function-string.case006;Failed
-function-string.case007;Passed
+function-string.case006;Passed
+function-string.case007;Failed
 function-string.case008;Passed
 function-string.case009;Passed
 function-string.case010;Passed
@@ -944,7 +944,7 @@ function-string.case016;Passed
 function-string.case017;Passed
 function-string.case018;Passed
 function-string.case019;Passed
-function-string.case020;Failed
+function-string.case020;Passed
 function-string.case021;Passed
 function-string.case022;Passed
 function-string.case023;Passed
@@ -1072,7 +1072,7 @@ function-zip.case005;Passed
 higher-order-functions.case000;Passed
 higher-order-functions.case001;Passed
 higher-order-functions.case002;Passed
-hof-filter.case000;Failed
+hof-filter.case000;Passed
 hof-filter.case001;Passed
 hof-filter.case002;Passed
 hof-filter.case003;Passed
@@ -1096,8 +1096,8 @@ hof-reduce.case006;Passed
 hof-reduce.case007;Passed
 hof-reduce.case008;Passed
 hof-reduce.case009;Passed
-hof-reduce.case010;Failed
-hof-single.case000;Failed
+hof-reduce.case010;Passed
+hof-single.case000;Passed
 hof-single.case001;Passed
 hof-single.case002;Passed
 hof-single.case003;Passed
@@ -1106,7 +1106,7 @@ hof-single.case005;Passed
 hof-single.case006;Passed
 hof-single.case007;Passed
 hof-single.case008;Passed
-hof-single.case009;Failed
+hof-single.case009;Passed
 hof-single.case010;Passed
 hof-zip-map.case000;Passed
 hof-zip-map.case001;Passed
@@ -1189,7 +1189,7 @@ literals.case004;Passed
 literals.case005;Passed
 literals.case006;Passed
 literals.case007;Passed
-literals.case008;Failed
+literals.case008;Passed
 literals.case009;Passed
 literals.case010;Passed
 literals.case011;Passed
@@ -1233,7 +1233,7 @@ numeric-operators.case010;Passed
 numeric-operators.case011;Passed
 numeric-operators.case012;Passed
 numeric-operators.case013;Passed
-numeric-operators.case014;Failed
+numeric-operators.case014;Passed
 numeric-operators.case015;Passed
 numeric-operators.case016;Passed
 numeric-operators.case017;Passed
@@ -1468,7 +1468,7 @@ token-conversion.case001;Passed
 token-conversion.case002;Passed
 token-conversion.case003;Passed
 transform.case000;Passed
-transform.case001;Failed
+transform.case001;Passed
 transform.case002;Passed
 transform.case003;Passed
 transform.case004;Passed
