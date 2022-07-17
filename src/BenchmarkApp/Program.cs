@@ -8,6 +8,7 @@ using System.IO;
 
 namespace BenchmarkApp
 {
+    [MemoryDiagnoser]
     public class Program
     {
         static void Main(string[] args)
