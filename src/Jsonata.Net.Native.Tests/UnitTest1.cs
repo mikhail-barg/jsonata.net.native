@@ -203,5 +203,37 @@ namespace Jsonata.Net.Native.Tests
                 "{'a': {'b': 'c', 'x': 'y'}}"
             );
         }
+
+        [TestMethod]
+        public void Test_Issue3_1()
+        {
+            Check(
+                @"(
+                    $foo:= function($o){
+                        $o
+                    };
+                    $cl:= $foo();
+                    $[].{ }
+                )",
+                "[{'a': 1}, {'a': 2}, {'a': 3}]",
+                "[{},{},{}]"
+            );
+        }
+
+        [TestMethod]
+        public void Test_Issue3_2()
+        {
+            Check(
+                @"(
+                    $foo:= function($o){
+                        $o.z
+                    };
+                    $cl:= $foo();
+                    $[].{ }
+                )",
+                "[{'a': 1}, {'a': 2}, {'a': 3}]",
+                "[{},{},{}]"
+            );
+        }
     }
 }
