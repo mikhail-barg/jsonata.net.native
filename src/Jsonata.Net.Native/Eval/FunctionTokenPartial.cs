@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
@@ -61,6 +61,11 @@ namespace Jsonata.Net.Native.Eval
                 }
             };
             return result;
+        }
+
+        internal override JToken DeepClone()
+        {
+            return new FunctionTokenPartial(this.func, this.argsOrPlaceholders.Select(i => i?.DeepClone()).ToList());
         }
     }
 }

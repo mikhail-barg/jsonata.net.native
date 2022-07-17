@@ -1,5 +1,5 @@
 ﻿using Jsonata.Net.Native.Parsing;
-using Newtonsoft.Json.Linq;
+using Jsonata.Net.Native.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace Jsonata.Net.Native.Eval
 				//result = seq.GetValue();
 				if (seq.Count == 1 && !seq.keepSingletons)
 				{
-					result = seq.Children().First();
+					result = seq.ChildrenTokens[0];
 				}
 			}
 			return result;
@@ -43,13 +43,13 @@ namespace Jsonata.Net.Native.Eval
 			JToken result = EvalInternal(node, input, env);
 			if (result is Sequence sequence)
             {
-				if (!sequence.HasValues)
+				if (sequence.Count == 0)
                 {
 					return EvalProcessor.UNDEFINED;
                 }
 				else if (sequence.Count == 1 && !sequence.keepSingletons)
                 {
-					return sequence[0];
+					return sequence.ChildrenTokens[0];
                 }
             };
 			return result;
@@ -141,7 +141,7 @@ namespace Jsonata.Net.Native.Eval
 			default:
 				return items;
             }
-			List<JToken> itemsList = items.Children().ToList();
+			List<JToken> itemsList = ((JArray)items).ChildrenTokens.ToList();
 
 			try
 			{
@@ -194,16 +194,16 @@ namespace Jsonata.Net.Native.Eval
 
 					if (aa.Type != JTokenType.String && aa.Type != JTokenType.Integer && aa.Type != JTokenType.Float)
                     {
-						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {aa.Type} ({aa.ToString(Newtonsoft.Json.Formatting.None)})");
+						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {aa.Type} ({aa.ToStringFlat()})");
                     };
 					if (bb.Type != JTokenType.String && bb.Type != JTokenType.Integer && bb.Type != JTokenType.Float)
 					{
-						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {bb.Type} ({bb.ToString(Newtonsoft.Json.Formatting.None)})");
+						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {bb.Type} ({bb.ToStringFlat()})");
 					};
 
 					if ((aa.Type == JTokenType.String) != (bb.Type == JTokenType.String))
                     {
-						throw new JsonataException("T2007", $"Type mismatch when comparing values {aa.Type}({aa.ToString(Newtonsoft.Json.Formatting.None)}) and {bb.Type}({bb.ToString(Newtonsoft.Json.Formatting.None)}) in order-by clause");
+						throw new JsonataException("T2007", $"Type mismatch when comparing values {aa.Type}({aa.ToStringFlat()}) and {bb.Type}({bb.ToStringFlat()}) in order-by clause");
                     }
 
 					int comp;
@@ -249,7 +249,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (func is not FunctionToken function)
 			{
-				throw new JsonataException("T1008", $"Attempted to partially apply a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}' got from '{partialNode.func}'");
+				throw new JsonataException("T1008", $"Attempted to partially apply a non-function '{func.ToStringFlat()}' got from '{partialNode.func}'");
 			};
 
 			List<JToken?> argsOrNulls = new List<JToken?>(partialNode.args.Count);
@@ -307,11 +307,11 @@ namespace Jsonata.Net.Native.Eval
 			else
             {
 				JToken rhs = Eval(functionApplicationNode.rhs, input, env);
-				if (rhs.Type != FunctionToken.TYPE)
+				if (rhs.Type != JTokenType.Function)
                 {
 					throw new JsonataException("T2006", "The right side of the function application operator ~> must be a function, got " + rhs.Type);
                 };
-				if (lhs.Type == FunctionToken.TYPE)
+				if (lhs.Type == JTokenType.Function)
                 {
 					// this is function chaining (func1 ~> func2)
 					// λ($f, $g) { λ($x){ $g($f($x)) } }
@@ -331,7 +331,7 @@ namespace Jsonata.Net.Native.Eval
 					*/
 					JsonataQuery chainAST = new JsonataQuery("function($f, $g) { function($x){ $g($f($x)) } }");
 					JToken chain = chainAST.Eval(EvalProcessor.UNDEFINED); //TODO: probably need to provide env as an environment here
-					if (chain.Type != FunctionToken.TYPE)
+					if (chain.Type != JTokenType.Function)
                     {
 						throw new Exception("should not happen 1");
                     };
@@ -345,7 +345,7 @@ namespace Jsonata.Net.Native.Eval
 				}
 				else
                 {
-					if (rhs.Type != FunctionToken.TYPE)
+					if (rhs.Type != JTokenType.Function)
 					{
 						throw new Exception("should not happen 3");
 					};
@@ -432,7 +432,7 @@ namespace Jsonata.Net.Native.Eval
             JToken func = Eval(functionCallNode.func, input, env);
             if (func is not FunctionToken function)
             {
-                throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToString(Newtonsoft.Json.Formatting.None)}' got from '{functionCallNode.func}'");
+                throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToStringFlat()}' got from '{functionCallNode.func}'");
             }
 
             List<JToken> args = new List<JToken>();
@@ -522,7 +522,7 @@ namespace Jsonata.Net.Native.Eval
 				Sequence result = new Sequence();
 				for (int index = 0; index < itemsArray.Count; ++index)
 				{
-					JToken item = itemsArray[index];
+					JToken item = itemsArray.ChildrenTokens[index];
 					JToken res = Eval(filter, item, env);
 					if (res.Type == JTokenType.Integer || res.Type == JTokenType.Float)
 					{
@@ -530,7 +530,7 @@ namespace Jsonata.Net.Native.Eval
 					}
 					else if (Helpers.IsArrayOfNumbers(res))
 					{
-						foreach (JToken subtoken in ((JArray)res).Children())
+						foreach (JToken subtoken in ((JArray)res).ChildrenTokens)
 						{
 							CheckAppendToken(result, item, index, subtoken);
 						}
@@ -561,7 +561,7 @@ namespace Jsonata.Net.Native.Eval
 				}
 				else
 				{
-					return array[index];
+					return array.ChildrenTokens[index];
 				}
 			}
 
@@ -590,7 +590,7 @@ namespace Jsonata.Net.Native.Eval
         {
             string lstr = stringify(Eval(stringConcatenationNode.lhs, input, env));
 			string rstr = stringify(Eval(stringConcatenationNode.rhs, input, env));
-			return lstr + rstr;
+			return new JValue(lstr + rstr);
 		}
 
         private static string stringify(JToken token)
@@ -606,12 +606,12 @@ namespace Jsonata.Net.Native.Eval
 					JArray array = (JArray)token;
 					if (array is Sequence sequence && !sequence.keepSingletons && sequence.Count == 1)
                     {
-						return stringify(array.Children().First());
+						return stringify(array.ChildrenTokens[0]);
                     }
-					return array.ToString(Newtonsoft.Json.Formatting.None);
+					return array.ToStringFlat();
                 }
 			default:
-				return token.ToString(Newtonsoft.Json.Formatting.None);
+				return token.ToStringFlat();
 			}
         }
 
@@ -655,26 +655,26 @@ namespace Jsonata.Net.Native.Eval
 			switch (comparisonOperatorNode.op)
 			{
 			case ComparisonOperatorNode.ComparisonOperator.ComparisonEqual:
-				return JToken.DeepEquals(lhs, rhs);
+				return new JValue(JToken.DeepEquals(lhs, rhs));
 			case ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual:
-				return !JToken.DeepEquals(lhs, rhs);
+				return new JValue(!JToken.DeepEquals(lhs, rhs));
 			case ComparisonOperatorNode.ComparisonOperator.ComparisonIn:
 				{
 					if (rhs.Type == JTokenType.Array)
 					{
 						JArray rhsArray = (JArray)rhs;
-						foreach (JToken rhsSubtoken in rhsArray.Children())
+						foreach (JToken rhsSubtoken in rhsArray.ChildrenTokens)
 						{
 							if (JToken.DeepEquals(lhs, rhsSubtoken))
 							{
-								return true;
+								return new JValue(true);
 							}
 						}
-						return false;
+						return new JValue(false);
 					}
 					else
 					{
-						return JToken.DeepEquals(lhs, rhs);
+						return new JValue(JToken.DeepEquals(lhs, rhs));
 					}
 				}
 			default:
@@ -723,13 +723,13 @@ namespace Jsonata.Net.Native.Eval
 				switch (op)
                 {
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
-					return lhs < rhs;
+					return new JValue(lhs < rhs);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
-					return lhs <= rhs;
+					return new JValue(lhs <= rhs);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
-					return lhs > rhs;
+					return new JValue(lhs > rhs);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
-					return lhs >= rhs;
+					return new JValue(lhs >= rhs);
 				default:
 					throw new Exception("Should not happen");
 				}
@@ -740,13 +740,13 @@ namespace Jsonata.Net.Native.Eval
 				switch (op)
 				{
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
-					return lhs < rhs;
+					return new JValue(lhs < rhs);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
-					return lhs <= rhs;
+					return new JValue(lhs <= rhs);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
-					return lhs > rhs;
+					return new JValue(lhs > rhs);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
-					return lhs >= rhs;
+					return new JValue(lhs >= rhs);
 				default:
 					throw new Exception("Should not happen");
 				}
@@ -757,13 +757,13 @@ namespace Jsonata.Net.Native.Eval
 				switch (op)
 				{
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
-					return String.CompareOrdinal(lhs, rhs) < 0;
+					return new JValue(String.CompareOrdinal(lhs, rhs) < 0);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
-					return String.CompareOrdinal(lhs, rhs) <= 0;
+					return new JValue(String.CompareOrdinal(lhs, rhs) <= 0);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
-					return String.CompareOrdinal(lhs, rhs) > 0;
+					return new JValue(String.CompareOrdinal(lhs, rhs) > 0);
 				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
-					return String.CompareOrdinal(lhs, rhs) >= 0;
+					return new JValue(String.CompareOrdinal(lhs, rhs) >= 0);
 				default:
 					throw new Exception("Should not happen");
 				}
@@ -842,7 +842,7 @@ namespace Jsonata.Net.Native.Eval
 
 			Dictionary<string, KeyIndex> itemsGroupedByKey = new Dictionary<string, KeyIndex>();
 
-			foreach (JToken item in inputArray.Children())
+			foreach (JToken item in inputArray.ChildrenTokens)
 			{
 				for (int pairIndex = 0; pairIndex < objectNode.pairs.Count; ++pairIndex)
 				{
@@ -993,7 +993,7 @@ namespace Jsonata.Net.Native.Eval
 
         private static JToken evalString(StringNode stringNode, JToken input, EvaluationEnvironment env)
         {
-			return JValue.CreateString(stringNode.value);
+			return new JValue(stringNode.value);
         }
 
         private static JToken evalNumber(NumberDoubleNode numberNode, JToken input, EvaluationEnvironment env)
@@ -1025,7 +1025,7 @@ namespace Jsonata.Net.Native.Eval
 						&& (!(res is Sequence sequence) || !sequence.keepSingletons)
 					)
 					{
-						result.AddRange(res.Children());
+						result.AddRange(((JArray)res).ChildrenTokens);
 					}
 					else
                     {
@@ -1055,14 +1055,14 @@ namespace Jsonata.Net.Native.Eval
             switch (input.Type)
             {
 			case JTokenType.Array:
-				foreach (JToken child in input.Children())
+				foreach (JToken child in ((JArray)input).ChildrenTokens)
                 {
 					recurseDescendents(result, child);
                 }
 				break;
 			case JTokenType.Object:
 				result.Add(input);
-				foreach (JToken child in ((JObject)input).PropertyValues())
+				foreach (JToken child in ((JObject)input).Properties.Values)
 				{
 					recurseDescendents(result, child);
 				}
@@ -1076,11 +1076,11 @@ namespace Jsonata.Net.Native.Eval
         private static JToken evalWildcard(WildcardNode wildcardNode, JToken input, EvaluationEnvironment env)
         {
 			if (input is Sequence inputSequence
-				&& inputSequence.HasValues
+				&& inputSequence.Count > 0
 				&& inputSequence.outerWrapper
 			)
             {
-				input = inputSequence[0];
+				input = inputSequence.ChildrenTokens[0];
             }
 
 			Sequence result = new Sequence();
@@ -1088,13 +1088,13 @@ namespace Jsonata.Net.Native.Eval
 			{
 			case JTokenType.Object:
 				JObject obj = (JObject)input;
-				foreach (JToken value in obj.PropertyValues())
+				foreach (JToken value in obj.Properties.Values)
 				{
 					result.AddRange(flattenArray(value));
 				}
 				break;
 			case JTokenType.Array:
-				foreach (JToken value in input.Children())
+				foreach (JToken value in ((JArray)input).ChildrenTokens)
 				{
 					result.AddRange(flattenArray(value));
 				}
@@ -1111,7 +1111,7 @@ namespace Jsonata.Net.Native.Eval
 			switch (input.Type)
             {
 			case JTokenType.Array:
-				foreach (JToken child in input.Children())
+				foreach (JToken child in ((JArray)input).ChildrenTokens)
                 {
 					foreach (JToken result in flattenArray(child))
                     {
@@ -1136,7 +1136,7 @@ namespace Jsonata.Net.Native.Eval
             {
 			case JObject obj:
 				{
-					if (!obj.TryGetValue(nameNode.value, out JToken? result))
+					if (!obj.Properties.TryGetValue(nameNode.value, out JToken? result))
 					{
 						return EvalProcessor.UNDEFINED;
 					}
@@ -1145,7 +1145,7 @@ namespace Jsonata.Net.Native.Eval
 			case JArray array:
                 {
 					Sequence result = new Sequence();
-					foreach (JToken obj in array.Children())
+					foreach (JToken obj in array.ChildrenTokens)
 					{
 						JToken res = evalName(nameNode, obj, env);
 						switch (res.Type)
@@ -1154,7 +1154,7 @@ namespace Jsonata.Net.Native.Eval
 							//ignore
 							break;
 						case JTokenType.Array:
-							result.AddRange(res.Children());
+							result.AddRange(((JArray)res).ChildrenTokens);
 							break;
 						default:
 							result.Add(res);
@@ -1212,7 +1212,7 @@ namespace Jsonata.Net.Native.Eval
 					array = evalPathStep(step, array, env, stepIndex == lastIndex);
 				};
 
-				if (!array.HasValues)
+				if (array.Count == 0)
                 {
 					break;
                 }
@@ -1245,7 +1245,7 @@ namespace Jsonata.Net.Native.Eval
 		private static JArray evalPathStep(Node step, JArray array, EvaluationEnvironment env, bool lastStep)
 		{
 			List<JToken> result = new List<JToken>(array.Count);
-			foreach (JToken obj in array.Children())
+			foreach (JToken obj in array.ChildrenTokens)
 			{
 				JToken resultToken = Eval(step, obj, env);
 				if (resultToken.Type != JTokenType.Undefined)
@@ -1279,7 +1279,7 @@ namespace Jsonata.Net.Native.Eval
 				else
                 {
 					// res is a sequence - flatten it into the parent sequence
-					resultSequence.AddRange(resultToken.Children());
+					resultSequence.AddRange(((JArray)resultToken).ChildrenTokens);
 				}
 			}
 

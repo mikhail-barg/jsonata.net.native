@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "hof-single",
-  "message": "11 passed",
-  "color": "brightgreen"
+  "message": "9 passed | 2 failed",
+  "color": "orange"
 }

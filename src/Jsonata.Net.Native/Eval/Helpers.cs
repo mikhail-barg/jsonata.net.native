@@ -1,10 +1,9 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
@@ -24,7 +23,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 return false;
             }
-            foreach (JToken subtoken in ((JArray)token).Children())
+            foreach (JToken subtoken in ((JArray)token).ChildrenTokens)
             {
                 if (subtoken.Type != JTokenType.Integer && subtoken.Type != JTokenType.Float)
                 {
@@ -40,7 +39,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 return false;
             }
-            foreach (JToken subtoken in ((JArray)token).Children())
+            foreach (JToken subtoken in ((JArray)token).ChildrenTokens)
             {
                 if (subtoken.Type != JTokenType.String)
                 {
@@ -59,7 +58,7 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.Integer:
                 return (double)(long)token;
             default:
-                throw new Exception("Not a number " + token.ToString(Formatting.None));
+                throw new Exception("Not a number " + token.ToStringFlat());
             }
         }
 
@@ -88,11 +87,11 @@ namespace Jsonata.Net.Native.Eval
                     }
                     else if (array.Count == 1)
                     {
-                        return Helpers.Booleanize(array.Children().First());
+                        return Helpers.Booleanize(array.ChildrenTokens[0]);
                     }
                     else
                     {
-                        return array.Children().Any(c => Helpers.Booleanize(c));
+                        return array.ChildrenTokens.Any(c => Helpers.Booleanize(c));
                     }
                 };
             case JTokenType.String:
@@ -105,16 +104,16 @@ namespace Jsonata.Net.Native.Eval
                 return ((JObject)value!).Count > 0;
             case JTokenType.Boolean:
                 return (bool)value;
-            case FunctionToken.TYPE:
+            case JTokenType.Function:
                 return false;
             default:
                 return false;
             }
         }
 
-        internal static IEnumerable<decimal> EnumerateNumericArray(JToken array, string functionName, int argIndex)
+        internal static IEnumerable<decimal> EnumerateNumericArray(JArray array, string functionName, int argIndex)
         {
-            foreach (JToken token in array.Children())
+            foreach (JToken token in array.ChildrenTokens)
             {
                 switch (token.Type)
                 {

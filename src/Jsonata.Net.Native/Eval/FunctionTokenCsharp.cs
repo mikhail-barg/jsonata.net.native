@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
@@ -337,8 +337,15 @@ namespace Jsonata.Net.Native.Eval
 			}
 			else
 			{
-				return JToken.FromObject(resultObj);
+				//throw new NotImplementedException("from object of type " + resultObj?.GetType());
+				//TODO: improve it!
+				return JToken.FromNewtonsoft(Newtonsoft.Json.Linq.JToken.FromObject(resultObj));
 			}
 		}
-	}
+
+        internal override JToken DeepClone()
+        {
+			return new FunctionTokenCsharp(this.functionName, this.methodInfo);
+        }
+    }
 }

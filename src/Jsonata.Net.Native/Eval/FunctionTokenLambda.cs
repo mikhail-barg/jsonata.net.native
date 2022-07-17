@@ -1,5 +1,5 @@
-﻿using Jsonata.Net.Native.Parsing;
-using Newtonsoft.Json.Linq;
+﻿using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +73,11 @@ namespace Jsonata.Net.Native.Eval
         private List<JToken> ValidateSignature(List<JToken> args, JToken? inputAsContext)
         {
             throw new NotImplementedException();
+        }
+
+        internal override JToken DeepClone()
+        {
+            return new FunctionTokenLambda(this.signature, this.paramNames, this.body, context.DeepClone(), this.environment);
         }
     }
 }

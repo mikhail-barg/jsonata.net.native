@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using Jsonata.Net.Native.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -42,13 +41,13 @@ namespace Jsonata.Net.Native.Eval
                     {
                         throw new JsonataException("D3001", "Attempting to invoke string function on Infinity or NaN");
                     };
-                    return new JValue(arg.ToString(Formatting.None));
+                    return new JValue(arg.ToStringFlat());
                 };
-            case FunctionToken.TYPE:
+            case JTokenType.Function:
                 //Functions are converted to an empty string
                 return new JValue("");
             default:
-                return new JValue(arg.ToString(formatting: prettify ? Formatting.Indented : Formatting.None));
+                return new JValue(prettify? arg.ToIndentedString() : arg.ToStringFlat());
             }
         }
 
@@ -235,7 +234,7 @@ namespace Jsonata.Net.Native.Eval
             {
             case JTokenType.String:
                 return str.Contains((string)pattern!);
-            case FunctionToken.TYPE:
+            case JTokenType.Function:
                 if (pattern is not FunctionTokenRegex regex)
                 {
                     throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed function {pattern.GetType().Name})");
@@ -245,7 +244,7 @@ namespace Jsonata.Net.Native.Eval
                     return regex.regex.IsMatch(str);
                 }
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed {pattern.Type} ({pattern.ToString(Formatting.None)})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed {pattern.Type} ({pattern.ToStringFlat()})");
             }
         }
 
@@ -306,7 +305,7 @@ namespace Jsonata.Net.Native.Eval
                     }
                 }
                 break;
-            case FunctionToken.TYPE:
+            case JTokenType.Function:
                 {
                     if (separator is not FunctionTokenRegex regex)
                     {
@@ -323,7 +322,7 @@ namespace Jsonata.Net.Native.Eval
                 }
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed {separator.Type} ({separator.ToString(Formatting.None)})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed {separator.Type} ({separator.ToStringFlat()})");
             }
             return result;
         }
@@ -364,7 +363,7 @@ namespace Jsonata.Net.Native.Eval
                 elements.Add((string)array!);
                 break;
             case JTokenType.Array:
-                foreach (JToken element in array.Children())
+                foreach (JToken element in ((JArray)array).ChildrenTokens)
                 {
                     if (element.Type != JTokenType.String)
                     {
@@ -400,7 +399,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (pattern is not FunctionTokenRegex regex)
             {
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToString(Formatting.None)})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToStringFlat()})");
             };
 
             if (limit < 0)
@@ -508,7 +507,7 @@ namespace Jsonata.Net.Native.Eval
                     }
                 }
                 //break;
-            case FunctionToken.TYPE:
+            case JTokenType.Function:
                 {
                     if (pattern is not FunctionTokenRegex regex)
                     {
@@ -556,7 +555,7 @@ namespace Jsonata.Net.Native.Eval
                             return builder.ToString();
                         }
                         //break;
-                    case FunctionToken.TYPE:
+                    case JTokenType.Function:
                         {
                             FunctionToken replacementFunction = (FunctionToken)replacement;
                             StringBuilder builder = new StringBuilder();
@@ -595,12 +594,12 @@ namespace Jsonata.Net.Native.Eval
                         }
                         //break;
                     default:
-                        throw new JsonataException("T0410", $"Argument 3 of function {nameof(replace)} should be either string or function. Passed {replacement.Type} ({replacement.ToString(Formatting.None)})");
+                        throw new JsonataException("T0410", $"Argument 3 of function {nameof(replace)} should be either string or function. Passed {replacement.Type} ({replacement.ToStringFlat()})");
                     };
                 }
                 //break;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(replace)} should be either string or regex. Passed {pattern.Type} ({pattern.ToString(Formatting.None)})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(replace)} should be either string or regex. Passed {pattern.Type} ({pattern.ToStringFlat()})");
             };
 
             /*
@@ -1003,7 +1002,7 @@ namespace Jsonata.Net.Native.Eval
                 throw new JsonataException("T0410", $"Argument 1 of function {nameof(sum)} should be an array of numbers, but specified {arg.Type}");
             }
 
-            decimal result = Helpers.EnumerateNumericArray(arg, nameof(sum), 1).Sum();
+            decimal result = Helpers.EnumerateNumericArray((JArray)arg, nameof(sum), 1).Sum();
             return FunctionToken.ReturnDecimalResult(result);
         }
 
@@ -1028,7 +1027,7 @@ namespace Jsonata.Net.Native.Eval
 
             decimal result = Decimal.MinValue;
             bool found = false;
-            foreach (decimal value in Helpers.EnumerateNumericArray(arg, nameof(max), 1))
+            foreach (decimal value in Helpers.EnumerateNumericArray((JArray)arg, nameof(max), 1))
             {
                 if (value > result)
                 {
@@ -1066,7 +1065,7 @@ namespace Jsonata.Net.Native.Eval
 
             decimal result = Decimal.MaxValue;
             bool found = false;
-            foreach (decimal value in Helpers.EnumerateNumericArray(arg, nameof(min), 1))
+            foreach (decimal value in Helpers.EnumerateNumericArray((JArray)arg, nameof(min), 1))
             {
                 if (value < result)
                 {
@@ -1103,7 +1102,7 @@ namespace Jsonata.Net.Native.Eval
 
             decimal result = 0;
             int count = 0;
-            foreach (decimal value in Helpers.EnumerateNumericArray(arg, nameof(average), 1))
+            foreach (decimal value in Helpers.EnumerateNumericArray((JArray)arg, nameof(average), 1))
             {
                 result += value;
                 ++count;
@@ -1132,38 +1131,38 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.String:
                 //string: empty   false
                 //string: non-empty   true
-                return ((string)arg!) != "";
+                return new JValue(((string)arg!) != "");
             case JTokenType.Integer:
                 //number: 0	false
                 //number: non-zero    true
-                return ((long)arg) != 0;
+                return new JValue(((long)arg) != 0);
             case JTokenType.Float:
                 //number: 0	false
                 //number: non-zero    true
-                return ((double)arg) != 0;
+                return new JValue(((double)arg) != 0);
             case JTokenType.Null:
                 //null	false
-                return false;
+                return new JValue(false);
             case JTokenType.Array:
                 //array: empty	false
                 //array: contains a member that casts to true true
                 //array: all members cast to false    false
-                foreach (JToken child in arg.Children())
+                foreach (JToken child in ((JArray)arg).ChildrenTokens)
                 {
                     JToken childRes = BuiltinFunctions.boolean(child);
                     if (childRes.Type == JTokenType.Boolean && (bool)childRes)
                     {
-                        return true;
+                        return new JValue(true);
                     }
                 }
-                return false;
+                return new JValue(false);
             case JTokenType.Object:
                 //object: empty   false
                 //object: non-empty   true
-                return arg.HasValues;
-            case FunctionToken.TYPE:
+                return new JValue(((JObject)arg).Count > 0);
+            case JTokenType.Function:
                 //function	false
-                return false;
+                return new JValue(false);
             case JTokenType.Undefined:
                 return arg;
             default:
@@ -1182,7 +1181,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 return arg;
             }
-            return !(bool)arg;
+            return new JValue(!(bool)arg);
         }
 
         /**
@@ -1210,7 +1209,7 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.Undefined:
                 return 0;
             case JTokenType.Array:
-                return arg.Count();
+                return ((JArray)arg).Count;
             default:
                 return 1;
             }
@@ -1237,7 +1236,7 @@ namespace Jsonata.Net.Native.Eval
             JArray result = new Sequence();
             if (array1.Type == JTokenType.Array)
             {
-                result.AddRange(array1.Children());
+                result.AddRange(((JArray)array1).ChildrenTokens);
             }
             else
             {
@@ -1245,7 +1244,7 @@ namespace Jsonata.Net.Native.Eval
             };
             if (array2.Type == JTokenType.Array)
             {
-                result.AddRange(array2.Children());
+                result.AddRange(((JArray)array2).ChildrenTokens);
             }
             else
             {
@@ -1297,7 +1296,7 @@ namespace Jsonata.Net.Native.Eval
                     throw new JsonataException("D3070", $"The single argument form of the {nameof(sort)} function can only be applied to an array of strings or an array of numbers.  Use the second argument to specify a comparison function");
                 }
             }
-            else if (function.Type == FunctionToken.TYPE)
+            else if (function.Type == JTokenType.Function)
             {
                 comparator = (a, b) => {
                     JToken res = EvalProcessor.InvokeFunction(
@@ -1316,7 +1315,7 @@ namespace Jsonata.Net.Native.Eval
                 throw new JsonataException("????", $"Argument 2 of function {nameof(sort)} should be a function(left, right) returning boolean");
             }
 
-            List<JToken> tokens = array.Children().ToList();
+            List<JToken> tokens = array.ChildrenTokens.ToList();
             tokens.Sort(comparator);
             JArray result = new Sequence();
             result.AddRange(tokens);
@@ -1346,7 +1345,7 @@ namespace Jsonata.Net.Native.Eval
             JArray result = new JArray();
             for (int i = array.Count - 1; i >= 0; --i)
             {
-                result.Add(array[i]);
+                result.Add(array.ChildrenTokens[i]);
             }
             return result;
         }
@@ -1373,7 +1372,7 @@ namespace Jsonata.Net.Native.Eval
             JToken[] arr = new JToken[array.Count];
             for (int i = 0; i < array.Count; ++i)
             {
-                arr[i] = array[i]; 
+                arr[i] = array.ChildrenTokens[i]; 
             }
             for (int i = 0; i < arr.Length; ++i)
             {
@@ -1416,10 +1415,10 @@ namespace Jsonata.Net.Native.Eval
             }
 
             JArray result = new JArray();
-            foreach (JToken item in array.Children())
+            foreach (JToken item in array.ChildrenTokens)
             {
                 bool exists = false;
-                foreach (JToken existing in result.Children())
+                foreach (JToken existing in result.ChildrenTokens)
                 {
                     if (DeepEquals(item, existing))
                     {
@@ -1460,7 +1459,7 @@ namespace Jsonata.Net.Native.Eval
             JArray result = new JArray();
             int maxLength = int.MaxValue;
             List<JArray> argsList = new List<JArray>(args.Count);
-            foreach (JToken arg in args.Children())
+            foreach (JToken arg in args.ChildrenTokens)
             {
                 JArray arrayArg;
                 switch (arg.Type)
@@ -1487,7 +1486,7 @@ namespace Jsonata.Net.Native.Eval
                 JArray tuple = new JArray();
                 foreach (JArray arrayArg in argsList)
                 {
-                    tuple.Add(arrayArg[i]);
+                    tuple.Add(arrayArg.ChildrenTokens[i]);
                 };
                 result.Add(tuple);
             };
@@ -1509,10 +1508,10 @@ namespace Jsonata.Net.Native.Eval
             switch (arg.Type)
             {
             case JTokenType.Object:
-                keys = ((IDictionary<string, JToken>)arg).Keys;
+                keys = ((JObject)arg).Keys;
                 break;
             case JTokenType.Array:
-                keys = arg.Children()
+                keys = ((JArray)arg).ChildrenTokens
                         .OfType<IDictionary<string, JToken>>()
                         .SelectMany(d => d.Keys)
                         .Distinct()
@@ -1532,7 +1531,7 @@ namespace Jsonata.Net.Native.Eval
             JArray result = new JArray();
             foreach (string key in keys)
             {
-                result.Add(key);
+                result.Add(new JValue(key));
             }
             return result;
         }
@@ -1548,12 +1547,12 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.Array:
                 {
                     JArray result = new Sequence();
-                    foreach (JToken child in arg.Children())
+                    foreach (JToken child in ((JArray)arg).ChildrenTokens)
                     {
                         JToken res = lookup(child, key);
                         if (res.Type == JTokenType.Array)
                         {
-                            result.AddRange(res.Children());
+                            result.AddRange(((JArray)res).ChildrenTokens);
                         }
                         else if (res.Type != JTokenType.Undefined)
                         {
@@ -1565,7 +1564,7 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.Object:
                 {
                     JObject obj = (JObject)arg;
-                    if (obj.TryGetValue(key, out JToken? result))
+                    if (obj.Properties.TryGetValue(key, out JToken? result))
                     {
                         return result;
                     }
@@ -1597,10 +1596,10 @@ namespace Jsonata.Net.Native.Eval
                         return EvalProcessor.UNDEFINED;
                     }
                     JArray result = new JArray();
-                    foreach (JProperty property in obj.Properties())
+                    foreach (KeyValuePair<string, JToken> property in obj.Properties)
                     {
                         JObject subResult = new JObject();
-                        subResult.Add(property.Name, property.Value);
+                        subResult.Add(property.Key, property.Value);
                         result.Add(subResult);
                     };
                     return result;
@@ -1613,7 +1612,7 @@ namespace Jsonata.Net.Native.Eval
                         return EvalProcessor.UNDEFINED;
                     }
                     JArray result = new JArray();
-                    foreach (JToken element in array.Children())
+                    foreach (JToken element in array.ChildrenTokens)
                     {
                         JToken elementResult = spread(element);
                         switch (elementResult.Type)
@@ -1621,7 +1620,7 @@ namespace Jsonata.Net.Native.Eval
                         case JTokenType.Undefined:
                             break;
                         case JTokenType.Array:
-                            result.AddRange(elementResult.Children());
+                            result.AddRange(((JArray)elementResult).ChildrenTokens);
                             break;
                         default:
                             result.Add(elementResult);
@@ -1653,7 +1652,7 @@ namespace Jsonata.Net.Native.Eval
             };
             JArray array = (JArray)arg;
             JObject result = new JObject();
-            foreach (JToken element in array.Children())
+            foreach (JToken element in array.ChildrenTokens)
             {
                 switch (element.Type)
                 {
@@ -1662,9 +1661,9 @@ namespace Jsonata.Net.Native.Eval
                 case JTokenType.Object:
                     {
                         JObject obj = (JObject)element;
-                        foreach (JProperty property in obj.Properties())
+                        foreach (KeyValuePair<string, JToken> property in obj.Properties)
                         {
-                            result[property.Name] = property.Value;
+                            result.Set(property.Key, property.Value);
                         };
                     }
                     break;
@@ -1686,7 +1685,7 @@ namespace Jsonata.Net.Native.Eval
         {
             int argsCount = function.RequiredArgsCount;
             Sequence result = new Sequence();
-            foreach (JProperty prop in obj.Properties())
+            foreach (KeyValuePair<string, JToken> prop in obj.Properties)
             {
                 List<JToken> args = new List<JToken>();
                 if (argsCount >= 1)
@@ -1695,7 +1694,7 @@ namespace Jsonata.Net.Native.Eval
                 };
                 if (argsCount >= 2)
                 {
-                    args.Add(prop.Name);
+                    args.Add(new JValue(prop.Key));
                 };
                 JToken res = EvalProcessor.InvokeFunction(
                     function: function,
@@ -1771,7 +1770,7 @@ namespace Jsonata.Net.Native.Eval
                 return "array";
             case JTokenType.Object:
                 return "object";
-            case FunctionToken.TYPE:
+            case JTokenType.Function:
                 return "function";
             default:
                 throw new Exception("Unexpected JToken type " + value.Type);
@@ -1888,7 +1887,7 @@ namespace Jsonata.Net.Native.Eval
             Sequence result = new Sequence();
 
             int index = 0;
-            foreach (JToken element in array.Children())
+            foreach (JToken element in array.ChildrenTokens)
             {
                 List<JToken> args = new List<JToken>();
                 if (funcArgsCount >= 1)
@@ -1932,7 +1931,7 @@ namespace Jsonata.Net.Native.Eval
         {
             Sequence result = new Sequence();
             int index = 0;
-            foreach (JToken element in array.Children())
+            foreach (JToken element in array.ChildrenTokens)
             {
                 if (FilterAcceptsElement(function, element, index, array))
                 {
@@ -1960,7 +1959,7 @@ namespace Jsonata.Net.Native.Eval
         {
             JToken? result = null;
             int index = 0;
-            foreach (JToken element in array.Children())
+            foreach (JToken element in array.ChildrenTokens)
             {
                 bool filterPassed = function != null ? 
                     FilterAcceptsElement(function, element, index, array) 
@@ -2002,18 +2001,18 @@ namespace Jsonata.Net.Native.Eval
             int index;
             if (init == null || init.Type == JTokenType.Undefined)
             {
-                if (!array.HasValues)
+                if (array.Count == 0)
                 {
                     return EvalProcessor.UNDEFINED;
                 };
-                accumulator = array.First();
-                elements = array.Children().Skip(1);
+                accumulator = array.ChildrenTokens[0];
+                elements = array.ChildrenTokens.Skip(1);
                 index = 1;
             }
             else
             {
                 accumulator = init;
-                elements = array.Children();
+                elements = array.ChildrenTokens;
                 index = 0;
             };
 
@@ -2062,11 +2061,11 @@ namespace Jsonata.Net.Native.Eval
         public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
         {
             JObject result = new JObject();
-            foreach (JProperty property in obj.Properties())
+            foreach (KeyValuePair<string, JToken> property in obj.Properties)
             {
-                if (filterAcceptsElement(property.Value, property.Name, obj))
+                if (filterAcceptsElement(property.Value, property.Key, obj))
                 {
-                    result.Add(property.Name, property.Value);
+                    result.Add(property.Key, property.Value);
                 }
             }
             if (result.Count == 0)

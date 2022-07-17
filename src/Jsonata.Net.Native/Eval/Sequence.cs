@@ -1,9 +1,8 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
@@ -30,6 +29,14 @@ namespace Jsonata.Net.Native.Eval
             {
                 return this;
             }
+        }
+
+        protected override JArray DeepCloneArrayNoChildren()
+        {
+            return new Sequence() {
+                keepSingletons = this.keepSingletons,
+                outerWrapper = this.outerWrapper
+            };
         }
     }
 }
