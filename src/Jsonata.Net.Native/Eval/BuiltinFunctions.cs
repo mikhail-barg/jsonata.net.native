@@ -1512,8 +1512,8 @@ namespace Jsonata.Net.Native.Eval
                 break;
             case JTokenType.Array:
                 keys = ((JArray)arg).ChildrenTokens
-                        .OfType<IDictionary<string, JToken>>()
-                        .SelectMany(d => d.Keys)
+                        .OfType<JObject>()
+                        .SelectMany(o => o.Keys)
                         .Distinct()
                         .ToList();
                 break;
