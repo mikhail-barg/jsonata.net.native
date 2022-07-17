@@ -116,7 +116,18 @@ namespace Jsonata.Net.Native.Json
             case Newtonsoft.Json.Linq.JTokenType.Boolean:
                 return new JValue((bool)value);
             case Newtonsoft.Json.Linq.JTokenType.Float:
-                return new JValue((double)value);
+                {
+                    decimal decimalValue;
+                    try
+                    {
+                        decimalValue = (decimal)value;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
+                    }
+                    return new JValue(decimalValue);
+                }
             case Newtonsoft.Json.Linq.JTokenType.Integer:
                 return new JValue((long)value);
             case Newtonsoft.Json.Linq.JTokenType.Null:
