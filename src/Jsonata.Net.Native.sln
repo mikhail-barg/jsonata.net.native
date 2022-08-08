@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31702.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native", "Jsonata.Net.Native\Jsonata.Net.Native.csproj", "{BEC03473-EAA4-4202-A57B-1E3A9148635E}"
 EndProject
@@ -13,9 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BenchmarkApp", "BenchmarkAp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.csproj", "{12CCE27F-BCF2-4DBC-9F3F-ACBE8BACF87F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestResultsExporter", "TestResultsExporter\TestResultsExporter.csproj", "{50BFFDEA-116E-407A-854B-EB0E73B9B9CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestResultsExporter", "TestResultsExporter\TestResultsExporter.csproj", "{50BFFDEA-116E-407A-854B-EB0E73B9B9CB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonataExerciser", "JsonataExerciser\JsonataExerciser.csproj", "{35662B41-E569-4A8A-9F0C-66B375902155}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.JsonNet", "Jsonata.Net.Native.JsonNet\Jsonata.Net.Native.JsonNet.csproj", "{66A15CEC-C5F7-4D99-9FF0-3654034F0829}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{35662B41-E569-4A8A-9F0C-66B375902155}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35662B41-E569-4A8A-9F0C-66B375902155}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35662B41-E569-4A8A-9F0C-66B375902155}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A15CEC-C5F7-4D99-9FF0-3654034F0829}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A15CEC-C5F7-4D99-9FF0-3654034F0829}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A15CEC-C5F7-4D99-9FF0-3654034F0829}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A15CEC-C5F7-4D99-9FF0-3654034F0829}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -75,7 +75,7 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
             return new FunctionTokenRegex(this.regex);
         }

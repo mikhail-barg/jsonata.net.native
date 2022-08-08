@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,28 +9,6 @@ namespace Jsonata.Net.Native.Parsing
 {
     public static class Helpers
     {
-        //https://stackoverflow.com/a/54354993/376066
-        public static string JsonPrettify(string json, Formatting formatting = Formatting.Indented)
-        {
-            using (StringReader stringReader = new StringReader(json))
-            using (StringWriter stringWriter = new StringWriter())
-            {
-                return JsonPrettify(stringReader, stringWriter, formatting).ToString()!;
-            }
-        }
-
-        public static TextWriter JsonPrettify(TextReader textReader, TextWriter textWriter, Formatting formatting = Formatting.Indented)
-        {
-            // Let caller who allocated the the incoming readers and writers dispose them also
-            // Disable date recognition since we're just reformatting
-            using (JsonTextReader jsonReader = new JsonTextReader(textReader) { DateParseHandling = DateParseHandling.None, CloseInput = false })
-            using (JsonTextWriter jsonWriter = new JsonTextWriter(textWriter) { Formatting = formatting, CloseOutput = false })
-            {
-                jsonWriter.WriteToken(jsonReader);
-            }
-            return textWriter;
-        }
-
         public static string JoinNodes(this List<Node> nodes, string separator) 
         {
             return String.Join(separator, nodes.Select(n => n.ToString()));
@@ -50,6 +27,5 @@ namespace Jsonata.Net.Native.Parsing
             //https://stackoverflow.com/a/54355440/376066
             return System.Text.RegularExpressions.Regex.Unescape(src);
         }
-
     }
 }

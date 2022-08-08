@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    internal class JValue: JToken
+    public class JValue: JToken
     {
-        internal static JValue CreateUndefined()
+        public static JValue CreateUndefined()
         {
             return new JValue(JTokenType.Undefined, null);
         }
 
-        internal static JToken CreateNull()
+        public static JToken CreateNull()
         {
             return new JValue(JTokenType.Null, null);
         }
@@ -28,13 +28,13 @@ namespace Jsonata.Net.Native.Json
             this.Value = value;
         }
 
-        internal JValue(double value) : this(JTokenType.Float, DoubleToDecimal(value)) {}
-        internal JValue(decimal value) : this(JTokenType.Float, value) { }
-        internal JValue(long value) : this(JTokenType.Integer, value) { }
-        internal JValue(int value) : this(JTokenType.Integer, value) { }
-        internal JValue(string value) : this(JTokenType.String, value) { }
-        internal JValue(char value) : this(JTokenType.String, value.ToString()) { }
-        internal JValue(bool value) : this(JTokenType.Boolean, value) { }
+        public JValue(double value) : this(JTokenType.Float, DoubleToDecimal(value)) {}
+        public JValue(decimal value) : this(JTokenType.Float, value) { }
+        public JValue(long value) : this(JTokenType.Integer, value) { }
+        public JValue(int value) : this(JTokenType.Integer, value) { }
+        public JValue(string value) : this(JTokenType.String, value) { }
+        public JValue(char value) : this(JTokenType.String, value.ToString()) { }
+        public JValue(bool value) : this(JTokenType.Boolean, value) { }
 
         private static decimal DoubleToDecimal(double value)
         {
@@ -89,33 +89,12 @@ namespace Jsonata.Net.Native.Json
             this.ToString(builder);
         }
 
-        internal override Newtonsoft.Json.Linq.JToken ToNewtonsoft()
-        {
-            switch (this.Type)
-            {
-            case JTokenType.Null:
-                return Newtonsoft.Json.Linq.JValue.CreateNull();
-            case JTokenType.Undefined:
-                return Newtonsoft.Json.Linq.JValue.CreateUndefined();
-            case JTokenType.Float:
-                return new Newtonsoft.Json.Linq.JValue((decimal)this);
-            case JTokenType.Integer:
-                return new Newtonsoft.Json.Linq.JValue((long)this);
-            case JTokenType.String:
-                return Newtonsoft.Json.Linq.JValue.CreateString((string)this);
-            case JTokenType.Boolean:
-                return new Newtonsoft.Json.Linq.JValue((bool)this);
-            default:
-                throw new Exception("Unexpected type " + this.Type);
-            }
-        }
-
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
             return new JValue(this.Type, this.Value);
         }
 
-        internal override bool DeepEquals(JToken other)
+        public override bool DeepEquals(JToken other)
         {
             if (this.Type != other.Type)
             {
@@ -126,7 +105,6 @@ namespace Jsonata.Net.Native.Json
             {
                 return true;
             }
-
 
             switch (this.Type)
             {

@@ -1,4 +1,5 @@
 ﻿using Jsonata.Net.Native.Eval;
+using Jsonata.Net.Native.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Jsonata.Net.Native
 {
     public sealed class EvaluationEnvironment
     {
-        internal static readonly EvaluationEnvironment DefaultEnvironment;
+        public static readonly EvaluationEnvironment DefaultEnvironment;
 
         static EvaluationEnvironment()
         {
@@ -41,7 +42,7 @@ namespace Jsonata.Net.Native
             return result;
         }
 
-        private readonly Dictionary<string, Jsonata.Net.Native.Json.JToken> m_bindings = new Dictionary<string, Jsonata.Net.Native.Json.JToken>();
+        private readonly Dictionary<string, JToken> m_bindings = new Dictionary<string, JToken>();
         private readonly EvaluationEnvironment? m_parent;
         private readonly EvaluationSupplement? m_evaluationSupplement;
 
@@ -58,29 +59,19 @@ namespace Jsonata.Net.Native
 
         }
 
-        public EvaluationEnvironment(Newtonsoft.Json.Linq.JObject bindings)
-            : this((Jsonata.Net.Native.Json.JObject)Jsonata.Net.Native.Json.JToken.FromNewtonsoft(bindings))
-        {
-        }
-
-        internal EvaluationEnvironment(Jsonata.Net.Native.Json.JObject bindings)
+        public EvaluationEnvironment(JObject bindings)
             : this()
         {
-            foreach (KeyValuePair<string, Jsonata.Net.Native.Json.JToken> property in bindings.Properties)
+            foreach (KeyValuePair<string, JToken> property in bindings.Properties)
             {
                 this.BindValue(property.Key, property.Value);
             }
         }
 
 
-        internal void BindValue(string name, Jsonata.Net.Native.Json.JToken value)
+        public void BindValue(string name, JToken value)
         {
             this.m_bindings[name] = value;  //allow overrides
-        }
-
-        public void BindValue(string name, Newtonsoft.Json.Linq.JToken value)
-        {
-            this.m_bindings[name] = Jsonata.Net.Native.Json.JToken.FromNewtonsoft(value);  //allow overrides
         }
 
         public void BindFunction(MethodInfo mi)
@@ -93,9 +84,9 @@ namespace Jsonata.Net.Native
             this.m_bindings.Add(name, new FunctionTokenCsharp(name, mi));
         }
 
-        internal Jsonata.Net.Native.Json.JToken Lookup(string name)
+        internal JToken Lookup(string name)
         {
-            if (this.m_bindings.TryGetValue(name, out Jsonata.Net.Native.Json.JToken? result))
+            if (this.m_bindings.TryGetValue(name, out JToken? result))
             {
                 return result;
             }

@@ -75,7 +75,7 @@ namespace Jsonata.Net.Native.Eval
             throw new NotImplementedException();
         }
 
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
             return new FunctionTokenLambda(this.signature, this.paramNames, this.body, context.DeepClone(), this.environment);
         }

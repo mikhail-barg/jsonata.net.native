@@ -63,7 +63,7 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
             return new FunctionTokenPartial(this.func, this.argsOrPlaceholders.Select(i => i?.DeepClone()).ToList());
         }

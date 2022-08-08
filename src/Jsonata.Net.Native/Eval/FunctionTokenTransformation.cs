@@ -136,7 +136,7 @@ namespace Jsonata.Net.Native.Eval
 			srcObj.Remove((string)keyToRemove!);
 		}
 
-		internal override JToken DeepClone()
+		public override JToken DeepClone()
 		{
 			return new FunctionTokenTransformation(this.pattern, this.updates, this.deletes, this.environment);
 		}

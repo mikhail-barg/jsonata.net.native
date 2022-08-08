@@ -7,26 +7,26 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    internal class JArray : JToken
+    public class JArray : JToken
     {
         private readonly List<JToken> m_values;
 
-        internal IReadOnlyList<JToken> ChildrenTokens => this.m_values;
-        internal int Count => this.m_values.Count;
+        public IReadOnlyList<JToken> ChildrenTokens => this.m_values;
+        public int Count => this.m_values.Count;
 
-        internal JArray() 
+        public JArray() 
             : base(JTokenType.Array)
         {
             m_values = new List<JToken>();
         }
 
-        internal JArray(int capacity)
+        public JArray(int capacity)
             : base(JTokenType.Array)
         {
             m_values = new List<JToken>(capacity);
         }
 
-        internal void Add(JToken token)
+        public void Add(JToken token)
         {
             this.m_values.Add(token);
         }
@@ -68,17 +68,7 @@ namespace Jsonata.Net.Native.Json
             builder.Append(']');
         }
 
-        internal override Newtonsoft.Json.Linq.JToken ToNewtonsoft()
-        {
-            Newtonsoft.Json.Linq.JArray result = new Newtonsoft.Json.Linq.JArray();
-            foreach (JToken token in this.m_values)
-            {
-                result.Add(token.ToNewtonsoft());
-            }
-            return result;
-        }
-
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
             JArray result = DeepCloneArrayNoChildren();
             foreach (JToken child in this.m_values)
@@ -93,7 +83,7 @@ namespace Jsonata.Net.Native.Json
             return new JArray();
         }
 
-        internal override bool DeepEquals(JToken other)
+        public override bool DeepEquals(JToken other)
         {
             if (this.Type != other.Type)
             {

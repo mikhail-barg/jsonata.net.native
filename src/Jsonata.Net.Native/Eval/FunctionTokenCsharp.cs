@@ -341,7 +341,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
 			return new FunctionTokenCsharp(this.functionName, this.methodInfo);
         }

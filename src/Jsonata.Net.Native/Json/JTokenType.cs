@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    internal enum JTokenType
+    public enum JTokenType
     {
         Object,
         Array,

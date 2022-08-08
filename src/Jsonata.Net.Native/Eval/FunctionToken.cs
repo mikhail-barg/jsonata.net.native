@@ -72,12 +72,7 @@ namespace Jsonata.Net.Native.Eval
             builder.Append('"').Append('"');
         }
 
-        internal override Newtonsoft.Json.Linq.JToken ToNewtonsoft()
-        {
-            throw new NotImplementedException("Not supported for functions");
-        }
-
-        internal override bool DeepEquals(JToken other)
+        public override bool DeepEquals(JToken other)
         {
             throw new NotImplementedException("Not supported for functions");
         }

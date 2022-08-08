@@ -6,31 +6,31 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    internal sealed class JObject : JToken
+    public sealed class JObject : JToken
     {
         private readonly Dictionary<string, JToken> m_properties = new Dictionary<string, JToken>();
 
-        internal int Count => this.m_properties.Count;
+        public int Count => this.m_properties.Count;
 
         public IReadOnlyDictionary<string, JToken> Properties => this.m_properties;
         public ICollection<string> Keys => this.m_properties.Keys;
 
-        internal JObject() 
+        public JObject() 
             : base(JTokenType.Object)
         {
         }
 
-        internal void Add(string name, JToken value)
+        public void Add(string name, JToken value)
         {
             this.m_properties.Add(name, value);
         }
 
-        internal void Set(string key, JToken value)
+        public void Set(string key, JToken value)
         {
             this.m_properties[key] = value;
         }
 
-        internal void Merge(JObject update)
+        public void Merge(JObject update)
         {
             foreach (KeyValuePair<string, JToken> prop in update.Properties)
             {
@@ -38,7 +38,7 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        internal void Remove(string key)
+        public void Remove(string key)
         {
             this.m_properties.Remove(key);
         }
@@ -86,17 +86,7 @@ namespace Jsonata.Net.Native.Json
             builder.Append('}');
         }
 
-        internal override Newtonsoft.Json.Linq.JToken ToNewtonsoft()
-        {
-            Newtonsoft.Json.Linq.JObject result = new Newtonsoft.Json.Linq.JObject();
-            foreach (KeyValuePair<string, JToken> prop in this.m_properties)
-            {
-                result.Add(prop.Key, prop.Value.ToNewtonsoft());
-            }
-            return result;
-        }
-
-        internal override JToken DeepClone()
+        public override JToken DeepClone()
         {
             JObject result = new JObject();
             foreach (KeyValuePair<string, JToken> prop in this.m_properties)
@@ -106,7 +96,7 @@ namespace Jsonata.Net.Native.Json
             return result;
         }
 
-        internal override bool DeepEquals(JToken other)
+        public override bool DeepEquals(JToken other)
         {
             if (this.Type != other.Type)
             {

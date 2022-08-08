@@ -20,6 +20,5 @@ namespace Jsonata.Net.Native.Json
         {
             builder.Append('\n');
         }
-
     }
 }

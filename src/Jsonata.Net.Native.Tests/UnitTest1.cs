@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Jsonata.Net.Native.JsonNet;
 
 namespace Jsonata.Net.Native.Tests
 {

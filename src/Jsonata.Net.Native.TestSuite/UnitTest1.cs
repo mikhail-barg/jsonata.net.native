@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Jsonata.Net.Native.JsonNet;
 
 namespace Jsonata.Net.Native.TestSuite
 {

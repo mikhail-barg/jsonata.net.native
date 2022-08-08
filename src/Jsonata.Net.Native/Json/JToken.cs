@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 namespace Jsonata.Net.Native.Json
 {
     [DebuggerDisplay("{Type}: {ToStringFlat()}")]
-    internal abstract class JToken
+    public abstract class JToken
     {
-        internal readonly JTokenType Type;
+        public readonly JTokenType Type;
 
         protected JToken(JTokenType type)
         {
@@ -104,68 +104,9 @@ namespace Jsonata.Net.Native.Json
             return Convert.ToBoolean(v.Value, CultureInfo.InvariantCulture);
         }
 
-        internal static JToken FromNewtonsoft(Newtonsoft.Json.Linq.JToken value)
-        {
-            switch (value.Type)
-            {
-            case Newtonsoft.Json.Linq.JTokenType.Array:
-                {
-                    JArray result = new JArray();
-                    foreach (Newtonsoft.Json.Linq.JToken child in value.Children())
-                    {
-                        result.Add(FromNewtonsoft(child));
-                    }
-                    return result;
-                }
-            case Newtonsoft.Json.Linq.JTokenType.Boolean:
-                return new JValue((bool)value);
-            case Newtonsoft.Json.Linq.JTokenType.Float:
-                {
-                    decimal decimalValue;
-                    try
-                    {
-                        decimalValue = (decimal)value;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
-                    }
-                    return new JValue(decimalValue);
-                }
-            case Newtonsoft.Json.Linq.JTokenType.Integer:
-                return new JValue((long)value);
-            case Newtonsoft.Json.Linq.JTokenType.Null:
-                return JValue.CreateNull();
-            case Newtonsoft.Json.Linq.JTokenType.Object:
-                {
-                    JObject result = new JObject();
-                    foreach (Newtonsoft.Json.Linq.JProperty prop in ((Newtonsoft.Json.Linq.JObject)value).Properties())
-                    {
-                        result.Add(prop.Name, FromNewtonsoft(prop.Value));
-                    }
-                    return result;
-                }
-            case Newtonsoft.Json.Linq.JTokenType.String:
-                return new JValue((string)value!);
-            case Newtonsoft.Json.Linq.JTokenType.Undefined:
-                return JValue.CreateUndefined();
+        
 
-            case Newtonsoft.Json.Linq.JTokenType.Bytes:
-            case Newtonsoft.Json.Linq.JTokenType.Constructor:
-            case Newtonsoft.Json.Linq.JTokenType.Comment:
-            case Newtonsoft.Json.Linq.JTokenType.Date:
-            case Newtonsoft.Json.Linq.JTokenType.Guid:
-            case Newtonsoft.Json.Linq.JTokenType.None:
-            case Newtonsoft.Json.Linq.JTokenType.Property:
-            case Newtonsoft.Json.Linq.JTokenType.Raw:
-            case Newtonsoft.Json.Linq.JTokenType.TimeSpan:
-            case Newtonsoft.Json.Linq.JTokenType.Uri:
-            default:
-                throw new ArgumentException("Weird Token type " + value.Type);
-            }
-        }
-
-        internal static JToken FromObject(object? sourceObj)
+        public static JToken FromObject(object? sourceObj)
         {
             switch (sourceObj)
             {
@@ -226,7 +167,7 @@ namespace Jsonata.Net.Native.Json
             return result;
         }
 
-        internal string ToIndentedString()
+        public string ToIndentedString()
         {
             StringBuilder builder = new StringBuilder();
             this.ToIndentedStringImpl(builder, 0);
@@ -235,7 +176,7 @@ namespace Jsonata.Net.Native.Json
 
         internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent);
 
-        internal string ToStringFlat()
+        public string ToStringFlat()
         {
             StringBuilder builder = new StringBuilder();
             this.ToStringFlatImpl(builder);
@@ -244,15 +185,13 @@ namespace Jsonata.Net.Native.Json
 
         internal abstract void ToStringFlatImpl(StringBuilder builder);
 
-        internal abstract Newtonsoft.Json.Linq.JToken ToNewtonsoft();
+        public abstract JToken DeepClone();
 
-        internal abstract JToken DeepClone();
-
-        internal static bool DeepEquals(JToken lhs, JToken rhs)
+        public static bool DeepEquals(JToken lhs, JToken rhs)
         {
             return lhs.DeepEquals(rhs);
         }
 
-        internal abstract bool DeepEquals(JToken other);
+        public abstract bool DeepEquals(JToken other);
     }
 }
