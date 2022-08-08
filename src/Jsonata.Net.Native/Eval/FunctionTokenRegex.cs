@@ -64,7 +64,7 @@ namespace Jsonata.Net.Native.Eval
             result.Add("index", new JValue(match.Index));
             if (match.Groups.Count > 1) //0th is a whole regex
             {
-                JArray groups = new JArray();
+                JArray groups = new JArray(match.Groups.Count);
                 for (int i = 1; i < match.Groups.Count; ++i)
                 {
                     groups.Add(new JValue(match.Groups[i].Value));

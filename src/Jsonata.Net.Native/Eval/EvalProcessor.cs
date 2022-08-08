@@ -159,7 +159,7 @@ namespace Jsonata.Net.Native.Eval
                 }
 			}
 
-			JArray result = new JArray();
+			JArray result = new JArray(itemsList.Count);
 			foreach (JToken item in itemsList)
             {
 				result.Add(item);

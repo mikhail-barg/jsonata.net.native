@@ -9,7 +9,7 @@ namespace Jsonata.Net.Native.Json
 {
     internal class JArray : JToken
     {
-        private readonly List<JToken> m_values = new List<JToken>();
+        private readonly List<JToken> m_values;
 
         internal IReadOnlyList<JToken> ChildrenTokens => this.m_values;
         internal int Count => this.m_values.Count;
@@ -17,6 +17,13 @@ namespace Jsonata.Net.Native.Json
         internal JArray() 
             : base(JTokenType.Array)
         {
+            m_values = new List<JToken>();
+        }
+
+        internal JArray(int capacity)
+            : base(JTokenType.Array)
+        {
+            m_values = new List<JToken>(capacity);
         }
 
         internal void Add(JToken token)

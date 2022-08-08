@@ -1342,7 +1342,7 @@ namespace Jsonata.Net.Native.Eval
                 return array;
             }
 
-            JArray result = new JArray();
+            JArray result = new JArray(array.Count);
             for (int i = array.Count - 1; i >= 0; --i)
             {
                 result.Add(array.ChildrenTokens[i]);
@@ -1384,7 +1384,7 @@ namespace Jsonata.Net.Native.Eval
                     arr[j] = tmp;
                 }
             }
-            JArray result = new JArray();
+            JArray result = new JArray(arr.Length);
             for (int i = 0; i < arr.Length; ++i)
             {
                 result.Add(arr[i]);
@@ -1470,7 +1470,7 @@ namespace Jsonata.Net.Native.Eval
                     arrayArg = (JArray)arg;
                     break;
                 default:
-                    arrayArg = new JArray();    //length of 1
+                    arrayArg = new JArray(1);    //length of 1
                     arrayArg.Add(arg);
                     break;
                 }
@@ -1528,7 +1528,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 return new JValue(keys.First()!);
             };
-            JArray result = new JArray();
+            JArray result = new JArray(keys.Count);
             foreach (string key in keys)
             {
                 result.Add(new JValue(key));
@@ -1595,7 +1595,7 @@ namespace Jsonata.Net.Native.Eval
                     {
                         return EvalProcessor.UNDEFINED;
                     }
-                    JArray result = new JArray();
+                    JArray result = new JArray(obj.Properties.Count);
                     foreach (KeyValuePair<string, JToken> property in obj.Properties)
                     {
                         JObject subResult = new JObject();

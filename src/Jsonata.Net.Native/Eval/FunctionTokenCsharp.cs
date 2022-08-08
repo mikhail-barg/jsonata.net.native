@@ -170,7 +170,7 @@ namespace Jsonata.Net.Native.Eval
 				{
 					//pack all remaining args to vararg.
 					//TODO: Will not work if this is not last one in parameters list...
-					JArray vararg = new JArray();
+					JArray vararg = new JArray(args.Count);
 					while (sourceIndex < args.Count)
                     {
 						vararg.Add(args[sourceIndex]);
@@ -337,9 +337,7 @@ namespace Jsonata.Net.Native.Eval
 			}
 			else
 			{
-				//throw new NotImplementedException("from object of type " + resultObj?.GetType());
-				//TODO: improve it!
-				return JToken.FromNewtonsoft(Newtonsoft.Json.Linq.JToken.FromObject(resultObj));
+				return JToken.FromObject(resultObj);
 			}
 		}
 

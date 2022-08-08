@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -161,6 +163,67 @@ namespace Jsonata.Net.Native.Json
             default:
                 throw new ArgumentException("Weird Token type " + value.Type);
             }
+        }
+
+        internal static JToken FromObject(object? sourceObj)
+        {
+            switch (sourceObj)
+            {
+            case null:
+                return JValue.CreateNull();
+            case bool value:
+                return new JValue(value);
+            case string value:
+                return new JValue(value);
+            case char value:
+                return new JValue(value);
+            case int value:
+                return new JValue(value);
+            case long value:
+                return new JValue(value);
+            case float value:
+                return new JValue(value);
+            case double value:
+                return new JValue(value);
+            case decimal value:
+                return new JValue(value);
+            case System.Collections.IDictionary dictionary:
+                return FromDictionary(dictionary);
+            case System.Collections.ICollection list:
+                return FromCollection(list);
+            default:
+                return FromObj(sourceObj);
+            }
+        }
+
+        private static JToken FromObj(object sourceObj)
+        {
+            JObject result = new JObject();
+            foreach (PropertyInfo pi in sourceObj.GetType().GetProperties())
+            {
+                result.Add(pi.Name, JToken.FromObject(pi.GetValue(sourceObj)));
+            }
+            return result;
+        }
+
+        private static JToken FromCollection(ICollection list)
+        {
+            JArray array = new JArray(list.Count);
+            foreach (object? item in list)
+            {
+                array.Add(JToken.FromObject(item));
+            }
+            return array;
+        }
+
+        private static JToken FromDictionary(IDictionary dictionary)
+        {
+            JObject result = new JObject();
+            foreach (DictionaryEntry entry in dictionary)
+            {
+                result.Add(entry.Key.ToString()!, JToken.FromObject(entry.Value));
+            }
+            return result;
         }
 
         internal string ToIndentedString()
