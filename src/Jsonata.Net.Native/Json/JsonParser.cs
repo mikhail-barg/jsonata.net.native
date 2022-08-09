@@ -78,10 +78,17 @@ namespace Jsonata.Net.Native.Json
 
             while (true)
             {
-                char c = this.PeekChar();
+                int ci = this.m_reader.Peek();
+                if (ci < 0)
+                {
+                    break;
+                }
+                char c = (char)ci;
+
                 switch (c)
                 {
                 case '-':
+                case '+':
                 case '0':
                 case '1':
                 case '2':
@@ -92,6 +99,9 @@ namespace Jsonata.Net.Native.Json
                 case '7':
                 case '8':
                 case '9':
+                case '.':
+                case 'e':
+                case 'E':
                     sb.Append(c);
                     this.ReadChar();
                     break;
@@ -153,14 +163,25 @@ namespace Jsonata.Net.Native.Json
             JArray result = new JArray();
             this.ConsumeChar('[');
             this.SkipWhitespace();
+            bool hadComma = false;
             while (this.PeekChar() != ']')
             {
+                if (result.Count > 0 && !hadComma)
+                {
+                    throw new JsonParseException(this, "Missing comma in array");
+                }
+
                 JToken value = this.ParseAnyToken();
                 this.SkipWhitespace();
                 if (this.PeekChar() == ',')
                 {
                     this.ConsumeChar(',');  //allow trailing comma
                     this.SkipWhitespace();
+                    hadComma = true;
+                }
+                else
+                {
+                    hadComma = false;
                 }
 
                 result.Add(value);
@@ -174,8 +195,14 @@ namespace Jsonata.Net.Native.Json
             JObject result = new JObject();
             this.ConsumeChar('{');
             this.SkipWhitespace();
+            bool hadComma = false;
             while (this.PeekChar() != '}')
             {
+                if (result.Count > 0 && !hadComma)
+                {
+                    throw new JsonParseException(this, "Missing comma in object");
+                }
+
                 string key = this.ParseStringValue();
                 this.SkipWhitespace();
                 this.ConsumeChar(':');
@@ -186,9 +213,15 @@ namespace Jsonata.Net.Native.Json
                 {
                     this.ConsumeChar(',');  //allow trailing comma
                     this.SkipWhitespace();
+                    hadComma = true;
+                }
+                else
+                {
+                    hadComma = false;
                 }
 
-                result.Add(key, value);
+                //result.Add(key, value);
+                result.Set(key, value); //allowing duplicates
             }
             this.ConsumeChar('}');
             return result;
@@ -211,7 +244,14 @@ namespace Jsonata.Net.Native.Json
             this.ConsumeChar(quoteChar);
 
             string result = builder.ToString();
-            result = Regex.Unescape(result);
+            try
+            {
+                result = Regex.Unescape(result);
+            }
+            catch (Exception ex)
+            {
+                throw new JsonParseException(this, $"Failed to unescape sequence '{result}': {ex.Message}");
+            }
             return result;
         }
 

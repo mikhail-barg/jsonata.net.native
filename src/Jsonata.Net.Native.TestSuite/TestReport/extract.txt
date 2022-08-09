@@ -474,7 +474,7 @@ function-formatInteger.formatInteger[40];Skipped
 function-formatInteger.formatInteger[41];Skipped
 function-formatInteger.formatInteger[42];Skipped
 function-formatInteger.formatInteger[43];Skipped
-function-formatInteger.formatInteger[44];Failed
+function-formatInteger.formatInteger[44];Skipped
 function-formatInteger.formatInteger[45];Skipped
 function-formatInteger.formatInteger[46];Failed
 function-formatInteger.formatInteger[47];Failed
@@ -926,7 +926,7 @@ function-sqrt.case002;Passed
 function-sqrt.case003;Passed
 function-string.case000;Passed
 function-string.case001;Passed
-function-string.case002;Failed
+function-string.case002;Passed
 function-string.case003;Failed
 function-string.case004;Passed
 function-string.case005;Failed

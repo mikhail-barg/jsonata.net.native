@@ -36,7 +36,7 @@ namespace Jsonata.Net.Native.Json
         public JValue(char value) : this(JTokenType.String, value.ToString()) { }
         public JValue(bool value) : this(JTokenType.Boolean, value) { }
 
-        private static decimal DoubleToDecimal(double value)
+        private static object DoubleToDecimal(double value)
         {
             if (Double.IsInfinity(value) || Double.IsNaN(value))
             {
@@ -46,9 +46,15 @@ namespace Jsonata.Net.Native.Json
             {
                 return (decimal)value;
             }
+            /*
             catch (Exception ex)
             {
                 throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
+            }
+            */
+            catch (Exception)
+            {
+                return value;
             }
         }
 
@@ -63,7 +69,14 @@ namespace Jsonata.Net.Native.Json
                 builder.Append("undefined");
                 break;
             case JTokenType.Float:
-                builder.Append(((decimal)this).ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
+                if (this.Value is decimal decimalValue)
+                {
+                    builder.Append(decimalValue.ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
+                }
+                else
+                {
+                    builder.Append(((double)this).ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
+                }
                 break;
             case JTokenType.Integer:
                 builder.Append(((long)this).ToString(CultureInfo.InvariantCulture));

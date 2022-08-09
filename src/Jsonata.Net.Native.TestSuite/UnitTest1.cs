@@ -232,7 +232,6 @@ namespace Jsonata.Net.Native.TestSuite
                         else
                         {
                             CaseInfo caseInfo = testToken.ToObject<CaseInfo>() ?? throw new Exception("null");
-                            TestCaseData caseData = new TestCaseData(caseInfo);
                             ProcessAndAddCaseData(testFile, results, caseInfo, info);
                         }
                     }
