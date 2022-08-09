@@ -91,7 +91,7 @@ namespace Jsonata.Net.Native.TestSuite
                 try
                 {
                     JsonataQuery query = new JsonataQuery(caseInfo.expr!);
-                    result = query.Eval(data, caseInfo.bindings);
+                    result = query.EvalNewtonsoft(data, caseInfo.bindings);
                 }
                 catch (JsonataException)
                 {

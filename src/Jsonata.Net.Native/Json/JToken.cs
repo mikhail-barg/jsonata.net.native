@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -104,7 +105,20 @@ namespace Jsonata.Net.Native.Json
             return Convert.ToBoolean(v.Value, CultureInfo.InvariantCulture);
         }
 
-        
+
+        public static JToken Parse(TextReader reader)
+        {
+            JsonParser parser = new JsonParser(reader);
+            return parser.Parse();
+        }
+
+        public static JToken Parse(string source)
+        {
+            using (StringReader reader = new StringReader(source))
+            {
+                return Parse(reader);
+            }
+        }
 
         public static JToken FromObject(object? sourceObj)
         {
@@ -176,7 +190,7 @@ namespace Jsonata.Net.Native.Json
 
         internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent);
 
-        public string ToStringFlat()
+        public string ToFlatString()
         {
             StringBuilder builder = new StringBuilder();
             this.ToStringFlatImpl(builder);

@@ -18,6 +18,13 @@ namespace Jsonata.Net.Native
             this.m_node = Parser.Parse(queryText);
         }
 
+        public string Eval(string dataJson)
+        {
+            JToken data = JToken.Parse(dataJson);
+            JToken result = this.Eval(data);
+            return result.ToIndentedString();
+        }
+
         public JToken Eval(JToken data, JObject? bindings = null)
         {
             EvaluationEnvironment env;

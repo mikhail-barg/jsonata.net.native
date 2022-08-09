@@ -1,6 +1,5 @@
 ﻿using Jsonata.Net.Native;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Jsonata.Net.Native.Json;
 using System;
 using System.Diagnostics;
 
@@ -29,7 +28,7 @@ namespace TestApp
             {
                 JToken data = JToken.Parse("{\"a\": \"b\"}");
 
-                JObject bindings = JObject.Parse("{\"x\": \"y\"}");
+                JObject bindings = (JObject)JToken.Parse("{\"x\": \"y\"}");
 
                 JsonataQuery query2 = new JsonataQuery("{'a': $.a, 'x': $x}");
 
@@ -41,7 +40,7 @@ namespace TestApp
             {
                 JToken data = JToken.Parse("{\"a\": \"b\"}");
 
-                JObject bindings = JObject.Parse("{\"x\": \"y\"}");
+                JObject bindings = (JObject)JToken.Parse("{\"x\": \"y\"}");
                 EvaluationEnvironment env = new EvaluationEnvironment(bindings);
                 env.BindFunction(typeof(Program).GetMethod(nameof(foo)));
 
@@ -63,7 +62,7 @@ namespace TestApp
 
         private static void Check(JToken value, string expected)
         {
-            Check(value.ToString(Formatting.None), expected);
+            Check(value.ToFlatString(), expected);
         }
 
         public static string foo()

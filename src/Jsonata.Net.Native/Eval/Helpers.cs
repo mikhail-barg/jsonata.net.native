@@ -58,7 +58,7 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.Integer:
                 return (double)(long)token;
             default:
-                throw new Exception("Not a number " + token.ToStringFlat());
+                throw new Exception("Not a number " + token.ToFlatString());
             }
         }
 

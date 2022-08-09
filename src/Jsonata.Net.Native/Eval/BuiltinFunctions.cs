@@ -41,13 +41,13 @@ namespace Jsonata.Net.Native.Eval
                     {
                         throw new JsonataException("D3001", "Attempting to invoke string function on Infinity or NaN");
                     };
-                    return new JValue(arg.ToStringFlat());
+                    return new JValue(arg.ToFlatString());
                 };
             case JTokenType.Function:
                 //Functions are converted to an empty string
                 return new JValue("");
             default:
-                return new JValue(prettify? arg.ToIndentedString() : arg.ToStringFlat());
+                return new JValue(prettify? arg.ToIndentedString() : arg.ToFlatString());
             }
         }
 
@@ -244,7 +244,7 @@ namespace Jsonata.Net.Native.Eval
                     return regex.regex.IsMatch(str);
                 }
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed {pattern.Type} ({pattern.ToStringFlat()})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed {pattern.Type} ({pattern.ToFlatString()})");
             }
         }
 
@@ -322,7 +322,7 @@ namespace Jsonata.Net.Native.Eval
                 }
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed {separator.Type} ({separator.ToStringFlat()})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed {separator.Type} ({separator.ToFlatString()})");
             }
             return result;
         }
@@ -399,7 +399,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (pattern is not FunctionTokenRegex regex)
             {
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToStringFlat()})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToFlatString()})");
             };
 
             if (limit < 0)
@@ -594,12 +594,12 @@ namespace Jsonata.Net.Native.Eval
                         }
                         //break;
                     default:
-                        throw new JsonataException("T0410", $"Argument 3 of function {nameof(replace)} should be either string or function. Passed {replacement.Type} ({replacement.ToStringFlat()})");
+                        throw new JsonataException("T0410", $"Argument 3 of function {nameof(replace)} should be either string or function. Passed {replacement.Type} ({replacement.ToFlatString()})");
                     };
                 }
                 //break;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(replace)} should be either string or regex. Passed {pattern.Type} ({pattern.ToStringFlat()})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(replace)} should be either string or regex. Passed {pattern.Type} ({pattern.ToFlatString()})");
             };
 
             /*

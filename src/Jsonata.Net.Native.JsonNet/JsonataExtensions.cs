@@ -113,14 +113,14 @@ namespace Jsonata.Net.Native.JsonNet
             }
         }
 
-        public static string Eval(this JsonataQuery query, string dataJson)
+        public static string EvalNewtonsoft(this JsonataQuery query, string dataJson)
         {
             Newtonsoft.Json.Linq.JToken data = Newtonsoft.Json.Linq.JToken.Parse(dataJson);
             JToken result = query.Eval(JsonataExtensions.FromNewtonsoft(data));
             return result.ToIndentedString();
         }
 
-        public static Newtonsoft.Json.Linq.JToken Eval(this JsonataQuery query, Newtonsoft.Json.Linq.JToken data, Newtonsoft.Json.Linq.JObject? bindings = null)
+        public static Newtonsoft.Json.Linq.JToken EvalNewtonsoft(this JsonataQuery query, Newtonsoft.Json.Linq.JToken data, Newtonsoft.Json.Linq.JObject? bindings = null)
         {
             EvaluationEnvironment env;
             if (bindings != null)
@@ -131,10 +131,10 @@ namespace Jsonata.Net.Native.JsonNet
             {
                 env = EvaluationEnvironment.DefaultEnvironment;
             };
-            return Eval(query, data, env);
+            return EvalNewtonsoft(query, data, env);
         }
 
-        public static Newtonsoft.Json.Linq.JToken Eval(this JsonataQuery query, Newtonsoft.Json.Linq.JToken data, EvaluationEnvironment environment)
+        public static Newtonsoft.Json.Linq.JToken EvalNewtonsoft(this JsonataQuery query, Newtonsoft.Json.Linq.JToken data, EvaluationEnvironment environment)
         {
             JToken result = query.Eval(JsonataExtensions.FromNewtonsoft(data), environment);
             return result.ToNewtonsoft();

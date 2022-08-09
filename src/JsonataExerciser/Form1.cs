@@ -1,6 +1,5 @@
 ﻿using Jsonata.Net.Native;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Jsonata.Net.Native.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -64,7 +63,7 @@ namespace JsonataExerciser
         {
             if (this.m_datasetJson != null)
             {
-                this.DatasetFctb.Text = this.m_datasetJson.ToString(Formatting.Indented);
+                this.DatasetFctb.Text = this.m_datasetJson.ToIndentedString();
             }
         }
 
@@ -87,7 +86,12 @@ namespace JsonataExerciser
         {
             try
             {
-                this.m_bindingsJson = JObject.Parse(this.BindingsFctb.Text);
+                JToken token = JToken.Parse(this.BindingsFctb.Text);
+                if (token.Type != JTokenType.Object)
+                {
+                    throw new Exception("bindings should be an Object");
+                }
+                this.m_bindingsJson = (JObject)token;
             }
             catch (Exception ex)
             {
@@ -124,7 +128,7 @@ namespace JsonataExerciser
             {
                 JToken result = this.m_query.Eval(this.m_datasetJson, bindings: this.m_bindingsJson);
                 this.ResultFctb.WordWrap = false;
-                this.ResultFctb.Text = result.ToString(Formatting.Indented);
+                this.ResultFctb.Text = result.ToIndentedString();
             }
             catch (Exception ex)
             {

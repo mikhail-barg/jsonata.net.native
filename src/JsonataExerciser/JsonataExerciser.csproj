@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="FCTB" Version="2.16.24" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup>

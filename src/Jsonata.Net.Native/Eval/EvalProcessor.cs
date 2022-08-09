@@ -194,16 +194,16 @@ namespace Jsonata.Net.Native.Eval
 
 					if (aa.Type != JTokenType.String && aa.Type != JTokenType.Integer && aa.Type != JTokenType.Float)
                     {
-						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {aa.Type} ({aa.ToStringFlat()})");
+						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {aa.Type} ({aa.ToFlatString()})");
                     };
 					if (bb.Type != JTokenType.String && bb.Type != JTokenType.Integer && bb.Type != JTokenType.Float)
 					{
-						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {bb.Type} ({bb.ToStringFlat()})");
+						throw new JsonataException("T2008", $"The expressions within an order-by clause must evaluate to numeric or string values. Got {bb.Type} ({bb.ToFlatString()})");
 					};
 
 					if ((aa.Type == JTokenType.String) != (bb.Type == JTokenType.String))
                     {
-						throw new JsonataException("T2007", $"Type mismatch when comparing values {aa.Type}({aa.ToStringFlat()}) and {bb.Type}({bb.ToStringFlat()}) in order-by clause");
+						throw new JsonataException("T2007", $"Type mismatch when comparing values {aa.Type}({aa.ToFlatString()}) and {bb.Type}({bb.ToFlatString()}) in order-by clause");
                     }
 
 					int comp;
@@ -249,7 +249,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (func is not FunctionToken function)
 			{
-				throw new JsonataException("T1008", $"Attempted to partially apply a non-function '{func.ToStringFlat()}' got from '{partialNode.func}'");
+				throw new JsonataException("T1008", $"Attempted to partially apply a non-function '{func.ToFlatString()}' got from '{partialNode.func}'");
 			};
 
 			List<JToken?> argsOrNulls = new List<JToken?>(partialNode.args.Count);
@@ -432,7 +432,7 @@ namespace Jsonata.Net.Native.Eval
             JToken func = Eval(functionCallNode.func, input, env);
             if (func is not FunctionToken function)
             {
-                throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToStringFlat()}' got from '{functionCallNode.func}'");
+                throw new JsonataException("T1006", $"Attempted to invoke a non-function '{func.ToFlatString()}' got from '{functionCallNode.func}'");
             }
 
             List<JToken> args = new List<JToken>();
@@ -608,10 +608,10 @@ namespace Jsonata.Net.Native.Eval
                     {
 						return stringify(array.ChildrenTokens[0]);
                     }
-					return array.ToStringFlat();
+					return array.ToFlatString();
                 }
 			default:
-				return token.ToStringFlat();
+				return token.ToFlatString();
 			}
         }
 

@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Jsonata.Net.Js;
-using Newtonsoft.Json.Linq;
+using Jsonata.Net.Native.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
