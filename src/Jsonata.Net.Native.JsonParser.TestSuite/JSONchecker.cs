@@ -7,35 +7,22 @@ using System.Reflection;
 
 namespace Jsonata.Net.Native.JsonParser.TestSuite
 {
-    //see https://github.com/nst/JSONTestSuite
-    public sealed class JSONTestSuite
+    //see http://www.json.org/JSON_checker/ and http://www.json.org/JSON_checker/test.zip
+    public sealed class JSONchecker
     {
-        private const string TEST_SUITE_ROOT = "../../../../../json-test-suite/test_parsing";
+        private const string TEST_SUITE_ROOT = "../../../../../json-checker-tests";
 
         private ParseSettings m_parseSettings = ParseSettings.GetStrict();  //using strict for tests
 
         private static readonly Dictionary<string, string> s_testsToIgnore = new Dictionary<string, string>() {
-            { "n_structure_100000_opening_arrays", "Causes stackoverflow, but we don't actually care" },
-            { "n_structure_open_array_object", "Causes stackoverflow, but we don't actually care" },
         };
 
         private static readonly Dictionary<string, string> s_allowRejectingTestsToPass = new Dictionary<string, string>() {
-            { "n_string_invalid_utf8_after_escape", "Because why no?" },
-            { "n_string_escaped_emoji", "Because why no?" },
-
-            { "n_string_invalid_backslash_esc", "Should be correct, no?" },
-            { "n_string_escape_x", "Should be correct, no?" },
-
-            { "n_number_with_leading_zero", "Not a problem to have such number" },
-            { "n_number_real_without_fractional_part", "Not a problem to have such number" },
-            { "n_number_neg_real_without_int_part", "Not a problem to have such number" },
-            { "n_number_neg_int_starting_with_zero", "Not a problem to have such number" },
-            { "n_number_2.e-3", "Not a problem to have such number" },
-            { "n_number_2.e3", "Not a problem to have such number" },
-            { "n_number_2.e+3", "Not a problem to have such number" },
-            { "n_number_-2.", "Not a problem to have such number" },
-            { "n_number_-01", "Not a problem to have such number" },
-            { "n_number_0.e1", "Not a problem to have such number" },
+            { "fail18", "Not too deep!" },
+            { "fail17", "Maybe not that illegal?" },
+            { "fail15", "Maybe not that illegal?" },
+            { "fail13", "Let's allow that too" },
+            { "fail1",  "Not a problem at all"}
         };
 
         [TestCaseSource(nameof(GetTestCases))]
@@ -122,28 +109,17 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
                 bool? result;
 
                 /*
-                    /test_parsing/
-
-                    The name of these files tell if their contents should be accepted or rejected.
-
-                        y_ content must be accepted by parsers
-                        n_ content must be rejected by parsers
-                        i_ parsers are free to accept or reject content
+                     If the JSON_checker is working correctly, it must accept all of the pass*.json files and reject all of the fail*.json files. 
                 */
-                if (fileName.StartsWith("y_"))
+                if (fileName.StartsWith("pass"))
                 {
                     result = true;
-                    displayName = "accepted." + displayName;
+                    displayName = "pass." + displayName;
                 }
-                else if (fileName.StartsWith("n_"))
+                else if (fileName.StartsWith("fail"))
                 {
                     result = false;
-                    displayName = "rejected." + displayName;
-                }
-                else if (fileName.StartsWith("i_"))
-                {
-                    result = null;
-                    displayName = "ambigous." + displayName;
+                    displayName = "fail." + displayName;
                 }
                 else
                 {

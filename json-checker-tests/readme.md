@@ -1,0 +1,1 @@
+These are the files from the (small) [test suite](http://www.json.org/JSON_checker/test.zip) of [json.org/JSON_checker](http://www.json.org/JSON_checker/)
