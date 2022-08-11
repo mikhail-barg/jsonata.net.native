@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net47;netstandard2.0;net5.0</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Mikhail Barg</Authors>
+		<Description>Json.Net (Newtonsoft.Json) bindings for Jsonata.Net.Native</Description>
+		<Copyright>Copyright © 2022 Mikhail Barg</Copyright>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageProjectUrl>https://github.com/mikhail-barg/jsonata.net.native</PackageProjectUrl>
+		<PackageIcon>jsonata-button.png</PackageIcon>
+		<PackageIconUrl />
+		<PackageTags>jsonata</PackageTags>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<Version>1.2.0</Version>
+
+		<!-- see https://github.com/dotnet/sourcelink/blob/master/docs/README.md#continuousintegrationbuild -->
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<DeterministicSourcePaths>true</DeterministicSourcePaths>
+
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- see https://github.com/dotnet/sourcelink/blob/master/docs/README.md#continuousintegrationbuild -->
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\jsonata-button.png" Pack="true" PackagePath="" />
+		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Text.Json" Version="6.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Jsonata.Net.Native\Jsonata.Net.Native.csproj" />
+	</ItemGroup>
+	
+	
+</Project>

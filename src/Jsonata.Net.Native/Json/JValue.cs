@@ -107,6 +107,22 @@ namespace Jsonata.Net.Native.Json
             return new JValue(this.Type, this.Value);
         }
 
+        //see Newtonsoft.Json.Utilities.MathUtils.ApproxEquals
+        private static bool ApproxEquals(double d1, double d2)
+        {
+            const double epsilon = 2.2204460492503131E-16;
+
+            if (d1 == d2)
+            {
+                return true;
+            }
+
+            double tolerance = ((Math.Abs(d1) + Math.Abs(d2)) + 10.0) * epsilon;
+            double difference = d1 - d2;
+
+            return (-tolerance < difference && tolerance > difference);
+        }
+
         public override bool DeepEquals(JToken other)
         {
             if (this.Type != other.Type)
@@ -124,9 +140,18 @@ namespace Jsonata.Net.Native.Json
 
             case JTokenType.Float:
                 {
-                    decimal thisV = (decimal)this;
-                    decimal otherV = (decimal)otherValue;
-                    return Decimal.Compare(thisV, otherV) == 0;
+                    try
+                    {
+                        decimal thisV = (decimal)this;
+                        decimal otherV = (decimal)otherValue;
+                        return Decimal.Compare(thisV, otherV) == 0;
+                    }
+                    catch (System.OverflowException)
+                    {
+                        double thisV = (double)this;
+                        double otherV = (double)otherValue;
+                        return ApproxEquals(thisV, otherV);
+                    }
                 }
             case JTokenType.Integer:
                 {
