@@ -106,17 +106,17 @@ namespace Jsonata.Net.Native.Json
         }
 
 
-        public static JToken Parse(TextReader reader)
+        public static JToken Parse(TextReader reader, ParseSettings? settings = null)
         {
-            JsonParser parser = new JsonParser(reader);
+            JsonParser parser = new JsonParser(reader, settings ?? ParseSettings.DefaultSettings);
             return parser.Parse();
         }
 
-        public static JToken Parse(string source)
+        public static JToken Parse(string source, ParseSettings? settings = null)
         {
             using (StringReader reader = new StringReader(source))
             {
-                return Parse(reader);
+                return Parse(reader, settings);
             }
         }
 

@@ -12,10 +12,12 @@ namespace Jsonata.Net.Native.Json
     internal sealed class JsonParser
     {
         private readonly TextReader m_reader;
+        private readonly ParseSettings m_settings;
         internal int CurrentPosition = 0;
 
-        internal JsonParser(TextReader reader)
+        internal JsonParser(TextReader reader, ParseSettings settings)
         {
+            this.m_settings = settings;
             this.m_reader = reader;
         }
 
@@ -186,6 +188,12 @@ namespace Jsonata.Net.Native.Json
 
                 result.Add(value);
             }
+
+            if (hadComma && !this.m_settings.AllowTrailingComma)
+            {
+                throw new JsonParseException(this, "Trailing comma in an array");
+            }
+
             this.ConsumeChar(']');
             return result;
         }
@@ -223,6 +231,12 @@ namespace Jsonata.Net.Native.Json
                 //result.Add(key, value);
                 result.Set(key, value); //allowing duplicates
             }
+
+            if (hadComma && !this.m_settings.AllowTrailingComma)
+            {
+                throw new JsonParseException(this, "Trailing comma in an object");
+            }
+
             this.ConsumeChar('}');
             return result;
         }
@@ -230,16 +244,50 @@ namespace Jsonata.Net.Native.Json
         private string ParseStringValue()
         {
             char quoteChar = this.PeekChar();
-            if (quoteChar != '\'' && quoteChar != '"')
+            switch (quoteChar)
             {
+            case '"':
+                break; //regular
+            case '\'':
+                if (!this.m_settings.AllowSinglequoteStrings)
+                {
+                    throw new JsonParseException(this, "Single-quote strings are disabled in settings");
+                }
+                break;
+            default:
                 throw new JsonParseException(this, $"Expected string start, but got '{quoteChar}'");
             }
 
             StringBuilder builder = new StringBuilder();
             this.ConsumeChar(quoteChar);
-            while (this.PeekChar() != quoteChar)
+            bool prevCharIsBackslash = false;
+            char currentChar = this.PeekChar();
+            while (true)
             {
+                if (currentChar == quoteChar && !prevCharIsBackslash)
+                {
+                    break;
+                }
+                
+                if (currentChar >= (char)0x00 && currentChar <= (char)0x1F
+                    && !this.m_settings.AllowUnescapedControlChars
+                )
+                {
+                    throw new JsonParseException(this, $"Settings forbid using unescaped control chars (0x{(int)currentChar:X})");
+                }
+
                 builder.Append(this.ReadChar());
+
+                if (currentChar == '\\')
+                {
+                    prevCharIsBackslash = !prevCharIsBackslash; //support for escaping backslash :'\\'
+                }
+                else
+                {
+                    prevCharIsBackslash = false;
+                }
+
+                currentChar = this.PeekChar();
             }
             this.ConsumeChar(quoteChar);
 
@@ -255,6 +303,27 @@ namespace Jsonata.Net.Native.Json
             return result;
         }
 
+        private bool IsWhiteSpace(char c)
+        {
+            if (this.m_settings.AllowAllWhitespace)
+            {
+                return Char.IsWhiteSpace(c);
+            }
+            else
+            {
+                switch (c)
+                {
+                case (char)0x20:
+                case (char)0x09:
+                case (char)0x0A:
+                case (char)0x0D:
+                    return true;
+                default:
+                    return false;
+                }
+            }
+        }
+
         private void SkipWhitespace()
         {
             while (true)
@@ -265,7 +334,7 @@ namespace Jsonata.Net.Native.Json
                     break;
                 }
                 char c = (char)ci;
-                if (!Char.IsWhiteSpace(c))
+                if (!this.IsWhiteSpace(c))
                 {
                     break;
                 }
