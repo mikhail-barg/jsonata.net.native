@@ -8,7 +8,7 @@ using System.Reflection;
 namespace Jsonata.Net.Native.JsonParser.TestSuite
 {
     //see https://github.com/nst/JSONTestSuite
-    public sealed class Tests
+    public sealed class JSONTestSuite
     {
         private const string TEST_SUITE_ROOT = "../../../../../json-test-suite/test_parsing";
 
