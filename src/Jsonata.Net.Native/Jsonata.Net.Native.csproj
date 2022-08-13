@@ -23,11 +23,13 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <Version>2.0.0</Version>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\sgKey.snk</AssemblyOriginatorKeyFile>
 
-    <!-- see https://github.com/dotnet/sourcelink/blob/master/docs/README.md#continuousintegrationbuild -->
+
+		<!-- see https://github.com/dotnet/sourcelink/blob/master/docs/README.md#continuousintegrationbuild -->
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <DeterministicSourcePaths>true</DeterministicSourcePaths>
-
   </PropertyGroup>
 
   <ItemGroup>
