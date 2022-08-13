@@ -1,7 +1,9 @@
 ## About
 .Net native implementation of [JSONata](http://jsonata.org) query and transformation language. 
 
-[![NuGet](https://img.shields.io/nuget/v/Jsonata.Net.Native.svg)](https://www.nuget.org/packages/Jsonata.Net.Native/)
+* Jsonata.Net.Native [![NuGet](https://img.shields.io/nuget/v/Jsonata.Net.Native.svg)](https://www.nuget.org/packages/Jsonata.Net.Native/)
+* Jsonata.Net.Native.JsonNet [![NuGet](https://img.shields.io/nuget/v/Jsonata.Net.Native.JsonNet.svg)](https://www.nuget.org/packages/Jsonata.Net.Native.JsonNet/)
+* Jsonata.Net.Native.SystemTextJson [![NuGet](https://img.shields.io/nuget/v/Jsonata.Net.Native.SystemTextJson.svg)](https://www.nuget.org/packages/Jsonata.Net.Native.SystemTextJson/)
 
 This implementation is based on original [jsonata-js](https://github.com/jsonata-js/jsonata) source and also borrows some ideas from [go port](https://github.com/blues/jsonata-go).
 
@@ -10,6 +12,7 @@ This implementation is based on original [jsonata-js](https://github.com/jsonata
 This implementation is about 100 times faster than [straightforward wrapping](https://github.com/mikhail-barg/jsonata.net.js) of original jsonata.js with Jint JS Engine for C# (the wrapping is published as [jsonata.net.js package](https://www.nuget.org/packages/Jsonata.Net.Js/)).
 
 For measurements code see [src/BenchmarkApp](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/BenchmarkApp/Program.cs) in this repo.
+
 
 ## [Usage](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/TestApp/Program.cs)
 
@@ -23,13 +26,29 @@ string result = query.Eval("{\"a\": \"b\"}");
 Debug.Assert(result == "\"b\"");
 ```
 
-* or, in case you are already working with [JSON.Net](https://www.newtonsoft.com/json) data:
+Since version 2.0.0 this package does not depend on JSON.Net, instead it uses a custom implementation of JSON DOM and parser (see [Jsonata.Net.Native.Json](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/Jsonata.Net.Native/Json) namespace). This change gave us the following benefits:
+  * Things got faster (see [here](https://github.com/mikhail-barg/jsonata.net.native/pull/4)).
+  * More Jsonata features wee implemented and are possible to implement in future.
+  * No external dependencies for the core Jsonata.Net.Native package (for those who don't use Json.Net in their projects).
+
+Still this custom implementation is modelled on Json.Net, so the following code should look familliar
+
 ```c#
+using Jsonata.Net.Native;
+using Jsonata.Net.Native.Json;
+...
 JToken data = JToken.Parse("{\"a\": \"b\"}");
 ...
 JToken result = query.Eval(data);
-Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
+Debug.Assert(result.ToFlatString() == "\"b\"");
 ```
+
+In case you work with [JSON.Net](https://www.newtonsoft.com/json) you may use a separate binding package Jsonata.Net.Native.JsonNet and its single class [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.JsonNet/JsonataExtensions.cs) to:
+* convert token hierarchy to and from Json.Net (`ToNewtonsoft()` and `FromNewtonsoft()`)
+* evaluate Jsonata queries via various `EvalNewtonsoft()` overloads
+* bind values to `EvaluationEnvironment` (`BindValue()`)
+
+Same goes for when you use [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview). Separate binding package Jsonata.Net.Native.SystemTextJson provides similar [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.SystemTextJson/JsonataExtensions.cs) class with similar wrappers.
 
 ## C# Features
 
@@ -42,6 +61,26 @@ Debug.Assert(result.ToString(Formatting.None) == "\"b\"");
 
 We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) with same functionality as in original [JSONata Exerciser](https://try.jsonata.org/):
 ![Exerciser](/misc/exerciser.png)
+
+## Parsing JSON with Jsonata.Net.Native.Json
+
+As mentioned above, modern versions of Jsonata.Net.Native use custom implementation of JSON DOM and parsing. While re-implementation of JSON object model (JToken hierarchy) has been justified by performance and functionality reasons, writing just another JSON parser from scratch in 2022 looked a bit like re-inventing the wheel. On the other hand, forcing some specific external dependency just for the sake of parsing JSON looked even worse. So here you get just another JSON parser available via [`JToken.Parse()`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native/Json/JToken.cs) method.
+
+This parser is [being checked](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/Jsonata.Net.Native.JsonParser.TestSuite) over the following test sets:
+* [JSONTestSuite](https://github.com/nst/JSONTestSuite) — most prominent collection of corner case checks for JSON Parsers. Out implementation results are:
+  * **From "accepted" (`y_`) section:** 95 out of 95 tests are passing (100%).
+  * **From "rejected" (`n_`) section:** 178 out of 188 tests are passing. 2 tests are causing stackoverflow (those are ones contating 10 000 open square braces). And remaining 14 tests are considered "okay" to fail — which is to parse things that are not being expected to be parsed by strict JSON parsers (eg. numbers like `-.123`).
+  * **From "ambigous" (`i_`) section:** all 35 tests are not causing the parser to crush miserably (and expected parsing results are not specified for those tests).
+* [JSON_checker](http://www.json.org/JSON_checker/) — an official but small json.org's parser tests:
+  * **From "pass" section:** 3 out of 3 tests are passing.
+  * **From "fail" section:** 28 out of 33 tests are passing, and remaining 5 are consiered "okay" for same reasons as above.
+
+We have implemented a number of relaxations to "strict" parser spec used in test, like allowing trailing commas, or single-quoted strings. These options are configurable wia [`ParseSettings`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native/Json/ParseSettings.cs) class. All relaxations are enabled by default.
+
+When facing an invalid JSON, the parser would throw a [`JsonParseException`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native/Json/JsonParseException.cs)
+
+We have put some effort to this parser, but still the main purpose of the package is not parsing JSON by itself, so in case you need more sofisticated parsing features, like comments (or parsing 10 000 open braces) please use some mature parser package like Json.Net or System.Text.Json and convert results to Jsonata.Net.Native.Json.JToken via routines in a binding package.
+
 
 ## JSONata language features support
 
