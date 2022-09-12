@@ -107,13 +107,13 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: `{ ... }` (Reduce)
   * :heavy_check_mark: `*` (Wildcard)
   * :heavy_check_mark: `**` (Descendants)
-  * :white_check_mark: `%` (Parent) - not yet implemented. It's not clear how to implement this without significant rewrite of Json.Net code (*TODO*)
+  * :white_check_mark: `%` (Parent) - (*TODO*)
   * :white_check_mark: `#` (Positional variable binding) - (*TODO*)
   * :white_check_mark: `@` (Context variable binding) - (*TODO*)
 * :heavy_check_mark: [Numeric Operators](http://docs.jsonata.org/numeric-operators) - all, including `..` (Range) operator.
 * :heavy_check_mark: [Comparison Operators](http://docs.jsonata.org/comparison-operators) - all, including `in` (Inclusion) operator.
 * :heavy_check_mark: [Boolean Operators](http://docs.jsonata.org/boolean-operators).
-* :white_check_mark: [Other Operators](http://docs.jsonata.org/other-operators):
+* :heavy_check_mark: [Other Operators](http://docs.jsonata.org/other-operators):
   * :heavy_check_mark: `&` (Concatenation)
   * :heavy_check_mark: `?` : (Conditional)
   * :heavy_check_mark: `:=` (Variable binding)

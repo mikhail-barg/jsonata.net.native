@@ -17,7 +17,7 @@ namespace TestApp
                 Check(result, "\"b\"");
             }
 
-            //from Json.Net
+            //from tokens
             {
                 JToken data = JToken.Parse("{\"a\": \"b\"}");
                 JToken result = query.Eval(data);
