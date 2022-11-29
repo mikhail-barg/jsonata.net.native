@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    [DebuggerDisplay("{Type}: {ToStringFlat()}")]
+    [DebuggerDisplay("{Type}: {ToFlatString()}")]
     public abstract class JToken
     {
         public readonly JTokenType Type;
