@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+		<IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net47;net5.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
