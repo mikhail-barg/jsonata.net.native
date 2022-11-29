@@ -20,10 +20,12 @@
     <PackageProjectUrl>https://github.com/mikhail-barg/jsonata.net.native</PackageProjectUrl>
     <PackageIcon>jsonata-button.png</PackageIcon>
     <PackageTags>jsonata</PackageTags>
+		<!-- see https://github.com/NuGet/Home/issues/10372, https://github.com/NuGet/docs.microsoft.com-nuget/issues/2939, https://github.com/NuGet/docs.microsoft.com-nuget/issues/2938
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		-->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\sgKey.snk</AssemblyOriginatorKeyFile>
 
