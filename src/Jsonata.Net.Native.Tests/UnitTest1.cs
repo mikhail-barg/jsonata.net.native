@@ -236,5 +236,26 @@ namespace Jsonata.Net.Native.Tests
                 "[{},{},{}]"
             );
         }
+
+
+        [TestMethod]
+        public void Test_Issue9_1()
+        {
+            Check(
+                @"$ {V : 'z'}",
+                @"[{ 'Name': 'Foo', 'V': 'SomeName'}]",
+                @"{ 'SomeName': 'z' }"
+            );
+        }
+
+        [TestMethod]
+        public void Test_Issue9_2()
+        {
+            Check(
+                @"$ {V : 'z'}",
+                @"[]",
+                @"{}"
+            );
+        }
     }
 }

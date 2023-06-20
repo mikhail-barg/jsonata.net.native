@@ -832,15 +832,18 @@ namespace Jsonata.Net.Native.Eval
 				inputSequence.Add(input);
 				inputArray = inputSequence;
 			};
-			
+
+            /* //does not seem to have any positive effects, but causes this issue https://github.com/mikhail-barg/jsonata.net.native/issues/9
+			 
 			// if the array is empty, add an undefined entry to enable literal JSON object to be generated
 			if (inputArray.Count == 0)
 			{
 				inputArray.Add(EvalProcessor.UNDEFINED);
 			}
+			*/
 
 
-			Dictionary<string, KeyIndex> itemsGroupedByKey = new Dictionary<string, KeyIndex>();
+            Dictionary<string, KeyIndex> itemsGroupedByKey = new Dictionary<string, KeyIndex>();
 
 			foreach (JToken item in inputArray.ChildrenTokens)
 			{
@@ -850,7 +853,7 @@ namespace Jsonata.Net.Native.Eval
 					JToken keyToken = Eval(keyNode, item, env);
 					if (keyToken.Type != JTokenType.String)
 					{
-						throw new JsonataException("T1003", $"Object key should be String. Expression evaluated to {keyToken.Type} '{keyToken}'");
+						throw new JsonataException("T1003", $"Object key should be String. Expression evaluated to {keyToken.Type} '{keyToken.ToFlatString()}'");
 					};
 					string key = (string)keyToken!;
 					if (itemsGroupedByKey.TryGetValue(key, out KeyIndex? keyIndex))
