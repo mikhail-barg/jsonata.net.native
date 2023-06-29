@@ -726,7 +726,9 @@ namespace Jsonata.Net.Native.Eval
         {
             //see https://stackoverflow.com/a/34189188/376066 and 
             //    https://stackoverflow.com/questions/4396598/whats-the-difference-between-escapeuristring-and-escapedatastring/34189188#comment81544744_34189188
+#pragma warning disable SYSLIB0013
             return Uri.EscapeUriString(str);
+#pragma warning restore
         }
 
 

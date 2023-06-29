@@ -1,11 +1,9 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Jsonata.Net.Native.JsonNet;
+using NUnit.Framework;
 
 namespace Jsonata.Net.Native.Tests
 {
-    [TestClass]
     public class UnitTest1
     {
         private static void Check(string query, string data, string expectedResult)
@@ -17,48 +15,49 @@ namespace Jsonata.Net.Native.Tests
             Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToString(Formatting.None)}");
         }
 
-        [TestMethod] public void TestSimple_1()
+        [Test] 
+        public void TestSimple_1()
         {
             Check("a", "{'a': 'b'}", "'b'");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimple_2()
         {
             Check("a", "[{'a': 'b'}]", "'b'");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimple_3()
         {
             Check("a", "[{'a': 'b'}, {'a': 'd'}]", "['b', 'd']");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimple_4()
         {
             Check("a.b", "{'a': {'b': 'c'}}", "'c'");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimple_5()
         {
             Check("a.b", "[{'a': {'b': 'c'}}]", "'c'");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimple_6() //TODO: currently fails (
         {
             Check("*.a", "[{'a': 'b'}, {'a': 'd'}]", "['b', 'd']");
         }
 
-        [TestMethod]
+        [Test]
         public void TestSimple_7()
         {
             Check("**.a", "[{'a': 'b'}, {'a': 'd'}, {'e': {'a': 'f'}}]", "['b', 'd', 'f']");
         }
 
-        [TestMethod]
+        [Test]
         public void TestFlatten_1()
         {
             Check(
@@ -77,7 +76,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFlatten_2()
         {
             Check(
@@ -93,7 +92,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFlatten_3()
         {
             Check(
@@ -105,7 +104,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFlatten_4()
         {
             Check(
@@ -115,7 +114,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFlatten_5()
         {
             Check(
@@ -125,7 +124,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFunctionContextBroadcast_1()
         {
             Check(
@@ -135,7 +134,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFunctionContextBroadcast_2()
         {
             Check(
@@ -145,7 +144,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFunctionContextBroadcast_pad1()
         {
             Check(
@@ -155,7 +154,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFunctionContextBroadcast_pad2()
         {
             Check(
@@ -165,7 +164,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFunctionContextBroadcast_pad3()
         {
             Check(
@@ -175,7 +174,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestFunctionContextBroadcast_pad4()
         {
             Check(
@@ -185,7 +184,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestTransform_1()
         {
             Check(
@@ -195,7 +194,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void TestTransform_2()
         {
             Check(
@@ -205,7 +204,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Test_Issue3_1()
         {
             Check(
@@ -221,7 +220,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Test_Issue3_2()
         {
             Check(
@@ -238,7 +237,7 @@ namespace Jsonata.Net.Native.Tests
         }
 
 
-        [TestMethod]
+        [Test]
         public void Test_Issue9_1()
         {
             Check(
@@ -248,7 +247,7 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Test_Issue9_2()
         {
             Check(

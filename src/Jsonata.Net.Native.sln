@@ -25,6 +25,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native.SystemTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Jsonata.Net.Native.SystemTextJson.Tests", "Jsonata.Net.Native.SystemTextJson.Tests\Jsonata.Net.Native.SystemTextJson.Tests.csproj", "{D9DAD074-C2B6-4471-9C63-85AFE68C3DB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jsonata.Net.Native.JsonNet.Tests", "Jsonata.Net.Native.JsonNet.Tests\Jsonata.Net.Native.JsonNet.Tests.csproj", "{E7F029E6-D32B-4D9E-B589-DE37BC923249}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectParsingTestsData", "ObjectParsingTestsData\ObjectParsingTestsData.csproj", "{9B30AEED-A458-4E37-86E0-18C0183BB461}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,14 @@ Global
 		{D9DAD074-C2B6-4471-9C63-85AFE68C3DB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9DAD074-C2B6-4471-9C63-85AFE68C3DB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9DAD074-C2B6-4471-9C63-85AFE68C3DB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7F029E6-D32B-4D9E-B589-DE37BC923249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7F029E6-D32B-4D9E-B589-DE37BC923249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7F029E6-D32B-4D9E-B589-DE37BC923249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7F029E6-D32B-4D9E-B589-DE37BC923249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B30AEED-A458-4E37-86E0-18C0183BB461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B30AEED-A458-4E37-86E0-18C0183BB461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B30AEED-A458-4E37-86E0-18C0183BB461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B30AEED-A458-4E37-86E0-18C0183BB461}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

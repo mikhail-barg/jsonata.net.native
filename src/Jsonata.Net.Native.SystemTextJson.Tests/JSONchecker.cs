@@ -43,9 +43,9 @@ namespace Jsonata.Net.Native.SystemTextJson.Tests
         {
             TestCaseData caseData = new TestCaseData(caseInfo);
             //see https://docs.nunit.org/articles/nunit/running-tests/Template-Based-Test-Naming.html
-            //caseData.SetName(info + " {a}"); // can't use {a} to show parametetrs here becasue of https://github.com/nunit/nunit3-vs-adapter/issues/691
+            //caseData.SetName(info + " {a}"); // can't use {a} to show parameters here becasue of https://github.com/nunit/nunit3-vs-adapter/issues/691
             caseData.SetName(caseInfo.displayName);
-            //caseData.SetDescription(caseInfo.GetDescription()); //doens not do much for VS Test Executor (
+            //caseData.SetDescription(caseInfo.GetDescription()); //does not do much for VS Test Executor (
             results.Add(caseData);
         }
 

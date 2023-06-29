@@ -70,6 +70,20 @@ namespace Jsonata.Net.Native.JsonNet
             }
         }
 
+        /**
+         * <summary> may be used instead of JToken.FromObject() in case some custom converters are needed</summary>
+         */
+        public static JToken FromObjectViaNewtonsoft(object? value, Newtonsoft.Json.JsonSerializer? serializer = null)
+        {
+            if (value == null)
+            {
+                return JValue.CreateNull();
+            };
+
+            Newtonsoft.Json.Linq.JToken token = Newtonsoft.Json.Linq.JToken.FromObject(value, serializer ?? Newtonsoft.Json.JsonSerializer.CreateDefault());
+            return JsonataExtensions.FromNewtonsoft(token);
+        }
+
         public static Newtonsoft.Json.Linq.JToken ToNewtonsoft(this JToken value)
         {
             switch (value.Type)

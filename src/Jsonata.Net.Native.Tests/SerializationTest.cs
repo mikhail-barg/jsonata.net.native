@@ -1,9 +1,8 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Jsonata.Net.Native.Json;
+using NUnit.Framework;
 
 namespace Jsonata.Net.Native.Tests
 {
-    [TestClass]
     public class SerializationTest
     {
         private static void Check(string source)
@@ -14,7 +13,7 @@ namespace Jsonata.Net.Native.Tests
         }
 
         //see https://github.com/mikhail-barg/jsonata.net.native/issues/7
-        [TestMethod]
+        [Test]
         public void Test_Issue7()
         {
             Check("\"Lorem \\\"ipsum\\\"\""); //the json is '"Lorem \"ipsum\""'

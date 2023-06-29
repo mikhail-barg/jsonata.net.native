@@ -16,6 +16,8 @@ For measurements code see [src/BenchmarkApp](https://github.com/mikhail-barg/jso
 
 ## [Usage](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/TestApp/Program.cs)
 
+### Basic
+
 * simple case
 ```c#
 using Jsonata.Net.Native;
@@ -43,12 +45,21 @@ JToken result = query.Eval(data);
 Debug.Assert(result.ToFlatString() == "\"b\"");
 ```
 
+### [JSON.Net](https://www.newtonsoft.com/json) 
 In case you work with [JSON.Net](https://www.newtonsoft.com/json) you may use a separate binding package Jsonata.Net.Native.JsonNet and its single class [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.JsonNet/JsonataExtensions.cs) to:
 * convert token hierarchy to and from Json.Net (`ToNewtonsoft()` and `FromNewtonsoft()`)
 * evaluate Jsonata queries via various `EvalNewtonsoft()` overloads
 * bind values to `EvaluationEnvironment` (`BindValue()`)
 
-Same goes for when you use [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview). Separate binding package Jsonata.Net.Native.SystemTextJson provides similar [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.SystemTextJson/JsonataExtensions.cs) class with similar wrappers.
+### [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview)
+Same goes for when you use [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview). 
+Separate binding package Jsonata.Net.Native.SystemTextJson provides similar [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.SystemTextJson/JsonataExtensions.cs) class with similar wrappers.
+
+### Querying C# objects
+It is also possible to create a JToken tree representation of existing C# object via `Jsonata.Net.Native.Json.JToken.FromObject()` and then query it with JSONata as a regular JSON.
+This may come in handy when you want to give your user some way to get and combine data from your program object model. 
+
+In case you want to go deeper and get more control over JSON representation of your objects, you may want to use `Jsonata.Net.Native.JsonNet.JsonataExtensions.FromObjectViaNewtonsoft()` and get all fancy stuff that Json.Net has to offer for this.
 
 ## C# Features
 
@@ -79,8 +90,7 @@ We have implemented a number of relaxations to "strict" parser spec used in test
 
 When facing an invalid JSON, the parser would throw a [`JsonParseException`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native/Json/JsonParseException.cs)
 
-We have put some effort to this parser, but still the main purpose of the package is not parsing JSON by itself, so in case you need more sofisticated parsing features, like comments (or parsing 10 000 open braces) please use some mature parser package like Json.Net or System.Text.Json and convert results to Jsonata.Net.Native.Json.JToken via routines in a binding package.
-
+We have put some effort to this parser, but still the main purpose of the package is not parsing JSON by itself, so in case you need more sophisticated parsing features, like comments (or parsing 10 000 open braces) please use some mature parser package like Json.Net or System.Text.Json and convert results to Jsonata.Net.Native.Json.JToken via routines in a binding package.
 
 ## JSONata language features support
 
