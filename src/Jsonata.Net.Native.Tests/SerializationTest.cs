@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Jsonata.Net.Native.Tests
 {
-    public class SerializationTest
+    public sealed class SerializationTest
     {
         private static void Check(string source)
         {

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -207,5 +208,263 @@ namespace Jsonata.Net.Native.Json
         }
 
         public abstract bool DeepEquals(JToken other);
+
+        public T ToObject<T>()
+        {
+            return (T)this.ToObject(typeof(T))!;
+        }
+
+        public object? ToObject(Type type)
+        {
+            if (type == typeof(string))
+            {
+                if (this.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+                return (string)this;
+            }
+            else if (type == typeof(int))
+            {
+                return (int)this;
+            }
+            else if (type == typeof(long))
+            {
+                return (long)this;
+            }
+            else if (type == typeof(float))
+            {
+                if (this.Type == JTokenType.Integer)
+                {
+                    //explicit support, because casts are strict for a reason
+                    return (float)(long)this;
+                }
+                return (float)this;
+            }
+            else if (type == typeof(double))
+            {
+                if (this.Type == JTokenType.Integer)
+                {
+                    //explicit support, because casts are strict for a reason
+                    return (double)(long)this;
+                }
+                return (double)this;
+            }
+            else if (type == typeof(decimal))
+            {
+                if (this.Type == JTokenType.Integer)
+                {
+                    //explicit support, because casts are strict for a reason
+                    return (decimal)(long)this;
+                }
+                return (decimal)this;
+            }
+            else if (type == typeof(bool))
+            {
+                return (bool)this;
+            }
+            else if (Nullable.GetUnderlyingType(type) != null)
+            {
+                if (this.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+                else
+                {
+                    //wrap value in Nullable<T>
+                    Type valueType = Nullable.GetUnderlyingType(type)!;
+                    object? value = this.ToObject(valueType);
+                    object? result = Activator.CreateInstance(type, new object?[] { value });
+                    return result;
+                }
+            }
+            
+            else if (typeof(IDictionary).IsAssignableFrom(type))
+            {
+                if (type.GenericTypeArguments.Length != 2 || type.GenericTypeArguments[0] != typeof(string))
+                {
+                    throw new ArgumentException($"Cannot convert to dict of type {type.Name}: unexpected generic args");
+                }
+
+                Type valueType = type.GenericTypeArguments[1];
+                Type resultType = typeof(Dictionary<,>).MakeGenericType(typeof(string), valueType);
+
+                if (!type.IsAssignableFrom(resultType))
+                {
+                    throw new ArgumentException($"Cannot convert to dict of type {type.Name}: not assignable from Dictionary");
+                }
+                
+                if (this.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+                else if (this.Type == JTokenType.Object)
+                {
+                    return ConvertToDictionary(resultType, valueType);
+                }
+                else
+                {
+                    throw new ArgumentException($"Cannot convert {this.Type} to dict {type.Name}");
+                }
+            }
+            else if (typeof(IList).IsAssignableFrom(type))
+            {
+                if (type.GenericTypeArguments.Length != 1)
+                {
+                    throw new ArgumentException($"Cannot convert to list of type {type.Name}: unexpected generic args");
+                }
+
+                Type valueType = type.GenericTypeArguments[0];
+                Type resultType = typeof(List<>).MakeGenericType(valueType);
+
+                if (!type.IsAssignableFrom(resultType))
+                {
+                    throw new ArgumentException($"Cannot convert to list of type {type.Name}: not assignable from List");
+                }
+
+                if (this.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+                else if (this.Type == JTokenType.Array)
+                {
+                    return this.ConvertToList(resultType, valueType);
+                }
+                else
+                {
+                    throw new ArgumentException($"Cannot convert {this.Type} to array {type.Name}");
+                }
+            }
+            else if (type.IsEnum)
+            {
+                string? value = (string)this;
+#if (NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1)
+                if (!Enum.TryParse(type, value, out object? result))
+                {
+                    throw new ArgumentException($"Failed to parse '{value}' to enum {type.Name}");
+                }
+                return result;
+#else
+                try
+                {
+                    object? result = Enum.Parse(type, value);
+                    return result;
+                }
+                catch (Exception)
+                {
+                    throw new ArgumentException($"Failed to parse '{value}' to enum {type.Name}");
+                }
+#endif
+            }
+            else if (type == typeof(object))
+            {
+                switch (this.Type)
+                {
+                case JTokenType.Object:
+                    return this.ConvertToDictionary(typeof(Dictionary<,>).MakeGenericType(typeof(string), typeof(object)), typeof(object));
+                case JTokenType.Array:
+                    return this.ConvertToList(typeof(List<>).MakeGenericType(typeof(object)), typeof(object));
+                case JTokenType.Integer:
+                    return (long)this;
+                case JTokenType.Float:
+                    return (double)this;
+                case JTokenType.String:
+                    return (string)this;
+                case JTokenType.Boolean:
+                    return (bool)this;
+                case JTokenType.Null:
+                    return null;
+                default:
+                    throw new ArgumentException($"Cannot convert {this.Type} to object");
+                }
+            }
+            else if (type.IsClass)
+            {
+                if (this.Type == JTokenType.Null)
+                {
+                    return null;
+                }
+                else if (this.Type == JTokenType.Object)
+                {
+                    object result;
+                    try
+                    {
+                        result = Activator.CreateInstance(type)!;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new ArgumentException($"Failed to create instance of class {type.Name}: {ex.Message}", ex);
+                    }
+
+                    Dictionary<string, PropertyInfo> restultProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                        .ToDictionary(pi => pi.Name);
+
+                    JObject thisObj = (JObject)this;
+
+                    foreach (KeyValuePair<string, PropertyInfo> resultProperty in restultProperties)
+                    {
+                        if (!thisObj.Properties.TryGetValue(resultProperty.Key, out JToken? thisProperty))
+                        {
+                            throw new ArgumentException($"Missing value for '{resultProperty.Key}'");
+                        }
+                        object? value;
+                        try
+                        {
+                            value = thisProperty.ToObject(resultProperty.GetType());
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new ArgumentException($"Failed to convert value for '{resultProperty.Key}': {ex.Message}", ex);
+                        }
+
+                        try
+                        {
+                            resultProperty.Value.SetValue(result, value);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new ArgumentException($"Failed to set value for '{resultProperty.Key}': {ex.Message}", ex);
+                        }
+                    }
+
+                    if (thisObj.Keys.Except(restultProperties.Keys).Any())
+                    {
+                        throw new ArgumentException($"Specified unknown properties: {String.Join(",", thisObj.Keys.Except(restultProperties.Keys))}");
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    throw new ArgumentException($"Cannot convert {this.Type} to obj {type.Name}");
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"Cannot convert {this.Type} to some {type.Name}");
+            }
+        }
+
+        private object ConvertToList(Type listType, Type valueType)
+        {
+            System.Collections.IList result = (System.Collections.IList)Activator.CreateInstance(listType)!;
+            foreach (JToken element in ((JArray)this).ChildrenTokens)
+            {
+                object? value = element.ToObject(valueType);
+                result.Add(value);
+            }
+            return result;
+        }
+
+        private object ConvertToDictionary(Type dictionaryType, Type valueType)
+        {
+            System.Collections.IDictionary result = (System.Collections.IDictionary)Activator.CreateInstance(dictionaryType)!;
+            foreach (KeyValuePair<string, JToken> property in ((JObject)this).Properties)
+            {
+                object? value = property.Value.ToObject(valueType);
+                result.Add(property.Key, value);
+            }
+            return result;
+        }
     }
 }

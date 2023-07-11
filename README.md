@@ -61,6 +61,8 @@ This may come in handy when you want to give your user some way to get and combi
 
 In case you want to go deeper and get more control over JSON representation of your objects, you may want to use `Jsonata.Net.Native.JsonNet.JsonataExtensions.FromObjectViaNewtonsoft()` and get all fancy stuff that Json.Net has to offer for this.
 
+Since v2.2.0 there's also a (limited) support for converting JTokens back to C# objects via `JToken.ToObject()`.
+
 ## C# Features
 
 * `JsonataQuery` objects are immutable and therefore reusable and thread-safe.
