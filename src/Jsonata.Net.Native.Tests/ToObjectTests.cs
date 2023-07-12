@@ -63,11 +63,18 @@ namespace Jsonata.Net.Native.Tests
                 new TestData("[{'a': 'b'}]", new List<object> { new Dictionary<string, object> { { "a", "b" } } }),
                 new TestData("[{'a': 'c'}]", new List<object> { new Dictionary<string, string> { { "a", "c" } } }),
                 new TestData("[{'a': 'd'}]", new List<Dictionary<string, string>> { new Dictionary<string, string> { { "a", "d" } } }),
+                new TestData("{'foo': 'goo', 'bar': 10}", new TestObj() { foo = "goo", bar = 10 }),
             };
 
             return tests
                 .Select(v => new TestCaseData(v) { TestName = v.json })
                 .ToList();
+        }
+
+        private sealed class TestObj
+        {
+            public string foo { get; set; } = default!;
+            public int? bar { get; set; }
         }
     }
 }

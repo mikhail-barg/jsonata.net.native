@@ -396,12 +396,12 @@ namespace Jsonata.Net.Native.Json
                         throw new ArgumentException($"Failed to create instance of class {type.Name}: {ex.Message}", ex);
                     }
 
-                    Dictionary<string, PropertyInfo> restultProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    Dictionary<string, PropertyInfo> resultProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                         .ToDictionary(pi => pi.Name);
 
                     JObject thisObj = (JObject)this;
 
-                    foreach (KeyValuePair<string, PropertyInfo> resultProperty in restultProperties)
+                    foreach (KeyValuePair<string, PropertyInfo> resultProperty in resultProperties)
                     {
                         if (!thisObj.Properties.TryGetValue(resultProperty.Key, out JToken? thisProperty))
                         {
@@ -410,7 +410,7 @@ namespace Jsonata.Net.Native.Json
                         object? value;
                         try
                         {
-                            value = thisProperty.ToObject(resultProperty.GetType());
+                            value = thisProperty.ToObject(resultProperty.Value.PropertyType);
                         }
                         catch (Exception ex)
                         {
@@ -427,9 +427,9 @@ namespace Jsonata.Net.Native.Json
                         }
                     }
 
-                    if (thisObj.Keys.Except(restultProperties.Keys).Any())
+                    if (thisObj.Keys.Except(resultProperties.Keys).Any())
                     {
-                        throw new ArgumentException($"Specified unknown properties: {String.Join(",", thisObj.Keys.Except(restultProperties.Keys))}");
+                        throw new ArgumentException($"Specified unknown properties: {String.Join(",", thisObj.Keys.Except(resultProperties.Keys))}");
                     }
 
                     return result;
