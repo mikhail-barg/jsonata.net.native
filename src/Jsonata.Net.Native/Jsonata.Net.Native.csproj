@@ -20,6 +20,7 @@
     <PackageProjectUrl>https://github.com/mikhail-barg/jsonata.net.native</PackageProjectUrl>
     <PackageIcon>jsonata-button.png</PackageIcon>
     <PackageTags>jsonata</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<!-- see https://github.com/NuGet/Home/issues/10372, https://github.com/NuGet/docs.microsoft.com-nuget/issues/2939, https://github.com/NuGet/docs.microsoft.com-nuget/issues/2938
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -43,6 +44,7 @@
   <ItemGroup>
     <None Include="..\..\jsonata-button.png" Pack="true" PackagePath="" />
     <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

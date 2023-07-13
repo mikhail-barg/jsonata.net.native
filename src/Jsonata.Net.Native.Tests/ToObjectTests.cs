@@ -34,6 +34,16 @@ namespace Jsonata.Net.Native.Tests
 
         private readonly ObjectsComparer.Comparer m_comparer = new ObjectsComparer.Comparer();
 
+        [Test]
+        public void TestComparer()
+        {
+            Assert.IsTrue(this.m_comparer.Compare("a", "a"), "a == a");
+            Assert.IsFalse(this.m_comparer.Compare("a", "b"), "a != b");
+            //TODO: WTF! see https://github.com/ValeraT1982/ObjectsComparer/issues/23
+            Assert.IsTrue(this.m_comparer.Compare(typeof(object), "a", "b"), "a == b (obj)");
+        }
+
+
         [TestCaseSource(nameof(GetTestCases))]
         public void Check(TestData data)
         {
@@ -60,6 +70,7 @@ namespace Jsonata.Net.Native.Tests
                 new TestData("[1, 2, 3]", new List<int> { 1, 2, 3 }),
                 new TestData("[1, 'a', null]", new List<object?> { 1, "a", null }),
                 new TestData("{'a': [1, 'b'] }", new Dictionary<string, object> { { "a", new List<object> { 1, "b" } } }),
+                //TODO: there's actually a problem with two following tests, see TestComparer() test above
                 new TestData("[{'a': 'b'}]", new List<object> { new Dictionary<string, object> { { "a", "b" } } }),
                 new TestData("[{'a': 'c'}]", new List<object> { new Dictionary<string, string> { { "a", "c" } } }),
                 new TestData("[{'a': 'd'}]", new List<Dictionary<string, string>> { new Dictionary<string, string> { { "a", "d" } } }),
