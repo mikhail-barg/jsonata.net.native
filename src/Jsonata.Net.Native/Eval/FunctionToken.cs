@@ -26,7 +26,6 @@ namespace Jsonata.Net.Native.Eval
 
         internal abstract JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env);
 
-
         internal static JToken ReturnDoubleResult(double resultDouble)
         {
             if (Double.IsNaN(resultDouble) || Double.IsInfinity(resultDouble))
@@ -56,6 +55,11 @@ namespace Jsonata.Net.Native.Eval
             {
                 return new JValue(resultDecimal);
             }
+        }
+
+        protected override void CleaParentNested()
+        {
+            //nothing to do
         }
 
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent)

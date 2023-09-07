@@ -17,6 +17,8 @@ namespace Jsonata.Net.Native.Json
     {
         public readonly JTokenType Type;
 
+        internal JToken? parent { get; set; }
+
         protected JToken(JTokenType type)
         {
             this.Type = type;
@@ -181,6 +183,14 @@ namespace Jsonata.Net.Native.Json
             }
             return result;
         }
+
+        internal void ClearParent()
+        {
+            this.parent = null;
+            this.CleaParentNested();
+        }
+
+        protected abstract void CleaParentNested();
 
         public string ToIndentedString()
         {

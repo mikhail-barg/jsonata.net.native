@@ -31,6 +31,14 @@ namespace Jsonata.Net.Native.Json
             this.m_values.Add(token);
         }
 
+        protected override void CleaParentNested()
+        {
+            foreach (JToken child in this.m_values)
+            {
+                child.ClearParent();
+            }
+        }
+
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
         {
             if (this.m_values.Count == 0)

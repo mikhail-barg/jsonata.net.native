@@ -121,6 +121,20 @@ namespace Jsonata.Net.Native.Parsing
         }
     }
 
+    // A ParentNode represents a parent loockback.
+    internal sealed record ParentNode() : Node
+    {
+        internal override Node optimize()
+        {
+            return new PathNode(new List<Node>() { this }, keepArrays: false);
+        }
+
+        public override string ToString()
+        {
+            return "%";
+        }
+    }
+
     // A PathNode represents a JSON object path. It consists of one
     // or more 'steps' or Nodes (most commonly NameNode objects).
     internal sealed record PathNode(List<Node> steps, bool keepArrays) : Node

@@ -35,6 +35,7 @@ namespace Jsonata.Net.Native.Parsing
                 { TokenType.typeRegex,       this.parseRegex },
                 { TokenType.typeVariable,    this.parseVariable },
                 { TokenType.typeName,        this.parseName },
+                { TokenType.typeMod,         this.parseParent },
                 { TokenType.typeNameEsc,     this.parseEscapedName },
                 { TokenType.typeBracketOpen, this.parseArray },
                 { TokenType.typeBraceOpen,   this.parseObject },

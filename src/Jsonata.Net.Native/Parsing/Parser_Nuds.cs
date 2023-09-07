@@ -99,6 +99,11 @@ namespace Jsonata.Net.Native.Parsing
             return new NameNode(value: t.value ?? throw new ArgumentException(), escaped: false);
         }
 
+        private Node parseParent(Token t)
+        {
+            return new ParentNode();
+        }
+
         private Node parseEscapedName(Token t)
         {
             return new NameNode(value: t.value ?? throw new ArgumentException(), escaped: true);

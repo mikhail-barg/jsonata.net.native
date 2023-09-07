@@ -162,7 +162,7 @@ namespace Jsonata.Net.Native.TestSuite
                 if (caseInfo.code != null)
                 {
                     //Assert.Equals(caseInfo.code, jsonataEx.Code); //TODO: enable code checking later
-                    Assert.Pass("Expected to throw error with code " + caseInfo.code);
+                    Assert.Pass($"Expected to throw error with code {caseInfo.code}.\nActually thrown {jsonataEx.Code}.\nNot checking codes yet");
                 }
                 else if (caseInfo.error != null)
                 {

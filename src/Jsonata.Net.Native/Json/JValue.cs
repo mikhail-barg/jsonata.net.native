@@ -130,6 +130,11 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
+        protected override void CleaParentNested()
+        {
+            //nothing to do for a value;
+        }
+
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
         {
             this.ToString(builder);

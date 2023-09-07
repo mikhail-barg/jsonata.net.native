@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -12,6 +13,8 @@ namespace Jsonata.Net.Native.Tests
             string resultStr = jsonata.Eval(data);
             JToken resultJson = JToken.Parse(resultStr);
             JToken expectedResultJson = JToken.Parse(expectedResult);
+            Console.WriteLine("Expected: " + expectedResultJson.ToString(Formatting.None));
+            Console.WriteLine("Got: " + resultJson.ToString(Formatting.None));
             Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToString(Formatting.None)}");
         }
 
@@ -254,6 +257,80 @@ namespace Jsonata.Net.Native.Tests
                 @"$ {V : 'z'}",
                 @"[]",
                 @"{}"
+            );
+        }
+
+
+        [Test]
+        public void Test_Parent_1()
+        {
+            Check(
+                @"a.%",
+                @"{'a': 'b'}",
+                @"{'a': 'b'}"
+            );
+        }
+
+        [Test]
+        public void Test_Parent_2()
+        {
+            Check(
+                @"a.%",
+                @"[{'a': 'b'}, {'a': 'c'}]",
+                @"[{'a': 'b'}, {'a': 'c'}, {'a': 'b'}, {'a': 'c'}]"
+            );
+        }
+
+
+        [Test]
+        public void Test_Parent_3()
+        {
+            Check(
+                @"Account.Order.%",
+                @"{'Account': { 'Name': 'F', 'Order': ''} }",
+                @"{ 'Name': 'F', 'Order': ''}"
+            );
+        }
+
+        [Test]
+        public void Test_Parent_4()
+        {
+            Check(
+                @"data.name.%.id",
+                @"{ 'data': [ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ] }",
+                @"[ 1, 2 ]"
+            );
+        }
+
+        [Test]
+        public void Test_Parent_5()
+        {
+            Check(
+                @"data.name.{ 
+                    'ident': %.id
+                }",
+                @"{ 'data': [ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ] }",
+                @"[ { 'ident': 1 }, { 'ident': 2 } ]"
+            );
+        }
+
+        [Test]
+        public void Test_Parent_6()
+        {
+            Check(
+                @"data.(name).%",
+                @"{ 'data': [ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ] }",
+                @"[ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ]"
+            );
+        }
+
+        [Test]
+        public void Test_Parent_7()
+        {
+            Check(
+                @"$.(data.name).%",
+                @"{ 'data': [ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ] }",
+                @"[ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ]"
             );
         }
     }

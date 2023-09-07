@@ -35,7 +35,11 @@ namespace Jsonata.Net.Native.Eval
 					result = seq.ChildrenTokens[0];
 				}
 			}
-			return result;
+
+			//to release unused tokens
+            result.ClearParent();
+
+            return result;
 		}
 
 		internal static JToken Eval(Node node, JToken input, EvaluationEnvironment env)
@@ -75,6 +79,8 @@ namespace Jsonata.Net.Native.Eval
 				return evalVariable(variableNode, input, env);
 			case NameNode nameNode:
 				return evalName(nameNode, input, env);
+			case ParentNode parentNode:
+				return evalParent(parentNode, input, env);
 			case PathNode pathNode:
 				return evalPath(pathNode, input, env);
 			case NegationNode negationNode:
@@ -123,6 +129,18 @@ namespace Jsonata.Net.Native.Eval
 				throw new NotImplementedException($"eval: unexpected node type {node.GetType().Name}: {node}");
 			}
 		}
+
+        private static JToken evalParent(ParentNode parentNode, JToken input, EvaluationEnvironment env)
+        {
+            if (input.parent == null)
+			{
+				throw new JsonataException("S0217", "The object representing the 'parent' cannot be derived from this expression: " + input.ToFlatString());
+			}
+			else
+			{
+				return input.parent;
+			}
+        }
 
         private static JToken evalRegex(RegexNode regexNode, JToken input, EvaluationEnvironment env)
         {
@@ -477,6 +495,14 @@ namespace Jsonata.Net.Native.Eval
 			if (itemsToken.Type == JTokenType.Array)
             {
 				itemsArray = (JArray)itemsToken;
+
+				foreach (JToken item in itemsArray.ChildrenTokens)
+				{
+					if (item.parent == null)
+					{
+						item.parent = itemsToken.parent;
+					}
+				}
             }
             else
             {
@@ -1143,7 +1169,8 @@ namespace Jsonata.Net.Native.Eval
 					{
 						return EvalProcessor.UNDEFINED;
 					}
-					return result;
+                    result.parent = data;
+                    return result;
 				}
 			case JArray array:
                 {
@@ -1160,6 +1187,7 @@ namespace Jsonata.Net.Native.Eval
 							result.AddRange(((JArray)res).ChildrenTokens);
 							break;
 						default:
+							res.parent = data;
 							result.Add(res);
 							break;
 						}
@@ -1282,7 +1310,15 @@ namespace Jsonata.Net.Native.Eval
 				else
                 {
 					// res is a sequence - flatten it into the parent sequence
-					resultSequence.AddRange(((JArray)resultToken).ChildrenTokens);
+					JArray resultArray = (JArray)resultToken;
+					foreach (JToken subResult in resultArray.ChildrenTokens)
+					{
+						if (subResult.parent == null)
+						{
+							subResult.parent = resultArray.parent;
+						}
+                        resultSequence.Add(subResult);
+                    }
 				}
 			}
 
