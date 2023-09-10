@@ -119,7 +119,7 @@ Also `match` object does not yet have `next` property (*TODO*).
   * :heavy_check_mark: `{ ... }` (Reduce)
   * :heavy_check_mark: `*` (Wildcard)
   * :heavy_check_mark: `**` (Descendants)
-  * :white_check_mark: `%` (Parent) - (*TODO*)
+  * :heavy_check_mark: `%` (Parent) - done, expect for [this issue](https://github.com/jsonata-js/jsonata/issues/645)
   * :white_check_mark: `#` (Positional variable binding) - (*TODO*)
   * :white_check_mark: `@` (Context variable binding) - (*TODO*)
 * :heavy_check_mark: [Numeric Operators](http://docs.jsonata.org/numeric-operators) - all, including `..` (Range) operator.
