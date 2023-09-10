@@ -55,16 +55,24 @@ namespace Jsonata.Net.Native.JsonNet
             case Newtonsoft.Json.Linq.JTokenType.Undefined:
                 return JValue.CreateUndefined();
 
+            case Newtonsoft.Json.Linq.JTokenType.Date:
+                return new JValue(((DateTime)value).ToString());
+
+            case Newtonsoft.Json.Linq.JTokenType.TimeSpan:
+                return new JValue(((TimeSpan)value).ToString());
+
+            case Newtonsoft.Json.Linq.JTokenType.Uri:
+                return new JValue(((Uri)value!).ToString());
+
+            case Newtonsoft.Json.Linq.JTokenType.Guid:
+                return new JValue(((Guid)value).ToString());
+
             case Newtonsoft.Json.Linq.JTokenType.Bytes:
             case Newtonsoft.Json.Linq.JTokenType.Constructor:
             case Newtonsoft.Json.Linq.JTokenType.Comment:
-            case Newtonsoft.Json.Linq.JTokenType.Date:
-            case Newtonsoft.Json.Linq.JTokenType.Guid:
             case Newtonsoft.Json.Linq.JTokenType.None:
             case Newtonsoft.Json.Linq.JTokenType.Property:
             case Newtonsoft.Json.Linq.JTokenType.Raw:
-            case Newtonsoft.Json.Linq.JTokenType.TimeSpan:
-            case Newtonsoft.Json.Linq.JTokenType.Uri:
             default:
                 throw new ArgumentException("Weird Token type " + value.Type);
             }

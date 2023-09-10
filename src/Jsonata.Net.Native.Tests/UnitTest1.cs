@@ -333,5 +333,46 @@ namespace Jsonata.Net.Native.Tests
                 @"[ { 'id': 1, 'name': 'a' }, { 'id': 2, 'name': 'b' } ]"
             );
         }
+
+        [Test]
+        public void Test_Issue14_1()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = DateTime.Now });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
+            Assert.Pass();
+        }
+
+
+        [Test]
+        public void Test_Issue14_2()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = Guid.NewGuid() });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test_Issue14_3()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = TimeSpan.FromSeconds(5) });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test_Issue14_4()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = new Uri("http://abc.xyz") });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
+            Assert.Pass();
+        }
+
+        [Test]
+        public void Test_Issue14_5()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = DateTimeOffset.Now });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
+            Assert.Pass();
+        }
     }
 }
