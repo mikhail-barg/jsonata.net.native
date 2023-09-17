@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,26 @@ namespace Jsonata.Net.Native.JsonNet
     {
         public static JToken FromNewtonsoft(Newtonsoft.Json.Linq.JToken value)
         {
+            return FromNewtonsoft(value, CultureInfo.CurrentCulture);
+        }
+
+        /// <summary>
+        /// converts Newtonsoft.Json JToken to this Jsonata.Net.Native JToken using specific formatting for certain special Newtonsoft tokens
+        /// </summary> 
+        /// <param name="value">a token to convert</param>
+        /// <param name="formatProvider">format provider used to format DateTime and TimeSpan. One may want to provide <see cref="CultureInfo.CurrentCulture"/> or <see cref="CultureInfo.InvariantCulture"/></param>
+        /// <param name="datetimeFormat">a standard or custom format string for <see cref="DateTime.ToString(string, IFormatProvider)"/><seealso cref="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings"/><seealso cref="https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings"/></param>
+        /// <param name="timespanFormat">a standard or custom format string for <see cref="TimeSpan.ToString(string, IFormatProvider)"/><seealso cref="https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings"/><seealso cref="https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-timespan-format-strings"/> </param>
+        /// <param name="guidFormat">format string for <see cref="Guid.ToString(string, IFormatProvider)"/></param>
+        /// <returns>converted token</returns>
+        public static JToken FromNewtonsoft(
+            Newtonsoft.Json.Linq.JToken value, 
+            IFormatProvider formatProvider, 
+            string datetimeFormat = "G", 
+            string timespanFormat = "c", 
+            string guidFormat = "D"
+        )
+        {
             switch (value.Type)
             {
             case Newtonsoft.Json.Linq.JTokenType.Array:
@@ -18,7 +39,7 @@ namespace Jsonata.Net.Native.JsonNet
                     JArray result = new JArray();
                     foreach (Newtonsoft.Json.Linq.JToken child in value.Children())
                     {
-                        result.Add(FromNewtonsoft(child));
+                        result.Add(FromNewtonsoft(child, formatProvider, datetimeFormat, timespanFormat, guidFormat));
                     }
                     return result;
                 }
@@ -46,7 +67,7 @@ namespace Jsonata.Net.Native.JsonNet
                     JObject result = new JObject();
                     foreach (Newtonsoft.Json.Linq.JProperty prop in ((Newtonsoft.Json.Linq.JObject)value).Properties())
                     {
-                        result.Add(prop.Name, FromNewtonsoft(prop.Value));
+                        result.Add(prop.Name, FromNewtonsoft(prop.Value, formatProvider, datetimeFormat, timespanFormat, guidFormat));
                     }
                     return result;
                 }
@@ -56,16 +77,16 @@ namespace Jsonata.Net.Native.JsonNet
                 return JValue.CreateUndefined();
 
             case Newtonsoft.Json.Linq.JTokenType.Date:
-                return new JValue(((DateTime)value).ToString());
+                return new JValue(((DateTime)value).ToString(datetimeFormat, formatProvider));
 
             case Newtonsoft.Json.Linq.JTokenType.TimeSpan:
-                return new JValue(((TimeSpan)value).ToString());
+                return new JValue(((TimeSpan)value).ToString(timespanFormat, formatProvider));
 
             case Newtonsoft.Json.Linq.JTokenType.Uri:
                 return new JValue(((Uri)value!).ToString());
 
             case Newtonsoft.Json.Linq.JTokenType.Guid:
-                return new JValue(((Guid)value).ToString());
+                return new JValue(((Guid)value).ToString(guidFormat));
 
             case Newtonsoft.Json.Linq.JTokenType.Bytes:
             case Newtonsoft.Json.Linq.JTokenType.Constructor:

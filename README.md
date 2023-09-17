@@ -47,7 +47,7 @@ Debug.Assert(result.ToFlatString() == "\"b\"");
 
 ### [JSON.Net](https://www.newtonsoft.com/json) 
 In case you work with [JSON.Net](https://www.newtonsoft.com/json) you may use a separate binding package Jsonata.Net.Native.JsonNet and its single class [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.JsonNet/JsonataExtensions.cs) to:
-* convert token hierarchy to and from Json.Net (`ToNewtonsoft()` and `FromNewtonsoft()`)
+* convert token hierarchy to and from Json.Net (`ToNewtonsoft()` and `FromNewtonsoft()`, note the overload version with formatting overrides)
 * evaluate Jsonata queries via various `EvalNewtonsoft()` overloads
 * bind values to `EvaluationEnvironment` (`BindValue()`)
 

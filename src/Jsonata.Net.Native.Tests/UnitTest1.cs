@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -373,6 +374,33 @@ namespace Jsonata.Net.Native.Tests
             Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = DateTimeOffset.Now });
             Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
             Assert.Pass();
+        }
+
+        [Test]
+        public void Test_Issue14_6()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = new DateTime(2023, 09, 17, 22, 28, 00) });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken, CultureInfo.InvariantCulture, datetimeFormat: "yyyy~MM~dd HH:mm:ss");
+            string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
+            Assert.AreEqual("2023~09~17 22:28:00", value);
+        }
+
+        [Test]
+        public void Test_Issue14_7()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = new TimeSpan(10, 12, 13, 14, 156) });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken, CultureInfo.InvariantCulture, timespanFormat: @"ddd\-hh\-mm\-ss\-fff");
+            string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
+            Assert.AreEqual("010-12-13-14-156", value);
+        }
+
+        [Test]
+        public void Test_Issue14_8()
+        {
+            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = Guid.Empty });
+            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken, CultureInfo.InvariantCulture, guidFormat: "N");
+            string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
+            Assert.AreEqual("00000000000000000000000000000000", value);
         }
     }
 }
