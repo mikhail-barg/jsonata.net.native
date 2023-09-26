@@ -12,32 +12,43 @@ namespace Jsonata.Net.Native.Eval
 
 	internal sealed class FunctionTokenCsharp : FunctionToken
 	{
-		internal readonly MethodInfo methodInfo;
-		internal IReadOnlyList<ArgumentInfo> parameters;
-		internal readonly string functionName;
-		internal readonly bool hasContextParameter;
-		internal readonly bool hasEnvParameter;
+		private readonly object? m_target;
+		private readonly MethodInfo m_methodInfo;
+        private IReadOnlyList<ArgumentInfo> m_parameters;
+		private readonly string m_functionName;
+		private readonly bool m_hasContextParameter;
+		private readonly bool m_hasEnvParameter;
 
-		internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
-			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length)
+        internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
+			:this(funcName, methodInfo, null)
 		{
 			if (!methodInfo.IsStatic)
-            {
-				throw new ArgumentException("Only static methods are allowed to be bound as Jsonata functions");
+			{
+                throw new ArgumentException("Only static methods are allowed to be bound as Jsonata functions via MethodInfo");
             }
-
-			this.functionName = funcName;
-			this.methodInfo = methodInfo;
-			this.parameters = this.methodInfo.GetParameters()
-				.Select(pi => new ArgumentInfo(funcName, pi))
-				.ToList();
-			this.hasContextParameter = this.parameters.Any(p => p.allowContextAsValue);
-			this.hasEnvParameter = this.parameters.Any(p => p.isEvaluationSupplement);
-
-			this.RequiredArgsCount = this.parameters.Where(p => !p.isOptional && !p.isEvaluationSupplement).Count();
 		}
 
-		internal sealed class ArgumentInfo
+        internal FunctionTokenCsharp(string funcName, Delegate delegateFunc)
+			: this(funcName, delegateFunc.Method, delegateFunc.Target)
+        {
+        }
+
+        private FunctionTokenCsharp(string funcName, MethodInfo methodInfo, object? target)
+			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length)
+		{
+			this.m_functionName = funcName;
+			this.m_methodInfo = methodInfo;
+			this.m_target = target;
+            this.m_parameters = this.m_methodInfo.GetParameters()
+				.Select(pi => new ArgumentInfo(funcName, pi))
+				.ToList();
+			this.m_hasContextParameter = this.m_parameters.Any(p => p.allowContextAsValue);
+			this.m_hasEnvParameter = this.m_parameters.Any(p => p.isEvaluationSupplement);
+
+			this.RequiredArgsCount = this.m_parameters.Where(p => !p.isOptional && !p.isEvaluationSupplement).Count();
+		}
+
+        internal sealed class ArgumentInfo
 		{
 			internal readonly string name;
 			internal readonly Type parameterType;
@@ -94,7 +105,7 @@ namespace Jsonata.Net.Native.Eval
 			object? resultObj;
 			try
 			{
-				resultObj = this.methodInfo.Invoke(null, parameters);
+				resultObj = this.m_methodInfo.Invoke(this.m_target, parameters);
 			}
 			catch (TargetInvocationException ti)
 			{
@@ -104,7 +115,7 @@ namespace Jsonata.Net.Native.Eval
 				}
 				else
 				{
-					throw new Exception($"Error evaluating function '{this.functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
+					throw new Exception($"Error evaluating function '{this.m_functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
 				}
 				throw;
 			}
@@ -121,7 +132,7 @@ namespace Jsonata.Net.Native.Eval
 			catch (JsonataException)
 			{
 				//try binding with context if possible
-				if (context != null && this.hasContextParameter)
+				if (context != null && this.m_hasContextParameter)
 				{
 					return this.TryBindFunctionArguments(args, context, env, out returnUndefined);
 				}
@@ -136,11 +147,11 @@ namespace Jsonata.Net.Native.Eval
 		private object?[] TryBindFunctionArguments(List<JToken> args, JToken? context, EvaluationEnvironment env, out bool returnUndefined)
 		{
 			returnUndefined = false;
-			object?[] result = new object[this.parameters.Count];
+			object?[] result = new object[this.m_parameters.Count];
 			int sourceIndex = 0;
-			for (int targetIndex = 0; targetIndex < this.parameters.Count; ++targetIndex)
+			for (int targetIndex = 0; targetIndex < this.m_parameters.Count; ++targetIndex)
 			{
-				ArgumentInfo argumentInfo = this.parameters[targetIndex];
+				ArgumentInfo argumentInfo = this.m_parameters[targetIndex];
 				if (context != null && argumentInfo.allowContextAsValue)
                 {
 					//if we explicitly provide context, then hurry and use it!
@@ -163,7 +174,7 @@ namespace Jsonata.Net.Native.Eval
 					}
 					else
 					{
-						throw new JsonataException("T0410", $"Function '{functionName}' requires {this.parameters.Count + (this.hasEnvParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
+						throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
 					}
 				}
 				else if (argumentInfo.isVariableArgumentsArray)
@@ -191,7 +202,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (sourceIndex < args.Count)
 			{
-				throw new JsonataException("T0410", $"Function '{functionName}' requires {this.parameters.Count + (this.hasEnvParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
+				throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
 			};
 
 			return result;
@@ -294,7 +305,7 @@ namespace Jsonata.Net.Native.Eval
 					return (bool)argToken;
 				}
 			}
-			throw new JsonataException("T0410", $"Argument {parameterIndex + 1} ('{argumentInfo.name}') of function {this.functionName} should be {argumentInfo.parameterType.Name} but incompatible value of type {argToken.Type} was specified");
+			throw new JsonataException("T0410", $"Argument {parameterIndex + 1} ('{argumentInfo.name}') of function {this.m_functionName} should be {argumentInfo.parameterType.Name} but incompatible value of type {argToken.Type} was specified");
 		}
 
 		private JToken ConvertFunctionResult(object? resultObj)
@@ -343,7 +354,7 @@ namespace Jsonata.Net.Native.Eval
 
         public override JToken DeepClone()
         {
-			return new FunctionTokenCsharp(this.functionName, this.methodInfo);
+			return new FunctionTokenCsharp(this.m_functionName, this.m_methodInfo, this.m_target);
         }
     }
 }

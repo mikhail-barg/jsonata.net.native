@@ -84,6 +84,11 @@ namespace Jsonata.Net.Native
             this.m_bindings.Add(name, new FunctionTokenCsharp(name, mi));
         }
 
+        public void BindFunction(string name, Delegate funcDelegate)
+        {
+            this.m_bindings.Add(name, new FunctionTokenCsharp(name, funcDelegate));
+        }
+
         internal JToken Lookup(string name)
         {
             if (this.m_bindings.TryGetValue(name, out JToken? result))

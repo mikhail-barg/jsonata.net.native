@@ -402,5 +402,6 @@ namespace Jsonata.Net.Native.Tests
             string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
             Assert.AreEqual("00000000000000000000000000000000", value);
         }
+
     }
 }
