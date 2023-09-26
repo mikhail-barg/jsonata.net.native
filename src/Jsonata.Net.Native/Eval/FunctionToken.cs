@@ -57,11 +57,6 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-        protected override void CleaParentNested()
-        {
-            //nothing to do
-        }
-
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
         {
             //throw new NotImplementedException("No supported for functions!");
