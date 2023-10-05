@@ -356,5 +356,10 @@ namespace Jsonata.Net.Native.Eval
         {
 			return new FunctionTokenCsharp(this.m_functionName, this.m_methodInfo, this.m_target);
         }
+
+        protected override void CleaParentNested()
+        {
+            //nothing to do for a function;
+        }
     }
 }

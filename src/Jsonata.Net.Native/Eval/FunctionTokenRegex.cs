@@ -79,5 +79,10 @@ namespace Jsonata.Net.Native.Eval
         {
             return new FunctionTokenRegex(this.regex);
         }
+
+        protected override void CleaParentNested()
+        {
+            //nothing to do for a regex;
+        }
     }
 }
