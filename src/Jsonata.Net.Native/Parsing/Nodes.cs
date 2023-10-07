@@ -746,20 +746,20 @@ namespace Jsonata.Net.Native.Parsing
             None = 0x0
         }
 
-        internal static readonly Tuple<ParamType, char>[] s_paramTypePriorityLetters = {
-            Tuple.Create(ParamType.Any, 'x'),
-            Tuple.Create(ParamType.Json, 'j'),
-            Tuple.Create(ParamType.Simple, 'u'),
+        internal static readonly Tuple<ParamType, string>[] s_paramTypePriorityLetters = {
+            Tuple.Create(ParamType.Any, "x"),
+            Tuple.Create(ParamType.Json, "j"),
+            Tuple.Create(ParamType.Simple, "u"),
 
-            Tuple.Create(ParamType.Bool, 'b'),
-            Tuple.Create(ParamType.Number, 'n'),
-            Tuple.Create(ParamType.String, 's'),
-            Tuple.Create(ParamType.Null, 'l'),
+            Tuple.Create(ParamType.Bool, "b"),
+            Tuple.Create(ParamType.Number, "n"),
+            Tuple.Create(ParamType.String, "s"),
+            Tuple.Create(ParamType.Null, "l"),
 
-            Tuple.Create(ParamType.Array, 'a'),
-            Tuple.Create(ParamType.Object, 'o'),
+            Tuple.Create(ParamType.Array, "a"),
+            Tuple.Create(ParamType.Object, "o"),
 
-            Tuple.Create(ParamType.Func, 'f'),
+            Tuple.Create(ParamType.Func, "f"),
         };
 
         internal sealed record Param(ParamType type, ParamOpt option, Signature? subSignature)
@@ -783,17 +783,17 @@ namespace Jsonata.Net.Native.Parsing
 
             public static string ParamTypeToString(ParamType type)
             {
-                foreach (Tuple<ParamType, char> t in s_paramTypePriorityLetters)
+                foreach (Tuple<ParamType, string> t in s_paramTypePriorityLetters)
                 {
                     if (type == t.Item1)
                     {
-                        return t.Item2.ToString();
+                        return t.Item2;
                     }
                 }
 
                 StringBuilder builder = new StringBuilder();
                 builder.Append('(');
-                foreach (Tuple<ParamType, char> t in s_paramTypePriorityLetters)
+                foreach (Tuple<ParamType, string> t in s_paramTypePriorityLetters)
                 {
                     if ((type & t.Item1) == t.Item1)
                     {

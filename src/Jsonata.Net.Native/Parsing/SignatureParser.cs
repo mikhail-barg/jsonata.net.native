@@ -12,7 +12,7 @@ namespace Jsonata.Net.Native.Parsing
 
         static SignatureParser()
         {
-            s_paramTypeChars = LambdaNode.s_paramTypePriorityLetters.ToDictionary(t => t.Item2, t => t.Item1);
+            s_paramTypeChars = LambdaNode.s_paramTypePriorityLetters.ToDictionary(t => t.Item2[0], t => t.Item1);
         }
 
         internal static LambdaNode.Signature Parse(string str)
@@ -29,7 +29,8 @@ namespace Jsonata.Net.Native.Parsing
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to parse lambda signature: {ex.Message}. Remainder string '{parser.GetRemainder()}', Whole string was: '{str}'", ex);
+                //TODO: proper code
+                throw new JsonataException("XXX", $"Failed to parse lambda signature: {ex.Message}. Remainder string '{parser.GetRemainder()}', Whole string was: '{str}'");
             }
         }
 
