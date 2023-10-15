@@ -1837,9 +1837,9 @@ namespace Jsonata.Net.Native.Eval
          */
         public static long toMillis(string timestamp, [OptionalArgument(UTC_FORMAT)] string picture)
         {
-            if (!DateTimeOffset.TryParseExact(timestamp, picture, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset result))
+            if (!DateTimeOffset.TryParseExact(timestamp, picture, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset result))
             {
-                throw new JsonataException("D3136", $"Failed to parse tdate/time from '{timestamp}'");
+                throw new JsonataException("D3136", $"Failed to parse date/time from '{timestamp}'");
             }
             return result.ToUnixTimeMilliseconds();
         }
