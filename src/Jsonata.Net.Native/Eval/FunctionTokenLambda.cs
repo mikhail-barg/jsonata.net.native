@@ -150,7 +150,7 @@ namespace Jsonata.Net.Native.Eval
                     for (int paramIndex = 0; paramIndex < this.m_params.Count; ++paramIndex)
                     {
                         ProcessedParam param = this.m_params[paramIndex];
-                       string paramMatch = match.Groups[paramIndex + 1].Value;
+                        string paramMatch = match.Groups[paramIndex + 1].Value;
                         if (paramMatch == "")
                         {
                             if (param.contextRegex != null)

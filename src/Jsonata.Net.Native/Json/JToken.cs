@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Eval;
 
 namespace Jsonata.Net.Native.Json
 {
@@ -17,7 +18,19 @@ namespace Jsonata.Net.Native.Json
     {
         public readonly JTokenType Type;
 
-        internal JToken? parent { get; set; }
+        private JToken? m_parent = null;
+        internal JToken? parent
+        {
+            get => this.m_parent;
+            set 
+            {
+                if (this == EvalProcessor.UNDEFINED && value != null)
+                {
+                    throw new InvalidOperationException($"Attempt to set parent on {nameof(EvalProcessor)}.{nameof(EvalProcessor.UNDEFINED)}");
+                }
+                this.m_parent = value;
+            }
+        }
 
         protected JToken(JTokenType type)
         {
