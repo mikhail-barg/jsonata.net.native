@@ -10,6 +10,7 @@ namespace TestApp
         static void Main(string[] args)
         {
             JsonataQuery query = new JsonataQuery("$.a");
+            Console.WriteLine(query);
 
             //from string
             {

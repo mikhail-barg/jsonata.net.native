@@ -43,5 +43,10 @@ namespace Jsonata.Net.Native
         {
             return EvalProcessor.EvaluateJson(this.m_node, data, environment);
         }
+
+        public override string ToString()
+        {
+            return this.m_node.ToString();
+        }
     }
 }

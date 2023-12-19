@@ -26,7 +26,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		-->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <Version>2.4.1</Version>
+    <Version>2.4.2</Version>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\sgKey.snk</AssemblyOriginatorKeyFile>
 
