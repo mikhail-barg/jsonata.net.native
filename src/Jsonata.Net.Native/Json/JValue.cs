@@ -130,7 +130,7 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        protected override void CleaParentNested()
+        protected override void ClearParentNested()
         {
             //nothing to do for a value;
         }

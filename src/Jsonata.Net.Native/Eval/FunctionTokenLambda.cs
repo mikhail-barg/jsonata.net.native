@@ -98,7 +98,7 @@ namespace Jsonata.Net.Native.Eval
             return new FunctionTokenLambda(this.signature, this.paramNames, this.body, context.DeepClone(), this.environment);
         }
 
-        protected override void CleaParentNested()
+        protected override void ClearParentNested()
         {
             //not sure if context parent should be cleared or not
             this.context.ClearParent();

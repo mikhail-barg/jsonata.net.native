@@ -212,10 +212,10 @@ namespace Jsonata.Net.Native.Json
         internal void ClearParent()
         {
             this.parent = null;
-            this.CleaParentNested();
+            this.ClearParentNested();
         }
 
-        protected abstract void CleaParentNested();
+        protected abstract void ClearParentNested();
 
         public string ToIndentedString()
         {

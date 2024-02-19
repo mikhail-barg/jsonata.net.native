@@ -31,7 +31,7 @@ namespace Jsonata.Net.Native.Json
             this.m_values.Add(token);
         }
 
-        protected override void CleaParentNested()
+        protected override void ClearParentNested()
         {
             foreach (JToken child in this.m_values)
             {

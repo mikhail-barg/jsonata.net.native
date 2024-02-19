@@ -141,7 +141,7 @@ namespace Jsonata.Net.Native.Eval
 			return new FunctionTokenTransformation(this.pattern, this.updates, this.deletes, this.environment);
 		}
 
-        protected override void CleaParentNested()
+        protected override void ClearParentNested()
         {
             //nothing to do for a function transformation;
         }

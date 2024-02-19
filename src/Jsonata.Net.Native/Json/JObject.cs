@@ -43,7 +43,7 @@ namespace Jsonata.Net.Native.Json
             this.m_properties.Remove(key);
         }
 
-        protected override void CleaParentNested()
+        protected override void ClearParentNested()
         {
             foreach (JToken child in this.m_properties.Values)
             {

@@ -68,7 +68,7 @@ namespace Jsonata.Net.Native.Eval
             return new FunctionTokenPartial(this.func, this.argsOrPlaceholders.Select(i => i?.DeepClone()).ToList());
         }
 
-        protected override void CleaParentNested()
+        protected override void ClearParentNested()
         {
             //not sure if args/placeholders parents should be cleared or no
             foreach (JToken? token in this.argsOrPlaceholders)
