@@ -150,7 +150,19 @@ namespace Jsonata.Net.Native.Json
                 return new JValue(value);
             case int value:
                 return new JValue(value);
+            case uint value:
+                return new JValue(value);
             case long value:
+                return new JValue(value);
+            case ulong value:
+                return new JValue(value);
+            case byte value:
+                return new JValue(value);
+            case sbyte value:
+                return new JValue(value);
+            case short value:
+                return new JValue(value);
+            case ushort value:
                 return new JValue(value);
             case float value:
                 return new JValue(value);

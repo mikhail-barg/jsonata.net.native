@@ -31,6 +31,7 @@ namespace Jsonata.Net.Native.Json
         public JValue(double value) : this(JTokenType.Float, DoubleToDecimal(value)) {}
         public JValue(decimal value) : this(JTokenType.Float, value) { }
         public JValue(long value) : this(JTokenType.Integer, value) { }
+        public JValue(ulong value) : this(JTokenType.Integer, value) { }
         public JValue(int value) : this(JTokenType.Integer, value) { }
         public JValue(string value) : this(JTokenType.String, value) { }
         public JValue(char value) : this(JTokenType.String, value.ToString()) { }
