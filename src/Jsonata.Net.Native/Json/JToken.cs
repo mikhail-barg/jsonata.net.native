@@ -155,7 +155,7 @@ namespace Jsonata.Net.Native.Json
             case long value:
                 return new JValue(value);
             case ulong value:
-                return new JValue(value);
+                return new JValue((decimal)value);  //won't fit in (s)long
             case byte value:
                 return new JValue(value);
             case sbyte value:
