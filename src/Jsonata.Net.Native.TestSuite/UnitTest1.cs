@@ -41,7 +41,7 @@ namespace Jsonata.Net.Native.TestSuite
             Console.WriteLine($"Loaded {this.m_datasets.Count} datasets");
         }
 
-        [TestCaseSource(nameof(GetTestCases))]
+        [Test, TestCaseSource(nameof(GetTestCases))]
         public void Test(CaseInfo caseInfo)
         {
             //check disabled tests

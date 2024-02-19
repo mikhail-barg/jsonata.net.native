@@ -44,7 +44,7 @@ namespace Jsonata.Net.Native.Tests
         }
 
 
-        [TestCaseSource(nameof(GetTestCases))]
+        [Test, TestCaseSource(nameof(GetTestCases))]
         public void Check(TestData data)
         {
             JToken token = JToken.Parse(data.json);

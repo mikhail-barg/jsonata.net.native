@@ -25,7 +25,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             { "fail1",  "Not a problem at all"}
         };
 
-        [TestCaseSource(nameof(GetTestCases))]
+        [Test, TestCaseSource(nameof(GetTestCases))]
         public void Test(CaseInfo caseInfo)
         {
 

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.JsonNet
@@ -46,17 +43,15 @@ namespace Jsonata.Net.Native.JsonNet
             case Newtonsoft.Json.Linq.JTokenType.Boolean:
                 return new JValue((bool)value);
             case Newtonsoft.Json.Linq.JTokenType.Float:
+                try
                 {
-                    decimal decimalValue;
-                    try
-                    {
-                        decimalValue = (decimal)value;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
-                    }
+                    decimal decimalValue = (decimal)value;
                     return new JValue(decimalValue);
+                }
+                catch (OverflowException)
+                {
+                    //throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
+                    return new JValue((double)value);
                 }
             case Newtonsoft.Json.Linq.JTokenType.Integer:
                 return new JValue((long)value);
@@ -144,7 +139,16 @@ namespace Jsonata.Net.Native.JsonNet
             case JTokenType.Undefined:
                 return Newtonsoft.Json.Linq.JValue.CreateUndefined();
             case JTokenType.Float:
-                return new Newtonsoft.Json.Linq.JValue((decimal)value);
+                try
+                {
+                    decimal decimalValue = (decimal)value;
+                    return new Newtonsoft.Json.Linq.JValue(decimalValue);
+                }
+                catch (OverflowException)
+                {
+                    //throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
+                    return new Newtonsoft.Json.Linq.JValue((double)value);
+                }
             case JTokenType.Integer:
                 return new Newtonsoft.Json.Linq.JValue((long)value);
             case JTokenType.String:

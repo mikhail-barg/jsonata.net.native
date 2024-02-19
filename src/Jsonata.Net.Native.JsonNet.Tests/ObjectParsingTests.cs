@@ -8,7 +8,7 @@ namespace Jsonata.Net.Native.JsonNet.Tests
 {
     public sealed class ObjectParsingTests
     {
-        [TestCaseSource(nameof(GetTestCases))]
+        [Test, TestCaseSource(nameof(GetTestCases))]
         public void RegularCases(TestData testData)
         {
             JToken token = JsonataExtensions.FromObjectViaNewtonsoft(testData.SourceObject);

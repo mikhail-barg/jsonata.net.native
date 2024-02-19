@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Jsonata.Net.Native.SystemTextJson\Jsonata.Net.Native.SystemTextJson.csproj" />
-    <ProjectReference Include="..\Jsonata.Net.Native\Jsonata.Net.Native.csproj" />
+    <ProjectReference Include="..\ObjectParsingTestsData\ObjectParsingTestsData.csproj" />
   </ItemGroup>
 
 </Project>

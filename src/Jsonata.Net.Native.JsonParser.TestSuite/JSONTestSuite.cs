@@ -38,7 +38,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             { "n_number_0.e1", "Not a problem to have such number" },
         };
 
-        [TestCaseSource(nameof(GetTestCases))]
+        [Test, TestCaseSource(nameof(GetTestCases))]
         public void Test(CaseInfo caseInfo)
         {
 
