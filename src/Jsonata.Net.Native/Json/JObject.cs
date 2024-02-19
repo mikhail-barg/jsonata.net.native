@@ -51,45 +51,58 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
+        internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationOptions options)
         {
-            if (this.m_properties.Count == 0)
-            {
-                builder.Append("{}");
-                return;
-            }
-
-            builder.Append('{').AppendJsonLine();
-            int i = 0;
+            builder.Append('{');
+            bool serializedSomething = false;
             foreach (KeyValuePair<string, JToken> prop in this.m_properties)
             {
-                builder.Indent(indent + 1);
-                builder.Append('"').Append(prop.Key).Append('"').Append(':').Append(' ');
-                prop.Value.ToIndentedStringImpl(builder, indent + 1);
-                if (i < this.m_properties.Count - 1)
+                if (!options.SerializeNullProperties && prop.Value.Type == JTokenType.Null)
+                {
+                    //skip null properties
+                    continue;
+                }
+
+                if (serializedSomething)
                 {
                     builder.Append(',');
                 }
                 builder.AppendJsonLine();
-                ++i;
+
+                builder.Indent(indent + 1);
+                builder.Append('"').Append(prop.Key).Append('"').Append(':').Append(' ');
+                prop.Value.ToIndentedStringImpl(builder, indent + 1, options);
+                serializedSomething = true;
             }
-            builder.Indent(indent);
+
+            if (serializedSomething)
+            {
+                builder.AppendJsonLine();
+                builder.Indent(indent);
+            }
             builder.Append('}');
         }
 
-        internal override void ToStringFlatImpl(StringBuilder builder)
+        internal override void ToStringFlatImpl(StringBuilder builder, SerializationOptions options)
         {
             builder.Append('{');
-            int i = 0;
+            bool serializedSomething = false;
             foreach (KeyValuePair<string, JToken> prop in this.m_properties)
             {
-                builder.Append('"').Append(prop.Key).Append('"').Append(':');
-                prop.Value.ToStringFlatImpl(builder);
-                if (i < this.m_properties.Count - 1)
+                if (!options.SerializeNullProperties && prop.Value.Type == JTokenType.Null)
+                {
+                    //skip null properties
+                    continue;
+                }
+
+                if (serializedSomething)
                 {
                     builder.Append(',');
                 }
-                ++i;
+
+                builder.Append('"').Append(prop.Key).Append('"').Append(':');
+                prop.Value.ToStringFlatImpl(builder, options);
+                serializedSomething = true;
             }
             builder.Append('}');
         }

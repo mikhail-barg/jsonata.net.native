@@ -219,21 +219,31 @@ namespace Jsonata.Net.Native.Json
 
         public string ToIndentedString()
         {
+            return this.ToIndentedString(SerializationOptions.Default);
+        }
+
+        public string ToIndentedString(SerializationOptions options)
+        {
             StringBuilder builder = new StringBuilder();
-            this.ToIndentedStringImpl(builder, 0);
+            this.ToIndentedStringImpl(builder, 0, options);
             return builder.ToString();
         }
 
-        internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent);
+        internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationOptions options);
 
         public string ToFlatString()
         {
+            return this.ToFlatString(SerializationOptions.Default);
+        }
+
+        public string ToFlatString(SerializationOptions options)
+        {
             StringBuilder builder = new StringBuilder();
-            this.ToStringFlatImpl(builder);
+            this.ToStringFlatImpl(builder, options);
             return builder.ToString();
         }
 
-        internal abstract void ToStringFlatImpl(StringBuilder builder);
+        internal abstract void ToStringFlatImpl(StringBuilder builder, SerializationOptions options);
 
         public abstract JToken DeepClone();
 

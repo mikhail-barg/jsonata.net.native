@@ -135,12 +135,12 @@ namespace Jsonata.Net.Native.Json
             //nothing to do for a value;
         }
 
-        internal override void ToIndentedStringImpl(StringBuilder builder, int indent)
+        internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationOptions options)
         {
             this.ToString(builder);
         }
 
-        internal override void ToStringFlatImpl(StringBuilder builder)
+        internal override void ToStringFlatImpl(StringBuilder builder, SerializationOptions options)
         {
             this.ToString(builder);
         }
