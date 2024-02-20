@@ -39,7 +39,7 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationOptions options)
+        internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options)
         {
             if (this.m_values.Count == 0)
             {
@@ -62,7 +62,7 @@ namespace Jsonata.Net.Native.Json
             builder.Append(']');
         }
 
-        internal override void ToStringFlatImpl(StringBuilder builder, SerializationOptions options)
+        internal override void ToStringFlatImpl(StringBuilder builder, SerializationSettings options)
         {
             builder.Append('[');
             for (int i = 0; i < this.m_values.Count; ++i)

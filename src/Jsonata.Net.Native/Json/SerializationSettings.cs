@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    public sealed class SerializationOptions
+    public sealed class SerializationSettings
     {
-        internal static readonly SerializationOptions Default = new SerializationOptions();
+        internal static readonly SerializationSettings DefaultSettings = new SerializationSettings();
 
         public bool SerializeNullProperties { get; set; } = true;
     }

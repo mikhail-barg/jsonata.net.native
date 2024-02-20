@@ -13,22 +13,56 @@ namespace Jsonata.Net.Native.Tests
     {
         public sealed class TestData
         {
+            private static readonly ToObjectSettings DefaultSettings = new ToObjectSettings();
+            internal static readonly ToObjectSettings AllowMissingProps = new ToObjectSettings() {
+                AllowMissingProperties = true
+            };
+            internal static readonly ToObjectSettings AllowUndeclaredProps = new ToObjectSettings() {
+                AllowUndecaredProperties = true
+            };
+
             internal readonly string json;
             internal readonly Type type;
             internal readonly object? expectedValue;
+            internal readonly ToObjectSettings settings;
+            internal readonly bool exceptionExpected;
 
             internal TestData(string json, Type type, object? expectedValue)
             {
                 this.json = json;
                 this.type = type;
                 this.expectedValue = expectedValue;
+                this.settings = DefaultSettings;
             }
 
-            internal TestData(string json,object expectedValue)
+            internal TestData(string json, object expectedValue)
             {
                 this.json = json;
                 this.type = expectedValue.GetType();
                 this.expectedValue = expectedValue;
+                this.settings = DefaultSettings;
+            }
+
+            internal TestData(string json, ToObjectSettings settings, object expectedValue)
+            {
+                this.json = json;
+                this.type = expectedValue.GetType();
+                this.expectedValue = expectedValue;
+                this.settings = settings;
+            }
+
+            internal static TestData CreateException(string json, Type type)
+            {
+                return new TestData(json, type, null, DefaultSettings, exceptionExpected: true);
+            }
+
+            private TestData(string json, Type type, object? expectedValue, ToObjectSettings settings, bool exceptionExpected)
+            {
+                this.json = json;
+                this.type = type;
+                this.expectedValue = expectedValue;
+                this.settings = settings;
+                this.exceptionExpected = exceptionExpected;
             }
         }
 
@@ -48,7 +82,29 @@ namespace Jsonata.Net.Native.Tests
         public void Check(TestData data)
         {
             JToken token = JToken.Parse(data.json);
-            object? value = token.ToObject(data.type);
+            object? value;
+            try
+            { 
+                value = token.ToObject(data.type, data.settings);
+            }
+            catch (Exception ex)
+            {
+                if (data.exceptionExpected)
+                {
+                    Assert.Pass(ex.Message);
+                    return;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (data.exceptionExpected)
+            {
+                Assert.Fail("Expected exception");
+            }
+
             bool areEqual = this.m_comparer.Compare(data.type, data.expectedValue, value, out IEnumerable<ObjectsComparer.Difference> diffs);
             Assert.That(areEqual, $"Mismatch:\n{String.Join("\n", diffs)}");
         }
@@ -75,6 +131,11 @@ namespace Jsonata.Net.Native.Tests
                 new TestData("[{'a': 'c'}]", new List<object> { new Dictionary<string, string> { { "a", "c" } } }),
                 new TestData("[{'a': 'd'}]", new List<Dictionary<string, string>> { new Dictionary<string, string> { { "a", "d" } } }),
                 new TestData("{'foo': 'goo', 'bar': 10}", new TestObj() { foo = "goo", bar = 10 }),
+                new TestData("{'foo': 'goo', 'bar': null}", new TestObj() { foo = "goo", bar = null }),
+                TestData.CreateException("{'foo': 'goo'}", typeof(TestObj)),
+                new TestData("{'foo': 'goo'}", TestData.AllowMissingProps, new TestObj() { foo = "goo", bar = null }),
+                TestData.CreateException("{'foo': 'goo', 'bar': 10, 'zoo': 1}", typeof(TestObj)),
+                new TestData("{'foo': 'goo', 'bar': 10, 'zoo': 1}", TestData.AllowUndeclaredProps, new TestObj() { foo = "goo", bar = 10 }),
             };
 
             return tests

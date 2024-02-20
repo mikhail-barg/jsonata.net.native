@@ -219,31 +219,31 @@ namespace Jsonata.Net.Native.Json
 
         public string ToIndentedString()
         {
-            return this.ToIndentedString(SerializationOptions.Default);
+            return this.ToIndentedString(SerializationSettings.DefaultSettings);
         }
 
-        public string ToIndentedString(SerializationOptions options)
+        public string ToIndentedString(SerializationSettings options)
         {
             StringBuilder builder = new StringBuilder();
             this.ToIndentedStringImpl(builder, 0, options);
             return builder.ToString();
         }
 
-        internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationOptions options);
+        internal abstract void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options);
 
         public string ToFlatString()
         {
-            return this.ToFlatString(SerializationOptions.Default);
+            return this.ToFlatString(SerializationSettings.DefaultSettings);
         }
 
-        public string ToFlatString(SerializationOptions options)
+        public string ToFlatString(SerializationSettings options)
         {
             StringBuilder builder = new StringBuilder();
             this.ToStringFlatImpl(builder, options);
             return builder.ToString();
         }
 
-        internal abstract void ToStringFlatImpl(StringBuilder builder, SerializationOptions options);
+        internal abstract void ToStringFlatImpl(StringBuilder builder, SerializationSettings options);
 
         public abstract JToken DeepClone();
 
@@ -256,10 +256,20 @@ namespace Jsonata.Net.Native.Json
 
         public T ToObject<T>()
         {
-            return (T)this.ToObject(typeof(T))!;
+            return this.ToObject<T>(ToObjectSettings.DefaultSettings)!;
+        }
+
+        public T ToObject<T>(ToObjectSettings settings)
+        {
+            return (T)this.ToObject(typeof(T), settings)!;
         }
 
         public object? ToObject(Type type)
+        {
+            return this.ToObject(type, ToObjectSettings.DefaultSettings);
+        }
+
+        public object? ToObject(Type type, ToObjectSettings settings)
         {
             if (type == typeof(string))
             {
@@ -318,7 +328,7 @@ namespace Jsonata.Net.Native.Json
                 {
                     //wrap value in Nullable<T>
                     Type valueType = Nullable.GetUnderlyingType(type)!;
-                    object? value = this.ToObject(valueType);
+                    object? value = this.ToObject(valueType, settings);
                     object? result = Activator.CreateInstance(type, new object?[] { value });
                     return result;
                 }
@@ -345,7 +355,7 @@ namespace Jsonata.Net.Native.Json
                 }
                 else if (this.Type == JTokenType.Object)
                 {
-                    return ConvertToDictionary(resultType, valueType);
+                    return ConvertToDictionary(resultType, valueType, settings);
                 }
                 else
                 {
@@ -373,7 +383,7 @@ namespace Jsonata.Net.Native.Json
                 }
                 else if (this.Type == JTokenType.Array)
                 {
-                    return this.ConvertToList(resultType, valueType);
+                    return this.ConvertToList(resultType, valueType, settings);
                 }
                 else
                 {
@@ -406,9 +416,9 @@ namespace Jsonata.Net.Native.Json
                 switch (this.Type)
                 {
                 case JTokenType.Object:
-                    return this.ConvertToDictionary(typeof(Dictionary<,>).MakeGenericType(typeof(string), typeof(object)), typeof(object));
+                    return this.ConvertToDictionary(typeof(Dictionary<,>).MakeGenericType(typeof(string), typeof(object)), typeof(object), settings);
                 case JTokenType.Array:
-                    return this.ConvertToList(typeof(List<>).MakeGenericType(typeof(object)), typeof(object));
+                    return this.ConvertToList(typeof(List<>).MakeGenericType(typeof(object)), typeof(object), settings);
                 case JTokenType.Integer:
                     return (long)this;
                 case JTokenType.Float:
@@ -450,12 +460,16 @@ namespace Jsonata.Net.Native.Json
                     {
                         if (!thisObj.Properties.TryGetValue(resultProperty.Key, out JToken? thisProperty))
                         {
+                            if (settings.AllowMissingProperties)
+                            {
+                                continue;
+                            }
                             throw new ArgumentException($"Missing value for '{resultProperty.Key}'");
                         }
                         object? value;
                         try
                         {
-                            value = thisProperty.ToObject(resultProperty.Value.PropertyType);
+                            value = thisProperty.ToObject(resultProperty.Value.PropertyType, settings);
                         }
                         catch (Exception ex)
                         {
@@ -472,7 +486,7 @@ namespace Jsonata.Net.Native.Json
                         }
                     }
 
-                    if (thisObj.Keys.Except(resultProperties.Keys).Any())
+                    if (!settings.AllowUndecaredProperties && thisObj.Keys.Except(resultProperties.Keys).Any())
                     {
                         throw new ArgumentException($"Specified unknown properties: {String.Join(",", thisObj.Keys.Except(resultProperties.Keys))}");
                     }
@@ -490,23 +504,23 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        private object ConvertToList(Type listType, Type valueType)
+        private object ConvertToList(Type listType, Type valueType, ToObjectSettings settings)
         {
             System.Collections.IList result = (System.Collections.IList)Activator.CreateInstance(listType)!;
             foreach (JToken element in ((JArray)this).ChildrenTokens)
             {
-                object? value = element.ToObject(valueType);
+                object? value = element.ToObject(valueType, settings);
                 result.Add(value);
             }
             return result;
         }
 
-        private object ConvertToDictionary(Type dictionaryType, Type valueType)
+        private object ConvertToDictionary(Type dictionaryType, Type valueType, ToObjectSettings settings)
         {
             System.Collections.IDictionary result = (System.Collections.IDictionary)Activator.CreateInstance(dictionaryType)!;
             foreach (KeyValuePair<string, JToken> property in ((JObject)this).Properties)
             {
-                object? value = property.Value.ToObject(valueType);
+                object? value = property.Value.ToObject(valueType, settings);
                 result.Add(property.Key, value);
             }
             return result;

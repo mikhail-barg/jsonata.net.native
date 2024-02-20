@@ -51,7 +51,7 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationOptions options)
+        internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options)
         {
             builder.Append('{');
             bool serializedSomething = false;
@@ -83,7 +83,7 @@ namespace Jsonata.Net.Native.Json
             builder.Append('}');
         }
 
-        internal override void ToStringFlatImpl(StringBuilder builder, SerializationOptions options)
+        internal override void ToStringFlatImpl(StringBuilder builder, SerializationSettings options)
         {
             builder.Append('{');
             bool serializedSomething = false;

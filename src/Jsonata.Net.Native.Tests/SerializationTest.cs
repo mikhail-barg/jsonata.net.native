@@ -57,9 +57,9 @@ namespace Jsonata.Net.Native.Tests
             void Check(string source, string expectedStrWithNulls, string expectedStrWithNoNulls)
             {
                 JToken token = JToken.Parse(source);
-                string resultWithNulls = token.ToFlatString(new SerializationOptions() { SerializeNullProperties = true });
+                string resultWithNulls = token.ToFlatString(new SerializationSettings() { SerializeNullProperties = true });
                 Assert.AreEqual(expectedStrWithNulls, resultWithNulls);
-                string resultWithNoNulls = token.ToFlatString(new SerializationOptions() { SerializeNullProperties = false });
+                string resultWithNoNulls = token.ToFlatString(new SerializationSettings() { SerializeNullProperties = false });
                 Assert.AreEqual(expectedStrWithNoNulls, resultWithNoNulls);
             }
         }
