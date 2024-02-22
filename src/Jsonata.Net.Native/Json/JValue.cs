@@ -83,7 +83,7 @@ namespace Jsonata.Net.Native.Json
                 break;
             case JTokenType.String:
                 builder.Append('"');
-                EscapeString((string)this, builder);
+                JToken.EscapeString((string)this, builder);
                 builder.Append('"');
                 break;
             case JTokenType.Boolean:
@@ -91,42 +91,6 @@ namespace Jsonata.Net.Native.Json
                 break;
             default:
                 throw new Exception("Unexpected type " + this.Type);
-            }
-        }
-
-        //see https://stackoverflow.com/questions/19176024/how-to-escape-special-characters-in-building-a-json-string
-        // https://www.freeformatter.com/json-escape.html
-        private static void EscapeString(string source, StringBuilder target)
-        {
-            foreach (char c in source)
-            {
-                switch (c)
-                {
-                case '\b':
-                    target.Append(@"\b");
-                    break;
-                case '\f':
-                    target.Append(@"\f");
-                    break;
-                case '\n':
-                    target.Append(@"\n");
-                    break;
-                case '\r':
-                    target.Append(@"\r");
-                    break;
-                case '\t':
-                    target.Append(@"\t");
-                    break;
-                case '"':
-                    target.Append("\\\"");
-                    break;
-                case '\\':
-                    target.Append(@"\\");
-                    break;
-                default:
-                    target.Append(c);
-                    break;
-                }
             }
         }
 

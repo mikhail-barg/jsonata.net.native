@@ -7,18 +7,24 @@ namespace Jsonata.Net.Native.Tests
     public sealed class SerializationTest
     {
 
+        void Check(string source)
+        {
+            JToken token = JToken.Parse(source);
+            string result = token.ToFlatString();
+            Assert.AreEqual(source, result);
+        }
+
         //see https://github.com/mikhail-barg/jsonata.net.native/issues/7
         [Test]
         public void Test_Issue7()
         {
             Check("\"Lorem \\\"ipsum\\\"\""); //the json is '"Lorem \"ipsum\""'
+        }
 
-            void Check(string source)
-            {
-                JToken token = JToken.Parse(source);
-                string result = token.ToFlatString();
-                Assert.AreEqual(source, result);
-            }
+        [Test]
+        public void Test_WeirdKeys()
+        {
+            Check("{\"a\\\"b\":1}"); //the json is {'a\"b':1}
         }
 
         private static void CheckSimpleType(object? value, string expectedStr)

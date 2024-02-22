@@ -70,7 +70,10 @@ namespace Jsonata.Net.Native.Json
                 builder.AppendJsonLine();
 
                 builder.Indent(indent + 1);
-                builder.Append('"').Append(prop.Key).Append('"').Append(':').Append(' ');
+
+                builder.Append('"');
+                JToken.EscapeString(prop.Key, builder);
+                builder.Append('"').Append(':').Append(' ');
                 prop.Value.ToIndentedStringImpl(builder, indent + 1, options);
                 serializedSomething = true;
             }
@@ -100,7 +103,9 @@ namespace Jsonata.Net.Native.Json
                     builder.Append(',');
                 }
 
-                builder.Append('"').Append(prop.Key).Append('"').Append(':');
+                builder.Append('"');
+                JToken.EscapeString(prop.Key, builder);
+                builder.Append('"').Append(':');
                 prop.Value.ToStringFlatImpl(builder, options);
                 serializedSomething = true;
             }
