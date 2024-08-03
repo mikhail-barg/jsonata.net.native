@@ -8,23 +8,23 @@ namespace Jsonata.Net.Native.Dom
 {
     public sealed class BooleanOperatorNode: Node
     {
-        public BooleanOperator op { get; }
+        public Operator op { get; }
         public Node lhs { get; }
         public Node rhs { get; }
 
-        public enum BooleanOperator
+        public enum Operator
         {
-            BooleanAnd,
-            BooleanOr,
+            And,
+            Or,
         }
 
-        public static string OperatorToString(BooleanOperator op) => op switch {
-            BooleanOperator.BooleanAnd => "and",
-            BooleanOperator.BooleanOr => "or",
+        public static string OperatorToString(Operator op) => op switch {
+            Operator.And => "and",
+            Operator.Or => "or",
             _ => throw new ArgumentException($"Unexpected operator '{op}'")
         };
 
-        public BooleanOperatorNode(BooleanOperator op, Node lhs, Node rhs)
+        public BooleanOperatorNode(Operator op, Node lhs, Node rhs)
         {
             this.op = op;
             this.lhs = lhs;

@@ -10,25 +10,25 @@ namespace Jsonata.Net.Native.Dom
     public sealed class ConditionalNode : Node
     {
         public Node predicate { get; }
-        public Node expr1 { get; }
-        public Node? expr2 { get; }
+        public Node thenExpr { get; }
+        public Node? elseExpr { get; }
 
-        public ConditionalNode(Node predicate, Node expr1, Node? expr2)
+        public ConditionalNode(Node predicate, Node thenExpr, Node? elseExpr)
         {
             this.predicate = predicate;
-            this.expr1 = expr1;
-            this.expr2 = expr2;
+            this.thenExpr = thenExpr;
+            this.elseExpr = elseExpr;
         }
 
         internal override Node optimize()
         {
             Node predicate = this.predicate.optimize();
-            Node expr1 = this.expr1.optimize();
-            Node? expr2 = this.expr2?.optimize();
+            Node expr1 = this.thenExpr.optimize();
+            Node? expr2 = this.elseExpr?.optimize();
 
             if (predicate != this.predicate
-                || expr1 != this.expr1
-                || expr2 != this.expr2
+                || expr1 != this.thenExpr
+                || expr2 != this.elseExpr
             )
             {
                 return new ConditionalNode(predicate, expr1, expr2);
@@ -41,13 +41,13 @@ namespace Jsonata.Net.Native.Dom
 
         public override string ToString()
         {
-            if (this.expr2 != null)
+            if (this.elseExpr != null)
             {
-                return $"{this.predicate} ? {this.expr1} : {this.expr2}";
+                return $"{this.predicate} ? {this.thenExpr} : {this.elseExpr}";
             }
             else
             {
-                return $"{this.predicate} ? {this.expr1}";
+                return $"{this.predicate} ? {this.thenExpr}";
             }
         }
     }

@@ -27,7 +27,7 @@ namespace Jsonata.Net.Native.Parsing
                 if (this.token.type == placeholderTokenType)
                 {
                     isPartial = true;
-                    arg = new PlaceholderNode();
+                    arg = new ArgumentPlaceholderNode();
                     this.consume(placeholderTokenType, true);
                 }
                 else
@@ -44,7 +44,7 @@ namespace Jsonata.Net.Native.Parsing
             this.consume(TokenType.typeParenClose, false);
             if (isPartial)
             {
-                return new PartialNode(lhs, args);
+                return new PartialApplicationNode(lhs, args);
             }
             else
             {
@@ -129,7 +129,7 @@ namespace Jsonata.Net.Native.Parsing
 
         private static (bool isLambda, bool isShorthand) isLambdaName(Node node)
         {
-            if (node is NameNode nameNode)
+            if (node is FieldNameNode nameNode)
             {
                 switch (nameNode.value)
                 {
@@ -250,12 +250,12 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseNumericOperator(Token t, Node lhs)
         {
-            NumericOperatorNode.NumericOperator op = t.type switch {
-                TokenType.typePlus => NumericOperatorNode.NumericOperator.NumericAdd,
-                TokenType.typeMinus => NumericOperatorNode.NumericOperator.NumericSubtract,
-                TokenType.typeMult => NumericOperatorNode.NumericOperator.NumericMultiply,
-                TokenType.typeDiv => NumericOperatorNode.NumericOperator.NumericDivide,
-                TokenType.typeMod => NumericOperatorNode.NumericOperator.NumericModulo,
+            NumericOperatorNode.Operator op = t.type switch {
+                TokenType.typePlus => NumericOperatorNode.Operator.Add,
+                TokenType.typeMinus => NumericOperatorNode.Operator.Subtract,
+                TokenType.typeMult => NumericOperatorNode.Operator.Multiply,
+                TokenType.typeDiv => NumericOperatorNode.Operator.Divide,
+                TokenType.typeMod => NumericOperatorNode.Operator.Modulo,
                 _ => throw new Exception("Unexpected token " + t.type)
             };
 
@@ -265,14 +265,14 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseComparisonOperator(Token t, Node lhs)
         {
-            ComparisonOperatorNode.ComparisonOperator op = t.type switch {
-                TokenType.typeEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonEqual,
-                TokenType.typeNotEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual,
-                TokenType.typeLess => ComparisonOperatorNode.ComparisonOperator.ComparisonLess,
-                TokenType.typeLessEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual,
-                TokenType.typeGreater => ComparisonOperatorNode.ComparisonOperator.ComparisonGreater,
-                TokenType.typeGreaterEqual => ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual,
-                TokenType.typeIn => ComparisonOperatorNode.ComparisonOperator.ComparisonIn,
+            ComparisonOperatorNode.Operator op = t.type switch {
+                TokenType.typeEqual => ComparisonOperatorNode.Operator.Equal,
+                TokenType.typeNotEqual => ComparisonOperatorNode.Operator.NotEqual,
+                TokenType.typeLess => ComparisonOperatorNode.Operator.Less,
+                TokenType.typeLessEqual => ComparisonOperatorNode.Operator.LessEqual,
+                TokenType.typeGreater => ComparisonOperatorNode.Operator.Greater,
+                TokenType.typeGreaterEqual => ComparisonOperatorNode.Operator.GreaterEqual,
+                TokenType.typeIn => ComparisonOperatorNode.Operator.In,
                 _ => throw new Exception("Unexpected token " + t.type)
             };
 
@@ -282,9 +282,9 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseBooleanOperator(Token t, Node lhs)
         {
-            BooleanOperatorNode.BooleanOperator op = t.type switch {
-                TokenType.typeAnd => BooleanOperatorNode.BooleanOperator.BooleanAnd,
-                TokenType.typeOr => BooleanOperatorNode.BooleanOperator.BooleanOr,
+            BooleanOperatorNode.Operator op = t.type switch {
+                TokenType.typeAnd => BooleanOperatorNode.Operator.And,
+                TokenType.typeOr => BooleanOperatorNode.Operator.Or,
                 _ => throw new Exception("Unexpected token " + t.type)
             };
 

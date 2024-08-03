@@ -19,9 +19,9 @@ namespace Jsonata.Net.Native.Tests
             Node node = new AssignmentNode(
                 "x",
                 new ComparisonOperatorNode(
-                    ComparisonOperatorNode.ComparisonOperator.ComparisonGreater,
+                    ComparisonOperatorNode.Operator.Greater,
                     new FunctionCallNode(
-                        new VariableNode("count"),
+                        "count",
                         new List<Node>() { new VariableNode("foo") }
                     ),
                     new NumberIntNode(0)
@@ -50,24 +50,22 @@ namespace Jsonata.Net.Native.Tests
                     new AssignmentNode(
                         "factorial",
                         new LambdaNode(
-                            false,
                             new List<string>(){ "x" },
-                            null,
                             new ConditionalNode(
                                 new ComparisonOperatorNode(
-                                    ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual,
+                                    ComparisonOperatorNode.Operator.LessEqual,
                                     new VariableNode("x"),
                                     new NumberIntNode(1)
                                 ),
                                 new NumberIntNode(1),
                                 new NumericOperatorNode(
-                                    NumericOperatorNode.NumericOperator.NumericMultiply,
+                                    NumericOperatorNode.Operator.Multiply,
                                     new VariableNode("x"),
                                     new FunctionCallNode(
-                                        new VariableNode("factorial"),
+                                        "factorial",
                                         new List<Node>() {
                                             new NumericOperatorNode(
-                                                NumericOperatorNode.NumericOperator.NumericSubtract,
+                                                NumericOperatorNode.Operator.Subtract,
                                                 new VariableNode("x"),
                                                 new NumberIntNode(1)
                                             )
@@ -78,7 +76,7 @@ namespace Jsonata.Net.Native.Tests
                         )
                     ),
                     new FunctionCallNode(
-                        new VariableNode("factorial"),
+                        "factorial",
                         new List<Node>() {
                             new NumberIntNode(5)
                         }

@@ -8,33 +8,33 @@ namespace Jsonata.Net.Native.Dom
 {
     public sealed class ComparisonOperatorNode: Node
     {
-        public enum ComparisonOperator
+        public enum Operator
         {
-            ComparisonEqual,
-            ComparisonNotEqual,
-            ComparisonLess,
-            ComparisonLessEqual,
-            ComparisonGreater,
-            ComparisonGreaterEqual,
-            ComparisonIn
+            Equal,
+            NotEqual,
+            Less,
+            LessEqual,
+            Greater,
+            GreaterEqual,
+            In
         }
 
-        public static string OperatorToString(ComparisonOperator op) => op switch {
-            ComparisonOperator.ComparisonEqual => "=",
-            ComparisonOperator.ComparisonNotEqual => "!=",
-            ComparisonOperator.ComparisonLess => "<",
-            ComparisonOperator.ComparisonLessEqual => "<=",
-            ComparisonOperator.ComparisonGreater => ">",
-            ComparisonOperator.ComparisonGreaterEqual => ">=",
-            ComparisonOperator.ComparisonIn => "in",
+        public static string OperatorToString(Operator op) => op switch {
+            Operator.Equal => "=",
+            Operator.NotEqual => "!=",
+            Operator.Less => "<",
+            Operator.LessEqual => "<=",
+            Operator.Greater => ">",
+            Operator.GreaterEqual => ">=",
+            Operator.In => "in",
             _ => throw new ArgumentException($"Unexpected operator '{op}'")
         };
 
-        public ComparisonOperator op { get; }
+        public Operator op { get; }
         public Node lhs { get; }
         public Node rhs { get; }
 
-        public ComparisonOperatorNode(ComparisonOperator op, Node lhs, Node rhs)
+        public ComparisonOperatorNode(Operator op, Node lhs, Node rhs)
         {
             this.op = op;
             this.lhs = lhs;

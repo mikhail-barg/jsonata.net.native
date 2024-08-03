@@ -23,6 +23,17 @@ namespace Jsonata.Net.Native.Dom
             this.body = body;
         }
 
+        //shorthand constructor for manual DOM construction
+        public LambdaNode(IReadOnlyList<string> paramNames, Node body)
+            : this(
+                isShorthand: false, 
+                paramNames: paramNames,
+                signature: null,
+                body: body
+            )
+        {
+        }
+
         internal override Node optimize()
         {
             Node body = this.body.optimize();

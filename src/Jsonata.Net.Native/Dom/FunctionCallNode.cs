@@ -19,6 +19,12 @@ namespace Jsonata.Net.Native.Dom
             this.args = args;
         }
 
+        //shorthand constructor for manual DOM construction
+        public FunctionCallNode(string functionName, IReadOnlyList<Node> args)
+            : this(new VariableNode(functionName), args)
+        {
+        }
+
         internal override Node optimize()
         {
             Node func = this.func.optimize();

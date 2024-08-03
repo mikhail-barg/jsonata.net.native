@@ -37,7 +37,7 @@ namespace Jsonata.Net.Native.Dom
                     throw new JsonataException("S0213", $"The literal value {lhs} cannot be used as a step within a path expression");
                 case StringNode stringNode:
                     //convert string to NameNode https://github.com/IBM/JSONata4Java/issues/25
-                    steps.Add(new NameNode(stringNode.value, escaped: true));
+                    steps.Add(new FieldNameNode(stringNode.value, escaped: true));
                     break;
                 case PathNode pathNode:
                     steps.AddRange(pathNode.steps);
@@ -61,7 +61,7 @@ namespace Jsonata.Net.Native.Dom
                     throw new JsonataException("S0213", $"The literal value {rhs} cannot be used as a step within a path expression");
                 case StringNode stringNode:
                     //convert string to NameNode https://github.com/IBM/JSONata4Java/issues/25
-                    steps.Add(new NameNode(stringNode.value, escaped: true));
+                    steps.Add(new FieldNameNode(stringNode.value, escaped: true));
                     break;
                 case PathNode pathNode:
                     steps.AddRange(pathNode.steps);

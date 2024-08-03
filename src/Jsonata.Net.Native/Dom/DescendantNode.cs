@@ -9,10 +9,7 @@ namespace Jsonata.Net.Native.Dom
     // A DescendentNode represents the descendant operator.
     public sealed class DescendantNode : Node
     {
-        public DescendantNode()
-        {
-
-        }
+        public DescendantNode() { }
 
         internal override Node optimize()
         {

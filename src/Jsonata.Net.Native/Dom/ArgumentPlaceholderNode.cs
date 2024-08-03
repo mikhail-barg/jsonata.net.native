@@ -8,9 +8,9 @@ namespace Jsonata.Net.Native.Dom
 {
     // A PlaceholderNode represents a placeholder argument
     // in a partially applied function.
-    public sealed class PlaceholderNode : Node
+    public sealed class ArgumentPlaceholderNode : Node
     {
-        public PlaceholderNode() { }
+        public ArgumentPlaceholderNode() { }
 
         internal override Node optimize()
         {

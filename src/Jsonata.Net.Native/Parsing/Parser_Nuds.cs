@@ -97,7 +97,7 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseName(Token t)
         {
-            return new NameNode(value: t.value ?? throw new ArgumentException(), escaped: false);
+            return new FieldNameNode(value: t.value ?? throw new ArgumentException(), escaped: false);
         }
 
         private Node parseParent(Token t)
@@ -107,7 +107,7 @@ namespace Jsonata.Net.Native.Parsing
 
         private Node parseEscapedName(Token t)
         {
-            return new NameNode(value: t.value ?? throw new ArgumentException(), escaped: true);
+            return new FieldNameNode(value: t.value ?? throw new ArgumentException(), escaped: true);
         }
 
         private Node parseNegation(Token t)

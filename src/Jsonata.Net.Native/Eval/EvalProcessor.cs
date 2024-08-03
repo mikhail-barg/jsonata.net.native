@@ -78,7 +78,7 @@ namespace Jsonata.Net.Native.Eval
 				return evalRegex(regexNode, input, env);
 			case VariableNode variableNode:
 				return evalVariable(variableNode, input, env);
-			case NameNode nameNode:
+			case FieldNameNode nameNode:
 				return evalName(nameNode, input, env);
 			case ParentNode parentNode:
 				return evalParent(parentNode, input, env);
@@ -112,7 +112,7 @@ namespace Jsonata.Net.Native.Eval
 				return evalLambda(lambdaNode, input, env);
 			case ObjectTransformationNode transformationNode:
 				return evalObjectTransformation(transformationNode, input, env);
-			case PartialNode partialNode:
+			case PartialApplicationNode partialNode:
 				return evalPartial(partialNode, input, env);
 			case FunctionCallNode functionCallNode:
 				return evalFunctionCall(functionCallNode, input, env, null);
@@ -262,7 +262,7 @@ namespace Jsonata.Net.Native.Eval
 			);
         }
 
-        private static JToken evalPartial(PartialNode partialNode, JToken input, EvaluationEnvironment env)
+        private static JToken evalPartial(PartialApplicationNode partialNode, JToken input, EvaluationEnvironment env)
         {
 			JToken func = Eval(partialNode.func, input, env);
 
@@ -274,7 +274,7 @@ namespace Jsonata.Net.Native.Eval
 			List<JToken?> argsOrNulls = new List<JToken?>(partialNode.args.Count);
 			foreach (Node argNode in partialNode.args)
             {
-				if (argNode is PlaceholderNode)
+				if (argNode is ArgumentPlaceholderNode)
                 {
 					argsOrNulls.Add(null);
                 }
@@ -303,11 +303,11 @@ namespace Jsonata.Net.Native.Eval
 			JToken condition = Eval(conditionalNode.predicate, input, env);
 			if (Helpers.Booleanize(condition))
             {
-				return Eval(conditionalNode.expr1, input, env);
+				return Eval(conditionalNode.thenExpr, input, env);
             }
-			else if (conditionalNode.expr2 != null)
+			else if (conditionalNode.elseExpr != null)
             {
-				return Eval(conditionalNode.expr2, input, env);
+				return Eval(conditionalNode.elseExpr, input, env);
 			}
             else
             {
@@ -650,9 +650,9 @@ namespace Jsonata.Net.Native.Eval
 			{
 				switch (comparisonOperatorNode.op)
 				{
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonEqual:
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual:
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonIn:
+				case ComparisonOperatorNode.Operator.Equal:
+				case ComparisonOperatorNode.Operator.NotEqual:
+				case ComparisonOperatorNode.Operator.In:
 					return new JValue(false);
 				default:
 					if (lhs.Type != JTokenType.Undefined && !IsComparable(lhs))
@@ -681,11 +681,11 @@ namespace Jsonata.Net.Native.Eval
 
 			switch (comparisonOperatorNode.op)
 			{
-			case ComparisonOperatorNode.ComparisonOperator.ComparisonEqual:
+			case ComparisonOperatorNode.Operator.Equal:
 				return new JValue(JToken.DeepEquals(lhs, rhs));
-			case ComparisonOperatorNode.ComparisonOperator.ComparisonNotEqual:
+			case ComparisonOperatorNode.Operator.NotEqual:
 				return new JValue(!JToken.DeepEquals(lhs, rhs));
-			case ComparisonOperatorNode.ComparisonOperator.ComparisonIn:
+			case ComparisonOperatorNode.Operator.In:
 				{
 					if (rhs.Type == JTokenType.Array)
 					{
@@ -745,51 +745,51 @@ namespace Jsonata.Net.Native.Eval
 					|| token.Type == JTokenType.String;
 			}
 
-			JToken CompareDoubles(ComparisonOperatorNode.ComparisonOperator op, double lhs, double rhs)
+			JToken CompareDoubles(ComparisonOperatorNode.Operator op, double lhs, double rhs)
 			{
 				switch (op)
                 {
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
+				case ComparisonOperatorNode.Operator.Less:
 					return new JValue(lhs < rhs);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
+				case ComparisonOperatorNode.Operator.LessEqual:
 					return new JValue(lhs <= rhs);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
+				case ComparisonOperatorNode.Operator.Greater:
 					return new JValue(lhs > rhs);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
+				case ComparisonOperatorNode.Operator.GreaterEqual:
 					return new JValue(lhs >= rhs);
 				default:
 					throw new Exception("Should not happen");
 				}
 			}
 
-			JToken CompareInts(ComparisonOperatorNode.ComparisonOperator op, long lhs, long rhs)
+			JToken CompareInts(ComparisonOperatorNode.Operator op, long lhs, long rhs)
 			{
 				switch (op)
 				{
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
+				case ComparisonOperatorNode.Operator.Less:
 					return new JValue(lhs < rhs);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
+				case ComparisonOperatorNode.Operator.LessEqual:
 					return new JValue(lhs <= rhs);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
+				case ComparisonOperatorNode.Operator.Greater:
 					return new JValue(lhs > rhs);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
+				case ComparisonOperatorNode.Operator.GreaterEqual:
 					return new JValue(lhs >= rhs);
 				default:
 					throw new Exception("Should not happen");
 				}
 			}
 
-			JToken CompareStrings(ComparisonOperatorNode.ComparisonOperator op, string lhs, string rhs)
+			JToken CompareStrings(ComparisonOperatorNode.Operator op, string lhs, string rhs)
 			{
 				switch (op)
 				{
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonLess:
+				case ComparisonOperatorNode.Operator.Less:
 					return new JValue(String.CompareOrdinal(lhs, rhs) < 0);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonLessEqual:
+				case ComparisonOperatorNode.Operator.LessEqual:
 					return new JValue(String.CompareOrdinal(lhs, rhs) <= 0);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreater:
+				case ComparisonOperatorNode.Operator.Greater:
 					return new JValue(String.CompareOrdinal(lhs, rhs) > 0);
-				case ComparisonOperatorNode.ComparisonOperator.ComparisonGreaterEqual:
+				case ComparisonOperatorNode.Operator.GreaterEqual:
 					return new JValue(String.CompareOrdinal(lhs, rhs) >= 0);
 				default:
 					throw new Exception("Should not happen");
@@ -803,13 +803,13 @@ namespace Jsonata.Net.Native.Eval
 			//short-cirquit the operators if possible:
 			switch (booleanOperatorNode.op)
             {
-			case BooleanOperatorNode.BooleanOperator.BooleanAnd:
+			case BooleanOperatorNode.Operator.And:
 				if (!lhs)
                 {
 					return new JValue(false);
                 }
 				break;
-			case BooleanOperatorNode.BooleanOperator.BooleanOr:
+			case BooleanOperatorNode.Operator.Or:
 				if (lhs)
 				{
 					return new JValue(true);
@@ -821,8 +821,8 @@ namespace Jsonata.Net.Native.Eval
 			bool rhs = Helpers.Booleanize(Eval(booleanOperatorNode.rhs, input, env));
 
 			bool result = booleanOperatorNode.op switch {
-				BooleanOperatorNode.BooleanOperator.BooleanAnd => lhs && rhs,
-				BooleanOperatorNode.BooleanOperator.BooleanOr => lhs || rhs,
+				BooleanOperatorNode.Operator.And => lhs && rhs,
+				BooleanOperatorNode.Operator.Or => lhs || rhs,
 				_ => throw new ArgumentException($"Unexpected operator '{booleanOperatorNode.op}'")
 			};
 			return new JValue(result);
@@ -945,7 +945,7 @@ namespace Jsonata.Net.Native.Eval
             }
 			else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Integer)
             {
-				if (numericOperatorNode.op == NumericOperatorNode.NumericOperator.NumericDivide)
+				if (numericOperatorNode.op == NumericOperatorNode.Operator.Divide)
 				{
 					//divide is still in double
 					return evalDoubleOperator((long)lhs, (long)rhs, numericOperatorNode.op);
@@ -977,27 +977,27 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-        private static JToken evalIntOperator(long lhs, long rhs, NumericOperatorNode.NumericOperator op)
+        private static JToken evalIntOperator(long lhs, long rhs, NumericOperatorNode.Operator op)
         {
 			long result = op switch {
-				NumericOperatorNode.NumericOperator.NumericAdd => lhs + rhs,
-				NumericOperatorNode.NumericOperator.NumericSubtract => lhs - rhs,
-				NumericOperatorNode.NumericOperator.NumericMultiply => lhs * rhs,
-				NumericOperatorNode.NumericOperator.NumericDivide => lhs / rhs,
-				NumericOperatorNode.NumericOperator.NumericModulo => lhs % rhs,
+				NumericOperatorNode.Operator.Add => lhs + rhs,
+				NumericOperatorNode.Operator.Subtract => lhs - rhs,
+				NumericOperatorNode.Operator.Multiply => lhs * rhs,
+				NumericOperatorNode.Operator.Divide => lhs / rhs,
+				NumericOperatorNode.Operator.Modulo => lhs % rhs,
 				_ => throw new ArgumentException($"Unexpected operator '{op}'")
 			};
 			return new JValue(result);
         }
 
-		private static JToken evalDoubleOperator(double lhs, double rhs, NumericOperatorNode.NumericOperator op)
+		private static JToken evalDoubleOperator(double lhs, double rhs, NumericOperatorNode.Operator op)
 		{
 			double result = op switch {
-				NumericOperatorNode.NumericOperator.NumericAdd => lhs + rhs,
-				NumericOperatorNode.NumericOperator.NumericSubtract => lhs - rhs,
-				NumericOperatorNode.NumericOperator.NumericMultiply => lhs * rhs,
-				NumericOperatorNode.NumericOperator.NumericDivide => lhs / rhs,
-				NumericOperatorNode.NumericOperator.NumericModulo => lhs % rhs,
+				NumericOperatorNode.Operator.Add => lhs + rhs,
+				NumericOperatorNode.Operator.Subtract => lhs - rhs,
+				NumericOperatorNode.Operator.Multiply => lhs * rhs,
+				NumericOperatorNode.Operator.Divide => lhs / rhs,
+				NumericOperatorNode.Operator.Modulo => lhs % rhs,
 				_ => throw new ArgumentException($"Unexpected operator '{op}'")
 			};
 			long longResult = (long)result;
@@ -1160,7 +1160,7 @@ namespace Jsonata.Net.Native.Eval
 			}
         }
 
-		private static JToken evalName(NameNode nameNode, JToken data, EvaluationEnvironment env)
+		private static JToken evalName(FieldNameNode nameNode, JToken data, EvaluationEnvironment env)
         {
             switch (data)
             {

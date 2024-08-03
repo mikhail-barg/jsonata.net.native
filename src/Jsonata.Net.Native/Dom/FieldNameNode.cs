@@ -8,15 +8,20 @@ using Jsonata.Net.Native.Parsing;
 namespace Jsonata.Net.Native.Dom
 {
     // A NameNode represents a JSON field name.
-    public sealed class NameNode : Node
+    public sealed class FieldNameNode : Node
     {
         public string value { get; }
         public bool escaped { get; }
 
-        public NameNode(string value, bool escaped)
+        public FieldNameNode(string value, bool escaped)
         {
             this.value = value;
             this.escaped = escaped;
+        }
+
+        public FieldNameNode(string value)
+            :this(value, true)
+        {
         }
 
         internal override Node optimize()

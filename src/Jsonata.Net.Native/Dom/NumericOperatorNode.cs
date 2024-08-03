@@ -8,30 +8,30 @@ namespace Jsonata.Net.Native.Dom
 {
     public sealed class NumericOperatorNode : Node
     {
-        public enum NumericOperator
+        public enum Operator
         {
-            NumericAdd,
-            NumericSubtract,
-            NumericMultiply,
-            NumericDivide,
-            NumericModulo
+            Add,
+            Subtract,
+            Multiply,
+            Divide,
+            Modulo
         }
 
-        public static string OperatorToString(NumericOperator op) => op switch {
-            NumericOperator.NumericAdd => "+",
-            NumericOperator.NumericSubtract => "-",
-            NumericOperator.NumericMultiply => "*",
-            NumericOperator.NumericDivide => "/",
-            NumericOperator.NumericModulo => "%",
+        public static string OperatorToString(Operator op) => op switch {
+            Operator.Add => "+",
+            Operator.Subtract => "-",
+            Operator.Multiply => "*",
+            Operator.Divide => "/",
+            Operator.Modulo => "%",
             _ => throw new ArgumentException($"Unexpected operator '{op}'")
         };
 
-        public NumericOperator op { get; }
+        public Operator op { get; }
         public Node lhs { get; }
         public Node rhs { get; }
 
 
-        public NumericOperatorNode(NumericOperator op, Node lhs, Node rhs)
+        public NumericOperatorNode(Operator op, Node lhs, Node rhs)
         {
             this.op = op;
             this.lhs = lhs;
