@@ -1,4 +1,5 @@
-﻿using Jsonata.Net.Native.Parsing;
+﻿using Jsonata.Net.Native.Dom;
+using Jsonata.Net.Native.Parsing;
 using System;
 using System.Collections.Generic;
 
@@ -20,7 +21,7 @@ namespace Jsonata.Net.Native.Parsing
             {
                 throw new JsonataException("S0201", $"Syntax error: {Lexer.TokenTypeToString(parser.token.type)} ({parser.token.type})");
             }
-            return result.optimize();
+            return result;
         }
 
         private Parser(string queryText)

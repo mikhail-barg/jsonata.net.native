@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Dom;
 
 namespace Jsonata.Net.Native.Parsing
 {
     public static class Helpers
     {
-        public static string JoinNodes(this List<Node> nodes, string separator) 
+        public static string JoinNodes(this IReadOnlyList<Node> nodes, string separator) 
         {
             return String.Join(separator, nodes.Select(n => n.ToString()));
         }

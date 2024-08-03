@@ -1,4 +1,5 @@
-﻿using Jsonata.Net.Native.Json;
+﻿using Jsonata.Net.Native.Dom;
+using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native.Parsing;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,13 @@ namespace Jsonata.Net.Native.Eval
     internal sealed class FunctionTokenLambda : FunctionToken
     {
         private readonly ProcessedSignature? signature;
-        internal readonly List<string> paramNames;
+        internal readonly IReadOnlyList<string> paramNames;
         internal readonly Node body;
         internal readonly JToken context;
         internal readonly EvaluationEnvironment environment;
 
 
-        private FunctionTokenLambda(ProcessedSignature? processedSignature, List<string> paramNames, Node body, JToken context, EvaluationEnvironment environment)
+        private FunctionTokenLambda(ProcessedSignature? processedSignature, IReadOnlyList<string> paramNames, Node body, JToken context, EvaluationEnvironment environment)
             : base("lambda", paramNames.Count)
         {
             this.signature = processedSignature;
@@ -31,7 +32,7 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        internal FunctionTokenLambda(LambdaNode.Signature? signature, List<string> paramNames, Node body, JToken context, EvaluationEnvironment environment)
+        internal FunctionTokenLambda(LambdaNode.Signature? signature, IReadOnlyList<string> paramNames, Node body, JToken context, EvaluationEnvironment environment)
             : this(
                   signature != null? new ProcessedSignature(signature) : null, 
                   paramNames, body, context, environment
@@ -251,7 +252,7 @@ namespace Jsonata.Net.Native.Eval
                 };
             }
 
-            private static (Regex resultRegex, List<ProcessedParam> processedParams) BuildRegexForParamsList(List<LambdaNode.Param> args)
+            private static (Regex resultRegex, List<ProcessedParam> processedParams) BuildRegexForParamsList(IReadOnlyList<LambdaNode.Param> args)
             {
                 List<ProcessedParam> processedParams = new List<ProcessedParam>(args.Count);
                 StringBuilder builder = new StringBuilder();

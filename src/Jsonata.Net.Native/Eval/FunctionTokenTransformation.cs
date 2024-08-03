@@ -1,4 +1,5 @@
-﻿using Jsonata.Net.Native.Json;
+﻿using Jsonata.Net.Native.Dom;
+using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native.Parsing;
 using System;
 using System.Collections.Generic;

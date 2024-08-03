@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
+using Jsonata.Net.Native.Dom;
 
 namespace Jsonata.Net.Native.Eval
 {

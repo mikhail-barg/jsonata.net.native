@@ -1,4 +1,5 @@
-﻿using Jsonata.Net.Native.Eval;
+﻿using Jsonata.Net.Native.Dom;
+using Jsonata.Net.Native.Eval;
 using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native.Parsing;
 using System;
@@ -14,8 +15,13 @@ namespace Jsonata.Net.Native
         private readonly Node m_node;
 
         public JsonataQuery(string queryText)
+            : this(Parser.Parse(queryText))
         {
-            this.m_node = Parser.Parse(queryText);
+        }
+
+        public JsonataQuery(Node node)
+        {
+            this.m_node = node.optimize();
         }
 
         public string Eval(string dataJson)
@@ -46,7 +52,7 @@ namespace Jsonata.Net.Native
 
         public override string ToString()
         {
-            return this.m_node.ToString();
+            return this.m_node.ToString()!;
         }
     }
 }
