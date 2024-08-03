@@ -100,7 +100,7 @@ namespace Jsonata.Net.Native.Eval
 				return evalAssignment(assignmentNode, input, env);
 			case WildcardNode wildcardNode:
 				return evalWildcard(wildcardNode, input, env);
-			case DescendentNode descendentNode:
+			case DescendantNode descendentNode:
 				return evalDescendent(descendentNode, input, env);
 			case GroupNode groupNode:
 				return evalGroup(groupNode, input, env);
@@ -1070,7 +1070,7 @@ namespace Jsonata.Net.Native.Eval
 			return result;
         }
 
-        private static JToken evalDescendent(DescendentNode descendentNode, JToken input, EvaluationEnvironment env)
+        private static JToken evalDescendent(DescendantNode descendentNode, JToken input, EvaluationEnvironment env)
         {
 			Sequence result = new Sequence();
 			if (input.Type != JTokenType.Undefined)

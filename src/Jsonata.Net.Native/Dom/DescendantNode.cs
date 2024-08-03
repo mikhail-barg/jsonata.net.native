@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace Jsonata.Net.Native.Dom
 {
     // A DescendentNode represents the descendant operator.
-    public sealed class DescendentNode : Node
+    public sealed class DescendantNode : Node
     {
-        public DescendentNode()
+        public DescendantNode()
         {
 
         }

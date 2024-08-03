@@ -43,7 +43,7 @@ namespace Jsonata.Net.Native.Parsing
                 { TokenType.typeParenOpen,   this.parseBlock },
                 { TokenType.typeMult,        this.parseWildcard },
                 { TokenType.typeMinus,       this.parseNegation },
-                { TokenType.typeDescendent,  this.parseDescendent },
+                { TokenType.typeDescendant,  this.parseDescendant },
                 { TokenType.typePipe,        this.parseObjectTransformation },
                 { TokenType.typeIn,          this.parseName },
                 { TokenType.typeAnd,         this.parseName },

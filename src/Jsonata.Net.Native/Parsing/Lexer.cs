@@ -48,7 +48,7 @@ namespace Jsonata.Net.Native.Parsing
 			{ '.', ('.', TokenType.typeRange) },
 			{ '~', ('>', TokenType.typeApply) },
 			{ ':', ('=', TokenType.typeAssign) },
-			{ '*', ('*', TokenType.typeDescendent) },
+			{ '*', ('*', TokenType.typeDescendant) },
 		};
 
 		private static readonly Dictionary<TokenType, string> s_tokenTypeToStr;

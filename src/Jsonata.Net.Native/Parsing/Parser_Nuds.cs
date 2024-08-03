@@ -187,9 +187,9 @@ namespace Jsonata.Net.Native.Parsing
             return new WildcardNode();
         }
 
-        private Node parseDescendent(Token t)
+        private Node parseDescendant(Token t)
         {
-            return new DescendentNode();
+            return new DescendantNode();
         }
 
         private Node parseObjectTransformation(Token t)

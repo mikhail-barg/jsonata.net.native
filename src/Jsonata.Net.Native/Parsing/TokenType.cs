@@ -49,7 +49,7 @@ namespace Jsonata.Net.Native.Parsing
 		typeConcat,
 		typeRange,
 		typeAssign,
-		typeDescendent,
+		typeDescendant,
 
 		// Keyword operators
 		typeAnd,
