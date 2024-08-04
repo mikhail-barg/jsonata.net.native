@@ -47,5 +47,16 @@ namespace Jsonata.Net.Native.Dom
                 return $"|{this.pattern}|{this.updates}|";
             }
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ObjectTransformationNode otherNode = (ObjectTransformationNode)other;
+
+            return this.pattern.Equals(otherNode.pattern)
+                && this.updates.Equals(otherNode.updates)
+                && ((this.deletes == null && otherNode.deletes == null)
+                    || (this.deletes != null && otherNode.deletes != null && this.deletes.Equals(otherNode.deletes))
+                );
+        }
     }
 }

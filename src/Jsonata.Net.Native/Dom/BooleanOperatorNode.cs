@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Dom
 {
-    public sealed class BooleanOperatorNode: Node
+    public sealed class BooleanOperatorNode : Node
     {
         public Operator op { get; }
         public Node lhs { get; }
@@ -49,6 +49,15 @@ namespace Jsonata.Net.Native.Dom
         public override string ToString()
         {
             return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BooleanOperatorNode otherNode = (BooleanOperatorNode)other;
+
+            return this.op == otherNode.op
+                && this.lhs.Equals(otherNode.lhs)
+                && this.rhs.Equals(otherNode.rhs);
         }
     }
 }

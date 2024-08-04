@@ -15,6 +15,22 @@ namespace Jsonata.Net.Native.Parsing
             return String.Join(separator, nodes.Select(n => n.ToString()));
         }
 
+        public static bool NodeListsEqual(IReadOnlyList<Node> a, IReadOnlyList<Node> b)
+        {
+            if (a.Count != b.Count)
+            {
+                return false;
+            }
+            for (int i = 0; i < a.Count; ++i)
+            {
+                if (!a[i].Equals(b[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         // unescape replaces JSON escape sequences in a string with their
         // unescaped equivalents. Valid escape sequences are:
         //

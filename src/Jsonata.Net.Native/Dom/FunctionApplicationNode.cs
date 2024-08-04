@@ -37,5 +37,13 @@ namespace Jsonata.Net.Native.Dom
         {
             return $"{this.lhs} ~> {this.rhs}";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            FunctionApplicationNode otherNode = (FunctionApplicationNode)other;
+
+            return this.lhs.Equals(otherNode.lhs)
+                && this.rhs.Equals(otherNode.rhs);
+        }
     }
 }

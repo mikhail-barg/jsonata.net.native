@@ -14,8 +14,8 @@ namespace Jsonata.Net.Native.Dom
 
         public RangeNode(Node lhs, Node rhs)
         {
-            this.lhs = lhs ?? throw new ArgumentNullException(nameof(lhs));
-            this.rhs = rhs ?? throw new ArgumentNullException(nameof(rhs));
+            this.lhs = lhs;
+            this.rhs = rhs;
         }
 
         internal override Node optimize()
@@ -35,6 +35,14 @@ namespace Jsonata.Net.Native.Dom
         public override string ToString()
         {
             return this.lhs.ToString() + ".." + this.rhs.ToString();
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            RangeNode otherNode = (RangeNode)other;
+
+            return this.lhs.Equals(otherNode.lhs)
+                && this.rhs.Equals(otherNode.rhs);
         }
     }
 }

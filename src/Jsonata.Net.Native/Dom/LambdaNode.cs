@@ -14,7 +14,6 @@ namespace Jsonata.Net.Native.Dom
         public Signature? signature { get; }
         public Node body { get; }
 
-
         public LambdaNode(bool isShorthand, IReadOnlyList<string> paramNames, Signature? signature, Node body)
         {
             this.isShorthand = isShorthand;
@@ -70,6 +69,16 @@ namespace Jsonata.Net.Native.Dom
             builder.Append(this.body.ToString());
             builder.Append('}');
             return builder.ToString();
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            LambdaNode otherNode = (LambdaNode)other;
+
+            return this.isShorthand == otherNode.isShorthand
+                && this.paramNames.SequenceEqual(otherNode.paramNames)
+                // && this.signature.Equals(otherNode.signature) //TODO: implement Signature equals
+                && this.body.Equals(otherNode.body);
         }
 
         public enum ParamOpt

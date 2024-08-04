@@ -56,6 +56,11 @@ namespace Jsonata.Net.Native.Dom
         {
             return $"{this.m_lhs}[{this.m_rhs}]";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     // A PredicateNode represents a predicate expression.
@@ -78,6 +83,14 @@ namespace Jsonata.Net.Native.Dom
         public override string ToString()
         {
             return $"{this.expr}[{Helpers.JoinNodes(this.filters, ", ")}]";
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            PredicateNode otherNode = (PredicateNode)other;
+
+            return this.expr.Equals(otherNode.expr)
+                && Helpers.NodeListsEqual(this.filters, otherNode.filters);
         }
     }
 }

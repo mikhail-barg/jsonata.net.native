@@ -29,5 +29,12 @@ namespace Jsonata.Net.Native.Dom
         {
             return (int)this.value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            NumberDoubleNode otherNode = (NumberDoubleNode)other;
+
+            return Math.Abs(this.value - otherNode.value) <= Double.Epsilon * 2;    //TODO: will fail on NaNs
+        }
     }
 }

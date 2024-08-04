@@ -36,5 +36,12 @@ namespace Jsonata.Net.Native.Dom
         {
             return $"{this.lhs} & {this.rhs}";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            StringConcatenationNode otherNode = (StringConcatenationNode)other;
+            return this.lhs.Equals(otherNode.lhs)
+                && this.rhs.Equals(otherNode.rhs);
+        }
     }
 }

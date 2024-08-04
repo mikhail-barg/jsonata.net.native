@@ -54,5 +54,9 @@ namespace Jsonata.Net.Native
         {
             return this.m_node.ToString()!;
         }
+
+        public Node GetDom() { 
+            return this.m_node; 
+        }
     }
 }

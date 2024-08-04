@@ -31,5 +31,11 @@ namespace Jsonata.Net.Native.Dom
         {
             return "[" + Helpers.JoinNodes(this.items, ", ") + "]";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ArrayNode otherNode = (ArrayNode)other;
+            return Helpers.NodeListsEqual(this.m_items, otherNode.m_items);
+        }
     }
 }

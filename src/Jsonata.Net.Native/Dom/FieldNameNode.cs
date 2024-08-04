@@ -35,5 +35,12 @@ namespace Jsonata.Net.Native.Dom
                 "`" + this.value + "`"
                 : this.value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            FieldNameNode otherNode = (FieldNameNode)other;
+            return this.value == otherNode.value 
+                && this.escaped == otherNode.escaped;
+        }
     }
 }

@@ -19,5 +19,10 @@ namespace Jsonata.Net.Native.Dom
         {
             return "null";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            return true;
+        }
     }
 }

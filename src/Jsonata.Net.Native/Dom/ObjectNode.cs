@@ -32,5 +32,27 @@ namespace Jsonata.Net.Native.Dom
         {
             return "{" + String.Join(", ", this.pairs.Select(p => p.Item1.ToString() + ": " + p.Item2.ToString())) + "}";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ObjectNode otherNode = (ObjectNode)other;
+
+            if (this.m_pairs.Count != otherNode.m_pairs.Count)
+            {
+                return false;
+            }
+
+            //TODO: in case order is not preserved, this will not work (
+            for (int i = 0; i < this.m_pairs.Count; ++i)
+            {
+                if (!this.m_pairs[i].Item1.Equals(otherNode.m_pairs[i].Item1)
+                    || !this.m_pairs[i].Item2.Equals(otherNode.m_pairs[i].Item2)
+                )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

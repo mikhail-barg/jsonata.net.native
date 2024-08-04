@@ -46,5 +46,13 @@ namespace Jsonata.Net.Native.Dom
         {
             return new PathNode(this.m_steps, keepArrays: true);
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            PathNode otherNode = (PathNode)other;
+
+            return this.keepArrays == otherNode.keepArrays
+                && Helpers.NodeListsEqual(this.m_steps, otherNode.m_steps);
+        }
     }
 }

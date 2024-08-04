@@ -25,5 +25,11 @@ namespace Jsonata.Net.Native.Dom
         {
             return "$" + this.name;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            VariableNode otherNode = (VariableNode)other;
+            return otherNode.name == this.name;
+        }
     }
 }

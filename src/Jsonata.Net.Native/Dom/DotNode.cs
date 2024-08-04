@@ -80,5 +80,10 @@ namespace Jsonata.Net.Native.Dom
         {
             return $"{this.m_lhs}.{this.m_rhs}";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace Jsonata.Net.Native.Dom
         public string name { get; }
         public Node value { get; }
 
-        public AssignmentNode(string name, Node value) 
+        public AssignmentNode(string name, Node value)
         {
             this.name = name;
             this.value = value;
@@ -29,6 +29,13 @@ namespace Jsonata.Net.Native.Dom
             {
                 return this;
             }
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            AssignmentNode otherNode = (AssignmentNode)other;
+            return this.name == otherNode.name
+                && this.value.Equals(otherNode.value);
         }
     }
 }

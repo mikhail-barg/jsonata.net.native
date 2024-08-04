@@ -45,5 +45,12 @@ namespace Jsonata.Net.Native.Dom
         {
             return "-" + this.rhs.ToString();
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            NegationNode otherNode = (NegationNode)other;
+
+            return this.rhs.Equals(otherNode.rhs);
+        }
     }
 }

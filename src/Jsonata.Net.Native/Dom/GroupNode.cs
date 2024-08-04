@@ -41,5 +41,13 @@ namespace Jsonata.Net.Native.Dom
         {
             return $"{this.expr}{this.objectNode}";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            GroupNode otherNode = (GroupNode)other;
+
+            return this.expr.Equals(otherNode.expr)
+                && this.objectNode.Equals(otherNode.expr);
+        }
     }
 }

@@ -73,5 +73,31 @@ namespace Jsonata.Net.Native.Dom
             builder.Append(")");
             return builder.ToString();
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            SortNode otherNode = (SortNode)other;
+
+            if (!this.expr.Equals(otherNode.expr))
+            {
+                return false;
+            }
+
+            if (this.terms.Count != otherNode.terms.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < this.terms.Count; ++i)
+            {
+                if (this.terms[i].dir != otherNode.terms[i].dir
+                    || !this.terms[i].expr.Equals(otherNode.terms[i].expr)
+                )
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

@@ -50,5 +50,16 @@ namespace Jsonata.Net.Native.Dom
                 return $"{this.predicate} ? {this.thenExpr}";
             }
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ConditionalNode otherNode = (ConditionalNode)other;
+
+            return this.predicate.Equals(otherNode.predicate)
+                && this.thenExpr.Equals(otherNode.thenExpr)
+                && ((this.elseExpr == null && otherNode.elseExpr == null)
+                    || (this.elseExpr != null && otherNode.elseExpr != null && this.elseExpr.Equals(otherNode.elseExpr))
+                );
+        }
     }
 }

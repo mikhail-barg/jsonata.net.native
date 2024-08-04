@@ -60,5 +60,14 @@ namespace Jsonata.Net.Native.Dom
         {
             return $"{this.lhs} {OperatorToString(this.op)} {this.rhs}";
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ComparisonOperatorNode otherNode = (ComparisonOperatorNode)other;
+
+            return this.op == otherNode.op
+                && this.lhs.Equals(otherNode.lhs)
+                && this.rhs.Equals(otherNode.rhs);
+        }
     }
 }
