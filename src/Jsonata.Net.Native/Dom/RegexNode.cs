@@ -2,19 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Dom
 {
     public sealed class RegexNode: Node
     {
-        public System.Text.RegularExpressions.Regex regex { get; }
-        public string pattern { get; }
+        public Regex regex { get; }
 
-        public RegexNode(System.Text.RegularExpressions.Regex regex, string pattern)
+        public RegexNode(Regex regex)
         {
             this.regex = regex;
-            this.pattern = pattern;
+        }
+
+        //shorthand constructor for manual DOM construction
+        public RegexNode(string regexStr)
+            : this(new Regex(regexStr, RegexOptions.Compiled))
+        {
         }
 
         internal override Node optimize()
@@ -24,7 +29,19 @@ namespace Jsonata.Net.Native.Dom
 
         public override string ToString()
         {
-            return "/" + this.pattern + "/";
+            StringBuilder builder = new StringBuilder();
+            builder.Append('/');
+            builder.Append(regex.ToString());
+            builder.Append('/');
+            if (this.regex.Options.HasFlag(System.Text.RegularExpressions.RegexOptions.Multiline))
+            {
+                builder.Append('m');
+            }
+            if (this.regex.Options.HasFlag(System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+            {
+                builder.Append('i');
+            }
+            return builder.ToString();
         }
     }
 }

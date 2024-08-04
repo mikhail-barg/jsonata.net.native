@@ -79,7 +79,7 @@ namespace Jsonata.Net.Native.Parsing
             Regex regex;
             try
             {
-                regex = new Regex(regexToken.value, regexToken.flags);
+                regex = new Regex(regexToken.value, regexToken.flags | RegexOptions.Compiled);
             }
             catch (Exception e)
             {
@@ -87,7 +87,7 @@ namespace Jsonata.Net.Native.Parsing
                 throw new JsonataException("????", "Invalid regex: " + e.Message);
             }
 
-            return new RegexNode(regex, regexToken.value!);
+            return new RegexNode(regex);
         }
 
         private Node parseVariable(Token t)
