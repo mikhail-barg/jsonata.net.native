@@ -94,6 +94,21 @@ When facing an invalid JSON, the parser would throw a [`JsonParseException`](htt
 
 We have put some effort to this parser, but still the main purpose of the package is not parsing JSON by itself, so in case you need more sophisticated parsing features, like comments (or parsing 10 000 open braces) please use some mature parser package like Json.Net or System.Text.Json and convert results to Jsonata.Net.Native.Json.JToken via routines in a binding package.
 
+## Query DOM introspection and query creation via DOM
+
+Since v2.7.0 we provide access to query DOM via `Node` classes in [Jsonata.Net.Native.Dom namespace](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/Jsonata.Net.Native/Dom).
+
+Currently it is possible to:
+* acquire (readonly) DOM representation of an existing query (via `JsonataQuery.GetDom()` call), and inspect it
+* construct new DOM hierarchy and then create a query from it (via `JsonataQuery(Node)` ctor)
+* check two DOM (sub)trees for equality (via `Node.Equals(Node?)`)
+
+Please note that right now **DOM API is experimental and subject to change in backwards-incompatible way** without changing major release version of a library. 
+
+Some examples may be found [here](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.Tests/DomTests.cs).
+
+Rationale behind this API is [here](https://github.com/mikhail-barg/jsonata.net.native/issues/26) and [here](https://github.com/mikhail-barg/jsonata.net.native/issues/28).
+
 ## JSONata language features support
 
 The goal of the project is to implement 100% of latest JSONata version ([1.8.5](https://github.com/jsonata-js/jsonata/releases/tag/v1.8.5) at the moment of writing these words), but it's still work in progress. Here's is a list of features in accordance to [manual](https://docs.jsonata.org/):
