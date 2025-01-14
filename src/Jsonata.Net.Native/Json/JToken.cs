@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Jsonata.Net.Native.Eval;
 
@@ -126,6 +127,12 @@ namespace Jsonata.Net.Native.Json
         {
             JsonParser parser = new JsonParser(reader, settings ?? ParseSettings.DefaultSettings);
             return parser.Parse();
+        }
+
+        public static Task<JToken> ParseAsync(TextReader reader, CancellationToken ct, ParseSettings? settings = null)
+        {
+            JsonParserAsync parser = new JsonParserAsync(reader, settings ?? ParseSettings.DefaultSettings);
+            return parser.ParseAsync(ct);
         }
 
         public static JToken Parse(string source, ParseSettings? settings = null)

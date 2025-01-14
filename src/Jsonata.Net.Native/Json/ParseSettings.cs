@@ -49,5 +49,26 @@ namespace Jsonata.Net.Native.Json
         {
             return (ParseSettings)this.MemberwiseClone();
         }
+
+        public bool IsWhiteSpace(char c)
+        {
+            if (this.AllowAllWhitespace)
+            {
+                return Char.IsWhiteSpace(c);
+            }
+            else
+            {
+                switch (c)
+                {
+                case (char)0x20:
+                case (char)0x09:
+                case (char)0x0A:
+                case (char)0x0D:
+                    return true;
+                default:
+                    return false;
+                }
+            }
+        }
     }
 }

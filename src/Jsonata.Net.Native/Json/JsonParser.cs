@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
@@ -303,27 +304,6 @@ namespace Jsonata.Net.Native.Json
             return result;
         }
 
-        private bool IsWhiteSpace(char c)
-        {
-            if (this.m_settings.AllowAllWhitespace)
-            {
-                return Char.IsWhiteSpace(c);
-            }
-            else
-            {
-                switch (c)
-                {
-                case (char)0x20:
-                case (char)0x09:
-                case (char)0x0A:
-                case (char)0x0D:
-                    return true;
-                default:
-                    return false;
-                }
-            }
-        }
-
         private void SkipWhitespace()
         {
             while (true)
@@ -334,11 +314,11 @@ namespace Jsonata.Net.Native.Json
                     break;
                 }
                 char c = (char)ci;
-                if (!this.IsWhiteSpace(c))
+                if (!this.m_settings.IsWhiteSpace(c))
                 {
                     break;
                 }
-                ConsumeChar(c);
+                this.ConsumeChar(c);
             }
         }
 

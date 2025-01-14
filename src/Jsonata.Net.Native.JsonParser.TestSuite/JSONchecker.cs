@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.JsonParser.TestSuite
 {
@@ -25,7 +27,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             { "fail1",  "Not a problem at all"}
         };
 
-        [Test, TestCaseSource(nameof(GetTestCases))]
+        [Test, TestCaseSource(nameof(GetTestCasesSync))]
         public void Test(CaseInfo caseInfo)
         {
 
@@ -82,7 +84,71 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
             else
             {
-                Assert.AreEqual(caseInfo.expectedResult.Value, parsed);
+                Assert.That(caseInfo.expectedResult.Value, Is.EqualTo(parsed));
+            }
+        }
+
+        [Test, TestCaseSource(nameof(GetTestCasesAsync))]
+        public async Task TestAsync(CaseInfo caseInfo)
+        {
+
+            Console.WriteLine($"File: '{caseInfo.fileName}'");
+
+            if (s_testsToIgnore.TryGetValue(caseInfo.fileName, out string? message))
+            {
+                Assert.Ignore(message);
+                return;
+            }
+
+            Console.WriteLine($"JSON: '{caseInfo.json}'");
+            Console.WriteLine($"Expected: '{caseInfo.expectedResult}'");
+
+            bool parsed;
+            try
+            {
+                using (StringReader reader = new StringReader(caseInfo.json))
+                {
+                    JToken resultToken = await JToken.ParseAsync(reader, CancellationToken.None, this.m_parseSettings);
+                    Console.WriteLine($"Parsed: '{resultToken.ToFlatString()}'");
+                }
+                parsed = true;
+            }
+            catch (JsonParseException ex)
+            {
+                Console.WriteLine($"Exception: '{ex.Message}'");
+                parsed = false;
+            }
+            catch (JsonataException jsEx)
+            {
+                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                {
+                    Assert.Ignore("Skipping ambigous test with integer overflows");
+                    return;
+                }
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            Console.WriteLine($"Result: '{parsed}'");
+
+            if (caseInfo.expectedResult == null)
+            {
+                Assert.Ignore("This is an ambigous test");
+            }
+            else if (
+                caseInfo.expectedResult == false
+                && parsed == true
+                && s_allowRejectingTestsToPass.TryGetValue(caseInfo.fileName, out message)
+            )
+            {
+                Assert.Ignore(message);
+            }
+            else
+            {
+                Assert.That(caseInfo.expectedResult.Value, Is.EqualTo(parsed));
             }
         }
 
@@ -96,7 +162,17 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             results.Add(caseData);
         }
 
-        public static List<TestCaseData> GetTestCases()
+        public static List<TestCaseData> GetTestCasesSync()
+        {
+            return GetTestCasesImpl("sync");
+        }
+
+        public static List<TestCaseData> GetTestCasesAsync()
+        {
+            return GetTestCasesImpl("async");
+        }
+
+        private static List<TestCaseData> GetTestCasesImpl(string prefix)
         {
             List<TestCaseData> results = new List<TestCaseData>();
             string casesDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, TEST_SUITE_ROOT);
@@ -114,12 +190,12 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
                 if (fileName.StartsWith("pass"))
                 {
                     result = true;
-                    displayName = "pass." + displayName;
+                    displayName = prefix + ".pass." + displayName;
                 }
                 else if (fileName.StartsWith("fail"))
                 {
                     result = false;
-                    displayName = "fail." + displayName;
+                    displayName = prefix + ".fail." + displayName;
                 }
                 else
                 {

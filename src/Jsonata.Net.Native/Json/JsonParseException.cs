@@ -15,5 +15,11 @@ namespace Jsonata.Net.Native.Json
         {
             this.Position = parser.CurrentPosition;
         }
+
+        internal JsonParseException(JsonParserAsync parser, string message)
+            : base($"Parsing failed: {message} (at position {parser.CurrentPosition})")
+        {
+            this.Position = parser.CurrentPosition;
+        }
     }
 }
