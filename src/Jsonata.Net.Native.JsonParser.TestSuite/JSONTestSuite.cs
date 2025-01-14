@@ -21,6 +21,20 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             { "n_structure_open_array_object", "Causes stackoverflow, but we don't actually care" },
         };
 
+        //TODO: maybe support validating \u Sequences as well?
+        private static readonly Dictionary<string, string> s_testsToIgnoreForValidation = new Dictionary<string, string>() {
+            { "n_string_1_surrogate_then_escape_u", "Validating \\u unicode sequences is not supported" },
+            { "n_string_1_surrogate_then_escape_u1", "Validating \\u unicode sequences is not supported" },
+            { "n_string_1_surrogate_then_escape_u1x", "Validating \\u unicode sequences is not supported" },
+            { "n_string_incomplete_escaped_character", "Validating \\u unicode sequences is not supported" },
+            {"n_string_incomplete_surrogate", "Validating \\u unicode sequences is not supported" },
+            {"n_string_incomplete_surrogate_escape_invalid", "Validating \\u unicode sequences is not supported" },
+            {"n_string_invalid_unicode_escape", "Validating \\u unicode sequences is not supported" },
+            {"n_string_invalid-utf-8-in-escape", "Validating \\u unicode sequences is not supported" },
+            {"n_string_unicode_CapitalU", "Validating \\u unicode sequences is not supported" },
+        };
+
+
         private static readonly Dictionary<string, string> s_allowRejectingTestsToPass = new Dictionary<string, string>() {
             { "n_string_invalid_utf8_after_escape", "Because why no?" },
             { "n_string_escaped_emoji", "Because why no?" },
@@ -165,6 +179,77 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
         }
 
+        [Test, TestCaseSource(nameof(GetTestCasesValidateAsync))]
+        public async Task TestValidateAsync(CaseInfo caseInfo)
+        {
+
+            Console.WriteLine($"File: '{caseInfo.fileName}'");
+
+            string? message;
+            if (s_testsToIgnore.TryGetValue(caseInfo.fileName, out message))
+            {
+                Assert.Ignore(message);
+                return;
+            }
+
+            if (s_testsToIgnoreForValidation.TryGetValue(caseInfo.fileName, out message))
+            {
+                Assert.Ignore(message);
+                return;
+            }
+
+            Console.WriteLine($"JSON: '{caseInfo.json}'");
+            Console.WriteLine($"Expected: '{caseInfo.expectedResult}'");
+
+            bool parsed;
+            try
+            {
+                using (StringReader reader = new StringReader(caseInfo.json))
+                {
+                    await JToken.ValidateAsync(reader, CancellationToken.None, this.m_parseSettings);
+                    Console.WriteLine($"Validated");
+                }
+                parsed = true;
+            }
+            catch (JsonParseException ex)
+            {
+                Console.WriteLine($"Exception: '{ex.Message}'");
+                parsed = false;
+            }
+            catch (JsonataException jsEx)
+            {
+                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                {
+                    Assert.Ignore("Skipping ambigous test with integer overflows");
+                    return;
+                }
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            Console.WriteLine($"Result: '{parsed}'");
+
+            if (caseInfo.expectedResult == null)
+            {
+                Assert.Ignore("This is an ambigous test");
+            }
+            else if (
+                caseInfo.expectedResult == false
+                && parsed == true
+                && s_allowRejectingTestsToPass.TryGetValue(caseInfo.fileName, out message)
+            )
+            {
+                Assert.Ignore(message);
+            }
+            else
+            {
+                Assert.That(caseInfo.expectedResult.Value, Is.EqualTo(parsed));
+            }
+        }
+
         private static void ProcessAndAddCaseData(List<TestCaseData> results, CaseInfo caseInfo)
         {
             TestCaseData caseData = new TestCaseData(caseInfo);
@@ -177,12 +262,17 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
 
         public static List<TestCaseData> GetTestCasesSync()
         {
-            return GetTestCasesImpl("sync");
+            return GetTestCasesImpl("parse_sync");
         }
 
         public static List<TestCaseData> GetTestCasesAsync()
         {
-            return GetTestCasesImpl("async");
+            return GetTestCasesImpl("parse_async");
+        }
+
+        public static List<TestCaseData> GetTestCasesValidateAsync()
+        {
+            return GetTestCasesImpl("validate_async");
         }
 
         private static List<TestCaseData> GetTestCasesImpl(string prefix)

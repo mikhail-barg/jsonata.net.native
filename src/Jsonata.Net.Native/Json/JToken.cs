@@ -129,18 +129,24 @@ namespace Jsonata.Net.Native.Json
             return parser.Parse();
         }
 
-        public static Task<JToken> ParseAsync(TextReader reader, CancellationToken ct, ParseSettings? settings = null)
-        {
-            JsonParserAsync parser = new JsonParserAsync(reader, settings ?? ParseSettings.DefaultSettings);
-            return parser.ParseAsync(ct);
-        }
-
         public static JToken Parse(string source, ParseSettings? settings = null)
         {
             using (StringReader reader = new StringReader(source))
             {
                 return Parse(reader, settings);
             }
+        }
+
+        public static Task<JToken> ParseAsync(TextReader reader, CancellationToken ct, ParseSettings? settings = null)
+        {
+            JsonParserAsync parser = new JsonParserAsync(reader, settings ?? ParseSettings.DefaultSettings);
+            return parser.ParseAsync(ct);
+        }
+
+        public static Task ValidateAsync(TextReader reader, CancellationToken ct, ParseSettings? settings = null)
+        {
+            JsonParserAsync parser = new JsonParserAsync(reader, settings ?? ParseSettings.DefaultSettings);
+            return parser.ValidateAsync(ct);
         }
 
         public static JToken FromObject(object? sourceObj)

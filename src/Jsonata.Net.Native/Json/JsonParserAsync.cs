@@ -359,5 +359,205 @@ namespace Jsonata.Net.Native.Json
             return c;
         }
 
+
+        internal async Task ValidateAsync(CancellationToken ct)
+        {
+            await this.SkipWhitespaceAsync(ct);
+            await this.ValidateAnyTokenAsync(ct);
+            await this.SkipWhitespaceAsync(ct);
+            if (await this.m_reader.PeekAsync(ct) >= 0)
+            {
+                throw new JsonParseException(this, "Unexpected continuation of data");
+            }
+        }
+
+        private async Task ValidateAnyTokenAsync(CancellationToken ct)
+        {
+            char c = await this.PeekCharAsync(ct);
+            switch (c)
+            {
+            case '{':
+                await this.ValidateObjectAsync(ct);
+                break;
+            case '[':
+                await this.ValidateArrayAsync(ct);
+                break;
+            case 't':
+                await this.ParseLiteralAsync("true", ct);
+                break;
+            case 'f':
+                await this.ParseLiteralAsync("false", ct);
+                break;
+            case 'n':
+                await this.ParseLiteralAsync("null", ct);
+                break;
+            case 'u':
+                await this.ParseLiteralAsync("undefined", ct); //not too standard-compilant
+                break;
+            case '\'':
+            case '"':
+                await this.ValidateStringValueAsync(ct);
+                break;
+            case '-':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                await this.ParseNumberTokenAsync(ct);
+                break;
+            default:
+                throw new JsonParseException(this, $"Expected a token start, got unexpected characer '{c}'");
+            }
+        }
+
+
+        private async Task ValidateObjectAsync(CancellationToken ct)
+        {
+            await this.ConsumeCharAsync('{', ct);
+            await this.SkipWhitespaceAsync(ct);
+            int resultCount = 0;
+            bool hadComma = false;
+            while (await this.PeekCharAsync(ct) != '}')
+            {
+                if (resultCount > 0 && !hadComma)
+                {
+                    throw new JsonParseException(this, "Missing comma in object");
+                }
+
+                await this.ValidateStringValueAsync(ct);
+                await this.SkipWhitespaceAsync(ct);
+                await this.ConsumeCharAsync(':', ct);
+                await this.SkipWhitespaceAsync(ct);
+                await this.ValidateAnyTokenAsync(ct);
+                await this.SkipWhitespaceAsync(ct);
+                if (await this.PeekCharAsync(ct) == ',')
+                {
+                    await this.ConsumeCharAsync(',', ct);  //allow trailing comma
+                    await this.SkipWhitespaceAsync(ct);
+                    hadComma = true;
+                }
+                else
+                {
+                    hadComma = false;
+                }
+
+                ++resultCount;
+            }
+
+            if (hadComma && !this.m_settings.AllowTrailingComma)
+            {
+                throw new JsonParseException(this, "Trailing comma in an object");
+            }
+
+            await this.ConsumeCharAsync('}', ct);
+        }
+
+        private async Task ValidateArrayAsync(CancellationToken ct)
+        {
+            await this.ConsumeCharAsync('[', ct);
+            await this.SkipWhitespaceAsync(ct);
+            int resultCount = 0;
+            bool hadComma = false;
+            while (await this.PeekCharAsync(ct) != ']')
+            {
+                if (resultCount > 0 && !hadComma)
+                {
+                    throw new JsonParseException(this, "Missing comma in array");
+                }
+
+                await this.ValidateAnyTokenAsync(ct);
+                await this.SkipWhitespaceAsync(ct);
+                if (await this.PeekCharAsync(ct) == ',')
+                {
+                    await this.ConsumeCharAsync(',', ct);  //allow trailing comma
+                    await this.SkipWhitespaceAsync(ct);
+                    hadComma = true;
+                }
+                else
+                {
+                    hadComma = false;
+                }
+
+                ++resultCount;
+            }
+
+            if (hadComma && !this.m_settings.AllowTrailingComma)
+            {
+                throw new JsonParseException(this, "Trailing comma in an array");
+            }
+
+            await this.ConsumeCharAsync(']', ct);
+        }
+
+        private async Task ValidateStringValueAsync(CancellationToken ct)
+        {
+            char quoteChar = await this.PeekCharAsync(ct);
+            switch (quoteChar)
+            {
+            case '"':
+                break; //regular
+            case '\'':
+                if (!this.m_settings.AllowSinglequoteStrings)
+                {
+                    throw new JsonParseException(this, "Single-quote strings are disabled in settings");
+                }
+                break;
+            default:
+                throw new JsonParseException(this, $"Expected string start, but got '{quoteChar}'");
+            }
+
+            //StringBuilder builder = new StringBuilder();
+            await this.ConsumeCharAsync(quoteChar, ct);
+            bool prevCharIsBackslash = false;
+            char currentChar = await this.PeekCharAsync(ct);
+            while (true)
+            {
+                if (currentChar == quoteChar && !prevCharIsBackslash)
+                {
+                    break;
+                }
+
+                if (currentChar >= (char)0x00 && currentChar <= (char)0x1F
+                    && !this.m_settings.AllowUnescapedControlChars
+                )
+                {
+                    throw new JsonParseException(this, $"Settings forbid using unescaped control chars (0x{(int)currentChar:X})");
+                }
+
+                //builder.Append(await this.ReadCharAsync(ct));
+                await this.ReadCharAsync(ct);
+
+                if (currentChar == '\\')
+                {
+                    prevCharIsBackslash = !prevCharIsBackslash; //support for escaping backslash :'\\'
+                }
+                else
+                {
+                    prevCharIsBackslash = false;
+                }
+
+                currentChar = await this.PeekCharAsync(ct);
+            }
+            await this.ConsumeCharAsync(quoteChar, ct);
+
+            /*
+            string result = builder.ToString();
+            try
+            {
+                result = Regex.Unescape(result);
+            }
+            catch (Exception ex)
+            {
+                throw new JsonParseException(this, $"Failed to unescape sequence '{result}': {ex.Message}");
+            }
+            return result;
+            */
+        }
     }
 }
