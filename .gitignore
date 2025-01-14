@@ -1,3 +1,4 @@
 /src/.vs
 bin
 obj
+**.user

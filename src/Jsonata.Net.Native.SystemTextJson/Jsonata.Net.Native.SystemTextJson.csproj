@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<IsPackable>true</IsPackable>
-		<TargetFrameworks>net47;netstandard2.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net47;netstandard2.0;net8.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<DebugType>embedded</DebugType>
@@ -35,17 +35,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- see https://github.com/dotnet/sourcelink/blob/master/docs/README.md#continuousintegrationbuild -->
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Include="..\..\jsonata-button.png" Pack="true" PackagePath="" />
 		<None Include="..\..\LICENSE" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+		<PackageReference Include="System.Text.Json" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
