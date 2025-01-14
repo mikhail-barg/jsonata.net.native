@@ -358,5 +358,206 @@ namespace Jsonata.Net.Native.Json
             ++this.CurrentPosition;
             return c;
         }
+
+        internal void Validate()
+        {
+            this.SkipWhitespace();
+            this.ValidateAnyToken();
+            this.SkipWhitespace();
+            if (this.m_reader.Peek() >= 0)
+            {
+                throw new JsonParseException(this, "Unexpected continuation of data");
+            }
+        }
+
+        private void ValidateAnyToken()
+        {
+            char c = this.PeekChar();
+            switch (c)
+            {
+            case '{':
+                this.ValidateObject();
+                break;
+            case '[':
+                this.ValidateArray();
+                break;
+            case 't':
+                this.ParseLiteral("true");
+                break;
+            case 'f':
+                this.ParseLiteral("false");
+                break;
+            case 'n':
+                this.ParseLiteral("null");
+                break;
+            case 'u':
+                this.ParseLiteral("undefined"); //not too standard-compilant
+                break;
+            case '\'':
+            case '"':
+                this.ValidateStringValue();
+                break;
+            case '-':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                this.ParseNumberToken();
+                break;
+            default:
+                throw new JsonParseException(this, $"Expected a token start, got unexpected characer '{c}'");
+            }
+        }
+
+        private void ValidateObject()
+        {
+            this.ConsumeChar('{');
+            this.SkipWhitespace();
+            int resultCount = 0;
+            bool hadComma = false;
+            while (this.PeekChar() != '}')
+            {
+                if (resultCount > 0 && !hadComma)
+                {
+                    throw new JsonParseException(this, "Missing comma in object");
+                }
+
+                string key = this.ParseStringValue();
+                this.SkipWhitespace();
+                this.ConsumeChar(':');
+                this.SkipWhitespace();
+                JToken value = this.ParseAnyToken();
+                this.SkipWhitespace();
+                if (this.PeekChar() == ',')
+                {
+                    this.ConsumeChar(',');  //allow trailing comma
+                    this.SkipWhitespace();
+                    hadComma = true;
+                }
+                else
+                {
+                    hadComma = false;
+                }
+
+                ++resultCount;
+            }
+
+            if (hadComma && !this.m_settings.AllowTrailingComma)
+            {
+                throw new JsonParseException(this, "Trailing comma in an object");
+            }
+
+            this.ConsumeChar('}');
+        }
+
+        private void ValidateArray()
+        {
+            this.ConsumeChar('[');
+            this.SkipWhitespace();
+            int resultCount = 0;
+            bool hadComma = false;
+            while (this.PeekChar() != ']')
+            {
+                if (resultCount > 0 && !hadComma)
+                {
+                    throw new JsonParseException(this, "Missing comma in array");
+                }
+
+                JToken value = this.ParseAnyToken();
+                this.SkipWhitespace();
+                if (this.PeekChar() == ',')
+                {
+                    this.ConsumeChar(',');  //allow trailing comma
+                    this.SkipWhitespace();
+                    hadComma = true;
+                }
+                else
+                {
+                    hadComma = false;
+                }
+
+                ++resultCount;
+            }
+
+            if (hadComma && !this.m_settings.AllowTrailingComma)
+            {
+                throw new JsonParseException(this, "Trailing comma in an array");
+            }
+
+            this.ConsumeChar(']');
+        }
+
+        private void ValidateStringValue()
+        {
+            char quoteChar = this.PeekChar();
+            switch (quoteChar)
+            {
+            case '"':
+                break; //regular
+            case '\'':
+                if (!this.m_settings.AllowSinglequoteStrings)
+                {
+                    throw new JsonParseException(this, "Single-quote strings are disabled in settings");
+                }
+                break;
+            default:
+                throw new JsonParseException(this, $"Expected string start, but got '{quoteChar}'");
+            }
+
+            //StringBuilder builder = new StringBuilder();
+            this.ConsumeChar(quoteChar);
+            bool prevCharIsBackslash = false;
+            char currentChar = this.PeekChar();
+            while (true)
+            {
+                if (currentChar == quoteChar && !prevCharIsBackslash)
+                {
+                    break;
+                }
+
+                if (currentChar >= (char)0x00 && currentChar <= (char)0x1F
+                    && !this.m_settings.AllowUnescapedControlChars
+                )
+                {
+                    throw new JsonParseException(this, $"Settings forbid using unescaped control chars (0x{(int)currentChar:X})");
+                }
+
+                //builder.Append(this.ReadChar());
+                this.ReadChar();
+
+                if (currentChar == '\\')
+                {
+                    prevCharIsBackslash = !prevCharIsBackslash; //support for escaping backslash :'\\'
+                }
+                else
+                {
+                    prevCharIsBackslash = false;
+                }
+
+                currentChar = this.PeekChar();
+            }
+            this.ConsumeChar(quoteChar);
+
+            /*
+            string result = builder.ToString();
+            try
+            {
+                result = Regex.Unescape(result);
+            }
+            catch (Exception ex)
+            {
+                throw new JsonParseException(this, $"Failed to unescape sequence '{result}': {ex.Message}");
+            }
+            return result;
+            */
+        }
+
+
     }
 }

@@ -179,6 +179,74 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
         }
 
+        [Test, TestCaseSource(nameof(GetTestCasesValidateSync))]
+        public void Validate(CaseInfo caseInfo)
+        {
+
+            Console.WriteLine($"File: '{caseInfo.fileName}'");
+
+            string? message;
+            if (s_testsToIgnore.TryGetValue(caseInfo.fileName, out message))
+            {
+                Assert.Ignore(message);
+                return;
+            }
+
+            if (s_testsToIgnoreForValidation.TryGetValue(caseInfo.fileName, out message))
+            {
+                Assert.Ignore(message);
+                return;
+            }
+
+            Console.WriteLine($"JSON: '{caseInfo.json}'");
+            Console.WriteLine($"Expected: '{caseInfo.expectedResult}'");
+
+            bool parsed;
+            try
+            {
+                JToken.Validate(caseInfo.json, this.m_parseSettings);
+                Console.WriteLine($"Validated");
+                parsed = true;
+            }
+            catch (JsonParseException ex)
+            {
+                Console.WriteLine($"Exception: '{ex.Message}'");
+                parsed = false;
+            }
+            catch (JsonataException jsEx)
+            {
+                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                {
+                    Assert.Ignore("Skipping ambigous test with integer overflows");
+                    return;
+                }
+                throw;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            Console.WriteLine($"Result: '{parsed}'");
+
+            if (caseInfo.expectedResult == null)
+            {
+                Assert.Ignore("This is an ambigous test");
+            }
+            else if (
+                caseInfo.expectedResult == false
+                && parsed == true
+                && s_allowRejectingTestsToPass.TryGetValue(caseInfo.fileName, out message)
+            )
+            {
+                Assert.Ignore(message);
+            }
+            else
+            {
+                Assert.That(caseInfo.expectedResult.Value, Is.EqualTo(parsed));
+            }
+        }
+
         [Test, TestCaseSource(nameof(GetTestCasesValidateAsync))]
         public async Task TestValidateAsync(CaseInfo caseInfo)
         {
@@ -268,6 +336,11 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
         public static List<TestCaseData> GetTestCasesAsync()
         {
             return GetTestCasesImpl("parse_async");
+        }
+
+        public static List<TestCaseData> GetTestCasesValidateSync()
+        {
+            return GetTestCasesImpl("validate_sync");
         }
 
         public static List<TestCaseData> GetTestCasesValidateAsync()

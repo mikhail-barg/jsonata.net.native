@@ -143,6 +143,20 @@ namespace Jsonata.Net.Native.Json
             return parser.ParseAsync(ct);
         }
 
+        public static void Validate(TextReader reader, ParseSettings? settings = null)
+        {
+            JsonParser parser = new JsonParser(reader, settings ?? ParseSettings.DefaultSettings);
+            parser.Validate();
+        }
+
+        public static void Validate(string source, ParseSettings? settings = null)
+        {
+            using (StringReader reader = new StringReader(source))
+            {
+                Validate(reader, settings);
+            }
+        }
+
         public static Task ValidateAsync(TextReader reader, CancellationToken ct, ParseSettings? settings = null)
         {
             JsonParserAsync parser = new JsonParserAsync(reader, settings ?? ParseSettings.DefaultSettings);
