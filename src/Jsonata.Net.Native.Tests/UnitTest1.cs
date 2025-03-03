@@ -403,5 +403,24 @@ namespace Jsonata.Net.Native.Tests
             Assert.AreEqual("00000000000000000000000000000000", value);
         }
 
+        [Test]
+        public void Test_Issue34()
+        {
+            Check(
+                @"$map($, function($v){ $map($v, function($t) { $t }) })",
+                @"[[1,2],[1]]",
+                @"[[1,2],[1]]"
+            );
+        }
+
+        [Test]
+        public void Test_Issue29()
+        {
+            Check(
+                @"$ ~> | $ | {""test"": ([] ~> $append(test))}|",
+                @"{ 'test': [ { 'test': 'test' } ] }",
+                @"{ 'test': [ { 'test': 'test' } ] }"
+            );
+        }
     }
 }
