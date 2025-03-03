@@ -24,6 +24,14 @@ namespace TestResultsExporter
 
         private static void ProcessExtractFromLogs(string fullLogFile, string extractFile)
         {
+            fullLogFile = Path.GetFullPath(fullLogFile);
+            extractFile = Path.GetFullPath(extractFile);
+
+            if (!File.Exists(fullLogFile))
+            {
+                throw new Exception("Failed to find test log file " + fullLogFile);
+            }
+
             Regex regex = new Regex("^.* name=\"([^\"]+)\".* result=\"([^\"]+)\".*$", RegexOptions.Compiled);
 
             File.WriteAllLines(
@@ -33,6 +41,8 @@ namespace TestResultsExporter
                     .Select(l => regex.Match(l))
                     .Select(m => m.Result("$1;$2"))
             );
+
+            Console.WriteLine("Done processing log file to " + extractFile);
         }
 
         private enum Status

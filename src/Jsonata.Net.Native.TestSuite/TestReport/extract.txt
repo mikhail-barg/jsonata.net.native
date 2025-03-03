@@ -605,6 +605,8 @@ function-fromMillis.formatDateTime[66];Failed
 function-fromMillis.formatDateTime[67];Failed
 function-fromMillis.formatDateTime[68];Failed
 function-fromMillis.formatDateTime[69];Failed
+function-fromMillis.formatDateTime[70];Failed
+function-fromMillis.formatDateTime[71];Failed
 function-fromMillis.isoWeekDate[1];Failed
 function-fromMillis.isoWeekDate[2];Failed
 function-fromMillis.isoWeekDate[3];Failed
@@ -729,6 +731,9 @@ function-number.case027;Passed
 function-number.case028;Passed
 function-number.case029;Passed
 function-number.case030;Passed
+function-number.case031;Failed
+function-number.case032;Failed
+function-number.case033;Failed
 function-pad.case000;Passed
 function-pad.case001;Passed
 function-pad.case002;Passed
@@ -740,6 +745,8 @@ function-pad.case007;Failed
 function-pad.case008;Failed
 function-pad.case009;Failed
 function-pad.case010;Failed
+function-pad.case011;Passed
+function-pad.case012;Passed
 function-parseInteger.parseInteger[1];Passed
 function-parseInteger.parseInteger[2];Passed
 function-parseInteger.parseInteger[3];Passed
@@ -999,6 +1006,10 @@ function-tomillis.case006;Failed
 function-tomillis.case007;Passed
 function-tomillis.case008;Passed
 function-tomillis.case009;Passed
+function-tomillis.case010;Failed
+function-tomillis.case011;Failed
+function-tomillis.case012;Failed
+function-tomillis.case013;Failed
 function-tomillis.parseDateTime[1];Failed
 function-tomillis.parseDateTime[2];Failed
 function-tomillis.parseDateTime[3];Failed
@@ -1078,6 +1089,8 @@ hof-filter.case002;Passed
 hof-filter.case003;Passed
 hof-map.case000;Passed
 hof-map.case001;Passed
+hof-map.case0010;Passed
+hof-map.case0011;Failed
 hof-map.case002;Passed
 hof-map.case003;Passed
 hof-map.case004;Passed
@@ -1177,6 +1190,7 @@ lambdas.case009;Passed
 lambdas.case010;Passed
 lambdas.case011;Passed
 lambdas.case012;Passed
+lambdas.case013;Passed
 literals.array-inputs[1];Passed
 literals.array-inputs[2];Passed
 literals.array-inputs[3];Passed
@@ -1264,6 +1278,7 @@ object-constructor.case022;Passed
 object-constructor.case023;Passed
 object-constructor.case024;Passed
 object-constructor.case025;Passed
+object-constructor.case026;Passed
 parent-operator.errors[1];Passed
 parent-operator.errors[2];Passed
 parent-operator.errors[3];Passed
@@ -1321,6 +1336,8 @@ partial-application.case001;Passed
 partial-application.case002;Passed
 partial-application.case003;Passed
 partial-application.case004;Passed
+performance.case000;Passed
+performance.case001;Skipped
 predicates.case000;Passed
 predicates.case001;Passed
 predicates.case002;Passed
