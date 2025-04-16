@@ -1835,7 +1835,7 @@ namespace Jsonata.Net.Native.Eval
          An error is thrown if the string is not in the correct format.
          If the picture string is specified, then the format is assumed to be described by this picture string using the same syntax as the XPath/XQuery function fn:format-dateTime, defined in the XPath F&O 3.1 specification.         
          */
-        public static long toMillis(string timestamp, [OptionalArgument(null)] string? picture)
+        public static long toMillis([PropagateUndefined] string timestamp, [OptionalArgument(null)] string? picture)
         {
             DateTimeOffset result;
             if (picture == null)

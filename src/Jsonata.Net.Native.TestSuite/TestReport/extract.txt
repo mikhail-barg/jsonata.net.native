@@ -1002,7 +1002,7 @@ function-tomillis.case002;Passed
 function-tomillis.case003;Passed
 function-tomillis.case004;Passed
 function-tomillis.case005;Failed
-function-tomillis.case006;Failed
+function-tomillis.case006;Passed
 function-tomillis.case007;Passed
 function-tomillis.case008;Failed
 function-tomillis.case009;Failed
@@ -1010,7 +1010,7 @@ function-tomillis.case010;Failed
 function-tomillis.case011;Failed
 function-tomillis.case012;Failed
 function-tomillis.case013;Failed
-function-tomillis.parseDateTime[1];Failed
+function-tomillis.parseDateTime[1];Passed
 function-tomillis.parseDateTime[2];Failed
 function-tomillis.parseDateTime[3];Failed
 function-tomillis.parseDateTime[4];Failed
