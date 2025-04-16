@@ -11,10 +11,7 @@ namespace Jsonata.Net.Native.Tests
     {
         private static void Check(string dateStr, string? picture, long expectedMillis)
         {
-            long result = BuiltinFunctions.toMillis(
-                timestamp: dateStr,
-                picture: picture ?? BuiltinFunctions.UTC_FORMAT
-            );
+            long result = BuiltinFunctions.toMillis(timestamp: dateStr, picture: picture);
 
             Assert.AreEqual(expectedMillis, result);
         }
@@ -30,7 +27,7 @@ namespace Jsonata.Net.Native.Tests
         public void TestDocs_1_ExplicitPicture()
         {
             //see https://docs.jsonata.org/date-time-functions
-            Check("2017-11-07T15:12:37.121Z", @"yyyy-MM-dd\THH:mm:ss.fffK", 1510067557121);
+            Check("2017-11-07T15:12:37.121Z", BuiltinFunctions.UTC_FORMAT, 1510067557121);
         }
 
         [Test]
@@ -45,6 +42,18 @@ namespace Jsonata.Net.Native.Tests
         {
             //see https://docs.jsonata.org/date-time-functions
             Check("2017-11-07T15:07:54.972Z", null, 1510067274972);
+        }
+
+        [Test]
+        public void TestNoMs_1_issue30()
+        {
+            Check("2025-08-06T12:00:00", null, 1754481600000);
+        }
+
+        [Test]
+        public void TestNoTime_1_issue30()
+        {
+            Check("2025-03-29", null, 1743206400000);
         }
 
     }

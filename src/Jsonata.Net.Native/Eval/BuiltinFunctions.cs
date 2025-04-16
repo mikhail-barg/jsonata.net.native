@@ -1835,12 +1835,24 @@ namespace Jsonata.Net.Native.Eval
          An error is thrown if the string is not in the correct format.
          If the picture string is specified, then the format is assumed to be described by this picture string using the same syntax as the XPath/XQuery function fn:format-dateTime, defined in the XPath F&O 3.1 specification.         
          */
-        public static long toMillis(string timestamp, [OptionalArgument(UTC_FORMAT)] string picture)
+        public static long toMillis(string timestamp, [OptionalArgument(null)] string? picture)
         {
-            if (!DateTimeOffset.TryParseExact(timestamp, picture, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTimeOffset result))
+            DateTimeOffset result;
+            if (picture == null)
             {
-                throw new JsonataException("D3136", $"Failed to parse date/time from '{timestamp}'");
+                if (!DateTimeOffset.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out result))
+                {
+                    throw new JsonataException("D3136", $"Failed to parse date/time from '{timestamp}'");
+                }
             }
+            else
+            {
+                if (!DateTimeOffset.TryParseExact(timestamp, picture, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out result))
+                {
+                    throw new JsonataException("D3136", $"Failed to parse date/time from '{timestamp}' using picture format '{picture}'");
+                }
+            }
+
             return result.ToUnixTimeMilliseconds();
         }
         #endregion

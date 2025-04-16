@@ -999,13 +999,13 @@ function-sum.case005;Passed
 function-sum.case006;Passed
 function-tomillis.case001;Passed
 function-tomillis.case002;Passed
-function-tomillis.case003;Failed
-function-tomillis.case004;Failed
+function-tomillis.case003;Passed
+function-tomillis.case004;Passed
 function-tomillis.case005;Failed
 function-tomillis.case006;Failed
 function-tomillis.case007;Passed
-function-tomillis.case008;Passed
-function-tomillis.case009;Passed
+function-tomillis.case008;Failed
+function-tomillis.case009;Failed
 function-tomillis.case010;Failed
 function-tomillis.case011;Failed
 function-tomillis.case012;Failed
