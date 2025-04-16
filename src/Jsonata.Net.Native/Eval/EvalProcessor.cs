@@ -50,7 +50,7 @@ namespace Jsonata.Net.Native.Eval
             {
 				if (sequence.Count == 0)
                 {
-					return EvalProcessor.UNDEFINED;
+					return JValue.CreateUndefined("Empty sequence");
                 }
 				else if (sequence.Count == 1 && !sequence.keepSingletons)
                 {
@@ -438,8 +438,8 @@ namespace Jsonata.Net.Native.Eval
 
 			// invoke each expression in turn
 			// only return the result of the last one
-			JToken result = EvalProcessor.UNDEFINED;
-			foreach (Node expression in blockNode.expressions)
+			JToken result = JValue.CreateUndefined("Empty block");
+            foreach (Node expression in blockNode.expressions)
             {
 				result = Eval(expression, input, localEnvironment);
             }

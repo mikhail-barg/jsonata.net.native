@@ -14,6 +14,11 @@ namespace Jsonata.Net.Native.Json
             return new JValue(JTokenType.Undefined, null);
         }
 
+        public static JValue CreateUndefined(string reason)
+        {
+            return new JValue(JTokenType.Undefined, reason);
+        }
+
         public static JToken CreateNull()
         {
             return new JValue(JTokenType.Null, null);
@@ -112,6 +117,15 @@ namespace Jsonata.Net.Native.Json
         public override JToken DeepClone()
         {
             return new JValue(this.Type, this.Value);
+        }
+
+        public string? GetUndefinedReason()
+        {
+            if (this.Type != JTokenType.Undefined)
+            {
+                throw new InvalidOperationException($"{nameof(GetUndefinedReason)} may be called only if JValue is of {nameof(JTokenType.Undefined)} type");
+            }
+            return this.Value?.ToString();
         }
 
         //see Newtonsoft.Json.Utilities.MathUtils.ApproxEquals

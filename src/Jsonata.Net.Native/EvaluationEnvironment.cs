@@ -101,7 +101,8 @@ namespace Jsonata.Net.Native
             }
             else
             {
-                return EvalProcessor.UNDEFINED;
+                //return EvalProcessor.UNDEFINED;
+                return JValue.CreateUndefined($"No variable named '{name}'");
             }
         }
 
