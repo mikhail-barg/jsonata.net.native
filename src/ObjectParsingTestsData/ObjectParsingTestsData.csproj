@@ -12,4 +12,10 @@
 		<PackageReference Include="NUnit" Version="3.13.2" />
 	</ItemGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\sgKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+
 </Project>

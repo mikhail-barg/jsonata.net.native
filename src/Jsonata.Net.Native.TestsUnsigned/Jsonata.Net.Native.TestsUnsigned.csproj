@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors></WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+		<PackageReference Include="NUnit" Version="3.13.2" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+		<PackageReference Include="coverlet.collector" Version="6.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="ObjectsComparer" Version="1.4.1" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\Jsonata.Net.Native\Jsonata.Net.Native.csproj" />
+    <ProjectReference Include="..\ObjectParsingTestsData\ObjectParsingTestsData.csproj" />
+  </ItemGroup>
+
+  </Project>

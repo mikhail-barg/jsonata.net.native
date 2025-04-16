@@ -42,8 +42,11 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' " >
     <InternalsVisibleTo Include="Jsonata.Net.Native.Tests" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' " >
+    <InternalsVisibleTo Include="Jsonata.Net.Native.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001006341bfd462867cc0e50668e22a6eab717d07f1aa8c3f0914bcec5205c4d6338053290eb6dd5999a6c0aa91ed8c415b037eb70c25164b0163037d9c7be4493e2ff76a36d10e073beb77945fdeb1fd382da99073cd4784b791c04125dd1234bbe849af3f3340d71c0dcbaaecfe0218bd557d59a373fb1a2b99851f5aa64559c5d0" />
   </ItemGroup>
 
 </Project>
