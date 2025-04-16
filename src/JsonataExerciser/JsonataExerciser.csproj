@@ -17,10 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FCTB" Version="2.16.24" />
+    <PackageReference Include="FastColoredTextBox.Net5" Version="2.16.26" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Jsonata.Net.Native.JsonNet\Jsonata.Net.Native.JsonNet.csproj" />
+    <ProjectReference Include="..\Jsonata.Net.Native.SystemTextJson\Jsonata.Net.Native.SystemTextJson.csproj" />
     <ProjectReference Include="..\Jsonata.Net.Native\Jsonata.Net.Native.csproj" />
   </ItemGroup>
 
