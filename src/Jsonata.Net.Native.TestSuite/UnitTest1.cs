@@ -12,6 +12,10 @@ namespace Jsonata.Net.Native.TestSuite
 {
     public sealed class Tests
     {
+        private static readonly JsonSerializerSettings s_serializerSettings = new JsonSerializerSettings() {
+            DateParseHandling = DateParseHandling.None
+        };
+
         private const string TEST_SUITE_ROOT = "../../../../../jsonata-js/test/test-suite";
         private Dictionary<string, JToken> m_datasets = new Dictionary<string, JToken>();
         private readonly Dictionary<string, string> m_disabledTests = new Dictionary<string, string>() {
@@ -34,7 +38,8 @@ namespace Jsonata.Net.Native.TestSuite
             string datasetDirectory = Path.Combine(testSuiteRoot, "datasets");
             foreach (string file in Directory.EnumerateFiles(datasetDirectory, "*.json"))
             {
-                JToken dataset = JToken.Parse(File.ReadAllText(file));
+                //JToken dataset = JToken.Parse(File.ReadAllText(file));
+                JToken dataset = JsonConvert.DeserializeObject<JToken>(File.ReadAllText(file), s_serializerSettings)!;
                 this.m_datasets.Add(Path.GetFileNameWithoutExtension(file), dataset);
             }
             Assert.AreNotEqual(0, this.m_datasets.Count);
@@ -218,7 +223,9 @@ namespace Jsonata.Net.Native.TestSuite
                         //dot works like path separator in NUnit
                         string info = infoGroupPrefix + "." + Path.GetFileNameWithoutExtension(testFile);
                         string testStr = File.ReadAllText(testFile);
-                        JToken testToken = JToken.Parse(testStr);
+                        JsonSerializer serializer = new JsonSerializer();
+                        //JToken testToken = JToken.Parse(testStr);
+                        JToken testToken = JsonConvert.DeserializeObject<JToken>(testStr, s_serializerSettings)!;
                         if (testToken is JArray array)
                         {
                             int index = 0;

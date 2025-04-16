@@ -1824,7 +1824,8 @@ namespace Jsonata.Net.Native.Eval
                 }
                 date = date.ToOffset(new TimeSpan(offsetHhMm / 100, offsetHhMm % 100, 0));
             }
-            return date.ToString(picture);
+            //see how "K" different for DateTime and DateTimeOffset https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings#KSpecifier
+            return (new DateTime(date.Ticks, DateTimeKind.Utc)).ToString(picture);
         }
 
         /**

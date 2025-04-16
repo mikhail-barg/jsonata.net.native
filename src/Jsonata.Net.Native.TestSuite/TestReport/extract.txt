@@ -533,8 +533,8 @@ function-formatNumber.case033;Passed
 function-formatNumber.case034;Failed
 function-formatNumber.case035;Failed
 function-formatNumber.case036;Passed
-function-fromMillis.case000;Failed
-function-fromMillis.case001;Failed
+function-fromMillis.case000;Passed
+function-fromMillis.case001;Passed
 function-fromMillis.case002;Passed
 function-fromMillis.formatDateTime[1];Passed
 function-fromMillis.formatDateTime[2];Failed
