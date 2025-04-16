@@ -42,4 +42,8 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Jsonata.Net.Native.Tests" />
+  </ItemGroup>
+
 </Project>

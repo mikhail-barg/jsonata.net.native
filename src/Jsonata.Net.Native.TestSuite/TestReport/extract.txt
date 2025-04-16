@@ -997,7 +997,7 @@ function-sum.case003;Passed
 function-sum.case004;Passed
 function-sum.case005;Passed
 function-sum.case006;Passed
-function-tomillis.case001;Failed
+function-tomillis.case001;Passed
 function-tomillis.case002;Passed
 function-tomillis.case003;Failed
 function-tomillis.case004;Failed

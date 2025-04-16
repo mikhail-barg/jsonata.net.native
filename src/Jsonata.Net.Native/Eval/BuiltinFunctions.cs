@@ -1782,7 +1782,7 @@ namespace Jsonata.Net.Native.Eval
 
         #region Date/Time functions
 
-        private const string UTC_FORMAT = @"yyyy-MM-dd\THH:mm:ss.fffzzz";
+        internal const string UTC_FORMAT = @"yyyy-MM-dd\THH:mm:ss.fffK";
 
         /**
          Signature: $now([picture [, timezone]])
