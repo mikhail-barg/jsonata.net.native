@@ -73,7 +73,7 @@ namespace Jsonata.Net.Native.Eval
 
         public override bool DeepEquals(JToken other)
         {
-            throw new NotImplementedException("Not supported for functions");
+            throw new NotSupportedException("Not supported for functions");
         }
     }
 }

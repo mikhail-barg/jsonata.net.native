@@ -10,7 +10,8 @@ using Jsonata.Net.Native.Dom;
 
 namespace Jsonata.Net.Native.Eval
 {
-	internal static class EvalProcessor
+    //made public to allow calling EvalProcessor.InvokeFunction from custom function implementations
+    public static class EvalProcessor
 	{
 		internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
@@ -470,7 +471,7 @@ namespace Jsonata.Net.Native.Eval
             return InvokeFunction(function, args, context, env);
         }
 
-        internal static JToken InvokeFunction(FunctionToken function, List<JToken> args, JToken? context, EvaluationEnvironment env)
+        public static JToken InvokeFunction(FunctionToken function, List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
 			return function.Invoke(args, context, env);
         }
