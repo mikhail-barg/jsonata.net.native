@@ -161,7 +161,11 @@ namespace JsonataExerciser
                         System.Text.Json.Nodes.JsonNode? stJson = result.ToSystemTextJsonNode();
                         if (stJson == null)
                         {
-                            resultText = "";
+                            resultText = "null";
+                        }
+                        else if (stJson.GetValueKind() == System.Text.Json.JsonValueKind.Undefined)
+                        {
+                            resultText = "undefined";   //calling any other method would cause InvalidOperationException
                         }
                         else
                         {

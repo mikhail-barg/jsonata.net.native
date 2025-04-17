@@ -175,7 +175,7 @@ namespace Jsonata.Net.Native.SystemTextJson
             case JTokenType.Null:
                 return null;    //seems there's no JsonValue for Null: https://github.com/dotnet/runtime/blob/eeadd653e1982d7037a93a9ab38129c07336e7db/src/libraries/System.Text.Json/src/System/Text/Json/Nodes/JsonValue.cs#L67
             case JTokenType.Undefined:
-                throw new NotSupportedException("Not supported for JsonNode");
+                return JsonValue.Create(new JsonElement()); //this would create a node with JsonValueKind.Undefined, see https://github.com/mikhail-barg/jsonata.net.native/issues/38#issuecomment-2813936416 
             case JTokenType.Float:
                 try
                 {
