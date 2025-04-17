@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
-    internal static class BuiltinFunctions
+    public static class BuiltinFunctions
     {
         private static readonly Encoding UTF8_NO_BOM = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
-    internal abstract class FunctionToken: JToken
+    public abstract class FunctionToken: JToken
     {
         internal readonly string Name;
         internal int ArgumentsCount { get; }
