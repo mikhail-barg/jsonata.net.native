@@ -2,3 +2,7 @@
 bin
 obj
 *.user
+
+# claude code
+CLAUDE.md
+thoughts/
