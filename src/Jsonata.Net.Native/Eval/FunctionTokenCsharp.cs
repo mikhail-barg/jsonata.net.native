@@ -18,6 +18,7 @@ namespace Jsonata.Net.Native.Eval
 		private readonly string m_functionName;
 		private readonly bool m_hasContextParameter;
 		private readonly bool m_hasEnvParameter;
+		private readonly bool m_hasBindingLookupParameter;
 
         internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
 			:this(funcName, methodInfo, null)
@@ -44,8 +45,9 @@ namespace Jsonata.Net.Native.Eval
 				.ToList();
 			this.m_hasContextParameter = this.m_parameters.Any(p => p.allowContextAsValue);
 			this.m_hasEnvParameter = this.m_parameters.Any(p => p.isEvaluationSupplement);
+			this.m_hasBindingLookupParameter = this.m_parameters.Any(p => p.isBindingLookup);
 
-			this.RequiredArgsCount = this.m_parameters.Where(p => !p.isOptional && !p.isEvaluationSupplement).Count();
+			this.RequiredArgsCount = this.m_parameters.Where(p => !p.isOptional && !p.isEvaluationSupplement && !p.isBindingLookup).Count();
 		}
 
         internal sealed class ArgumentInfo
@@ -58,6 +60,7 @@ namespace Jsonata.Net.Native.Eval
 			internal readonly bool isOptional;
 			internal readonly object? defaultValueForOptional;
 			internal readonly bool isEvaluationSupplement;
+			internal readonly bool isBindingLookup;
 			internal readonly bool isVariableArgumentsArray;
 
 			internal ArgumentInfo(string functionName, ParameterInfo parameterInfo)
@@ -85,6 +88,8 @@ namespace Jsonata.Net.Native.Eval
 				{
 					throw new JsonataException("????", $"Declaration error for function '{functionName}': attribute [{nameof(EvalSupplementArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationSupplement)}");
 				};
+
+				this.isBindingLookup = parameterInfo.ParameterType == typeof(IBindingLookup);
 
 				this.isVariableArgumentsArray = parameterInfo.IsDefined(typeof(VariableNumberArgumentAsArrayAttribute), false);
 				if (this.isVariableArgumentsArray && parameterInfo.ParameterType != typeof(JArray))
@@ -165,6 +170,10 @@ namespace Jsonata.Net.Native.Eval
                 {
 					result[targetIndex] = env.GetEvaluationSupplement();
 				}
+				else if (argumentInfo.isBindingLookup)
+                {
+					result[targetIndex] = env;
+				}
 				else if (sourceIndex >= args.Count)
 				{
 					if (argumentInfo.isOptional)
@@ -174,7 +183,7 @@ namespace Jsonata.Net.Native.Eval
 					}
 					else
 					{
-						throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
+						throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter? -1 : 0) + (this.m_hasBindingLookupParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
 					}
 				}
 				else if (argumentInfo.isVariableArgumentsArray)
@@ -202,7 +211,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (sourceIndex < args.Count)
 			{
-				throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
+				throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter ? -1 : 0) + (this.m_hasBindingLookupParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
 			};
 
 			return result;
