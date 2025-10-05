@@ -1235,7 +1235,7 @@ namespace Jsonata.Net.Native.Eval
                 return array1;
             };
             // if either argument is not an array, make it so
-            JArray result = new Sequence();
+            JsonataArray result = JsonataArray.CreateSequence();
             if (array1.Type == JTokenType.Array)
             {
                 result.AddRange(((JArray)array1).ChildrenTokens);
@@ -1269,8 +1269,8 @@ namespace Jsonata.Net.Native.Eval
         {
             if (arrayToken.Type != JTokenType.Array)
             {
-                Sequence singletonArray = new Sequence();
-                singletonArray.keepSingletons = true;
+                JsonataArray singletonArray = JsonataArray.CreateSequence();
+                singletonArray.keepSingleton = true;
                 singletonArray.Add(arrayToken);
                 return singletonArray;
             }
@@ -1319,7 +1319,7 @@ namespace Jsonata.Net.Native.Eval
 
             List<JToken> tokens = array.ChildrenTokens.ToList();
             tokens.Sort(comparator);
-            JArray result = new Sequence();
+            JsonataArray result = JsonataArray.CreateSequence();
             result.AddRange(tokens);
             return result;
         }
@@ -1333,7 +1333,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (arrayToken.Type != JTokenType.Array)
             {
-                Sequence singletonArray = new Sequence();
+                JsonataArray singletonArray = JsonataArray.CreateSequence();
                 singletonArray.Add(arrayToken);
                 return singletonArray;
             }
@@ -1361,7 +1361,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (arrayToken.Type != JTokenType.Array)
             {
-                Sequence singletonArray = new Sequence();
+                JsonataArray singletonArray = JsonataArray.CreateSequence();
                 singletonArray.Add(arrayToken);
                 return singletonArray;
             }
@@ -1405,7 +1405,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (arrayToken.Type != JTokenType.Array)
             {
-                Sequence singletonArray = new Sequence();
+                JsonataArray singletonArray = JsonataArray.CreateSequence();
                 singletonArray.Add(arrayToken);
                 return singletonArray;
             }
@@ -1686,7 +1686,7 @@ namespace Jsonata.Net.Native.Eval
         public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
         {
             int argsCount = function.RequiredArgsCount;
-            Sequence result = new Sequence();
+            JsonataArray result = JsonataArray.CreateSequence();
             foreach (KeyValuePair<string, JToken> prop in obj.Properties)
             {
                 List<JToken> args = new List<JToken>();
@@ -1899,7 +1899,7 @@ namespace Jsonata.Net.Native.Eval
         {
             int funcArgsCount = function.RequiredArgsCount;
 
-            Sequence result = new Sequence();
+            JsonataArray result = JsonataArray.CreateSequence();
 
             int index = 0;
             foreach (JToken element in array.ChildrenTokens)
@@ -1944,7 +1944,7 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
         {
-            Sequence result = new Sequence();
+            JsonataArray result = JsonataArray.CreateSequence();
             int index = 0;
             foreach (JToken element in array.ChildrenTokens)
             {

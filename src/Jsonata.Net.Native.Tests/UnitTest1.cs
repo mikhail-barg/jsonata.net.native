@@ -3,6 +3,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using Jsonata.Net.Native.New;
 
 namespace Jsonata.Net.Native.Tests
 {
@@ -10,8 +11,8 @@ namespace Jsonata.Net.Native.Tests
     {
         private static void Check(string query, string data, string expectedResult)
         {
-            JsonataQuery jsonata = new JsonataQuery(query);
-            string resultStr = jsonata.Eval(data);
+            JsonataQ jsonata = new JsonataQ(query);
+            string resultStr = jsonata.evaluate(data);
             JToken resultJson = JToken.Parse(resultStr);
             JToken expectedResultJson = JToken.Parse(expectedResult);
             Console.WriteLine("Expected: " + expectedResultJson.ToString(Formatting.None));

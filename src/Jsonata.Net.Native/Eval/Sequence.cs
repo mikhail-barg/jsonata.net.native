@@ -6,6 +6,7 @@ using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
+    //TODO: remove
     internal sealed class Sequence: JArray
     {
         public bool keepSingletons;

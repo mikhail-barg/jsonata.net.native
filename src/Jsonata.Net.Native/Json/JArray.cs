@@ -7,32 +7,29 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    public class JSonataArray: JArray
+    public class JsonataArray: JArray
     {
         public bool sequence { get; set; }
         public bool cons { get; set; }
         public bool keepSingleton { get; set; }
+        public bool outerWrapper { get; set; }
+        public bool tupleStream { get; set; }
 
-        internal JSonataArray() { }
+        internal JsonataArray() { }
 
-        internal JSonataArray(IReadOnlyList<JToken> childTokens) 
+        internal JsonataArray(IReadOnlyList<JToken> childTokens) 
         { 
             this.AddAll(childTokens);
         }
 
-        public static bool IsSequence(JToken token)
+        public static JsonataArray CreateSequence()
         {
-            return token is JSonataArray arr && arr.sequence;
+            return new JsonataArray() { sequence = true };
         }
 
-        public static JSonataArray CreateSequence()
+        public static JsonataArray CreateSequence(JToken child)
         {
-            return new JSonataArray() { sequence = true };
-        }
-
-        public static JSonataArray CreateSequence(JToken child)
-        {
-            JSonataArray result = new JSonataArray() { sequence = true };
+            JsonataArray result = new JsonataArray() { sequence = true };
             if (child is JArray array && array.Count == 1)
             {
                 result.Add(array.ChildrenTokens[0]);

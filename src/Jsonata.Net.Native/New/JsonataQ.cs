@@ -2,119 +2,113 @@ using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native;
 using System.Collections.Generic;
 using System;
+using Jsonata.Net.Native.Eval;
 
 namespace Jsonata.Net.Native.New 
-{ 
-    public class Jsonata 
+{
+    public class JsonataQ
     {
-        private Symbol ast;
-        private long timestamp;
-        private JToken input;
-        private EvaluationEnvironment environment;
+        private static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
-
-        public JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
-
-            // Store the current input + environment
-            // This is required by Functions.functionEval for current $eval() input context
-            this.input = input;
-            this.environment = environment;
 
             switch (expr.type)
             {
             case SymbolType.path:
-                result = this.evaluatePath(expr, input, environment);
+                result = JsonataQ.evaluatePath(expr, input, environment);
                 break;
             case SymbolType.binary:
-                result = this.evaluateBinary(expr, input, environment);
+                result = JsonataQ.evaluateBinary(expr, input, environment);
                 break;
             case SymbolType.unary:
-                result = /* await */ evaluateUnary(expr, input, environment);
+                result = JsonataQ.evaluateUnary(expr, input, environment);
                 break;
             case SymbolType.name:
-                result = evaluateName(expr, input, environment);
+                result = JsonataQ.evaluateName(expr, input, environment);
                 break;
             case SymbolType.@string:
             case SymbolType.number:
             case SymbolType.value:
-                result = evaluateLiteral(expr); //, input, environment);
+                result = JsonataQ.evaluateLiteral(expr); //, input, environment);
                 break;
             case SymbolType.wildcard:
-                result = evaluateWildcard(expr, input); //, environment);
+                result = JsonataQ.evaluateWildcard(expr, input); //, environment);
                 break;
             case SymbolType.descendant:
-                result = evaluateDescendants(expr, input); //, environment);
+                result = JsonataQ.evaluateDescendants(expr, input); //, environment);
                 break;
             case SymbolType.parent:
-                result = environment.lookup(expr.slot.label);
+                result = environment.Lookup(expr.slot!.label!);
                 break;
             case SymbolType.condition:
-                result = /* await */ evaluateCondition(expr, input, environment);
+                result = JsonataQ.evaluateCondition(expr, input, environment);
                 break;
             case SymbolType.block:
-                result = /* await */ evaluateBlock(expr, input, environment);
+                result = JsonataQ.evaluateBlock(expr, input, environment);
                 break;
             case SymbolType.bind:
-                result = /* await */ evaluateBindExpression(expr, input, environment);
+                result = JsonataQ.evaluateBindExpression(expr, input, environment);
                 break;
             case SymbolType.regex:
-                result = evaluateRegex(expr); //, input, environment);
+                result = JsonataQ.evaluateRegex(expr); //, input, environment);
                 break;
             case SymbolType.function:
-                result = /* await */ evaluateFunction(expr, input, environment, Utils.NONE);
+                result = JsonataQ.evaluateFunction(expr, input, environment, null /*Utils.NONE*/);
                 break;
             case SymbolType.variable:
-                result = evaluateVariable(expr, input, environment);
+                result = JsonataQ.evaluateVariable(expr, input, environment);
                 break;
             case SymbolType.lambda:
-                result = evaluateLambda(expr, input, environment);
+                result = JsonataQ.evaluateLambda(expr, input, environment);
                 break;
             case SymbolType.partial:
-                result = /* await */ evaluatePartialApplication(expr, input, environment);
+                result = JsonataQ.evaluatePartialApplication(expr, input, environment);
                 break;
             case SymbolType.apply:
-                result = /* await */ evaluateApplyExpression(expr, input, environment);
+                result = JsonataQ.evaluateApplyExpression(expr, input, environment);
                 break;
             case SymbolType.transform:
-                result = evaluateTransformExpression(expr, input, environment);
+                result = JsonataQ.evaluateTransformExpression(expr, input, environment);
                 break;
+            default:
+                throw new Exception($"Unexpected expression type {expr.type}");
             }
 
             if (expr.predicate != null)
             {
-                for (var ii = 0; ii < expr.predicate.size(); ii++) {
-                    result = /* await */ evaluateFilter(expr.predicate.get(ii).expr, result, environment);
+                foreach (Symbol element in expr.predicate)
+                {
+                    result = JsonataQ.evaluateFilter(element, result, environment);
                 }
             }
- 
-            if (!expr.type.equals("path") && expr.group!=null) 
+
+            if ((expr.type != SymbolType.path) && expr.group != null)
             {
-                result = /* await */ evaluateGroupExpression(expr.group, result, environment);
+                result = JsonataQ.evaluateGroupExpression(expr.group, result, environment);
             }
- 
+
             // mangle result (list of 1 element -> 1 element, empty list -> null)
-            if (result != null && Utils.isSequence(result) && !((JList)result).tupleStream) 
+            if (result is JsonataArray arrayResult && arrayResult.sequence && !arrayResult.tupleStream)
             {
-                JList _result = (JList)result;
-                if(expr.keepArray) 
+                if (expr.keepArray)
                 {
-                    _result.keepSingleton = true;
+                    arrayResult.keepSingleton = true;
                 }
-                if (_result.isEmpty()) 
+                if (arrayResult.Count == 0)
                 {
-                    result = null;
-                } 
-                else if (_result.size() == 1) 
+                    result = JsonataQ.UNDEFINED;
+                }
+                else if (arrayResult.Count == 1)
                 {
-                    result = _result.keepSingleton ? _result : _result.get(0);
+                    result = arrayResult.keepSingleton ? arrayResult : arrayResult.ChildrenTokens[0];
                 }
             }
 
             return result;
         }
- 
+
         /**
          * Evaluate path expression against input data
         * @param {Object} expr - JSONata expression
@@ -122,66 +116,74 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private JToken evaluatePath(Symbol expr, JToken input, EvaluationEnvironment environment) 
+        private static JToken evaluatePath(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            JArray? inputSequence;
+            JArray inputSequence;
             // expr is an array of steps
             // if the first step is a variable reference ($...), including root reference ($$),
             //   then the path is absolute rather than relative
-            if (input is JArray && expr.steps![0].type != SymbolType.variable) 
+            if (input is JArray && expr.steps![0].type != SymbolType.variable)
             {
                 inputSequence = (JArray)input;
-            } 
-            else 
+            }
+            else
             {
                 // if input is not an array, make it so
-                inputSequence = JSonataArray.CreateSequence(input);
+                inputSequence = JsonataArray.CreateSequence(input);
             }
 
-            JArray? resultSequence = null;
+            JArray resultSequence = default!;   //to suppress unitinialized error later
             bool isTupleStream = false;
-            List<Map> tupleBindings = null;
+
+            //TODO:TUPLE
+            //List<Map> tupleBindings = null;
+            JToken tupleBindings = JsonataQ.UNDEFINED;
 
             // evaluate each step in turn
-            for (int ii = 0; ii < expr.steps.Count; ++ii) 
+            for (int ii = 0; ii < expr.steps!.Count; ++ii)
             {
                 Symbol step = expr.steps[ii];
 
-                if (step.tuple) 
+                if (step.tuple)
                 {
                     isTupleStream = true;
                 }
 
-                // if the first step is an explicit array constructor, then just evaluate that (i.e. don"t iterate over a context array)
-                if (ii == 0 && step.consarray) 
+                // if the first step is an explicit array constructor, then just evaluate that (i.e. don't iterate over a context array)
+                if (ii == 0 && step.consarray)
                 {
-                    resultSequence = (JArray)this.evaluate(step, inputSequence, environment);
-                } 
-                else 
+                    resultSequence = (JArray)JsonataQ.evaluate(step, inputSequence, environment);
+                }
+                else
                 {
-                    if (isTupleStream) 
+                    if (isTupleStream)
                     {
-                        tupleBindings = (List)/* await */ evaluateTupleStep(step, (List)inputSequence, (List)tupleBindings, environment);
-                    } 
-                    else 
+                        throw new NotImplementedException();
+                        //TODO:TUPLE
+                        //tupleBindings = (List) evaluateTupleStep(step, (List)inputSequence, (List)tupleBindings, environment);
+                    }
+                    else
                     {
-                        resultSequence = this.evaluateStep(step, inputSequence, environment, ii == expr.steps.Count - 1);
+                        resultSequence = JsonataQ.evaluateStep(step, inputSequence, environment, ii == expr.steps.Count - 1);
                     }
                 }
 
-                if (!isTupleStream && (resultSequence == null || resultSequence.ChildrenTokens.Count == 0))
+                if (!isTupleStream && (resultSequence.Type == JTokenType.Undefined || resultSequence.ChildrenTokens.Count == 0))
                 {
                     break;
                 }
 
-                if (step.focus == null) 
+                if (step.focus == null)
                 {
                     inputSequence = resultSequence;
                 }
             }
 
-            if (isTupleStream) 
+            if (isTupleStream)
             {
+                throw new NotImplementedException();
+                //TODO:TUPLE
+                /*
                 if (expr.tuple) 
                 {
                     // tuple stream is carrying ancestry information - keep this
@@ -189,38 +191,42 @@ namespace Jsonata.Net.Native.New
                 } 
                 else 
                 {
-                    resultSequence = JSonataArray.CreateSequence();
+                    resultSequence = JsonataArray.CreateSequence();
                     for (int ii = 0; ii < tupleBindings.Count; ++ii) 
                     {
                         resultSequence.Add(tupleBindings.get(ii).get("@"));
                     }
                 }
+                */
             }
 
-            if (expr.keepSingletonArray) 
+            if (expr.keepSingletonArray)
             {
+                //TODO: fix magic based on jsonata-js code
                 // If we only got an ArrayList, convert it so we can set the keepSingleton flag
-                if (!(resultSequence is JSonataArray))
+                if (!(resultSequence is JsonataArray))
                 {
-                    resultSequence = new JSonataArray(resultSequence!.ChildrenTokens);
+                    resultSequence = new JsonataArray(resultSequence!.ChildrenTokens);
                 }
+
+                JsonataArray jsonataArray = (JsonataArray)resultSequence;
 
                 // if the array is explicitly constructed in the expression and marked to promote singleton sequences to array
-                if ((resultSequence is JSonataArray jsonataArray) && jsonataArray.cons && !jsonataArray.sequence) 
+                if (jsonataArray.cons && !jsonataArray.sequence)
                 {
-                    resultSequence = JSonataArray.CreateSequence(resultSequence);
+                    resultSequence = JsonataArray.CreateSequence(resultSequence);
                 }
-                ((JSonataArray)resultSequence).keepSingleton = true;
+                jsonataArray.keepSingleton = true;
             }
 
-            if (expr.group != null) 
+            if (expr.group != null)
             {
-                resultSequence = /* await */ evaluateGroupExpression(expr.group, isTupleStream ? tupleBindings : resultSequence, environment);
+                resultSequence = (JArray)JsonataQ.evaluateGroupExpression(expr.group, isTupleStream ? tupleBindings : resultSequence, environment);
             }
 
-            return resultSequence!;
+            return resultSequence;
         }
- 
+
         /**
          * Evaluate a step within a path
         * @param {Object} expr - JSONata expression
@@ -229,53 +235,54 @@ namespace Jsonata.Net.Native.New
         * @param {boolean} lastStep - flag the last step in a path
         * @returns {*} Evaluated input data
         */
-        private JToken evaluateStep(Symbol expr, JToken input, EvaluationEnvironment environment, bool lastStep) 
+        private static JArray evaluateStep(Symbol expr, JToken input, EvaluationEnvironment environment, bool lastStep)
         {
-            if (expr.type == SymbolType.sort) 
+            if (expr.type == SymbolType.sort)
             {
-                JToken sortResult = this.evaluateSortExpression(expr, input, environment);
-                if (expr.stages != null) 
+                JArray sortResult = JsonataQ.evaluateSortExpression(expr, input, environment);
+                if (expr.stages != null)
                 {
-                    sortResult = this.evaluateStages(expr.stages, sortResult, environment);
+                    sortResult = JsonataQ.evaluateStages(expr.stages, sortResult, environment);
                 }
                 return sortResult;
             }
 
-            JArray result = JSonataArray.CreateSequence();
+            JArray result = JsonataArray.CreateSequence();
 
-            for (int ii = 0; ii < ((JArray)input).Count; ++ii) 
+            JArray arrayInput = (JArray)input;
+            foreach (JToken child in arrayInput.ChildrenTokens)
             {
-                JToken res = /* await */ evaluate(expr, ((JArray)input).ChildrenTokens[ii], environment);
-                if (expr.stages != null) 
+                JToken res = JsonataQ.evaluate(expr, child, environment);
+                if (expr.stages != null)
                 {
-                    for (int ss = 0; ss < expr.stages.Count; ++ss) 
+                    for (int ss = 0; ss < expr.stages.Count; ++ss)
                     {
-                        res = /* await */ evaluateFilter(expr.stages[ss].expr, res, environment);
+                        res = JsonataQ.evaluateFilter(expr.stages[ss].expr!, res, environment);
                     }
                 }
-                if (res != null) 
+                if (res != null)
                 {
                     result.Add(res);
                 }
             }
 
             JArray resultSequence;
-            if (lastStep && result.Count == 1 && (result.ChildrenTokens[0] is JArray childArray) && !JSonataArray.IsSequence(childArray))
+            if (lastStep && result.Count == 1 && (result.ChildrenTokens[0] is JsonataArray childArray) && !childArray.sequence)
             {
                 resultSequence = childArray;
-            } 
-            else 
+            }
+            else
             {
                 // flatten the sequence
-                resultSequence = JSonataArray.CreateSequence();
-                foreach (JToken res in result.ChildrenTokens) 
+                resultSequence = JsonataArray.CreateSequence();
+                foreach (JToken res in result.ChildrenTokens)
                 {
-                    if (!(res is JArray) || (res is JSonataArray jsonataArray && jsonataArray.cons)) 
+                    if (!(res is JArray) || (res is JsonataArray jsonataArray && jsonataArray.cons))
                     {
                         // it's not an array - just push into the result sequence
                         resultSequence.Add(res);
-                    } 
-                    else 
+                    }
+                    else
                     {
                         // res is a sequence - flatten it into the parent sequence
                         resultSequence.AddAll(((JArray)res).ChildrenTokens);
@@ -285,14 +292,17 @@ namespace Jsonata.Net.Native.New
 
             return resultSequence;
         }
- 
-        /* async */ Object evaluateStages(List<Symbol> stages, Object input, Frame environment) {
+
+        private static JArray evaluateStages(List<Symbol> stages, JToken input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
             var result = input;
             for(var ss = 0; ss < stages.size(); ss++) {
                 var stage = stages.get(ss);
                 switch(stage.type) {
                     case "filter":
-                        result = /* await */ evaluateFilter(stage.expr, result, environment);
+                        result =  evaluateFilter(stage.expr, result, environment);
                         break;
                     case "index":
                         for(var ee = 0; ee < ((List)result).size(); ee++) {
@@ -303,8 +313,11 @@ namespace Jsonata.Net.Native.New
                 }
             }
             return result;
+            */
         }
 
+        /*
+        TODO: TUPLE
         Frame createFrameFromTuple(Frame environment, Map<String, Object> tuple)
         {
             var frame = createFrame(environment);
@@ -317,6 +330,7 @@ namespace Jsonata.Net.Native.New
             }
             return frame;
         }
+        */
 
         /**
          * Evaluate a step within a path
@@ -326,7 +340,8 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        /* async */
+
+        /*TODO: TUPLE
         Object evaluateTupleStep(Symbol expr, JArray input, List<Map> tupleBindings, EvaluationEnvironment environment) 
         {
             List result = null;
@@ -334,11 +349,11 @@ namespace Jsonata.Net.Native.New
             {
                 if (tupleBindings != null) 
                 {
-                    result = (List) /* await */ evaluateSortExpression(expr, tupleBindings, environment);
+                    result = (List)  evaluateSortExpression(expr, tupleBindings, environment);
                 } 
                 else 
                 {
-                    List sorted = (List) /* await */ evaluateSortExpression(expr, input, environment);
+                    List sorted = (List)  evaluateSortExpression(expr, input, environment);
                     result = Utils.createSequence();
                     ((JList)result).tupleStream = true;
                     for (var ss = 0; ss < ((List)sorted).size(); ss++) 
@@ -350,7 +365,7 @@ namespace Jsonata.Net.Native.New
                 }
                 if( expr.stages !=null ) 
                 {
-                    result = /* await */ (List)evaluateStages(expr.stages, result, environment);
+                    result =  (List)evaluateStages(expr.stages, result, environment);
                 }
                 return result;
             }
@@ -366,7 +381,7 @@ namespace Jsonata.Net.Native.New
             for (var ee = 0; ee < tupleBindings.size(); ee++) 
             {
                 stepEnv = createFrameFromTuple(environment, tupleBindings.get(ee));
-                Object _res = /* await */ evaluate(expr, tupleBindings.get(ee).get("@"), stepEnv);
+                Object _res =  evaluate(expr, tupleBindings.get(ee).get("@"), stepEnv);
                 // res is the binding sequence for the output tuple stream
                 if (_res!=null) //(typeof res !== "undefined") {
                 { 
@@ -413,12 +428,13 @@ namespace Jsonata.Net.Native.New
 
             if (expr.stages!=null) 
             {
-                result = (List) /* await */ evaluateStages(expr.stages, result, environment);
+                result = (List)  evaluateStages(expr.stages, result, environment);
             }
 
             return result;
         }
- 
+        */
+
         /**
          * Apply filter predicate to input data
         * @param {Object} predicate - filter expression
@@ -426,13 +442,15 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Result after applying predicates
         */
-        /* async */ Object evaluateFilter(Object _predicate, Object input, Frame environment) {
-        Symbol predicate = (Symbol)_predicate;
+        private static JToken evaluateFilter(Symbol predicate, JToken input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
             var results = Utils.createSequence();
-            if( input instanceof JList && ((JList)input).tupleStream) {
+            if( input is JList && ((JList)input).tupleStream) {
                 ((JList)results).tupleStream = true;
             }
-            if (!(input instanceof List)) { // isArray
+            if (!(input is List)) { // isArray
                 input = Utils.createSequence(input);
             }
             if (predicate.type.equals("number")) {
@@ -443,7 +461,7 @@ namespace Jsonata.Net.Native.New
                 }
                 var item = index<((List)input).size() ? ((List)input).get(index) : null;
                 if(item != null) {
-                    if(item instanceof List) {
+                    if(item is  List) {
                         results = (List)item;
                     } else {
                         results.add(item);
@@ -454,11 +472,11 @@ namespace Jsonata.Net.Native.New
                     var item = ((List)input).get(index);
                     var context = item;
                     var env = environment;
-                    if(input instanceof JList && ((JList)input).tupleStream) {
+                    if(input is  JList && ((JList)input).tupleStream) {
                         context = ((Map)item).get("@");
                         env = createFrameFromTuple(environment, (Map)item);
                     }
-                    var res = /* await */ evaluate(predicate, context, env);
+                    var res =  evaluate(predicate, context, env);
                     if (Utils.isNumeric(res)) {
                         res = Utils.createSequence(res);
                     }
@@ -480,8 +498,9 @@ namespace Jsonata.Net.Native.New
                 }
             }
             return results;
+            */
         }
- 
+
         /**
          * Evaluate binary expression against input data
         * @param {Object} expr - JSONata expression
@@ -489,58 +508,62 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateBinary(Symbol _expr, JToken input, EvaluationEnvironment environment) 
+        private static JToken evaluateBinary(Symbol _expr, JToken input, EvaluationEnvironment environment)
         {
             Infix expr = (Infix)_expr;
-            JToken result = null;
-            JToken lhs = evaluate(expr.lhs!, input, environment);
-            string op = expr.value ?? "";
+            JToken result;
+            JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
 
-            if (op == "and" || op == "or") 
+            if (expr.value is not string)
             {
+                throw new JException($"Bad operator", expr.position);
+            }
+            string op = (string)expr.value;
 
+            if (op == "and" || op == "or")
+            {
                 //defer evaluation of RHS to allow short-circuiting
-                Func<JToken> evalrhs = () => evaluate(expr.rhs!, input, environment);
+                Func<JToken> evalrhs = () => JsonataQ.evaluate(expr.rhs!, input, environment);
 
-                return evaluateBooleanExpression(lhs, evalrhs, op);
+                return JsonataQ.evaluateBooleanExpression(lhs, evalrhs, op);
             }
 
             JToken rhs = evaluate(expr.rhs!, input, environment); //evalrhs();
-            switch (op) 
+            switch (op)
             {
             case "+":
             case "-":
             case "*":
             case "/":
             case "%":
-                result = evaluateNumericExpression(lhs, rhs, op);
+                result = JsonataQ.evaluateNumericExpression(lhs, rhs, op);
                 break;
             case "=":
             case "!=":
-                result = evaluateEqualityExpression(lhs, rhs, op);
+                result = JsonataQ.evaluateEqualityExpression(lhs, rhs, op);
                 break;
             case "<":
             case "<=":
             case ">":
             case ">=":
-                result = evaluateComparisonExpression(lhs, rhs, op);
+                result = JsonataQ.evaluateComparisonExpression(lhs, rhs, op);
                 break;
             case "&":
-                result = evaluateStringConcat(lhs, rhs);
+                result = JsonataQ.evaluateStringConcat(lhs, rhs);
                 break;
             case "..":
-                result = evaluateRangeExpression(lhs, rhs);
+                result = JsonataQ.evaluateRangeExpression(lhs, rhs);
                 break;
             case "in":
-                result = evaluateIncludesExpression(lhs, rhs);
+                result = JsonataQ.evaluateIncludesExpression(lhs, rhs);
                 break;
             default:
                 throw new JException($"Unexpected operator '{op}'", expr.position);
             }
-            
+
             return result;
         }
- 
+
         //final public static Object NULL_VALUE = new Object() { public String toString() { return "null"; }};
 
         /**
@@ -550,43 +573,43 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private JToken evaluateUnary(Symbol expr, JToken input, EvaluationEnvironment environment) 
+        private static JToken evaluateUnary(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
 
             switch (expr.value)  // Uli was: expr.value - where is value set???
-            { 
+            {
             case "-":
-                result = this.evaluate(expr.expression!, input, environment);
-                if (result.Type == JTokenType.Undefined) 
+                result = JsonataQ.evaluate(expr.expression!, input, environment);
+                if (result.Type == JTokenType.Undefined)
                 {
                     //result = null;
-                } 
-                else if (Utils.isNumeric(result)) 
+                }
+                else if (Utils.isNumeric(result))
                 {
                     //TODO:
                     result = new JValue((double)Utils.convertNumber(-(double)result));
-                } 
-                else 
+                }
+                else
                 {
-                    throw new JException("D1002", expr.position, expr.value, result );
+                    throw new JException("D1002", expr.position, expr.value, result);
                 }
                 break;
             case "[":
                 {
                     // array constructor - evaluate each item
-                    result = new JSonataArray();
+                    result = new JsonataArray();
                     int idx = 0;
-                    foreach (Symbol item in expr.expressions!) 
+                    foreach (Symbol item in expr.expressions!)
                     {
                         //TODO?
                         //environment.isParallelCall = idx > 0;
-                        JToken value = this.evaluate(item, input, environment);
-                        if (value != null) 
+                        JToken value = JsonataQ.evaluate(item, input, environment);
+                        if (value != null)
                         {
                             if (item.value!.Equals("["))
                             {
-                                ((JSonataArray)result).Add(value);
+                                ((JsonataArray)result).Add(value);
                             }
                             else
                             {
@@ -597,19 +620,19 @@ namespace Jsonata.Net.Native.New
                         }
                         ++idx;
                     }
-                    if (expr.consarray) 
+                    if (expr.consarray)
                     {
-                        if (!(result is JSonataArray))
+                        if (!(result is JsonataArray))
                         {
-                            result = new JSonataArray(((JArray)result).ChildrenTokens);
+                            result = new JsonataArray(((JArray)result).ChildrenTokens);
                         }
-                        ((JSonataArray)result).cons = true;
+                        ((JsonataArray)result).cons = true;
                     }
                 }
                 break;
             case "{":
                 // object constructor - apply grouping
-                result = this.evaluateGroupExpression(expr, input, environment);
+                result = JsonataQ.evaluateGroupExpression(expr, input, environment);
                 break;
 
             default:
@@ -617,7 +640,7 @@ namespace Jsonata.Net.Native.New
             }
             return result;
         }
- 
+
         /**
          * Evaluate name object against input data
         * @param {Object} expr - JSONata expression
@@ -625,9 +648,14 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        Object evaluateName(Symbol expr, Object input, Frame environment) {
+        private static JToken evaluateName(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
             // lookup the "name" item in the input
-            return Functions.lookup(input, (String)expr.value);
+            if (expr.value is not string strValue)
+            {
+                throw new Exception("Should not happen");
+            }
+            return BuiltinFunctions.lookup(input, strValue);
         }
 
         /**
@@ -635,43 +663,59 @@ namespace Jsonata.Net.Native.New
          * @param {Object} expr - JSONata expression
          * @returns {*} Evaluated input data
          */
-        Object evaluateLiteral(Symbol expr) {
-            return expr.value!=null ? expr.value : NULL_VALUE;
+        private static JToken evaluateLiteral(Symbol expr)
+        {
+            return JValue.FromObject(expr.value);
         }
- 
+
         /**
          * Evaluate wildcard against input data
         * @param {Object} expr - JSONata expression
         * @param {Object} input - Input data to evaluate against
         * @returns {*} Evaluated input data
         */
-        Object evaluateWildcard(Symbol expr, Object input) {
-            var results = Utils.createSequence();
-            if ((input instanceof JList) && ((JList)input).outerWrapper && ((JList)input).size() > 0) {
-                input = ((JList)input).get(0);
+        private static JToken evaluateWildcard(Symbol expr, JToken input)
+        {
+            JsonataArray results = JsonataArray.CreateSequence();
+            if ((input is JsonataArray arrayInput) && arrayInput.outerWrapper && arrayInput.Count > 0)
+            {
+                input = arrayInput.ChildrenTokens[0];
             }
-            if (input != null && input instanceof Map) { // typeof input === "object") {
-            for (Object key : ((Map)input).keySet()) {
-            // Object.keys(input).forEach(Object (key) {
-                    var value = ((Map)input).get(key);
-                    if((value instanceof List)) {
-                        value = flatten(value, null);
-                        results = (List)Functions.append(results, value);
-                    } else {
-                        results.add(value);
+            if (input is JObject objectInput)   // typeof input === "object") {
+            {
+                foreach (KeyValuePair<string, JToken> kvp in objectInput.Properties)
+                {
+                    // Object.keys(input).forEach(Object (key) {
+                    JToken value = kvp.Value;
+                    if (value is JArray)
+                    {
+                        JToken flatValue = JsonataQ.flatten(value, null);
+                        results = (JsonataArray)BuiltinFunctions.append(results, flatValue);
+                    }
+                    else
+                    {
+                        results.Add(value);
                     }
                 }
-            } else if (input instanceof List) {
+            }
+            else if (input is JArray inputArray)
+            {
                 // Java: need to handle List separately
-                for (Object value : ((List)input)) {
-                    if((value instanceof List)) {
-                        value = flatten(value, null);
-                        results = (List)Functions.append(results, value);
-                    } else if (value instanceof Map) {
-                    // Call recursively do decompose the map
-                    results.addAll((List)evaluateWildcard(expr, value));
-                    } else {
-                        results.add(value);
+                foreach (JToken value in inputArray.ChildrenTokens)
+                {
+                    if (value is JArray)
+                    {
+                        JToken flatValue = JsonataQ.flatten(value, null);
+                        results = (JsonataArray)BuiltinFunctions.append(results, flatValue);
+                    }
+                    else if (value is JObject)
+                    {
+                        // Call recursively do decompose the map
+                        results.AddRange(((JArray)JsonataQ.evaluateWildcard(expr, value)).ChildrenTokens);
+                    }
+                    else
+                    {
+                        results.Add(value);
                     }
                 }
             }
@@ -686,59 +730,81 @@ namespace Jsonata.Net.Native.New
         * @param {Array} flattened - carries the flattened array - if not defined, will initialize to []
         * @returns {Array} - the flattened array
         */
-        Object flatten(Object arg, List flattened) {
-            if(flattened == null) {
-                flattened = new ArrayList<>();
+        private static JArray flatten(JToken arg, JArray? flattened)
+        {
+            if (flattened == null)
+            {
+                flattened = new JArray();
             }
-            if(arg instanceof List) {
-                for (Object item : ((List)arg)) {
-                    flatten(item, flattened);
+            if (arg is JArray arrayArg)
+            {
+                foreach (JToken item in arrayArg.ChildrenTokens)
+                {
+                    JsonataQ.flatten(item, flattened);
                 }
-            } else {
-                flattened.add(arg);
+            }
+            else
+            {
+                flattened.Add(arg);
             }
             return flattened;
         }
- 
+
         /**
          * Evaluate descendants against input data
         * @param {Object} expr - JSONata expression
         * @param {Object} input - Input data to evaluate against
         * @returns {*} Evaluated input data
         */
-        Object evaluateDescendants(Symbol expr, Object input) {
-            Object result = null;
-            var resultSequence = Utils.createSequence();
-            if (input != null) {
+        private static JToken evaluateDescendants(Symbol expr, JToken input)
+        {
+            JToken result;
+            if (input.Type != JTokenType.Undefined)
+            {
                 // traverse all descendants of this object/array
-                recurseDescendants(input, resultSequence);
-                if (resultSequence.size() == 1) {
-                    result = resultSequence.get(0);
-                } else {
+                JsonataArray resultSequence = JsonataArray.CreateSequence();
+                JsonataQ.recurseDescendants(input, resultSequence);
+                if (resultSequence.Count == 1)
+                {
+                    result = resultSequence.ChildrenTokens[0];
+                }
+                else
+                {
                     result = resultSequence;
                 }
             }
+            else
+            {
+                result = JsonataQ.UNDEFINED;
+            }
             return result;
         }
- 
+
         /**
          * Recurse through descendants
         * @param {Object} input - Input data
         * @param {Object} results - Results
         */
-        void recurseDescendants(Object input, List results) {
+        private static void recurseDescendants(JToken input, JArray results)
+        {
             // this is the equivalent of //* in XPath
-            if (!(input instanceof List)) {
-                results.add(input);
+            if (input is not JArray)
+            {
+                results.Add(input);
             }
-            if (input instanceof List) {
-                for (Object member : ((List)input)) { //input.forEach(Object (member) {
-                        recurseDescendants(member, results);
+            if (input is JArray inputArray)
+            {
+                foreach (JToken member in inputArray.ChildrenTokens)
+                {
+                    JsonataQ.recurseDescendants(member, results);
                 }
-            } else if (input != null && input instanceof Map) {
+            }
+            else if (input is JObject objectInput)
+            {
                 //Object.keys(input).forEach(Object (key) {
-                for (Object key : ((Map)input).keySet()) {
-                        recurseDescendants(((Map)input).get(key), results);
+                foreach (JToken value in objectInput.Properties.Values)
+                {
+                    JsonataQ.recurseDescendants(value, results);
                 }
             }
         }
@@ -750,76 +816,78 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        Object evaluateNumericExpression(Object _lhs, Object _rhs, String op) {
-            double result = 0;
-
-            if (_lhs!=null && !Utils.isNumeric(_lhs)) {
-                throw new JException("T2001", -1,
-                op, _lhs
-                );
+        private static JToken evaluateNumericExpression(JToken _lhs, JToken _rhs, String op)
+        {
+            if (_lhs.Type != JTokenType.Undefined && !Utils.isNumeric(_lhs))
+            {
+                throw new JException("T2001", -1, op, _lhs);
             }
-            if (_rhs!=null && !Utils.isNumeric(_rhs)) {
-                throw new JException("T2002", -1,
-                op, _rhs
-                );
+            if (_rhs.Type != JTokenType.Undefined && !Utils.isNumeric(_rhs))
+            {
+                throw new JException("T2002", -1, op, _rhs);
             }
 
-            if (_lhs == null || _rhs == null) {
+            if (_lhs.Type == JTokenType.Undefined || _rhs.Type == JTokenType.Undefined)
+            {
                 // if either side is undefined, the result is undefined
-                return null;
+                return JsonataQ.UNDEFINED;
             }
 
-            //System.out.println("op22 "+op+" "+_lhs+" "+_rhs);
-            double lhs = ((Number)_lhs).doubleValue();
-            double rhs = ((Number)_rhs).doubleValue();
-
-            switch (op) {
-                case "+":
-                    result = lhs + rhs;
-                    break;
-                case "-":
-                    result = lhs - rhs;
-                    break;
-                case "*":
-                    result = lhs * rhs;
-                    break;
-                case "/":
-                    result = lhs / rhs;
-                    break;
-                case "%":
-                    result = lhs % rhs;
-                    break;
+            //TODO:
+            double lhs = (double)(JValue)_lhs;
+            double rhs = (double)(JValue)_rhs;
+            double result;
+            switch (op)
+            {
+            case "+":
+                result = lhs + rhs;
+                break;
+            case "-":
+                result = lhs - rhs;
+                break;
+            case "*":
+                result = lhs * rhs;
+                break;
+            case "/":
+                result = lhs / rhs;
+                break;
+            case "%":
+                result = lhs % rhs;
+                break;
+            default:
+                throw new Exception("Unexpected op " + op);
             }
-            return Utils.convertNumber(result);
+            //TODO:
+            return new JValue((double)Utils.convertNumber(result));
         }
- 
-         /**
-          * Evaluate equality expression against input data
-          * @param {Object} lhs - LHS value
-          * @param {Object} rhs - RHS value
-          * @param {Object} op - opcode
-          * @returns {*} Result
-          */
-        Object evaluateEqualityExpression(Object lhs, Object rhs, String op) {
-            Object result = null;
 
-            // type checks
-            var ltype = lhs!=null ? lhs.getClass().getSimpleName() : null;
-            var rtype = rhs!=null ? rhs.getClass().getSimpleName() : null;
-
-            if (ltype == null || rtype == null) {
+        /**
+         * Evaluate equality expression against input data
+         * @param {Object} lhs - LHS value
+         * @param {Object} rhs - RHS value
+         * @param {Object} op - opcode
+         * @returns {*} Result
+         */
+        private static JToken evaluateEqualityExpression(JToken lhs, JToken rhs, string op)
+        {
+            if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
+            {
                 // if either side is undefined, the result is false
-                return false;
+                return new JValue(false);
             }
 
+            throw new NotImplementedException();
+
+            /*
             // JSON might come with integers,
             // convert all to double...
             // FIXME: semantically OK?
-            if (lhs instanceof Number)
+            if (lhs is  Number)
                 lhs = ((Number)lhs).doubleValue();
-            if (rhs instanceof Number)
+            if (rhs is  Number)
                 rhs = ((Number)rhs).doubleValue();
 
+            Object result = null;
             switch (op) {
                 case "=":
                     result = lhs.equals(rhs); // isDeepEqual(lhs, rhs);
@@ -829,21 +897,25 @@ namespace Jsonata.Net.Native.New
                     break;
             }
             return result;
+            */
         }
- 
-         /**
-          * Evaluate comparison expression against input data
-          * @param {Object} lhs - LHS value
-          * @param {Object} rhs - RHS value
-          * @param {Object} op - opcode
-          * @returns {*} Result
-          */
-        Object evaluateComparisonExpression(Object lhs, Object rhs, String op) {
+
+        /**
+         * Evaluate comparison expression against input data
+         * @param {Object} lhs - LHS value
+         * @param {Object} rhs - RHS value
+         * @param {Object} op - opcode
+         * @returns {*} Result
+         */
+        private static JToken evaluateComparisonExpression(JToken lhs, JToken rhs, string op)
+        {
+            throw new NotImplementedException();
+            /*
             Object result = null;
 
             // type checks
-            var lcomparable = lhs == null || lhs instanceof String || lhs instanceof Number;
-            var rcomparable = rhs == null || rhs instanceof String || rhs instanceof Number;
+            var lcomparable = lhs == null || lhs is  String || lhs is  Number;
+            var rcomparable = rhs == null || rhs is  String || rhs is  Number;
 
             // if either aa or bb are not comparable (string or numeric) values, then throw an error
             if (!lcomparable || !rcomparable) {
@@ -863,7 +935,7 @@ namespace Jsonata.Net.Native.New
             //if aa and bb are not of the same type
             if (!lhs.getClass().equals(rhs.getClass())) {
 
-            if (lhs instanceof Number && rhs instanceof Number) {
+            if (lhs is  Number && rhs is  Number) {
                 // Java : handle Double / Integer / Long comparisons
                 // convert all to double -> loss of precision (64-bit long to double) be a problem here?
                 lhs = ((Number)lhs).doubleValue();
@@ -897,39 +969,42 @@ namespace Jsonata.Net.Native.New
                     break;
             }
             return result;
+            */
         }
- 
-         /**
-          * Inclusion operator - in
-          *
-          * @param {Object} lhs - LHS value
-          * @param {Object} rhs - RHS value
-          * @returns {boolean} - true if lhs is a member of rhs
-          */
-        Object evaluateIncludesExpression(Object lhs, Object rhs) {
-            var result = false;
 
-            if (lhs == null || rhs == null) {
+        /**
+         * Inclusion operator - in
+         *
+         * @param {Object} lhs - LHS value
+         * @param {Object} rhs - RHS value
+         * @returns {boolean} - true if lhs is a member of rhs
+         */
+        private static JToken evaluateIncludesExpression(JToken lhs, JToken rhs)
+        {
+            if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
+            {
                 // if either side is undefined, the result is false
-                return false;
+                return new JValue(false);
             }
 
-            if(!(rhs instanceof List)) {
-                var _rhs = new ArrayList<>(); _rhs.add(rhs);
-                rhs = _rhs;
+            if (rhs is not JArray rhsArray)
+            {
+                rhsArray = new JArray();
+                rhsArray.Add(rhs);
             }
 
-            for(var i = 0; i < ((List)rhs).size(); i++) {
-                Object tmp = evaluateEqualityExpression(lhs, ((List)rhs).get(i), "=");
-                if (Boolean.TRUE.equals(tmp)) {
-                    result = true;
-                    break;
+            foreach (JToken rhsItem in rhsArray.ChildrenTokens)
+            {
+                JValue res = (JValue)JsonataQ.evaluateEqualityExpression(lhs, rhsItem, "=");
+                if (res.Type == JTokenType.Boolean && (bool)res)
+                {
+                    return res;
                 }
             }
 
-            return result;
+            return new JValue(false);
         }
- 
+
         /**
          * Evaluate boolean expression against input data
          * @param {Object} lhs - LHS value
@@ -937,54 +1012,56 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        /* async */ Object evaluateBooleanExpression(Object lhs, Callable evalrhs, String op) throws Exception {
-            Object result = null;
-
-            var lBool = boolize(lhs);
-
-            switch (op) {
-                case "and":
-                    result = lBool && boolize(/* await */ evalrhs.call());
-                    break;
-                case "or":
-                    result = lBool || boolize(/* await */ evalrhs.call());
-                    break;
+        private static JToken evaluateBooleanExpression(JToken lhs, Func<JToken> evalrhs, string op)
+        {
+            bool lBool = Eval.Helpers.Booleanize(lhs);
+            bool result;
+            switch (op)
+            {
+            case "and":
+                result = lBool && Eval.Helpers.Booleanize(evalrhs.Invoke());
+                break;
+            case "or":
+                result = lBool || Eval.Helpers.Booleanize(evalrhs.Invoke());
+                break;
+            default:
+                throw new Exception("Should not happen " + op);
             }
-            return result;
+            return new JValue(result);
         }
 
-        public static boolean boolize(Object value) {
-            var booledValue = Functions.toBoolean(value);
-            return booledValue == null ? false : booledValue;
-        }
- 
         /**
          * Evaluate string concatenation against input data
          * @param {Object} lhs - LHS value
          * @param {Object} rhs - RHS value
          * @returns {string|*} Concatenated string
          */
-        Object evaluateStringConcat(Object lhs, Object rhs) {
+        private static JToken evaluateStringConcat(JToken lhs, JToken rhs)
+        {
             String result;
 
-            var lstr = "";
-            var rstr = "";
-            if (lhs != null) {
-                lstr = Functions.string(lhs,null);
+            string lstr = "";
+            string rstr = "";
+            if (lhs.Type != JTokenType.Undefined)
+            {
+                lstr = (string)(JValue)BuiltinFunctions.@string(lhs, prettify: false);
             }
-            if (rhs != null) {
-                rstr = Functions.string(rhs,null);
+            if (rhs.Type != JTokenType.Undefined)
+            {
+                rstr = (string)(JValue)BuiltinFunctions.@string(rhs, prettify: false); ;
             }
 
             result = lstr + rstr;
-            return result;
+            return new JValue(result);
         }
- 
+
+        /* TODO: groups
         static class GroupEntry {
             Object data;
             int exprIndex;
         }
-     
+        */
+
         /**
          * Evaluate group expression against input data
          * @param {Object} expr - JSONata expression
@@ -992,12 +1069,15 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {{}} Evaluated input data
          */
-        /* async */ Object evaluateGroupExpression(Symbol expr, Object _input, Frame environment) {
+        private static JToken evaluateGroupExpression(Symbol expr, JToken _input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
             var result = new LinkedHashMap<Object,Object>();
             var groups = new LinkedHashMap<Object,GroupEntry>();
-            var reduce = (_input instanceof JList) && ((JList)_input).tupleStream ? true : false;
+            var reduce = (_input is  JList) && ((JList)_input).tupleStream ? true : false;
             // group the input sequence by "key" expression
-            if (!(_input instanceof List)) {
+            if (!(_input is  List)) {
                 _input = Utils.createSequence(_input);
             }
             List input = (List)_input;
@@ -1012,9 +1092,9 @@ namespace Jsonata.Net.Native.New
                 var env = reduce ? createFrameFromTuple(environment, (Map)item) : environment;
                 for(var pairIndex = 0; pairIndex < expr.lhsObject.size(); pairIndex++) {
                     var pair = expr.lhsObject.get(pairIndex);
-                    var key = /* await */ evaluate(pair[0], reduce ? ((Map)item).get("@") : item, env);
+                    var key =  evaluate(pair[0], reduce ? ((Map)item).get("@") : item, env);
                     // key has to be a string
-                    if (key!=null && !(key instanceof String)) {
+                    if (key!=null && !(key is  String)) {
                         throw new JException("T1003",
                             //stack: (new Error()).stack,
                             expr.position,
@@ -1047,7 +1127,7 @@ namespace Jsonata.Net.Native.New
             }
 
             // iterate over the groups to evaluate the "value" expression
-            //let generators = /* await */ Promise.all(Object.keys(groups).map(/* async */ (key, idx) => {
+            //let generators =  Promise.all(Object.keys(groups).map( (key, idx) => {
             int idx = 0;
             for (Entry<Object,GroupEntry> e : groups.entrySet()) {
                 var entry = e.getValue();
@@ -1060,7 +1140,7 @@ namespace Jsonata.Net.Native.New
                     env = createFrameFromTuple(environment, (Map)tuple);
                 }
                 env.isParallelCall = idx > 0;
-                //return [key, /* await */ evaluate(expr.lhs[entry.exprIndex][1], context, env)];
+                //return [key,  evaluate(expr.lhs[entry.exprIndex][1], context, env)];
                 Object res = evaluate(expr.lhsObject.get(entry.exprIndex)[1], context, env);
                 if (res!=null)
                     result.put(e.getKey(), res);
@@ -1069,17 +1149,19 @@ namespace Jsonata.Net.Native.New
             }
 
         //  for (let generator of generators) {
-        //      var [key, value] = /* await */ generator;
+        //      var [key, value] =  generator;
         //      if(typeof value !== "undefined") {
         //          result[key] = value;
         //      }
         //  }
 
             return result;
+            */
         }
-
+        /*
+         * TODO: TUPLE
         Object reduceTupleStream(Object _tupleStream) {
-            if(!(_tupleStream instanceof List)) {
+            if(!(_tupleStream is  List)) {
                 return _tupleStream;
             }
             List<Map> tupleStream = (List)_tupleStream;
@@ -1102,6 +1184,7 @@ namespace Jsonata.Net.Native.New
             }
             return result;
         }
+        */
 
         /**
          * Evaluate range expression against input data
@@ -1109,17 +1192,20 @@ namespace Jsonata.Net.Native.New
          * @param {Object} rhs - RHS value
          * @returns {Array} Resultant array
          */
-        Object evaluateRangeExpression(Object lhs, Object rhs) {
+        private static JToken evaluateRangeExpression(JToken lhs, JToken rhs)
+        {
+            throw new NotImplementedException();
+            /*
             Object result = null;
 
-            if (lhs != null && (!(lhs instanceof Long) && !(lhs instanceof Integer))) {
+            if (lhs != null && (!(lhs is  Long) && !(lhs is  Integer))) {
                 throw new JException("T2003",
                     //stack: (new Error()).stack,
                     -1,
                     lhs
                 );
             }
-            if (rhs != null && (!(rhs instanceof Long) && !(rhs instanceof Integer))) {
+            if (rhs != null && (!(rhs is  Long) && !(rhs is  Integer))) {
                 throw new JException("T2004",
                 //stack: (new Error()).stack,
                 -1,
@@ -1152,8 +1238,9 @@ namespace Jsonata.Net.Native.New
             }
 
             return new Utils.RangeList(_lhs, _rhs);
+            */
         }
- 
+
         /**
          * Evaluate bind expression against input data
          * @param {Object} expr - JSONata expression
@@ -1161,14 +1248,15 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        /* async */ Object evaluateBindExpression(Symbol expr, Object input, Frame environment) {
+        private static JToken evaluateBindExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
             // The RHS is the expression to evaluate
             // The LHS is the name of the variable to bind to - should be a VARIABLE token (enforced by parser)
-            var value = /* await */ evaluate(expr.rhs, input, environment);
-            environment.bind(""+expr.lhs.value, value);
+            JToken value = JsonataQ.evaluate(expr.rhs!, input, environment);
+            environment.BindValue((string)expr.lhs!.value!, value);
             return value;
         }
- 
+
         /**
          * Evaluate condition against input data
          * @param {Object} expr - JSONata expression
@@ -1176,89 +1264,107 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        /* async */ Object evaluateCondition(Symbol expr, Object input, Frame environment) {
-            Object result = null;
-            var condition = /* await */ evaluate(expr.condition, input, environment);
-            if (boolize(condition)) {
-                result = /* await */ evaluate(expr.then, input, environment);
-            } else if (expr._else != null) {
-                result = /* await */ evaluate(expr._else, input, environment);
+        private static JToken evaluateCondition(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
+            JToken result;
+            JToken condition = JsonataQ.evaluate(expr.condition!, input, environment);
+            if (Eval.Helpers.Booleanize(condition))
+            {
+                result = JsonataQ.evaluate(expr.then!, input, environment);
+            }
+            else if (expr.@else != null)
+            {
+                result = evaluate(expr.@else, input, environment);
+            }
+            else
+            {
+                result = JsonataQ.UNDEFINED;
             }
             return result;
         }
- 
-         /**
-          * Evaluate block against input data
-          * @param {Object} expr - JSONata expression
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} Evaluated input data
-          */
-        /* async */ Object evaluateBlock(Symbol expr, Object input, Frame environment) {
-            Object result = null;
+
+        /**
+         * Evaluate block against input data
+         * @param {Object} expr - JSONata expression
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} Evaluated input data
+         */
+        private static JToken evaluateBlock(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
+
             // create a new frame to limit the scope of variable assignments
             // TODO, only do this if the post-parse stage has flagged this as required
-            var frame = createFrame(environment);
+            EvaluationEnvironment frame = EvaluationEnvironment.CreateNestedEnvironment(environment);
             // invoke each expression in turn
             // only return the result of the last one
-            for(var ex : expr.expressions) {
-                result = /* await */ evaluate(ex, input, frame);
+            JToken result = JsonataQ.UNDEFINED;
+            foreach (Symbol ex in expr.expressions!)
+            {
+                result = JsonataQ.evaluate(ex, input, frame);
             }
-
             return result;
         }
- 
-         /**
-          * Prepare a regex
-          * @param {Object} expr - expression containing regex
-          * @returns {Function} Higher order Object representing prepared regex
-          */
-         Object evaluateRegex(Symbol expr) {
+
+        /**
+         * Prepare a regex
+         * @param {Object} expr - expression containing regex
+         * @returns {Function} Higher order Object representing prepared regex
+         */
+        private static JToken evaluateRegex(Symbol expr)
+        {
+            //TODO: implement
             // Note: in Java we just use the compiled regex Pattern
             // The apply functions need to take care to evaluate
-            return expr.value;
-         }
- 
-         /**
-          * Evaluate variable against input data
-          * @param {Object} expr - JSONata expression
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} Evaluated input data
-          */
-        Object evaluateVariable(Symbol expr, Object input, Frame environment) {
+            //return expr.value;
+            throw new NotImplementedException();
+        }
+
+        /**
+         * Evaluate variable against input data
+         * @param {Object} expr - JSONata expression
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} Evaluated input data
+         */
+        private static JToken evaluateVariable(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
             // lookup the variable value in the environment
-            Object result = null;
+            JToken result;
             // if the variable name is empty string, then it refers to context value
-            if (expr.value.equals("")) {
-            // Empty string == "$" !
-                result = input instanceof JList && ((JList)input).outerWrapper ? ((JList)input).get(0) : input;
-            } else  {
-                result = environment.lookup((String)expr.value);
-                if (parser.dbg) System.out.println("variable name="+expr.value+" val="+result);
+            if (expr.value is string strValue && strValue == "")
+            {
+                // Empty string == "$" !
+                result = (input is JsonataArray arrayInput && arrayInput.outerWrapper) ? arrayInput.ChildrenTokens[0] : input;
+            }
+            else
+            {
+                result = environment.Lookup((string)expr.value!);
             }
             return result;
         }
- 
-         /**
-          * sort / order-by operator
-          * @param {Object} expr - AST for operator
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} Ordered sequence
-          */
-        /* async */ Object evaluateSortExpression(Symbol expr, Object input, Frame environment) {
-            Object result;
 
+        /**
+         * sort / order-by operator
+         * @param {Object} expr - AST for operator
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} Ordered sequence
+         */
+        private static JArray evaluateSortExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
             // evaluate the lhs, then sort the results in order according to rhs expression
-            var lhs = (List)input;
-            var isTupleSort = (input instanceof JList && ((JList)input).tupleStream) ? true : false;
+            JArray lhs = (JArray)input;
+            bool isTupleSort = (input is JsonataArray jsonataInput) && jsonataInput.tupleStream;
 
+            /*
             // sort the lhs array
             // use comparator function
             var comparator = new Comparator() { 
 
-            @Override
+            JToken result;
+
+            //@Override
             public int compare(Object a, Object b) {
 
                 // expr.terms is an array of order-by in priority order
@@ -1272,7 +1378,7 @@ namespace Jsonata.Net.Native.New
                         context = ((Map)a).get("@");
                         env = createFrameFromTuple(environment, (Map)a);
                     }
-                    Object aa = /* await */ evaluate(term.expression, context, env);
+                    Object aa = evaluate(term.expression, context, env);
 
                      //evaluate the sort term in the context of b
                      context = b;
@@ -1281,7 +1387,7 @@ namespace Jsonata.Net.Native.New
                          context = ((Map)b).get("@");
                          env = createFrameFromTuple(environment, (Map)b);
                      }
-                     Object bb = /* await */ evaluate(term.expression, context, env);
+                     Object bb = evaluate(term.expression, context, env);
  
                     // type checks
                     //  var atype = typeof aa;
@@ -1298,8 +1404,8 @@ namespace Jsonata.Net.Native.New
                     }
  
                     // if aa or bb are not string or numeric values, then throw an error
-                    if(!(aa instanceof Number || aa instanceof String) ||
-                    !(bb instanceof Number || bb instanceof String) 
+                    if(!(aa is Number || aa is String) ||
+                    !(bb is Number || bb is String) 
                     ) {
                         throw new JException("T2008",
                             expr.position,
@@ -1310,7 +1416,7 @@ namespace Jsonata.Net.Native.New
  
                      //if aa and bb are not of the same type
                      boolean sameType = false;
-                    if (aa instanceof Number && bb instanceof Number)
+                    if (aa is Number && bb is Number)
                         sameType = true;
                     else if (aa.getClass().isAssignableFrom(bb.getClass()) ||
                         bb.getClass().isAssignableFrom(aa.getClass())) {
@@ -1347,23 +1453,28 @@ namespace Jsonata.Net.Native.New
             //      input: input
             //  };
             //  // the `focus` is passed in as the `this` for the invoked function
-            //  result = /* await */ fn.sort.apply(focus, [lhs, comparator]);
+            //  result = fn.sort.apply(focus, [lhs, comparator]);
  
             result = Functions.sort(lhs, comparator);
             return result;        
+            */
+            throw new NotImplementedException();
         }
- 
-         /**
-          * create a transformer function
-          * @param {Object} expr - AST for operator
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} tranformer function
-          */
-        Object evaluateTransformExpression(Symbol expr, Object input, Frame environment) {
-             // create a Object to implement the transform definition
+
+        /**
+         * create a transformer function
+         * @param {Object} expr - AST for operator
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} tranformer function
+         */
+        private static JToken evaluateTransformExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
+            // create a Object to implement the transform definition
             JFunctionCallable transformer = (_input, args) -> {
-            // /* async */ Object (obj) { // signature <(oa):o>
+            // Object (obj) { // signature <(oa):o>
 
                 var obj = ((List)args).get(0);
 
@@ -1375,22 +1486,22 @@ namespace Jsonata.Net.Native.New
                 // this Object returns a copy of obj with changes specified by the pattern/operation
                 Object result = Functions.functionClone(obj);
 
-                var _matches = /* await */ evaluate(expr.pattern, result, environment);
+                var _matches =  evaluate(expr.pattern, result, environment);
                 if(_matches != null) {
-                    if(!(_matches instanceof List)) {
+                    if(!(_matches is List)) {
                         _matches = new ArrayList<>(List.of(_matches));
                     }
                     List matches = (List)_matches;
                     for(var ii = 0; ii < matches.size(); ii++) {
                         var match = matches.get(ii);
                         // evaluate the update value for each match
-                        var update = /* await */ evaluate(expr.update, match, environment);
+                        var update =  evaluate(expr.update, match, environment);
                         // update must be an object
                         //var updateType = typeof update;
                         //if(updateType != null) 
                     
                         if (update!=null) {
-                        if(!(update instanceof Map)) {
+                        if(!(update is Map)) {
                                 // throw type error
                                 throw new JException("T2011",
                                     expr.update.position,
@@ -1405,10 +1516,10 @@ namespace Jsonata.Net.Native.New
 
                         // delete, if specified, must be an array of strings (or single string)
                         if(expr.delete != null) {
-                            var deletions = /* await */ evaluate(expr.delete, match, environment);
+                            var deletions =  evaluate(expr.delete, match, environment);
                             if(deletions != null) {
                                 var val = deletions;
-                                if (!(deletions instanceof List)) {
+                                if (!(deletions is List)) {
                                     deletions = new ArrayList<>(List.of(deletions));
                                 }
                                 if (!Utils.isArrayOfStrings(deletions)) {
@@ -1420,7 +1531,7 @@ namespace Jsonata.Net.Native.New
                                 }
                                 List _deletions = (List)deletions;
                                 for (var jj = 0; jj < _deletions.size(); jj++) {
-                                    if(match instanceof Map) {
+                                    if(match is Map) {
                                     ((Map)match).remove(_deletions.get(jj));
                                         //delete match[deletions[jj]];
                                     }
@@ -1434,37 +1545,42 @@ namespace Jsonata.Net.Native.New
             };
 
             return new JFunction(transformer, "<(oa):o>");
-        }
- 
-        static Symbol chainAST; // = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
- 
-        static Symbol chainAST() {
-            if (chainAST==null) {
-                // only create on demand
-                chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
-            }
-            return chainAST;
+            */
         }
 
-         /**
-          * Apply the Object on the RHS using the sequence on the LHS as the first argument
-          * @param {Object} expr - JSONata expression
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} Evaluated input data
-          */
-        /* async */ Object evaluateApplyExpression(Symbol expr, Object input, Frame environment) {
+        private static Symbol? s_chainAST; // = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
+
+        private static Symbol chainAST()
+        {
+            if (s_chainAST == null)
+            {
+                // only create on demand
+                s_chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
+            }
+            return s_chainAST;
+        }
+
+        /**
+         * Apply the Object on the RHS using the sequence on the LHS as the first argument
+         * @param {Object} expr - JSONata expression
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} Evaluated input data
+         */
+        private static JToken evaluateApplyExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
             Object result = null;
 
-
-            var lhs = /* await */ evaluate(expr.lhs, input, environment);
+            var lhs = evaluate(expr.lhs, input, environment);
 
             if(expr.rhs.type.equals("function")) {
             //Symbol applyTo = new Symbol(); applyTo.context = lhs;
                 // this is a Object _invocation_; invoke it with lhs expression as the first argument
-                result = /* await */ evaluateFunction(expr.rhs, input, environment, lhs);
+                result =  evaluateFunction(expr.rhs, input, environment, lhs);
             } else {
-                var func = /* await */ evaluate(expr.rhs, input, environment);
+                var func =  evaluate(expr.rhs, input, environment);
 
                 if(!isFunctionLike(func) &&
                 !isFunctionLike(lhs)) {
@@ -1478,63 +1594,46 @@ namespace Jsonata.Net.Native.New
                 if(isFunctionLike(lhs)) {
                     // this is Object chaining (func1 ~> func2)
                     // λ($f, $g) { λ($x){ $g($f($x)) } }
-                    var chain = /* await */ evaluate(chainAST(), null, environment);
+                    var chain =  evaluate(chainAST(), null, environment);
                     List args = new ArrayList<>(); args.add(lhs); args.add(func); // == [lhs, func]
-                    result = /* await */ apply(chain, args, null, environment);
+                    result =  apply(chain, args, null, environment);
                 } else {
                     List args = new ArrayList<>(); args.add(lhs); // == [lhs]
-                    result = /* await */ apply(func, args, null, environment);
+                    result =  apply(func, args, null, environment);
                 }
 
             }
 
             return result;
+            */
         }
 
-        boolean isFunctionLike(Object o) {
-            return Utils.isFunction(o) || Functions.isLambda(o) || (o instanceof Pattern);
+        /*
+        bool isFunctionLike(Object o) {
+            return Utils.isFunction(o) || Functions.isLambda(o) || (o is  Pattern);
         }
-     
-        final static ThreadLocal<Jsonata> current = new ThreadLocal<>();
+        */
 
         /**
-         * Returns a per thread instance of this parsed expression.
-         * 
-         * @return
+         * Evaluate Object against input data
+         * @param {Object} expr - JSONata expression
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} Evaluated input data
          */
-        Jsonata getPerThreadInstance() {
-            Jsonata threadInst = current.get();
-            // Fast path
-            if (threadInst!=null)
-                return threadInst;
-
-            synchronized(this) {
-                threadInst = current.get();
-                if (threadInst==null) {
-                    threadInst = new Jsonata(this);
-                    current.set(threadInst);
-                }
-                return threadInst;
-            }
-        }
-
-         /**
-          * Evaluate Object against input data
-          * @param {Object} expr - JSONata expression
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} Evaluated input data
-          */
-         /* async */ Object evaluateFunction(Symbol expr, Object input, Frame environment, Object applytoContext) {
+        private static JToken evaluateFunction(Symbol expr, JToken input, EvaluationEnvironment environment, Object? applytoContext)
+        {
+            throw new NotImplementedException();
+            /*
              Object result = null;
 
-             // this.current is set by getPerThreadInstance() at this point
+             // Jsonata.current is set by getPerThreadInstance() at this point
  
              // create the procedure
              // can"t assume that expr.procedure is a lambda type directly
              // could be an expression that evaluates to a Object (e.g. variable reference, parens expr etc.
              // evaluate it generically first, then check that it is a function.  Throw error if not.
-             var proc = /* await */ evaluate(expr.procedure, input, environment);
+             var proc = evaluate(expr.procedure, input, environment);
  
              if (proc == null && (expr).procedure.type == "path" && environment.lookup((String)expr.procedure.steps.get(0).value)!=null) {
                  // help the user out here if they simply forgot the leading $
@@ -1553,13 +1652,13 @@ namespace Jsonata.Net.Native.New
              }
              // eager evaluation - evaluate the arguments
              for (int jj = 0; jj < expr.arguments.size(); jj++) {
-                 Object arg = /* await */ evaluate(expr.arguments.get(jj), input, environment);
+                 Object arg = evaluate(expr.arguments.get(jj), input, environment);
                  if(Utils.isFunction(arg) || Functions.isLambda(arg)) {
                     // wrap this in a closure
                     // Java: not required, already a JFunction
-                    //  const closure = /* async */ Object (...params) {
+                    //  const closure = Object (...params) {
                     //      // invoke func
-                    //      return /* await */ apply(arg, params, null, environment);
+                    //      return apply(arg, params, null, environment);
                     //  };
                     //  closure.arity = getFunctionArity(arg);
 
@@ -1582,11 +1681,11 @@ namespace Jsonata.Net.Native.New
                 throw new JException("T1006", expr.position, procName);
 
              try {
-                 if(proc instanceof Symbol) {
+                 if(proc is Symbol) {
                      ((Symbol)proc).token = procName;
                      ((Symbol)proc).position = expr.position;
                  }
-                 result = /* await */ apply(proc, evaluatedArgs, input, environment);
+                 result = apply(proc, evaluatedArgs, input, environment);
              } catch (JException jex) {
                 if (jex.location<0) {
                     // add the position field to the error
@@ -1598,143 +1697,149 @@ namespace Jsonata.Net.Native.New
                 }
                 throw jex;
              } catch (Exception err) {
-                if (!(err instanceof RuntimeException))
+                if (!(err is RuntimeException))
                     throw new RuntimeException(err);
                 //err.printStackTrace();
                 throw err;
                 // new JException(err, "Error calling function "+procName, expr.position, null, null); //err;
              }
              return result;
-         }
- 
-         /**
-          * Apply procedure or function
-          * @param {Object} proc - Procedure
-          * @param {Array} args - Arguments
-          * @param {Object} input - input
-          * @param {Object} environment - environment
-          * @returns {*} Result of procedure
-          */
-        /* async */ Object apply(Object proc, Object args, Object input, Object environment) {
-            var result = /* await */ applyInner(proc, args, input, environment);
-            while(Functions.isLambda(result) && ((Symbol)result).thunk == true) {
-                // trampoline loop - this gets invoked as a result of tail-call optimization
-                // the Object returned a tail-call thunk
-                // unpack it, evaluate its arguments, and apply the tail call
-                var next = /* await */ evaluate(((Symbol)result).body.procedure, ((Symbol)result).input, ((Symbol)result).environment);
-                if(((Symbol)result).body.procedure.type == "variable") {
-                    if (next instanceof Symbol) // Java: not if JFunction
-                        ((Symbol)next).token = ((Symbol)result).body.procedure.value;
-                    }
-                    if (next instanceof Symbol) // Java: not if JFunction
-                    ((Symbol)next).position = ((Symbol)result).body.procedure.position;
-                    var evaluatedArgs = new ArrayList<>();
-                    for(var ii = 0; ii < ((Symbol)result).body.arguments.size(); ii++) {
-                        evaluatedArgs.add(/* await */ evaluate(((Symbol)result).body.arguments.get(ii), ((Symbol)result).input, ((Symbol)result).environment));
+            */
+        }
+
+        /**
+         * Apply procedure or function
+         * @param {Object} proc - Procedure
+         * @param {Array} args - Arguments
+         * @param {Object} input - input
+         * @param {Object} environment - environment
+         * @returns {*} Result of procedure
+         *
+        Object apply(Object proc, Object args, Object input, Object environment) {
+           var result =  applyInner(proc, args, input, environment);
+           while(Functions.isLambda(result) && ((Symbol)result).thunk == true) {
+               // trampoline loop - this gets invoked as a result of tail-call optimization
+               // the Object returned a tail-call thunk
+               // unpack it, evaluate its arguments, and apply the tail call
+               var next =  evaluate(((Symbol)result).body.procedure, ((Symbol)result).input, ((Symbol)result).environment);
+               if(((Symbol)result).body.procedure.type == "variable") {
+                   if (next is  Symbol) // Java: not if JFunction
+                       ((Symbol)next).token = ((Symbol)result).body.procedure.value;
+                   }
+                   if (next is  Symbol) // Java: not if JFunction
+                   ((Symbol)next).position = ((Symbol)result).body.procedure.position;
+                   var evaluatedArgs = new ArrayList<>();
+                   for(var ii = 0; ii < ((Symbol)result).body.arguments.size(); ii++) {
+                       evaluatedArgs.add( evaluate(((Symbol)result).body.arguments.get(ii), ((Symbol)result).input, ((Symbol)result).environment));
+               }
+
+               result =  applyInner(next, evaluatedArgs, input, environment);
+           }
+           return result;
+       }
+        */
+
+        /**
+         * Apply procedure or function
+         * @param {Object} proc - Procedure
+         * @param {Array} args - Arguments
+         * @param {Object} input - input
+         * @param {Object} environment - environment
+         * @returns {*} Result of procedure
+         *
+         Object applyInner(Object proc, Object args, Object input, Object environment) {
+            Object result = null;
+            try {
+                var validatedArgs = args;
+                if (proc != null) {
+                    validatedArgs = validateArguments(proc, args, input);
                 }
 
-                result = /* await */ applyInner(next, evaluatedArgs, input, environment);
+                if (Functions.isLambda(proc)) {
+                    result =  applyProcedure(proc, validatedArgs);
+                } ** FIXME: need in Java??? else if (proc && proc._jsonata_Object == true) {
+                    var focus = {
+                        environment: environment,
+                        input: input
+                    };
+                    // the `focus` is passed in as the `this` for the invoked function
+                    result = proc.implementation.apply(focus, validatedArgs);
+                    // `proc.implementation` might be a generator function
+                    // and `result` might be a generator - if so, yield
+                    if (isIterable(result)) {
+                        result = result.next().value;
+                    }
+                    if (isPromise(result)) {
+                        result = /await/ result;
+                    } 
+                } ** else if (proc is  JFunction) {
+                    // typically these are functions that are returned by the invocation of plugin functions
+                    // the `input` is being passed in as the `this` for the invoked function
+                    // this is so that functions that return objects containing functions can chain
+                    // e.g.  ( $func())
+
+                   // handling special case of Javascript:
+                   // when calling a function with fn.apply(ctx, args) and args = [undefined]
+                   // Javascript will convert to undefined (without array)
+                   if (validatedArgs is  List && ((List)validatedArgs).size()==1 && ((List)validatedArgs).get(0)==null) {
+                       //validatedArgs = null;
+                   }
+
+                    result = ((JFunction)proc).call(input, (List)validatedArgs);
+                   //  if (isPromise(result)) {
+                   //      result =  result;
+                   //  }
+                } else if (proc is  JLambda) {
+                   // System.err.println("Lambda "+proc);
+                   List _args = (List)validatedArgs;
+                   if (proc is  Fn0) {
+                       result = ((Fn0)proc).get();
+                   } else if (proc is  Fn1) {
+                       result = ((Fn1)proc).apply(_args.size() <= 0 ? null : _args.get(0));
+                   } else if (proc is  Fn2) {
+                       result = ((Fn2)proc).apply(_args.size() <= 0 ? null : _args.get(0), _args.size() <= 1 ? null :_args.get(1));
+                   }
+                } else if (proc is  Pattern) {
+                   List _res = new ArrayList<>();
+                   for (String s : (List<String>)validatedArgs) {
+                   //System.err.println("PAT "+proc+" input "+s);
+                       if (((Pattern)proc).matcher(s).find()) {
+                           //System.err.println("MATCH");
+                           _res.add(s);
+                       }
+                   }
+                   result = _res;
+                } else {
+                   System.out.println("Proc not found "+proc);
+                    throw new JException(
+                        "T1006", 0
+                        //stack: (new Error()).stack
+                    );
+                }
+            } catch(JException err) {
+               //  if(proc) {
+               //      if (typeof err.token == "undefined" && typeof proc.token !== "undefined") {
+               //          err.token = proc.token;
+               //      }
+               //      err.position = proc.position;
+               //  }
+                throw err;
             }
             return result;
         }
- 
-         /**
-          * Apply procedure or function
-          * @param {Object} proc - Procedure
-          * @param {Array} args - Arguments
-          * @param {Object} input - input
-          * @param {Object} environment - environment
-          * @returns {*} Result of procedure
-          */
-         /* async */ Object applyInner(Object proc, Object args, Object input, Object environment) {
-             Object result = null;
-             try {
-                 var validatedArgs = args;
-                 if (proc != null) {
-                     validatedArgs = validateArguments(proc, args, input);
-                 }
- 
-                 if (Functions.isLambda(proc)) {
-                     result = /* await */ applyProcedure(proc, validatedArgs);
-                 } /* FIXME: need in Java??? else if (proc && proc._jsonata_Object == true) {
-                     var focus = {
-                         environment: environment,
-                         input: input
-                     };
-                     // the `focus` is passed in as the `this` for the invoked function
-                     result = proc.implementation.apply(focus, validatedArgs);
-                     // `proc.implementation` might be a generator function
-                     // and `result` might be a generator - if so, yield
-                     if (isIterable(result)) {
-                         result = result.next().value;
-                     }
-                     if (isPromise(result)) {
-                         result = /await/ result;
-                     } 
-                 } */ else if (proc instanceof JFunction) {
-                     // typically these are functions that are returned by the invocation of plugin functions
-                     // the `input` is being passed in as the `this` for the invoked function
-                     // this is so that functions that return objects containing functions can chain
-                     // e.g. /* await */ (/* await */ $func())
+        */
 
-                    // handling special case of Javascript:
-                    // when calling a function with fn.apply(ctx, args) and args = [undefined]
-                    // Javascript will convert to undefined (without array)
-                    if (validatedArgs instanceof List && ((List)validatedArgs).size()==1 && ((List)validatedArgs).get(0)==null) {
-                        //validatedArgs = null;
-                    }
-
-                     result = ((JFunction)proc).call(input, (List)validatedArgs);
-                    //  if (isPromise(result)) {
-                    //      result = /* await */ result;
-                    //  }
-                 } else if (proc instanceof JLambda) {
-                    // System.err.println("Lambda "+proc);
-                    List _args = (List)validatedArgs;
-                    if (proc instanceof Fn0) {
-                        result = ((Fn0)proc).get();
-                    } else if (proc instanceof Fn1) {
-                        result = ((Fn1)proc).apply(_args.size() <= 0 ? null : _args.get(0));
-                    } else if (proc instanceof Fn2) {
-                        result = ((Fn2)proc).apply(_args.size() <= 0 ? null : _args.get(0), _args.size() <= 1 ? null :_args.get(1));
-                    }
-                 } else if (proc instanceof Pattern) {
-                    List _res = new ArrayList<>();
-                    for (String s : (List<String>)validatedArgs) {
-                    //System.err.println("PAT "+proc+" input "+s);
-                        if (((Pattern)proc).matcher(s).find()) {
-                            //System.err.println("MATCH");
-                            _res.add(s);
-                        }
-                    }
-                    result = _res;
-                 } else {
-                    System.out.println("Proc not found "+proc);
-                     throw new JException(
-                         "T1006", 0
-                         //stack: (new Error()).stack
-                     );
-                 }
-             } catch(JException err) {
-                //  if(proc) {
-                //      if (typeof err.token == "undefined" && typeof proc.token !== "undefined") {
-                //          err.token = proc.token;
-                //      }
-                //      err.position = proc.position;
-                //  }
-                 throw err;
-             }
-             return result;
-         }
- 
-         /**
-          * Evaluate lambda against input data
-          * @param {Object} expr - JSONata expression
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {{lambda: boolean, input: *, environment: *, arguments: *, body: *}} Evaluated input data
-          */
-        Object evaluateLambda(Symbol expr, Object input, Frame environment) {
+        /**
+         * Evaluate lambda against input data
+         * @param {Object} expr - JSONata expression
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {{lambda: boolean, input: *, environment: *, arguments: *, body: *}} Evaluated input data
+         */
+        private static JToken evaluateLambda(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
             // make a Object (closure)
             var procedure = parser.new Symbol();
         
@@ -1748,20 +1853,24 @@ namespace Jsonata.Net.Native.New
             if(expr.thunk == true)
                     procedure.thunk = true;
         
-            // procedure.apply = /* async */ function(self, args) {
-            //     return /* await */ apply(procedure, args, input, !!self ? self.environment : environment);
+            // procedure.apply = function(self, args) {
+            //     return apply(procedure, args, input, !!self ? self.environment : environment);
             // };
             return procedure;
+            */
         }
- 
-         /**
-          * Evaluate partial application
-          * @param {Object} expr - JSONata expression
-          * @param {Object} input - Input data to evaluate against
-          * @param {Object} environment - Environment
-          * @returns {*} Evaluated input data
-          */
-        /* async */ Object evaluatePartialApplication(Symbol expr, Object input, Frame environment) {
+
+        /**
+         * Evaluate partial application
+         * @param {Object} expr - JSONata expression
+         * @param {Object} input - Input data to evaluate against
+         * @param {Object} environment - Environment
+         * @returns {*} Evaluated input data
+         */
+        private static JToken evaluatePartialApplication(Symbol expr, JToken input, EvaluationEnvironment environment)
+        {
+            throw new NotImplementedException();
+            /*
             // partially apply a function
             Object result = null;
             // evaluate the arguments
@@ -1771,11 +1880,11 @@ namespace Jsonata.Net.Native.New
                 if (arg.type.equals("operator") && (arg.value.equals("?"))) {
                     evaluatedArgs.add(arg);
                 } else {
-                    evaluatedArgs.add(/* await */ evaluate(arg, input, environment));
+                    evaluatedArgs.add(evaluate(arg, input, environment));
                 }
             }
             // lookup the procedure
-            var proc = /* await */ evaluate(expr.procedure, input, environment);
+            var proc = evaluate(expr.procedure, input, environment);
             if (proc != null && expr.procedure.type.equals("path") && environment.lookup((String)expr.procedure.steps.get(0).value)!=null) {
                 // help the user out here if they simply forgot the leading $
                 throw new JException("T1007",
@@ -1786,7 +1895,7 @@ namespace Jsonata.Net.Native.New
             if (Functions.isLambda(proc)) {
                 result = partialApplyProcedure((Symbol)proc, (List)evaluatedArgs);
             } else if (Utils.isFunction(proc)) {
-                result = partialApplyNativeFunction((JFunction)proc /*.implementation*/, evaluatedArgs);
+                result = partialApplyNativeFunction((JFunction)proc /*.implementation*, evaluatedArgs);
         //  } else if (typeof proc === "function") {
         //      result = partialApplyNativeFunction(proc, evaluatedArgs);
             } else {
@@ -1797,249 +1906,259 @@ namespace Jsonata.Net.Native.New
                 );
             }
             return result;
-        }
- 
-         /**
-          * Validate the arguments against the signature validator (if it exists)
-          * @param {Function} signature - validator function
-          * @param {Array} args - Object arguments
-          * @param {*} context - context value
-          * @returns {Array} - validated arguments
-          */
-        Object validateArguments(Object signature, Object args, Object context) {
-            var validatedArgs = args;
-            if (Utils.isFunction(signature)) {
-                validatedArgs = ((JFunction)signature).validate(args, context);
-            } else if (Functions.isLambda(signature)) {
-                Signature sig = ((Signature) ((Symbol)signature).signature);
-                if (sig != null)
-                    validatedArgs = sig.validate(args, context);
-            }
-            return validatedArgs;
-        }
- 
-         /**
-          * Apply procedure
-          * @param {Object} proc - Procedure
-          * @param {Array} args - Arguments
-          * @returns {*} Result of procedure
-          */
-        /* async */ Object applyProcedure(Object _proc, Object _args) {
-            List args = (List)_args;
-            Symbol proc = (Symbol)_proc;
-            Object result = null;
-            var env = createFrame(proc.environment);
-            for (int i=0; i<proc.arguments.size(); i++) {
-                if (i>=args.size()) break;
-                env.bind(""+proc.arguments.get(i).value, args.get(i));
-            }
-            if (proc.body instanceof Symbol) {
-                result = evaluate(proc.body, proc.input, env);
-            } else throw new Error("Cannot execute procedure: "+proc+" "+proc.body);
-            //  if (typeof proc.body === "function") {
-            //      // this is a lambda that wraps a native Object - generated by partially evaluating a native
-            //      result = /* await */ applyNativeFunction(proc.body, env);
-            return result;
-        }
- 
-         /**
-          * Partially apply procedure
-          * @param {Object} proc - Procedure
-          * @param {Array} args - Arguments
-          * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applied procedure
-          */
-        Object partialApplyProcedure(Symbol proc, List<Symbol> args) {
-            // create a closure, bind the supplied parameters and return a Object that takes the remaining (?) parameters
-            // Note Uli: if no env, bind to default env so the native functions can be found
-            var env = createFrame(proc.environment!=null ? proc.environment : this.environment);
-            var unboundArgs = new ArrayList<Symbol>();
-            int index = 0;
-            for (var param : proc.arguments) {
-    //         proc.arguments.forEach(Object (param, index) {
-                Object arg = index<args.size() ? args.get(index) : null;
-                if ((arg==null) || (arg instanceof Symbol && ("operator".equals(((Symbol)arg).type) && "?".equals(((Symbol)arg).value)))) {
-                    unboundArgs.add(param);
-                } else {
-                    env.bind((String)param.value, arg);
-                }
-                index++;
-            }
-            var procedure = parser.new Symbol();
-            procedure._jsonata_lambda = true;
-            procedure.input = proc.input;
-            procedure.environment = env;
-            procedure.arguments = unboundArgs;
-            procedure.body = proc.body;
-
-            return procedure;
-        }
- 
-         /**
-          * Partially apply native function
-          * @param {Function} native - Native function
-          * @param {Array} args - Arguments
-          * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applying native function
-          */
-        Object partialApplyNativeFunction(JFunction _native, List args) {
-            // create a lambda Object that wraps and invokes the native function
-            // get the list of declared arguments from the native function
-            // this has to be picked out from the toString() value
-
-
-            //var body = "function($a,$c) { $substring($a,0,$c) }";
-
-            List sigArgs = new ArrayList<>();
-            List partArgs = new ArrayList<>();
-            for (int i=0; i<_native.getNumberOfArgs(); i++) {
-                String argName = "$" + (char)('a'+i);
-                sigArgs.add(argName);
-                if (i>=args.size() || args.get(i)==null)
-                    partArgs.add(argName);
-                else
-                    partArgs.add(args.get(i));
-            }
-
-            var body = "function(" + String.join(", ", sigArgs) + "){";
-            body += "$"+_native.functionName+"("+String.join(", ", sigArgs) + ") }";
-
-            if (parser.dbg) System.out.println("partial trampoline = "+body);
-
-            //  var sigArgs = getNativeFunctionArguments(_native);
-            //  sigArgs = sigArgs.stream().map(sigArg -> {
-            //      return "$" + sigArg;
-            //  }).toList();
-            //  var body = "function(" + String.join(", ", sigArgs) + "){ _ }";
-
-            var bodyAST = parser.parse(body);
-            //bodyAST.body = _native;
-
-            var partial = partialApplyProcedure(bodyAST, (List)args);
-            return partial;
-        }
- 
-         /**
-          * Apply native function
-          * @param {Object} proc - Procedure
-          * @param {Object} env - Environment
-          * @returns {*} Result of applying native function
-          */
-        /* async */ Object applyNativeFunction(JFunction proc, Frame env) {
-            // Not called in Java - JFunction call directly calls native function
-            return null;
-        }
- 
-         /**
-          * Get native Object arguments
-          * @param {Function} func - Function
-          * @returns {*|Array} Native Object arguments
-          */
-        List getNativeFunctionArguments(JFunction func) {
-            // Not called in Java
-            return null;
-        }
- 
-         /**
-          * Creates a Object definition
-          * @param {Function} func - Object implementation in Javascript
-          * @param {string} signature - JSONata Object signature definition
-          * @returns {{implementation: *, signature: *}} Object definition
-          */
-        static JFunction defineFunction(String func, String signature) {
-            return defineFunction(func, signature, func);
-        }
-        static JFunction defineFunction(String func, String signature, String funcImplMethod) {
-            JFunction fn = new JFunction(func, signature, Functions.class, null, funcImplMethod);
-            staticFrame.bind(func, fn);
-            return fn;
+            */
         }
 
-        public static JFunction function(String name, String signature, Class clazz, Object instance, String methodName) {
-            return new JFunction(name, signature, clazz, instance, methodName);
-        }
+        /**
+         * Validate the arguments against the signature validator (if it exists)
+         * @param {Function} signature - validator function
+         * @param {Array} args - Object arguments
+         * @param {*} context - context value
+         * @returns {Array} - validated arguments
+         *
+       Object validateArguments(Object signature, Object args, Object context) {
+           var validatedArgs = args;
+           if (Utils.isFunction(signature)) {
+               validatedArgs = ((JFunction)signature).validate(args, context);
+           } else if (Functions.isLambda(signature)) {
+               Signature sig = ((Signature) ((Symbol)signature).signature);
+               if (sig != null)
+                   validatedArgs = sig.validate(args, context);
+           }
+           return validatedArgs;
+       }
+        */
 
-        public static<A,B,R> JFunction function(String name, FnVarArgs<R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,R> JFunction function(String name, Fn0<R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,R> JFunction function(String name, Fn1<A,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,R> JFunction function(String name, Fn2<A,B,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,C,R> JFunction function(String name, Fn3<A,B,C,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,C,D,R> JFunction function(String name, Fn4<A,B,C,D,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,C,D,E,R> JFunction function(String name, Fn5<A,B,C,D,E,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,C,D,E,F,R> JFunction function(String name, Fn6<A,B,C,D,E,F,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,C,D,E,F,G,R> JFunction function(String name, Fn7<A,B,C,D,E,F,G,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
-        public static<A,B,C,D,E,F,G,H,R> JFunction function(String name, Fn8<A,B,C,D,E,F,G,H,R> func, String signature) {
-            return new JFunction(func.getJFunctionCallable(), signature);
-        }
+        /**
+         * Apply procedure
+         * @param {Object} proc - Procedure
+         * @param {Array} args - Arguments
+         * @returns {*} Result of procedure
+         *
+        Object applyProcedure(Object _proc, Object _args) {
+           List args = (List)_args;
+           Symbol proc = (Symbol)_proc;
+           Object result = null;
+           var env = createFrame(proc.environment);
+           for (int i=0; i<proc.arguments.size(); i++) {
+               if (i>=args.size()) break;
+               env.bind(""+proc.arguments.get(i).value, args.get(i));
+           }
+           if (proc.body is  Symbol) {
+               result = evaluate(proc.body, proc.input, env);
+           } else throw new Error("Cannot execute procedure: "+proc+" "+proc.body);
+           //  if (typeof proc.body === "function") {
+           //      // this is a lambda that wraps a native Object - generated by partially evaluating a native
+           //      result =  applyNativeFunction(proc.body, env);
+           return result;
+       }
+        */
 
-         /**
-          * parses and evaluates the supplied expression
-          * @param {string} expr - expression to evaluate
-          * @returns {*} - result of evaluating the expression
-          */
-         /* async */ 
-         //Object functionEval(String expr, Object focus) {
-            // moved to Functions !
-         //}
- 
-         /**
-          * Clones an object
-          * @param {Object} arg - object to clone (deep copy)
-          * @returns {*} - the cloned object
-          */
-         //Object functionClone(Object arg) {
-            // moved to Functions !
-         //}
- 
-         /**
-          * Create frame
-          * @param {Object} enclosingEnvironment - Enclosing environment
-          * @returns {{bind: bind, lookup: lookup}} Created frame
-          */
-        public Frame createFrame() { return createFrame(null); }
-        public Frame createFrame(Frame enclosingEnvironment) {
-            return new Frame(enclosingEnvironment);
+        /**
+         * Partially apply procedure
+         * @param {Object} proc - Procedure
+         * @param {Array} args - Arguments
+         * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applied procedure
+         *
+       Object partialApplyProcedure(Symbol proc, List<Symbol> args) {
+           // create a closure, bind the supplied parameters and return a Object that takes the remaining (?) parameters
+           // Note Uli: if no env, bind to default env so the native functions can be found
+           var env = createFrame(proc.environment!=null ? proc.environment : Jsonata.environment);
+           var unboundArgs = new ArrayList<Symbol>();
+           int index = 0;
+           for (var param : proc.arguments) {
+   //         proc.arguments.forEach(Object (param, index) {
+               Object arg = index<args.size() ? args.get(index) : null;
+               if ((arg==null) || (arg is  Symbol && ("operator".equals(((Symbol)arg).type) && "?".equals(((Symbol)arg).value)))) {
+                   unboundArgs.add(param);
+               } else {
+                   env.bind((String)param.value, arg);
+               }
+               index++;
+           }
+           var procedure = parser.new Symbol();
+           procedure._jsonata_lambda = true;
+           procedure.input = proc.input;
+           procedure.environment = env;
+           procedure.arguments = unboundArgs;
+           procedure.body = proc.body;
 
-            // The following logic is in class Frame:
-            //  var bindings = {};
-            //  return {
-            //      bind: Object (name, value) {
-            //          bindings[name] = value;
-            //      },
-            //      lookup: Object (name) {
-            //          var value;
-            //          if(bindings.hasOwnProperty(name)) {
-            //              value = bindings[name];
-            //          } else if (enclosingEnvironment) {
-            //              value = enclosingEnvironment.lookup(name);
-            //          }
-            //          return value;
-            //      },
-            //      timestamp: enclosingEnvironment ? enclosingEnvironment.timestamp : null,
-            //      async: enclosingEnvironment ? enclosingEnvironment./* async */ : false,
-            //      isParallelCall: enclosingEnvironment ? enclosingEnvironment.isParallelCall : false,
-            //      global: enclosingEnvironment ? enclosingEnvironment.global : {
-            //          ancestry: [ null ]
-            //      }
-            //  };
-        }
+           return procedure;
+       }
+        */
 
+        /**
+         * Partially apply native function
+         * @param {Function} native - Native function
+         * @param {Array} args - Arguments
+         * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applying native function
+         *
+       Object partialApplyNativeFunction(JFunction _native, List args) {
+           // create a lambda Object that wraps and invokes the native function
+           // get the list of declared arguments from the native function
+           // this has to be picked out from the toString() value
+
+
+           //var body = "function($a,$c) { $substring($a,0,$c) }";
+
+           List sigArgs = new ArrayList<>();
+           List partArgs = new ArrayList<>();
+           for (int i=0; i<_native.getNumberOfArgs(); i++) {
+               String argName = "$" + (char)('a'+i);
+               sigArgs.add(argName);
+               if (i>=args.size() || args.get(i)==null)
+                   partArgs.add(argName);
+               else
+                   partArgs.add(args.get(i));
+           }
+
+           var body = "function(" + String.join(", ", sigArgs) + "){";
+           body += "$"+_native.functionName+"("+String.join(", ", sigArgs) + ") }";
+
+           if (parser.dbg) System.out.println("partial trampoline = "+body);
+
+           //  var sigArgs = getNativeFunctionArguments(_native);
+           //  sigArgs = sigArgs.stream().map(sigArg -> {
+           //      return "$" + sigArg;
+           //  }).toList();
+           //  var body = "function(" + String.join(", ", sigArgs) + "){ _ }";
+
+           var bodyAST = parser.parse(body);
+           //bodyAST.body = _native;
+
+           var partial = partialApplyProcedure(bodyAST, (List)args);
+           return partial;
+       }
+        */
+
+        /**
+         * Apply native function
+         * @param {Object} proc - Procedure
+         * @param {Object} env - Environment
+         * @returns {*} Result of applying native function
+         *
+        Object applyNativeFunction(JFunction proc, Frame env) {
+           // Not called in Java - JFunction call directly calls native function
+           return null;
+       }
+        */
+
+        /**
+         * Get native Object arguments
+         * @param {Function} func - Function
+         * @returns {*|Array} Native Object arguments
+         *
+       List getNativeFunctionArguments(JFunction func) {
+           // Not called in Java
+           return null;
+       }
+        */
+
+        /**
+         * Creates a Object definition
+         * @param {Function} func - Object implementation in Javascript
+         * @param {string} signature - JSONata Object signature definition
+         * @returns {{implementation: *, signature: *}} Object definition
+         *
+       static JFunction defineFunction(String func, String signature) {
+           return defineFunction(func, signature, func);
+       }
+       static JFunction defineFunction(String func, String signature, String funcImplMethod) {
+           JFunction fn = new JFunction(func, signature, Functions.class, null, funcImplMethod);
+           staticFrame.bind(func, fn);
+           return fn;
+       }
+
+       public static JFunction function(String name, String signature, Class clazz, Object instance, String methodName) {
+           return new JFunction(name, signature, clazz, instance, methodName);
+       }
+
+       public static<A,B,R> JFunction function(String name, FnVarArgs<R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,R> JFunction function(String name, Fn0<R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,R> JFunction function(String name, Fn1<A,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,R> JFunction function(String name, Fn2<A,B,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,C,R> JFunction function(String name, Fn3<A,B,C,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,C,D,R> JFunction function(String name, Fn4<A,B,C,D,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,C,D,E,R> JFunction function(String name, Fn5<A,B,C,D,E,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,C,D,E,F,R> JFunction function(String name, Fn6<A,B,C,D,E,F,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,C,D,E,F,G,R> JFunction function(String name, Fn7<A,B,C,D,E,F,G,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+       public static<A,B,C,D,E,F,G,H,R> JFunction function(String name, Fn8<A,B,C,D,E,F,G,H,R> func, String signature) {
+           return new JFunction(func.getJFunctionCallable(), signature);
+       }
+        */
+
+        /**
+         * parses and evaluates the supplied expression
+         * @param {string} expr - expression to evaluate
+         * @returns {*} - result of evaluating the expression
+         */
+
+        //Object functionEval(String expr, Object focus) {
+        // moved to Functions !
+        //}
+
+        /**
+         * Clones an object
+         * @param {Object} arg - object to clone (deep copy)
+         * @returns {*} - the cloned object
+         */
+        //Object functionClone(Object arg) {
+        // moved to Functions !
+        //}
+
+        /**
+         * Create frame
+         * @param {Object} enclosingEnvironment - Enclosing environment
+         * @returns {{bind: bind, lookup: lookup}} Created frame
+         *
+       public Frame createFrame() { return createFrame(null); }
+       public Frame createFrame(Frame enclosingEnvironment) {
+           return new Frame(enclosingEnvironment);
+
+           // The following logic is in class Frame:
+           //  var bindings = {};
+           //  return {
+           //      bind: Object (name, value) {
+           //          bindings[name] = value;
+           //      },
+           //      lookup: Object (name) {
+           //          var value;
+           //          if(bindings.hasOwnProperty(name)) {
+           //              value = bindings[name];
+           //          } else if (enclosingEnvironment) {
+           //              value = enclosingEnvironment.lookup(name);
+           //          }
+           //          return value;
+           //      },
+           //      timestamp: enclosingEnvironment ? enclosingEnvironment.timestamp : null,
+           //      async: enclosingEnvironment ? enclosingEnvironment. : false,
+           //      isParallelCall: enclosingEnvironment ? enclosingEnvironment.isParallelCall : false,
+           //      global: enclosingEnvironment ? enclosingEnvironment.global : {
+           //          ancestry: [ null ]
+           //      }
+           //  };
+       }
+        */
+
+        /*
         public static interface JLambda {
         }
 
@@ -2110,10 +2229,11 @@ namespace Jsonata.Net.Native.New
                     (F) args.get(5), (G) args.get(6), (H) args.get(7));
             }
         }
+        */
 
         /**
          * JFunction callable Lambda interface
-         */
+         *
         public static interface JFunctionCallable {
             Object call(Object input, List args) throws Throwable;
         }
@@ -2121,10 +2241,11 @@ namespace Jsonata.Net.Native.New
         public static interface JFunctionSignatureValidation {
             Object validate(Object args, Object context);
         }
+        */
 
         /**
          * JFunction definition class
-         */
+         *
         public static class JFunction implements JFunctionCallable, JFunctionSignatureValidation {
             JFunctionCallable function;
             String functionName;
@@ -2133,17 +2254,17 @@ namespace Jsonata.Net.Native.New
             Object methodInstance;
 
             public JFunction(JFunctionCallable function, String signature) {
-                this.function = function;
+                Jsonata.function = function;
                 if (signature!=null)
                     // use classname as default, gets overwritten once the function is registered
-                    this.signature = new Signature(signature, function.getClass().getName());
+                    Jsonata.signature = new Signature(signature, function.getClass().getName());
             }
 
             public JFunction(String functionName, String signature, Class clz, Object instance, String implMethodName) {
-                this.functionName = functionName;
-                this.signature = new Signature(signature, functionName);
-                this.method = Functions.getFunction(clz, implMethodName);
-                this.methodInstance = instance;
+                Jsonata.functionName = functionName;
+                Jsonata.signature = new Signature(signature, functionName);
+                Jsonata.method = Functions.getFunction(clz, implMethodName);
+                Jsonata.methodInstance = instance;
                 if (method==null) {
                     System.err.println("Function not implemented: "+functionName+" impl="+implMethodName);
                 }
@@ -2162,7 +2283,7 @@ namespace Jsonata.Net.Native.New
                 } catch (InvocationTargetException e) {
                     throw new RuntimeException(e.getTargetException());
                 } catch (Throwable e) {
-                    if (e instanceof RuntimeException)
+                    if (e is  RuntimeException)
                         throw (RuntimeException)e;
                     throw new RuntimeException(e);
                     //throw new JException(e, "T0410", -1, args, functionName);
@@ -2181,7 +2302,9 @@ namespace Jsonata.Net.Native.New
                 return method != null ? method.getParameterTypes().length : 0;
             }
         }
+        */
 
+        /*
          // Function registration
         static void registerFunctions() {
             defineFunction("sum", "<a<n>:n>");
@@ -2259,15 +2382,17 @@ namespace Jsonata.Net.Native.New
             //  }, "<:n>"));
 
         }
+        */
 
-         /**
-          * lookup a message template from the catalog and substitute the inserts.
-          * Populates `err.message` with the substituted message. Leaves `err.message`
-          * untouched if code lookup fails.
-          * @param {string} err - error code to lookup
-          * @returns {undefined} - `err` is modified in place
-          */
-         Exception populateMessage(Exception err) {
+        /**
+         * lookup a message template from the catalog and substitute the inserts.
+         * Populates `err.message` with the substituted message. Leaves `err.message`
+         * untouched if code lookup fails.
+         * @param {string} err - error code to lookup
+         * @returns {undefined} - `err` is modified in place
+         */
+        private static Exception populateMessage(Exception err)
+        {
             //  var template = errorCodes[err.code];
             //  if(typeof template !== "undefined") {
             //      // if there are any handlebars, replace them with the field references
@@ -2281,10 +2406,11 @@ namespace Jsonata.Net.Native.New
             //      });
             //      err.message = message;
             //  }
-             // Otherwise retain the original `err.message`
-             return err;
-         }
- 
+            // Otherwise retain the original `err.message`
+            return err;
+        }
+
+        /*
         List<Exception> errors;
         Frame environment;
         Symbol ast;
@@ -2295,171 +2421,78 @@ namespace Jsonata.Net.Native.New
             staticFrame = new Frame(null);
             registerFunctions();
         }
+        */
 
-         /**
-          * JSONata
-          * @param {Object} expr - JSONata expression
-          * @returns Evaluated expression
-          * @throws JException An exception if an error occured.
-          */
-        public static Jsonata jsonata(String expression) {
-            return new Jsonata(expression);
+        private readonly Symbol m_ast;
+        //private readonly EvaluationEnvironment m_environment;
+
+        /**
+         * JSONata
+         * @param {Object} expr - JSONata expression
+         * @returns Evaluated expression
+         * @throws JException An exception if an error occured.
+         */
+        public static JsonataQ jsonata(String expression)
+        {
+            return new JsonataQ(expression);
         }
 
         /**
          * Internal constructor
          * @param expr
          */
-        Jsonata(String expr) { // boolean optionsRecover) {
-            try {
-                ast = parser.parse(expr);//, optionsRecover);
-                errors = ast.errors;
-                ast.errors = null; //delete ast.errors;
-            } catch(JException err) {
-                // insert error message into structure
-                //populateMessage(err); // possible side-effects on `err`
-                throw err;
-            }
-            environment = createFrame(staticFrame);
-
-            timestamp = System.currentTimeMillis(); // will be overridden on each call to evalute()
-
-            // Note: now and millis are implemented in Functions
-            //  environment.bind("now", defineFunction(function(picture, timezone) {
-            //      return datetime.fromMillis(timestamp.getTime(), picture, timezone);
-            //  }, "<s?s?:s>"));
-            //  environment.bind("millis", defineFunction(function() {
-            //      return timestamp.getTime();
-            //  }, "<:n>"));
-
-            // FIXED: options.RegexEngine not implemented in Java
-            //  if(options && options.RegexEngine) {
-            //      jsonata.RegexEngine = options.RegexEngine;
-            //  } else {
-            //      jsonata.RegexEngine = RegExp;
-            //  }
-
-            // Set instance for this thread
-            current.set(this);
+        public JsonataQ(string expr)
+        {
+            Parser parser = new Parser();
+            this.m_ast = parser.parse(expr);
         }
 
-        /**
-         * Creates a clone of the given Jsonata instance.
-         * Package-private copy constructor used to create per thread instances.
-         * 
-         * @param other
-         */
-        Jsonata(Jsonata other) {
-            this.ast = other.ast;
-            this.environment = other.environment;
-            this.timestamp = other.timestamp;
-        }
+        public JToken evaluate(JToken input, EvaluationEnvironment parentEnvironment)
+        {
+            // the variable bindings have been passed in - create a frame to hold these
+            EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
 
-        /**
-         * Flag: validate input objects to comply with JSON types
-         */
-        boolean validateInput = true;
-
-        /**
-         * Checks whether input validation is active
-         */
-        public boolean isValidateInput() {
-            return validateInput;
-        }
-
-        /**
-         * Enable or disable input validation
-         * @param validateInput
-         */
-        public void setValidateInput(boolean validateInput) {
-            this.validateInput = validateInput;
-        }
-
-        public Object evaluate(Object input) { return evaluate(input,null); }
-
-        /* async */
-        public Object evaluate(Object input, Frame bindings) { // FIXME:, callback) {
-                    // throw if the expression compiled with syntax errors
-            if(errors != null) {
-                throw new JException("S0500", 0);
-            }
-
-            Frame exec_env;
-            if (bindings != null) {
-                //var exec_env;
-                // the variable bindings have been passed in - create a frame to hold these
-                exec_env = createFrame(environment);
-                for (var v : bindings.bindings.keySet()) {
-                    exec_env.bind(v, bindings.lookup(v));
-                }
-            } else {
-                exec_env = environment;
-            }
             // put the input document into the environment as the root object
-            exec_env.bind("$", input);
-
-            // capture the timestamp and put it in the execution environment
-            // the $now() and $millis() functions will return this value - whenever it is called
-            timestamp = System.currentTimeMillis();
-            //exec_env.timestamp = timestamp;
+            environment.BindValue("$", input);
 
             // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
-            if((input instanceof List) && !Utils.isSequence(input)) {
-                input = Utils.createSequence(input);
-                ((JList)input).outerWrapper = true;
+            if (input is JArray /* && !isSequence(input)*/) //it cannot be sequence
+            {
+                JsonataArray inputWrapper = JsonataArray.CreateSequence(input);
+                inputWrapper.outerWrapper = true;
+                input = inputWrapper;
             }
 
-            if (validateInput)
-                Functions.validateInput(input);
-
-            Object it;
-            try {
-                it = /* await */ evaluate(ast, input, exec_env);
-            //  if (typeof callback === "function") {
-            //      callback(null, it);
-            //  }
-                it = Utils.convertNulls(it);
-                return it;
-            } catch (Exception err) {
-                // insert error message into structure
-                populateMessage(err); // possible side-effects on `err`
-                throw err;
-            }
+            return JsonataQ.evaluate(this.m_ast, input, environment);
         }
-
-        public void assign(String name, Object value) {
-            environment.bind(name, value);
-        }
-    
-        public void registerFunction(String name, JFunction implementation) {
-            environment.bind(name, implementation);
-        }
-
-        public<R> void registerFunction(String name, Fn0<R> implementation) {
-          environment.bind(name, implementation);
-      }
-
-        public<A,R> void registerFunction(String name, Fn1<A,R> implementation) {
-          environment.bind(name, implementation);
-      }
-
-        public<A,B,R> void registerFunction(String name, Fn2<A,B,R> implementation) {
-          environment.bind(name, implementation);
-      }
-
-        public List<Exception> getErrors() {
-            return errors;
-        }
-
-        final static ThreadLocal<Parser> _parser = new ThreadLocal<>();
-        final static synchronized Parser getParser() {
-            Parser p = _parser.get();
-            if (p!=null)
-                return p;
-            _parser.set(p = new Parser());
-            return p;
-        }
-        final Parser parser = getParser();
     }
 
+    public static class JsonataExtensions
+    {
+        public static JToken evaluate(this JsonataQ query, JToken input)
+        {
+            return JsonataExtensions.evaluate(query, input, null);
+        }
+
+        public static JToken evaluate(this JsonataQ query, JToken input, JObject? bindings)
+        {
+            EvaluationEnvironment env;
+            if (bindings != null)
+            {
+                env = new EvaluationEnvironment(bindings);
+            }
+            else
+            {
+                env = EvaluationEnvironment.DefaultEnvironment;
+            }
+            return query.evaluate(input, env);
+        }
+
+        public static string evaluate(this JsonataQ query, string dataJson, bool indentResult = true)
+        {
+            JToken data = JToken.Parse(dataJson, ParseSettings.DefaultSettings);
+            JToken result = query.evaluate(data);
+            return indentResult? result.ToIndentedString() : result.ToFlatString();
+        }
+    }
 }

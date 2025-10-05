@@ -6,7 +6,7 @@ using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.New
 { 
-    public class Parser 
+    internal class Parser 
     {
         // This parser implements the 'Top down operator precedence' algorithm developed by Vaughan R Pratt; http://dl.acm.org/citation.cfm?id=512931.
         // and builds on the Javascript framework described by Douglas Crockford at http://javascript.crockford.com/tdop/tdop.html
