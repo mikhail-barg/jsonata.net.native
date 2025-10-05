@@ -7,6 +7,44 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
+    public class JSonataArray: JArray
+    {
+        public bool sequence { get; set; }
+        public bool cons { get; set; }
+        public bool keepSingleton { get; set; }
+
+        internal JSonataArray() { }
+
+        internal JSonataArray(IReadOnlyList<JToken> childTokens) 
+        { 
+            this.AddAll(childTokens);
+        }
+
+        public static bool IsSequence(JToken token)
+        {
+            return token is JSonataArray arr && arr.sequence;
+        }
+
+        public static JSonataArray CreateSequence()
+        {
+            return new JSonataArray() { sequence = true };
+        }
+
+        public static JSonataArray CreateSequence(JToken child)
+        {
+            JSonataArray result = new JSonataArray() { sequence = true };
+            if (child is JArray array && array.Count == 1)
+            {
+                result.Add(array.ChildrenTokens[0]);
+            }
+            else
+            {
+                result.Add(child);
+            }
+            return result;
+        }
+    }
+
     public class JArray : JToken
     {
         private readonly List<JToken> m_values;
@@ -29,6 +67,14 @@ namespace Jsonata.Net.Native.Json
         public void Add(JToken token)
         {
             this.m_values.Add(token);
+        }
+
+        public void AddAll(IEnumerable<JToken> tokens)
+        {
+            foreach (JToken token in tokens)
+            {
+                this.Add(token);
+            }
         }
 
         protected override void ClearParentNested()
