@@ -902,8 +902,8 @@ function-sort.case005;Passed
 function-sort.case006;Passed
 function-sort.case007;Passed
 function-sort.case008;Passed
-function-sort.case009;Failed
-function-sort.case010;Failed
+function-sort.case009;Passed
+function-sort.case010;Passed
 function-split.case000;Passed
 function-split.case001;Passed
 function-split.case002;Passed

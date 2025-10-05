@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
@@ -1301,14 +1299,35 @@ namespace Jsonata.Net.Native.Eval
             else if (function.Type == JTokenType.Function)
             {
                 comparator = (a, b) => {
+                    //quick check to assure same objects are same
+                    if (a == b)
+                    {
+                        return 0;
+                    }
+
                     JToken res = EvalProcessor.InvokeFunction(
                         function: (FunctionToken)function,
                         args: new List<JToken>() { a, b },
                         context: null,
                         env: null! //TODO: pass some real environment?
                     );
-                    bool result = Helpers.Booleanize(res);
-                    return result ? 1 : -1; //may cause problems because of no zero (
+                    bool resultAB = Helpers.Booleanize(res);
+
+                    res = EvalProcessor.InvokeFunction(
+                        function: (FunctionToken)function,
+                        args: new List<JToken>() { b, a },
+                        context: null,
+                        env: null! //TODO: pass some real environment?
+                    );
+                    bool resultBA = Helpers.Booleanize(res);
+
+                    //revese check needed to handle some cases, like in the https://github.com/mikhail-barg/jsonata.net.native/issues/43
+                    if (resultAB == resultBA)
+                    {
+                        return 0;
+                    }
+
+                    return resultAB ? 1 : -1; //may cause problems because of no zero (
                 };
             }
             else

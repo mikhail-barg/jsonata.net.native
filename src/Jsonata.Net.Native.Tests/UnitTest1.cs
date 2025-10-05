@@ -406,6 +406,7 @@ namespace Jsonata.Net.Native.Tests
         [Test]
         public void Test_Issue34()
         {
+            //TODO: currently fails, see: https://github.com/mikhail-barg/jsonata.net.native/issues/34
             Check(
                 @"$map($, function($v){ $map($v, function($t) { $t }) })",
                 @"[[1,2],[1]]",
@@ -416,10 +417,31 @@ namespace Jsonata.Net.Native.Tests
         [Test]
         public void Test_Issue29()
         {
+            //TODO: currently fails, see: https://github.com/mikhail-barg/jsonata.net.native/issues/29
             Check(
                 @"$ ~> | $ | {""test"": ([] ~> $append(test))}|",
                 @"{ 'test': [ { 'test': 'test' } ] }",
                 @"{ 'test': [ { 'test': 'test' } ] }"
+            );
+        }
+
+        [Test]
+        public void Test_Issue43_Sorting_WorksOnSmallSets()
+        {
+            Check(
+                @"$sort($, function($l, $r) {$l.Properties[Name='age'].Value > $r.Properties[Name='age'].Value})",
+                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]",
+                @"[{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
+            );
+        }
+
+        [Test]
+        public void Test_Issue43_SortingWithManyItems()
+        {
+            Check(
+                @"$sort($, function($l, $r) {$l.Properties[Name='age'].Value > $r.Properties[Name='age'].Value})",
+                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]",
+                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
             );
         }
     }
