@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native
 {
-    public sealed class EvaluationEnvironment
+    public sealed class EvaluationEnvironment : IBindingLookup
     {
         public static readonly EvaluationEnvironment DefaultEnvironment;
 
@@ -104,6 +104,8 @@ namespace Jsonata.Net.Native
                 return EvalProcessor.UNDEFINED;
             }
         }
+
+        JToken IBindingLookup.Lookup(string name) => this.Lookup(name);
 
         internal EvaluationSupplement GetEvaluationSupplement()
         {
