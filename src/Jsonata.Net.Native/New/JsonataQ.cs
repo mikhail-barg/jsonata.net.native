@@ -267,7 +267,7 @@ namespace Jsonata.Net.Native.New
             }
 
             JArray resultSequence;
-            if (lastStep && result.Count == 1 && (result.ChildrenTokens[0] is JsonataArray childArray) && !childArray.sequence)
+            if (lastStep && result.Count == 1 && (result.ChildrenTokens[0] is JArray childArray) && ((childArray is not JsonataArray childJsonataArray) || !childJsonataArray.sequence))
             {
                 resultSequence = childArray;
             }

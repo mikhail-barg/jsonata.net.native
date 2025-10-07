@@ -128,7 +128,7 @@ namespace Jsonata.Net.Native.New
                 if (isClosingSlash(this.position)) 
                 {
                     // end of regex found
-                    pattern = path.Substring(start, this.position);
+                    pattern = path.Substring(start, this.position - start);
                     if (pattern == "") 
                     {
                         throw new JException("S0301", this.position);
@@ -149,7 +149,7 @@ namespace Jsonata.Net.Native.New
                             currentChar = (char)0;
                         }
                     }
-                    flags = this.path.Substring(start, this.position) + 'g';
+                    flags = this.path.Substring(start, this.position - start) + 'g';
                     // Convert flags to Java Pattern flags
                     RegexOptions _flags = RegexOptions.Compiled;
                     if (flags.Contains('i'))
@@ -274,10 +274,11 @@ namespace Jsonata.Net.Native.New
                 return create(SymbolType.@operator, " ??");
             }
             // test for single char operators
-            if (Tokenizer.operators.ContainsKey(currentChar.ToString()) )
+            string currentCharAsStr = currentChar.ToString();
+            if (Tokenizer.operators.ContainsKey(currentCharAsStr) )
             {
                 this.position++;
-                return create(SymbolType.@operator, currentChar);
+                return create(SymbolType.@operator, currentCharAsStr);
             }
             // test for string literals
             if (currentChar == '"' || currentChar == '\'') 
@@ -300,7 +301,7 @@ namespace Jsonata.Net.Native.New
                         else if (currentChar == 'u') 
                         {
                             //  u should be followed by 4 hex digits
-                            string octets = this.path.Substring(this.position + 1, (this.position + 1) + 4);
+                            string octets = this.path.Substring(this.position + 1, 4);
                             if (Regex.Match(octets, @"^[0-9a-fA-F]+$").Success)   //  /^[0-9a-fA-F]+$/.test(octets)) {
                             { 
                                 int codepoint = Int32.Parse(octets, System.Globalization.NumberStyles.HexNumber);
@@ -357,7 +358,7 @@ namespace Jsonata.Net.Native.New
                 int end = this.path.IndexOf('`', this.position);
                 if (end != -1) 
                 {
-                    name = this.path.Substring(this.position, end);
+                    name = this.path.Substring(this.position, end - this.position);
                     this.position = end + 1;
                     return create(SymbolType.name, name);
                 }
@@ -373,17 +374,17 @@ namespace Jsonata.Net.Native.New
 
                 ch = i < this.length ? this.path[i] : (char)0;
                 if (i == this.length || Char.IsWhiteSpace(ch) || Tokenizer.operators.ContainsKey(ch.ToString())) 
-                { // Uli: removed \v
+                {
                     if (this.path[this.position] == '$') 
                     {
                         // variable reference
-                        String _name = this.path.Substring(this.position + 1, i);
+                        String _name = this.path.Substring(this.position + 1, i - this.position);
                         this.position = i;
                         return create(SymbolType.variable, _name);
                     } 
                     else 
                     {
-                        String _name = this.path.Substring(this.position, i);
+                        String _name = this.path.Substring(this.position, i - this.position);
                         this.position = i;
                         switch (_name) 
                         {

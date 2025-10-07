@@ -104,7 +104,7 @@ namespace Jsonata.Net.Native.New
             Symbol t = this.node;
             this.advance(null, true);
             left = t.nud(this);
-            while (rbp < this.node.lbp) 
+            while (rbp < this.node.bp) //was LBP
             {
                 t = this.node;
                 advance(null, false);
