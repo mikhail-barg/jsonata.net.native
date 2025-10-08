@@ -633,7 +633,18 @@ namespace Jsonata.Net.Native.New
                         if (exprValue == "-" && result.expression.type == SymbolType.number)
                         {
                             result = result.expression;
-                            result.value = Utils.convertNumber(-(double)result.value!);
+                            if (result.value is long longValue)
+                            {
+                                result.value = -longValue;
+                            }
+                            else if (result.value is double doubleValue)
+                            {
+                                result.value = -doubleValue;
+                            }
+                            else 
+                            {
+                                throw new Exception("Should not happen");
+                            }
                         }
                         else
                         {

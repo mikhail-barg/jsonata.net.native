@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "comments",
-  "message": "4 skipped",
-  "color": "yellow"
+  "message": "1 passed | 3 skipped",
+  "color": "orange"
 }

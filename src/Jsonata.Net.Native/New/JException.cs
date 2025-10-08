@@ -13,9 +13,11 @@ namespace Jsonata.Net.Native.New
         object? expected;
 
 
-        // Recover
-        //string type;
-        //List<Token> remaining;
+        //TODO:
+        public JException(string error, string message)
+            : this(error + ": " + message, -1, null, null)
+        {
+        }
 
         public JException(string error) 
             : this(error, -1, null, null)

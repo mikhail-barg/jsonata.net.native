@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Globalization;
 
 namespace Jsonata.Net.Native.New
 {
@@ -336,14 +337,25 @@ namespace Jsonata.Net.Native.New
             Match match = s_numregex.Match(this.path.Substring(position));
             if (match.Success) 
             {
-                double num = Double.Parse(match.Groups[0].Value);
-                if (!Double.IsNaN(num) && !Double.IsInfinity(num)) 
+                if (Int64.TryParse(match.Groups[0].Value, out long longValue))
                 {
                     position += match.Groups[0].Value.Length;
-                    // If the number is integral, use long as type
-                    return create(SymbolType.number, Utils.convertNumber(num));
-                } 
-                else 
+                    return create(SymbolType.number, longValue);
+                }
+                else if (Double.TryParse(match.Groups[0].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out double doubleValue))
+                {
+                    if (!Double.IsNaN(doubleValue) && !Double.IsInfinity(doubleValue))
+                    {
+                        position += match.Groups[0].Value.Length;
+                        // If the number is integral, use long as type
+                        return create(SymbolType.number, doubleValue);
+                    }
+                    else
+                    {
+                        throw new JException("S0102", position); //, match.group[0]);
+                    }
+                }
+                else
                 {
                     throw new JException("S0102", position); //, match.group[0]);
                 }

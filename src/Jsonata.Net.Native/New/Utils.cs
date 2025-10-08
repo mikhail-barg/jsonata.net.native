@@ -8,21 +8,9 @@ namespace Jsonata.Net.Native.New
 
     public static class Utils 
     {
-        public static bool isNumeric(Object v) 
+        public static bool isNumeric(JToken v) 
         {
-            throw new NotImplementedException();
-            /*
-            if (v instanceof Long) return true;
-            boolean isNum = false;
-            if (v instanceof Number) {
-                double d = ((Number)v).doubleValue();
-                isNum = !Double.isNaN(d);
-                if (isNum && !Double.isFinite(d)) {
-                    throw new JException("D1001", 0, v);
-                }
-            }
-            return isNum;
-            */
+            return v.Type == JTokenType.Integer || v.Type == JTokenType.Float;
         }
 
         public static bool isArrayOfStrings(Object v) 
@@ -148,24 +136,6 @@ namespace Jsonata.Net.Native.New
         }
         */
 
-        public static object convertNumber(double n) 
-        {
-            //TODO: implement properly!!
-            return n;
-
-            /*
-            // Use long if the number is not fractional
-            if (!isNumeric(n)) return null;
-            if (n.longValue()==n.doubleValue()) {
-                long l = n.longValue();
-                if (((int)l)==l)
-                    return (int)l;
-                else
-                    return l;
-            }
-            return n.doubleValue();
-            */
-        }
         /*
         public static void checkUrl(String str) {
             boolean isHigh = false;

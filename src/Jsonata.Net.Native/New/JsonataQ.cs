@@ -581,20 +581,17 @@ namespace Jsonata.Net.Native.New
             {
             case "-":
                 result = JsonataQ.evaluate(expr.expression!, input, environment);
-                if (result.Type == JTokenType.Undefined)
+                switch (result.Type)
                 {
-                    //result = null;
-                }
-                else if (Utils.isNumeric(result))
-                {
-                    //TODO:
-                    result = new JValue((double)Utils.convertNumber(-(double)result));
-                }
-                else
-                {
+                case JTokenType.Undefined:
+                    return EvalProcessor.UNDEFINED;
+                case JTokenType.Integer:
+                    return new JValue(-(long)result);
+                case JTokenType.Float:
+                    return new JValue(-(double)result);
+                default:
                     throw new JException("D1002", expr.position, expr.value, result);
                 }
-                break;
             case "[":
                 {
                     // array constructor - evaluate each item
@@ -816,50 +813,95 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        private static JToken evaluateNumericExpression(JToken _lhs, JToken _rhs, String op)
+        private static JToken evaluateNumericExpression(JToken lhs, JToken rhs, string op)
         {
-            if (_lhs.Type != JTokenType.Undefined && !Utils.isNumeric(_lhs))
+            if (lhs.Type != JTokenType.Undefined && !Utils.isNumeric(lhs))
             {
-                throw new JException("T2001", -1, op, _lhs);
+                throw new JException("T2001", -1, op, lhs);
             }
-            if (_rhs.Type != JTokenType.Undefined && !Utils.isNumeric(_rhs))
+            if (rhs.Type != JTokenType.Undefined && !Utils.isNumeric(rhs))
             {
-                throw new JException("T2002", -1, op, _rhs);
+                throw new JException("T2002", -1, op, rhs);
             }
 
-            if (_lhs.Type == JTokenType.Undefined || _rhs.Type == JTokenType.Undefined)
+            if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
             {
                 // if either side is undefined, the result is undefined
                 return JsonataQ.UNDEFINED;
             }
 
-            //TODO:
-            double lhs = (double)(JValue)_lhs;
-            double rhs = (double)(JValue)_rhs;
-            double result;
-            switch (op)
+            if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
             {
-            case "+":
-                result = lhs + rhs;
-                break;
-            case "-":
-                result = lhs - rhs;
-                break;
-            case "*":
-                result = lhs * rhs;
-                break;
-            case "/":
-                result = lhs / rhs;
-                break;
-            case "%":
-                result = lhs % rhs;
-                break;
-            default:
-                throw new Exception("Unexpected op " + op);
+                return EvalProcessor.UNDEFINED;
             }
-            //TODO:
-            return new JValue((double)Utils.convertNumber(result));
+            else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Integer)
+            {
+                if (op == "/")
+                {
+                    //divide is still in double
+                    return evalDoubleOperator((long)lhs, (long)rhs, op);
+                }
+                else
+                {
+                    return evalIntOperator((long)lhs, (long)rhs, op);
+                }
+            }
+            else if (lhs.Type == JTokenType.Float && rhs.Type == JTokenType.Float)
+            {
+                return evalDoubleOperator((double)lhs, (double)rhs, op);
+            }
+            else if (lhs.Type == JTokenType.Float && rhs.Type == JTokenType.Integer)
+            {
+                return evalDoubleOperator((double)lhs, (double)(long)rhs, op);
+            }
+            else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Float)
+            {
+                return evalDoubleOperator((double)(long)lhs, (double)rhs, op);
+            }
+            else if (lhs.Type != JTokenType.Float && lhs.Type != JTokenType.Integer)
+            {
+                throw new JException("T2001", $"The left side of the {op} operator must evaluate to a number");
+            }
+            else
+            {
+                throw new JException("T2002", $"The right side of the {op} operator must evaluate to a number");
+            }
         }
+
+        private static JToken evalIntOperator(long lhs, long rhs, string op)
+        {
+            long result = op switch {
+                "+" => lhs + rhs,
+                "-" => lhs - rhs,
+                "*" => lhs * rhs,
+                "/" => lhs / rhs,
+                "%" => lhs % rhs,
+                _ => throw new ArgumentException($"Unexpected operator '{op}'")
+            };
+            return new JValue(result);
+        }
+
+        private static JToken evalDoubleOperator(double lhs, double rhs, string op)
+        {
+            double result = op switch {
+                "+" => lhs + rhs,
+                "-" => lhs - rhs,
+                "*" => lhs * rhs,
+                "/" => lhs / rhs,
+                "%" => lhs % rhs,
+                _ => throw new ArgumentException($"Unexpected operator '{op}'")
+            };
+            long longResult = (long)result;
+            if (longResult == result)
+            {
+                return new JValue(longResult);
+            }
+            else
+            {
+                return new JValue(result);
+            }
+        }
+
 
         /**
          * Evaluate equality expression against input data
