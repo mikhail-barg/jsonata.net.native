@@ -236,19 +236,19 @@ namespace Jsonata.Net.Native.New
             {
                 // !=
                 this.position += 2;
-                return create(SymbolType.@operator, " !=");
+                return create(SymbolType.@operator, "!=");
             }
             if (currentChar == '>' && haveMore && this.path[this.position + 1] == '=') 
             {
                 // >=
                 this.position += 2;
-                return create(SymbolType.@operator, " >=");
+                return create(SymbolType.@operator, ">=");
             }
             if (currentChar == '<' && haveMore && this.path[this.position + 1] == '=') 
             {
                 // <=
                 this.position += 2;
-                return create(SymbolType.@operator, " <=");
+                return create(SymbolType.@operator, "<=");
             }
             if (currentChar == '*' && haveMore && this.path[this.position + 1] == '*') 
             {

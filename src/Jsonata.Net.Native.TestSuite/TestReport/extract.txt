@@ -87,7 +87,7 @@ comparison-operators.case002;Passed
 comparison-operators.case003;Passed
 comparison-operators.case004;Passed
 comparison-operators.case005;Passed
-comparison-operators.case006;Skipped
+comparison-operators.case006;Passed
 comparison-operators.case007;Skipped
 comparison-operators.case008;Skipped
 comparison-operators.case009;Skipped
@@ -99,9 +99,9 @@ comparison-operators.case014;Skipped
 comparison-operators.case015;Skipped
 comparison-operators.case016;Skipped
 comparison-operators.case017;Passed
-comparison-operators.case018;Skipped
+comparison-operators.case018;Passed
 comparison-operators.case019;Passed
-comparison-operators.case020;Skipped
+comparison-operators.case020;Passed
 comparison-operators.case021;Skipped
 comparison-operators.case022;Skipped
 comparison-operators.case023;Skipped
@@ -124,7 +124,7 @@ comparison-operators.deep-equals[11];Skipped
 comparison-operators.deep-equals[12];Passed
 comparison-operators.deep-equals[13];Passed
 comparison-operators.deep-equals[14];Passed
-comparison-operators.deep-equals[15];Skipped
+comparison-operators.deep-equals[15];Passed
 comparison-operators.deep-equals[16];Passed
 comparison-operators.deep-equals[17];Passed
 comparison-operators.deep-equals[18];Skipped
@@ -1258,7 +1258,7 @@ null.case001;Skipped
 null.case002;Skipped
 null.case003;Skipped
 null.case004;Passed
-null.case005;Skipped
+null.case005;Passed
 null.case006;Skipped
 numeric-operators.case000;Passed
 numeric-operators.case001;Passed
