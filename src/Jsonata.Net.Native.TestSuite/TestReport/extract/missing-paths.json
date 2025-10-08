@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "missing-paths",
-  "message": "3 passed | 3 skipped",
+  "message": "4 passed | 2 skipped",
   "color": "orange"
 }

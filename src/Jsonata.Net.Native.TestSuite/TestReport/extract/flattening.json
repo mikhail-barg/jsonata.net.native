@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "flattening",
-  "message": "8 passed | 1 failed | 52 skipped",
+  "message": "10 passed | 51 skipped",
   "color": "orange"
 }

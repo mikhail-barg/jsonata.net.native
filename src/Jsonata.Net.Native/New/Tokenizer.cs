@@ -390,7 +390,7 @@ namespace Jsonata.Net.Native.New
                     if (this.path[this.position] == '$') 
                     {
                         // variable reference
-                        String _name = this.path.Substring(this.position + 1, i - this.position);
+                        String _name = this.path.Substring(this.position + 1, i - (this.position + 1));
                         this.position = i;
                         return create(SymbolType.variable, _name);
                     } 
