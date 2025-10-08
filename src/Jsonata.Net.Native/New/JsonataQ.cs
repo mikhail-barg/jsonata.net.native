@@ -918,28 +918,19 @@ namespace Jsonata.Net.Native.New
                 return new JValue(false);
             }
 
-            throw new NotImplementedException();
-
-            /*
-            // JSON might come with integers,
-            // convert all to double...
-            // FIXME: semantically OK?
-            if (lhs is  Number)
-                lhs = ((Number)lhs).doubleValue();
-            if (rhs is  Number)
-                rhs = ((Number)rhs).doubleValue();
-
-            Object result = null;
-            switch (op) {
-                case "=":
-                    result = lhs.equals(rhs); // isDeepEqual(lhs, rhs);
-                    break;
-                case "!=":
-                    result = !lhs.equals(rhs); // !isDeepEqual(lhs, rhs);
-                    break;
+            bool result;
+            switch (op) 
+            {
+            case "=":
+                result = JToken.DeepEquals(lhs, rhs);
+                break;
+            case "!=":
+                result = !JToken.DeepEquals(lhs, rhs);
+                break;
+            default:
+                throw new Exception("Should not happen " + op);
             }
-            return result;
-            */
+            return new JValue(result);
         }
 
         /**

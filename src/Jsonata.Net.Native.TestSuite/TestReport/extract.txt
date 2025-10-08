@@ -43,7 +43,7 @@ boolean-expresssions.case008;Passed
 boolean-expresssions.case009;Passed
 boolean-expresssions.case010;Skipped
 boolean-expresssions.case011;Skipped
-boolean-expresssions.case012;Skipped
+boolean-expresssions.case012;Passed
 boolean-expresssions.case013;Skipped
 boolean-expresssions.case014;Skipped
 boolean-expresssions.case015;Passed
@@ -59,7 +59,7 @@ boolean-expresssions.case024;Passed
 boolean-expresssions.case025;Passed
 boolean-expresssions.case026;Passed
 boolean-expresssions.case027;Skipped
-boolean-expresssions.case028;Skipped
+boolean-expresssions.case028;Passed
 boolean-expresssions.case029;Skipped
 boolean-expresssions.case030;Skipped
 closures.case000;Skipped
@@ -83,10 +83,10 @@ comments.case002;Skipped
 comments.case003;Skipped
 comparison-operators.case000;Skipped
 comparison-operators.case001;Skipped
-comparison-operators.case002;Skipped
-comparison-operators.case003;Skipped
-comparison-operators.case004;Skipped
-comparison-operators.case005;Skipped
+comparison-operators.case002;Passed
+comparison-operators.case003;Passed
+comparison-operators.case004;Passed
+comparison-operators.case005;Passed
 comparison-operators.case006;Skipped
 comparison-operators.case007;Skipped
 comparison-operators.case008;Skipped
@@ -98,9 +98,9 @@ comparison-operators.case013;Skipped
 comparison-operators.case014;Skipped
 comparison-operators.case015;Skipped
 comparison-operators.case016;Skipped
-comparison-operators.case017;Skipped
+comparison-operators.case017;Passed
 comparison-operators.case018;Skipped
-comparison-operators.case019;Skipped
+comparison-operators.case019;Passed
 comparison-operators.case020;Skipped
 comparison-operators.case021;Skipped
 comparison-operators.case022;Skipped
@@ -121,9 +121,9 @@ comparison-operators.deep-equals[8];Skipped
 comparison-operators.deep-equals[9];Skipped
 comparison-operators.deep-equals[10];Skipped
 comparison-operators.deep-equals[11];Skipped
-comparison-operators.deep-equals[12];Skipped
-comparison-operators.deep-equals[13];Skipped
-comparison-operators.deep-equals[14];Skipped
+comparison-operators.deep-equals[12];Passed
+comparison-operators.deep-equals[13];Passed
+comparison-operators.deep-equals[14];Passed
 comparison-operators.deep-equals[15];Skipped
 comparison-operators.deep-equals[16];Passed
 comparison-operators.deep-equals[17];Passed
@@ -1158,7 +1158,7 @@ inclusion-operator.case002;Skipped
 inclusion-operator.case003;Skipped
 inclusion-operator.case004;Skipped
 inclusion-operator.case005;Passed
-inclusion-operator.case006;Skipped
+inclusion-operator.case006;Passed
 inclusion-operator.case007;Skipped
 inclusion-operator.case008;Skipped
 joins.employee-map-reduce[1];Skipped
@@ -1257,7 +1257,7 @@ null.case000;Passed
 null.case001;Skipped
 null.case002;Skipped
 null.case003;Skipped
-null.case004;Skipped
+null.case004;Passed
 null.case005;Skipped
 null.case006;Skipped
 numeric-operators.case000;Passed
