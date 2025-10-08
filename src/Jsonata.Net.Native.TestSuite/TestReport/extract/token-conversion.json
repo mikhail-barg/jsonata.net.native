@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "token-conversion",
-  "message": "4 passed",
-  "color": "brightgreen"
+  "message": "2 failed | 2 skipped",
+  "color": "orange"
 }

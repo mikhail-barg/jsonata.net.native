@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "boolean-expresssions",
-  "message": "31 passed",
-  "color": "brightgreen"
+  "message": "21 passed | 10 skipped",
+  "color": "orange"
 }

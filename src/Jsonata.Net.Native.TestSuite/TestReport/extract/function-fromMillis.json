@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-fromMillis",
-  "message": "4 passed | 89 failed",
-  "color": "orange"
+  "message": "93 skipped",
+  "color": "yellow"
 }

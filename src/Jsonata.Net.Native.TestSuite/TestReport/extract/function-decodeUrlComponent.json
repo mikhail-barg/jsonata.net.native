@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-decodeUrlComponent",
-  "message": "2 passed | 1 skipped",
-  "color": "orange"
+  "message": "3 skipped",
+  "color": "yellow"
 }

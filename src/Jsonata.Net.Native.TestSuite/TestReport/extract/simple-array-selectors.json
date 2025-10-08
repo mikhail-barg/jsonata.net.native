@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "simple-array-selectors",
-  "message": "23 passed",
-  "color": "brightgreen"
+  "message": "23 skipped",
+  "color": "yellow"
 }

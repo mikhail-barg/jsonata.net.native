@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "variables",
-  "message": "13 passed",
-  "color": "brightgreen"
+  "message": "2 passed | 7 failed | 4 skipped",
+  "color": "orange"
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "range-operator",
-  "message": "25 passed",
-  "color": "brightgreen"
+  "message": "25 skipped",
+  "color": "yellow"
 }

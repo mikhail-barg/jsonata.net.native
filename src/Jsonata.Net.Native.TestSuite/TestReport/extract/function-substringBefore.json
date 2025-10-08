@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-substringBefore",
-  "message": "5 passed",
-  "color": "brightgreen"
+  "message": "5 skipped",
+  "color": "yellow"
 }

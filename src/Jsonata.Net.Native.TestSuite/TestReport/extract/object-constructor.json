@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "object-constructor",
-  "message": "27 passed",
-  "color": "brightgreen"
+  "message": "27 skipped",
+  "color": "yellow"
 }

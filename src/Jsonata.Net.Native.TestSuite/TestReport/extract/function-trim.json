@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-trim",
-  "message": "3 passed",
-  "color": "brightgreen"
+  "message": "3 skipped",
+  "color": "yellow"
 }

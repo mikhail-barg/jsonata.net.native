@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-distinct",
-  "message": "8 passed",
-  "color": "brightgreen"
+  "message": "8 skipped",
+  "color": "yellow"
 }

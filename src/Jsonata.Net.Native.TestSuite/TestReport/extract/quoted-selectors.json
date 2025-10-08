@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "quoted-selectors",
-  "message": "8 passed",
-  "color": "brightgreen"
+  "message": "4 passed | 4 failed",
+  "color": "orange"
 }

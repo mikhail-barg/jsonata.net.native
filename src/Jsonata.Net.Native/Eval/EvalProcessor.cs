@@ -17,6 +17,8 @@ namespace Jsonata.Net.Native.Eval
 
 		internal static JToken EvaluateJson(Node rootNode, JToken data, EvaluationEnvironment parentEnvironment)
 		{
+			throw new NotSupportedException("!!!");
+			/*
 			EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
 
 			environment.BindValue("$", data);
@@ -42,6 +44,7 @@ namespace Jsonata.Net.Native.Eval
             result.ClearParent();
 
             return result;
+			*/
 		}
 
 		internal static JToken Eval(Node node, JToken input, EvaluationEnvironment env)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "parentheses",
-  "message": "8 passed",
-  "color": "brightgreen"
+  "message": "7 failed | 1 skipped",
+  "color": "orange"
 }

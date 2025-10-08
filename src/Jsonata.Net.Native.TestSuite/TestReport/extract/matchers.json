@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "matchers",
-  "message": "1 passed | 1 failed",
-  "color": "orange"
+  "message": "2 skipped",
+  "color": "yellow"
 }

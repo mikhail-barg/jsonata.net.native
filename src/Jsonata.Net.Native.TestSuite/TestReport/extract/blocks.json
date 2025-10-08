@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "blocks",
-  "message": "7 passed",
-  "color": "brightgreen"
+  "message": "1 passed | 3 failed | 3 skipped",
+  "color": "orange"
 }

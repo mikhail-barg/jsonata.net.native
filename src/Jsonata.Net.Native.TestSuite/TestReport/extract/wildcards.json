@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "wildcards",
-  "message": "10 passed",
-  "color": "brightgreen"
+  "message": "2 passed | 5 failed | 3 skipped",
+  "color": "orange"
 }

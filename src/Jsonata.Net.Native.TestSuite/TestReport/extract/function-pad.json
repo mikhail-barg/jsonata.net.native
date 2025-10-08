@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-pad",
-  "message": "9 passed | 4 failed",
-  "color": "orange"
+  "message": "13 skipped",
+  "color": "yellow"
 }

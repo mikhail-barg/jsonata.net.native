@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-reverse",
-  "message": "4 passed",
-  "color": "brightgreen"
+  "message": "4 skipped",
+  "color": "yellow"
 }

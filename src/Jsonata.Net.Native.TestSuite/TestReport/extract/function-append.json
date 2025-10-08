@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-append",
-  "message": "6 passed",
-  "color": "brightgreen"
+  "message": "6 skipped",
+  "color": "yellow"
 }

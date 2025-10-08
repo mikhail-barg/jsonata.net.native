@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Jsonata.Net.Native.JsonNet;
+using Jsonata.Net.Native.New;
 
 namespace Jsonata.Net.Native.TestSuite
 {
@@ -95,8 +96,11 @@ namespace Jsonata.Net.Native.TestSuite
                 JToken result;
                 try
                 {
-                    JsonataQuery query = new JsonataQuery(caseInfo.expr!);
-                    result = query.EvalNewtonsoft(data, caseInfo.bindings);
+                    JsonataQ query = new JsonataQ(caseInfo.expr!);
+                    Json.JToken dataToken = JsonNet.JsonataExtensions.FromNewtonsoft(data);
+                    Json.JObject? bindingsToken = caseInfo.bindings != null? (Json.JObject)JsonNet.JsonataExtensions.FromNewtonsoft(caseInfo.bindings) : null;
+                    Json.JToken resultToken = query.evaluate(dataToken, bindingsToken);
+                    result = JsonNet.JsonataExtensions.ToNewtonsoft(resultToken);
                 }
                 catch (JsonataException)
                 {
