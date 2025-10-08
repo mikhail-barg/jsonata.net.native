@@ -3,6 +3,7 @@ using Jsonata.Net.Native;
 using System.Collections.Generic;
 using System;
 using Jsonata.Net.Native.Eval;
+using System.Data;
 
 namespace Jsonata.Net.Native.New 
 {
@@ -942,67 +943,117 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateComparisonExpression(JToken lhs, JToken rhs, string op)
         {
-            throw new NotImplementedException();
-            /*
-            Object result = null;
-
-            // type checks
-            var lcomparable = lhs == null || lhs is  String || lhs is  Number;
-            var rcomparable = rhs == null || rhs is  String || rhs is  Number;
+            bool lcomparable = JsonataQ.IsComparable(lhs);
+            bool rcomparable = JsonataQ.IsComparable(rhs);
 
             // if either aa or bb are not comparable (string or numeric) values, then throw an error
-            if (!lcomparable || !rcomparable) {
-                throw new JException(
-                    "T2010",
-                    0, //position,
-                    //stack: (new Error()).stack,
-                    op, lhs!=null ? lhs : rhs
-                );
+            if (!lcomparable || !rcomparable)
+            {
+                throw new JException("T2010", 0, op, !lcomparable? lhs : rhs);
             }
 
             // if either side is undefined, the result is undefined
-            if (lhs == null || rhs==null) {
-                return null;
+            if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
+            {
+                return JsonataQ.UNDEFINED;
             }
-        
+
+            if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Float)
+            {
+                lhs = new JValue((double)(int)lhs);
+            }
+            else if (rhs.Type == JTokenType.Integer && lhs.Type == JTokenType.Float)
+            {
+                rhs = new JValue((double)(int)rhs);
+            }
+
             //if aa and bb are not of the same type
-            if (!lhs.getClass().equals(rhs.getClass())) {
-
-            if (lhs is  Number && rhs is  Number) {
-                // Java : handle Double / Integer / Long comparisons
-                // convert all to double -> loss of precision (64-bit long to double) be a problem here?
-                lhs = ((Number)lhs).doubleValue();
-                rhs = ((Number)rhs).doubleValue();
-
-            } else
-
+            if (lhs.Type != rhs.Type)
+            {
                 throw new JException(
                     "T2009",
                     0, // location?
-                    // stack: (new Error()).stack,
+                       // stack: (new Error()).stack,
                     lhs,
                     rhs
                 );
             }
-
-            Comparable _lhs = (Comparable)lhs;
-
-            switch (op) {
-                case "<":
-                    result = _lhs.compareTo(rhs) < 0;
-                    break;
-                case "<=":
-                    result = _lhs.compareTo(rhs) <= 0; //lhs <= rhs;
-                    break;
-                case ">":
-                    result = _lhs.compareTo(rhs) > 0; // lhs > rhs;
-                    break;
-                case ">=":
-                    result = _lhs.compareTo(rhs) >= 0; // lhs >= rhs;
-                    break;
+            if (lhs.Type == JTokenType.String)
+            {
+                return CompareStrings(op, (string)lhs!, (string)rhs!);
             }
-            return result;
-            */
+            else if (lhs.Type == JTokenType.Integer)
+            {
+                return CompareInts(op, (long)lhs, (long)rhs);
+            }
+            else if (lhs.Type == JTokenType.Float)
+            {
+                return CompareDoubles(op, (double)lhs, (double)rhs);
+            }
+            else
+            {
+                throw new Exception("Should not happen");
+            }
+        }
+
+
+		private static bool IsComparable(JToken token)
+        {
+            return token.Type == JTokenType.Integer
+                || token.Type == JTokenType.Float
+                || token.Type == JTokenType.String
+                || token.Type == JTokenType.Undefined;
+        }
+
+        private static JToken CompareDoubles(string op, double lhs, double rhs)
+        {
+            switch (op)
+            {
+            case "<":
+                return new JValue(lhs < rhs);
+            case "<=":
+                return new JValue(lhs <= rhs);
+            case ">":
+                return new JValue(lhs > rhs);
+            case ">=":
+                return new JValue(lhs >= rhs);
+            default:
+                throw new Exception("Should not happen");
+            }
+        }
+
+        private static JToken CompareInts(string op, long lhs, long rhs)
+        {
+            switch (op)
+            {
+            case "<":
+                return new JValue(lhs < rhs);
+            case "<=":
+                return new JValue(lhs <= rhs);
+            case ">":
+                return new JValue(lhs > rhs);
+            case ">=":
+                return new JValue(lhs >= rhs);
+            default:
+                throw new Exception("Should not happen");
+            }
+        }
+
+        private static JToken CompareStrings(string op, string lhs, string rhs)
+        {
+            switch (op)
+            {
+            case "<":
+                return new JValue(String.CompareOrdinal(lhs, rhs) < 0);
+            case "<=":
+                return new JValue(String.CompareOrdinal(lhs, rhs) <= 0);
+            case ">":
+                return new JValue(String.CompareOrdinal(lhs, rhs) > 0);
+            case ">=":
+                return new JValue(String.CompareOrdinal(lhs, rhs) >= 0);
+            default:
+                throw new Exception("Should not happen");
+            }
         }
 
         /**
