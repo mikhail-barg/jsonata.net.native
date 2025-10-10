@@ -94,7 +94,7 @@ namespace Jsonata.Net.Native.New
             return t;
         }
 
-        private static Regex s_numregex = new Regex(@"^-?(0|([1-9][0-9]*))(\\.[0-9]+)?([Ee][-+]?[0-9]+)?", RegexOptions.Compiled);
+        private static Regex s_numregex = new Regex(@"^-?(0|([1-9][0-9]*))(\.[0-9]+)?([Ee][-+]?[0-9]+)?", RegexOptions.Compiled);
         int depth;
 
         bool isClosingSlash(int position) 
@@ -194,23 +194,25 @@ namespace Jsonata.Net.Native.New
                 currentChar = this.path[this.position];
             }
             // skip comments
-            if (currentChar == '/' && this.path[this.position + 1] == '*') 
+            if (currentChar == '/' && this.position + 1 < this.length && this.path[this.position + 1] == '*') 
             {
                 int commentStart = this.position;
                 this.position += 2;
-                currentChar = this.path[this.position];
-                while (!(currentChar == '*' && this.path[this.position + 1] == '/')) 
+                while (true)
                 {
-                    currentChar = this.path[++this.position];
-                    if (this.position >= this.length) 
+                    if (this.position + 1 >= this.length)
                     {
                         // no closing tag
                         throw new JException("S0106", commentStart);
                     }
+                    if (this.path[this.position] == '*' && this.path[this.position + 1] == '/')
+                    {
+                        //found closing tag
+                        this.position += 2;
+                        return this.next(prefix); // need this to swallow any following whitespace
+                    }
+                    ++this.position;
                 }
-                this.position += 2;
-                currentChar = this.path[this.position];
-                return this.next(prefix); // need this to swallow any following whitespace
             }
                 // test for regex
             if (prefix != true && currentChar == '/') 
@@ -266,13 +268,13 @@ namespace Jsonata.Net.Native.New
             {
                 // ?: default / elvis operator
                 this.position += 2;
-                return create(SymbolType.@operator, " ?:");
+                return create(SymbolType.@operator, "?:");
             }
             if (currentChar == '?' && haveMore && this.path[this.position + 1] == '?') 
             {
                 // ?? coalescing operator
                 this.position += 2;
-                return create(SymbolType.@operator, " ??");
+                return create(SymbolType.@operator, "??");
             }
             // test for single char operators
             string currentCharAsStr = currentChar.ToString();

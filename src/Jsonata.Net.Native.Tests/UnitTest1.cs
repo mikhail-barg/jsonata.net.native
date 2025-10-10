@@ -63,6 +63,12 @@ namespace Jsonata.Net.Native.Tests
         }
 
         [Test]
+        public void TestSimple_8()
+        {
+            Check("0.000000000001", "{}", "0.000000000001");
+        }
+
+        [Test]
         public void TestFlatten_1()
         {
             Check(

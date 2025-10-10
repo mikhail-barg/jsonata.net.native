@@ -7,8 +7,8 @@ namespace Jsonata.Net.Native.New
 
     public sealed class JException : Exception
     {
-        private string error;
-        private int location;
+        public readonly string error;
+        public readonly int location;
         object? current;
         object? expected;
 
