@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "default-operator",
-  "message": "14 skipped",
-  "color": "yellow"
+  "message": "9 passed | 5 skipped",
+  "color": "orange"
 }

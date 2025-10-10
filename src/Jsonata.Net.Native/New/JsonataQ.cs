@@ -123,9 +123,9 @@ namespace Jsonata.Net.Native.New
             // expr is an array of steps
             // if the first step is a variable reference ($...), including root reference ($$),
             //   then the path is absolute rather than relative
-            if (input is JArray && expr.steps![0].type != SymbolType.variable)
+            if (input is JArray inputArray && expr.steps![0].type != SymbolType.variable)
             {
-                inputSequence = (JArray)input;
+                inputSequence = inputArray;
             }
             else
             {
@@ -705,11 +705,6 @@ namespace Jsonata.Net.Native.New
                     {
                         JToken flatValue = JsonataQ.flatten(value, null);
                         results = (JsonataArray)BuiltinFunctions.append(results, flatValue);
-                    }
-                    else if (value is JObject)
-                    {
-                        // Call recursively do decompose the map
-                        results.AddRange(((JArray)JsonataQ.evaluateWildcard(expr, value)).ChildrenTokens);
                     }
                     else
                     {
