@@ -1,15 +1,16 @@
 const jsonata = require('jsonata');
 
-const data = {
-    example: [
-        {value: 4},
-        {value: 7},
-        {value: 13}
-    ]
-};
+const data = [
+    { a: 'b'}, 
+    { a: 'd'}, 
+    { e: {
+            a: 'f'
+        }
+    }
+];
 
 (async () => {
-    const expression = jsonata('$sum(example.value)');
+    const expression = jsonata('**.a');
     const result = await expression.evaluate(data);  // returns 24
     console.log(result);
 })()

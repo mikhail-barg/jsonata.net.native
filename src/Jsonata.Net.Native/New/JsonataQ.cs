@@ -256,19 +256,23 @@ namespace Jsonata.Net.Native.New
                 JToken res = JsonataQ.evaluate(expr, child, environment);
                 if (expr.stages != null)
                 {
-                    for (int ss = 0; ss < expr.stages.Count; ++ss)
+                    foreach (Symbol stage in expr.stages)
                     {
-                        res = JsonataQ.evaluateFilter(expr.stages[ss].expr!, res, environment);
+                        res = JsonataQ.evaluateFilter(stage.expr!, res, environment);
                     }
                 }
-                if (res != null)
+                if (res.Type != JTokenType.Undefined)
                 {
                     result.Add(res);
                 }
             }
 
             JArray resultSequence;
-            if (lastStep && result.Count == 1 && (result.ChildrenTokens[0] is JArray childArray) && ((childArray is not JsonataArray childJsonataArray) || !childJsonataArray.sequence))
+            if (lastStep 
+                && result.Count == 1 
+                && (result.ChildrenTokens[0] is JArray childArray) 
+                && ((childArray is not JsonataArray childJsonataArray) || !childJsonataArray.sequence)
+            )
             {
                 resultSequence = childArray;
             }

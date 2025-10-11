@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "descendent-operator",
-  "message": "1 passed | 11 failed | 5 skipped",
+  "message": "12 passed | 5 skipped",
   "color": "orange"
 }
