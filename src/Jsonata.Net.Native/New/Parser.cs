@@ -532,7 +532,7 @@ namespace Jsonata.Net.Native.New
                         {
                             step.keepArray = true;
                         }
-                        step.focus = (JToken?)expr.rhs!.value;
+                        step.focus = (string)expr.rhs!.value!;
                         step.tuple = true;
                     }
                     break;

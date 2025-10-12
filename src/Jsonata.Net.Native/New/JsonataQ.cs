@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using Jsonata.Net.Native.Eval;
 using System.Data;
+using System.Linq;
 
 namespace Jsonata.Net.Native.New 
 {
@@ -136,9 +137,7 @@ namespace Jsonata.Net.Native.New
             JArray resultSequence = default!;   //to suppress unitinialized error later
             bool isTupleStream = false;
 
-            //TODO:TUPLE
-            //List<Map> tupleBindings = null;
-            JToken tupleBindings = JsonataQ.UNDEFINED;
+            JArray? tupleBindings = null;
 
             // evaluate each step in turn
             for (int ii = 0; ii < expr.steps!.Count; ++ii)
@@ -159,9 +158,7 @@ namespace Jsonata.Net.Native.New
                 {
                     if (isTupleStream)
                     {
-                        throw new NotImplementedException();
-                        //TODO:TUPLE
-                        //tupleBindings = (List) evaluateTupleStep(step, (List)inputSequence, (List)tupleBindings, environment);
+                        tupleBindings = JsonataQ.evaluateTupleStep(step, inputSequence, tupleBindings, environment);
                     }
                     else
                     {
@@ -182,9 +179,11 @@ namespace Jsonata.Net.Native.New
 
             if (isTupleStream)
             {
-                throw new NotImplementedException();
-                //TODO:TUPLE
-                /*
+                if (tupleBindings == null)
+                {
+                    throw new Exception("Should not happen!");
+                }
+
                 if (expr.tuple) 
                 {
                     // tuple stream is carrying ancestry information - keep this
@@ -195,10 +194,10 @@ namespace Jsonata.Net.Native.New
                     resultSequence = JsonataArray.CreateSequence();
                     for (int ii = 0; ii < tupleBindings.Count; ++ii) 
                     {
-                        resultSequence.Add(tupleBindings.get(ii).get("@"));
+                        JObject tuple = (JObject)tupleBindings.ChildrenTokens[ii];
+                        resultSequence.Add(tuple.Properties["@"]);
                     }
                 }
-                */
             }
 
             if (expr.keepSingletonArray)
@@ -222,7 +221,21 @@ namespace Jsonata.Net.Native.New
 
             if (expr.group != null)
             {
-                resultSequence = (JArray)JsonataQ.evaluateGroupExpression(expr.group, isTupleStream ? tupleBindings : resultSequence, environment);
+                JArray groupInput;
+                if (isTupleStream)
+                {
+                    if (tupleBindings == null)
+                    {
+                        throw new Exception("Should not happen");
+                    }
+                    groupInput = tupleBindings;
+                }
+                else
+                {
+                    groupInput = resultSequence;
+                }
+                JToken groupResult = JsonataQ.evaluateGroupExpression(expr.group, groupInput, environment);
+                return groupResult;
             }
 
             return resultSequence;
@@ -321,21 +334,15 @@ namespace Jsonata.Net.Native.New
             */
         }
 
-        /*
-        TODO: TUPLE
-        Frame createFrameFromTuple(Frame environment, Map<String, Object> tuple)
+        private static EvaluationEnvironment createFrameFromTuple(EvaluationEnvironment environment, JObject tuple)
         {
-            var frame = createFrame(environment);
-            if (tuple != null)
+            EvaluationEnvironment frame = EvaluationEnvironment.CreateNestedEnvironment(environment);
+            foreach (KeyValuePair<string, JToken> proprety in tuple.Properties)
             {
-                for (var prop : tuple.keySet())
-                {
-                    frame.bind(prop, tuple.get(prop));
-                }
+                frame.BindValue(proprety.Key, proprety.Value);
             }
             return frame;
         }
-        */
 
         /**
          * Evaluate a step within a path
@@ -345,100 +352,106 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-
-        /*TODO: TUPLE
-        Object evaluateTupleStep(Symbol expr, JArray input, List<Map> tupleBindings, EvaluationEnvironment environment) 
+        private static JArray evaluateTupleStep(Symbol expr, JArray input, JArray? tupleBindings, EvaluationEnvironment environment) 
         {
-            List result = null;
+            JArray result;
             if (expr.type == SymbolType.sort) 
             {
                 if (tupleBindings != null) 
                 {
-                    result = (List)  evaluateSortExpression(expr, tupleBindings, environment);
+                    result = JsonataQ.evaluateSortExpression(expr, tupleBindings, environment);
                 } 
                 else 
                 {
-                    List sorted = (List)  evaluateSortExpression(expr, input, environment);
-                    result = Utils.createSequence();
-                    ((JList)result).tupleStream = true;
-                    for (var ss = 0; ss < ((List)sorted).size(); ss++) 
+                    JArray sorted = JsonataQ.evaluateSortExpression(expr, input, environment);
+                    result = JsonataArray.CreateSequence();
+                    ((JsonataArray)result).tupleStream = true;
+                    for (int ss = 0; ss < sorted.Count; ++ss) 
                     {
-                        var tuple = Map.of("@", sorted.get(ss),
-                        expr.index, ss);
-                        result.add(tuple);
+                        JObject tuple = new JObject();
+                        tuple.Add("@", sorted.ChildrenTokens[ss]);
+                        tuple.Add((string)expr.index!, new JValue(ss)); //TODO: hope it's string, not int
+                        result.Add(tuple);
                     }
                 }
-                if( expr.stages !=null ) 
+                if (expr.stages != null) 
                 {
-                    result =  (List)evaluateStages(expr.stages, result, environment);
+                    result = JsonataQ.evaluateStages(expr.stages, result, environment);
                 }
                 return result;
             }
 
-            result = Utils.createSequence();
-            ((JList)result).tupleStream = true;
-            var stepEnv = environment;
+            result = JsonataArray.CreateSequence();
+            ((JsonataArray)result).tupleStream = true;
             if (tupleBindings == null) 
             {
-                tupleBindings = (List<Map>) input.stream().filter(item => item!=null).map(item => Map.of("@", item)).collect(Collectors.toList());
+                tupleBindings = new JArray();
+                tupleBindings.AddAll(input.ChildrenTokens.Select(t => {
+                    JObject tuple = new JObject();
+                    tuple.Add("@", t);
+                    return tuple;
+                }));
             }
 
-            for (var ee = 0; ee < tupleBindings.size(); ee++) 
+            foreach (JObject binding in tupleBindings.ChildrenTokens) 
             {
-                stepEnv = createFrameFromTuple(environment, tupleBindings.get(ee));
-                Object _res =  evaluate(expr, tupleBindings.get(ee).get("@"), stepEnv);
-                // res is the binding sequence for the output tuple stream
-                if (_res!=null) //(typeof res !== "undefined") {
+                EvaluationEnvironment stepEnv = createFrameFromTuple(environment, binding);
+                JToken _res = JsonataQ.evaluate(expr, binding.Properties["@"], stepEnv);
+                // _res is the binding sequence for the output tuple stream
+                if (_res.Type != JTokenType.Undefined)
                 { 
-                    List res;
-                    if (!(_res is JArray)) 
+                    if (_res is not JArray res)
                     {
-                        res = new ArrayList<>(); res.add(_res);
-                    } else 
-                    {
-                        res = (List)_res;
+                        res = new JArray();
+                        res.Add(_res);
                     }
-                    for (var bb = 0; bb < res.size(); bb++) 
+                    for (int bb = 0; bb < res.Count; ++bb)
                     {
-                        Map tuple = new LinkedHashMap<>();
-                        tuple.putAll(tupleBindings.get(ee));
-                        //Object.assign(tuple, tupleBindings[ee]);
-                        if((res is JList) && ((JList)res).tupleStream) 
+                        JObject tuple = new JObject();
+                        foreach (KeyValuePair<string, JToken> property in binding.Properties)
                         {
-                            tuple.putAll((Map)res.get(bb));
-                        } else 
+                            tuple.Add(property.Key, property.Value);
+                        }
+                        if ((res is JsonataArray resArray) && resArray.tupleStream) 
                         {
-                            if (expr.focus!=null) 
+                            JObject sourceChild = (JObject)resArray.ChildrenTokens[bb];
+                            foreach (KeyValuePair<string, JToken> property in sourceChild.Properties)
                             {
-                                tuple.put(expr.focus, res.get(bb));
-                                tuple.put("@", tupleBindings.get(ee).get("@"));
+                                tuple.Set(property.Key, property.Value);
+                            }
+                        } 
+                        else 
+                        {
+                            if (expr.focus != null) 
+                            {
+                                tuple.Set(expr.focus, res.ChildrenTokens[bb]);
+                                tuple.Set("@", binding.Properties["@"]);
                             } 
                             else 
                             {
-                                tuple.put("@", res.get(bb));
+                                tuple.Set("@", res.ChildrenTokens[bb]);
                             }
-                            if (expr.index!=null) 
+                            if (expr.index != null) //TODO: hope it's string, not int
                             {
-                                tuple.put(expr.index, bb);
+                                tuple.Set((string)expr.index, new JValue(bb));
                             }
-                            if (expr.ancestor!=null) 
+                            if (expr.ancestor != null) 
                             {
-                                tuple.put(expr.ancestor.label, tupleBindings.get(ee).get("@"));
+                                tuple.Set(expr.ancestor.label!, binding.Properties["@"]);
                             }
                         }
-                        result.add(tuple);
+                        result.Add(tuple);
                     }
                 }
             }
 
-            if (expr.stages!=null) 
+            if (expr.stages != null) 
             {
-                result = (List)  evaluateStages(expr.stages, result, environment);
+                result = JsonataQ.evaluateStages(expr.stages, result, environment);
             }
 
             return result;
         }
-        */
 
         /**
          * Apply filter predicate to input data
@@ -604,8 +617,6 @@ namespace Jsonata.Net.Native.New
                     int idx = 0;
                     foreach (Symbol item in expr.expressions!)
                     {
-                        //TODO?
-                        //environment.isParallelCall = idx > 0;
                         JToken value = JsonataQ.evaluate(item, input, environment);
                         if (value != null)
                         {
@@ -615,9 +626,7 @@ namespace Jsonata.Net.Native.New
                             }
                             else
                             {
-                                //TODO:
-                                //result = Functions.append(result, value);
-                                throw new NotImplementedException();
+                                result = BuiltinFunctions.append(result, value);
                             }
                         }
                         ++idx;
@@ -1138,12 +1147,17 @@ namespace Jsonata.Net.Native.New
             return new JValue(result);
         }
 
-        /* TODO: groups
-        static class GroupEntry {
-            Object data;
-            int exprIndex;
+        private sealed class GroupEntry 
+        {
+            internal JToken data;
+            internal int exprIndex;
+
+            public GroupEntry(JToken data, int exprIndex)
+            {
+                this.data = data;
+                this.exprIndex = exprIndex;
+            }
         }
-        */
 
         /**
          * Evaluate group expression against input data
@@ -1154,120 +1168,119 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateGroupExpression(Symbol expr, JToken _input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
-            /*
-            var result = new LinkedHashMap<Object,Object>();
-            var groups = new LinkedHashMap<Object,GroupEntry>();
-            var reduce = (_input is  JList) && ((JList)_input).tupleStream ? true : false;
+            bool reduce = (_input is JsonataArray jsonataArrayInput) && jsonataArrayInput.tupleStream;
             // group the input sequence by "key" expression
-            if (!(_input is  List)) {
-                _input = Utils.createSequence(_input);
+            if (_input is not JArray input) 
+            {
+                input = JsonataArray.CreateSequence(_input);
             }
-            List input = (List)_input;
 
             // if the array is empty, add an undefined entry to enable literal JSON object to be generated
-            if (input.isEmpty()) {
-                input.add(null);
+            if (input.Count == 0) 
+            {
+                input.Add(JsonataQ.UNDEFINED);
             }
 
-            for(var itemIndex = 0; itemIndex < input.size(); itemIndex++) {
-                var item = input.get(itemIndex);
-                var env = reduce ? createFrameFromTuple(environment, (Map)item) : environment;
-                for(var pairIndex = 0; pairIndex < expr.lhsObject.size(); pairIndex++) {
-                    var pair = expr.lhsObject.get(pairIndex);
-                    var key =  evaluate(pair[0], reduce ? ((Map)item).get("@") : item, env);
+            Dictionary<string, GroupEntry> groups = new();
+            foreach (JToken item in input.ChildrenTokens) 
+            {
+                EvaluationEnvironment env = reduce ? JsonataQ.createFrameFromTuple(environment, (JObject)item) : environment;
+                for (int pairIndex = 0; pairIndex < expr.lhsObject!.Count; ++pairIndex) 
+                {
+                    Symbol[] pair = expr.lhsObject[pairIndex];
+                    JToken key = JsonataQ.evaluate(pair[0], reduce ? ((JObject)item).Properties["@"] : item, env);
                     // key has to be a string
-                    if (key!=null && !(key is  String)) {
-                        throw new JException("T1003",
-                            //stack: (new Error()).stack,
-                            expr.position,
-                            key
-                        );
-                    }
+                    switch (key.Type)
+                    {
+                    case JTokenType.Undefined:
+                        //just skip
+                        break;
+                    case JTokenType.String:
+                        {
+                            string keyStr = (string)(JValue)key;
+                            if (groups.TryGetValue(keyStr, out GroupEntry? existingEntry))
+                            {
+                                // a value already exists in this slot
+                                if (existingEntry.exprIndex != pairIndex)
+                                {
+                                    // this key has been generated by another expression in this group
+                                    // when multiple key expressions evaluate to the same key, then error D1009 must be thrown
+                                    throw new JException("D1009", expr.position, key);
+                                }
 
-                    if (key != null) {
-                        var entry = new GroupEntry();
-                        entry.data = item; entry.exprIndex = pairIndex;
-                        if (groups.get(key)!=null) {
-                            // a value already exists in this slot
-                            if(groups.get(key).exprIndex != pairIndex) {
-                                // this key has been generated by another expression in this group
-                                // when multiple key expressions evaluate to the same key, then error D1009 must be thrown
-                                throw new JException("D1009",
-                                    //stack: (new Error()).stack,
-                                    expr.position,
-                                    key
-                                );
+                                // append it as an array
+                                existingEntry.data = BuiltinFunctions.append(existingEntry.data, item);
                             }
-
-                            // append it as an array
-                            groups.get(key).data = Functions.append(groups.get(key).data, item);
-                        } else {
-                            groups.put(key, entry);
+                            else
+                            {
+                                groups.Add(keyStr, new GroupEntry(item, pairIndex));
+                            }
                         }
+                        break;
+                    default:
+                        throw new JException("T1003", expr.position, key);
                     }
                 }
             }
 
+            JObject result = new JObject();
             // iterate over the groups to evaluate the "value" expression
-            //let generators =  Promise.all(Object.keys(groups).map( (key, idx) => {
-            int idx = 0;
-            for (Entry<Object,GroupEntry> e : groups.entrySet()) {
-                var entry = e.getValue();
-                var context = entry.data;
-                var env = environment;
-                if (reduce) {
-                    var tuple = reduceTupleStream(entry.data);
-                    context = ((Map)tuple).get("@");
-                    ((Map)tuple).remove("@");
-                    env = createFrameFromTuple(environment, (Map)tuple);
+            foreach (KeyValuePair<string, GroupEntry> groupProperty in groups)
+            { 
+                GroupEntry entry = groupProperty.Value;
+                JToken context = entry.data;
+                EvaluationEnvironment env = environment;
+                if (reduce) 
+                {
+                    JObject tuple = JsonataQ.reduceTupleStream(entry.data);
+                    context = tuple.Properties["@"];
+                    tuple.Remove("@");
+                    env = JsonataQ.createFrameFromTuple(environment, tuple);
                 }
-                env.isParallelCall = idx > 0;
+                //env.isParallelCall = idx > 0;
                 //return [key,  evaluate(expr.lhs[entry.exprIndex][1], context, env)];
-                Object res = evaluate(expr.lhsObject.get(entry.exprIndex)[1], context, env);
-                if (res!=null)
-                    result.put(e.getKey(), res);
-
-                idx++;
-            }
-
-        //  for (let generator of generators) {
-        //      var [key, value] =  generator;
-        //      if(typeof value !== "undefined") {
-        //          result[key] = value;
-        //      }
-        //  }
-
-            return result;
-            */
-        }
-        /*
-         * TODO: TUPLE
-        Object reduceTupleStream(Object _tupleStream) {
-            if(!(_tupleStream is  List)) {
-                return _tupleStream;
-            }
-            List<Map> tupleStream = (List)_tupleStream;
-
-            var result = new LinkedHashMap<>();
-            result.putAll(tupleStream.get(0));
-
-            //Object.assign(result, tupleStream[0]);
-            for(var ii = 1; ii < tupleStream.size(); ii++) {
-
-            Map el = tupleStream.get(ii);
-            for (var prop : el.keySet()) {
-
-    //             for(const prop in tupleStream[ii]) {
-
-                result.put(prop, Functions.append(result.get(prop), el.get(prop)));
-
-    //               result[prop] = fn.append(result[prop], tupleStream[ii][prop]);
+                JToken res = JsonataQ.evaluate(expr.lhsObject![entry.exprIndex][1], context, env);
+                if (res.Type != JTokenType.Undefined)
+                {
+                    result.Set(groupProperty.Key, res);
                 }
             }
             return result;
         }
-        */
+
+        private static JObject reduceTupleStream(JToken _tupleStream) 
+        {
+            if (_tupleStream is not JArray tupleStream) 
+            {
+                if (_tupleStream.Type != JTokenType.Object)
+                {
+                    throw new Exception("Should not happen!");
+                }
+                return (JObject)_tupleStream;
+            }
+            JObject result = new JObject();
+            if (tupleStream.ChildrenTokens.Count == 0)
+            {
+                throw new Exception("Should not happen!");
+            }
+            foreach (KeyValuePair<string, JToken> property in ((JObject)tupleStream.ChildrenTokens[0]).Properties)
+            {
+                result.Add(property.Key, property.Value);
+            }
+            for (int ii = 1; ii < tupleStream.ChildrenTokens.Count; ++ii)
+            {
+                JObject child = (JObject)tupleStream.ChildrenTokens[ii];
+                foreach (KeyValuePair<string, JToken> property in child.Properties)
+                {
+                    if (!result.Properties.TryGetValue(property.Key, out JToken? existingValue))
+                    {
+                        existingValue = JsonataQ.UNDEFINED;
+                    }
+                    result.Set(property.Key, BuiltinFunctions.append(existingValue, property.Value));
+                }
+            }
+            return result;
+        }
 
         /**
          * Evaluate range expression against input data
@@ -1631,16 +1644,12 @@ namespace Jsonata.Net.Native.New
             */
         }
 
-        private static Symbol? s_chainAST; // = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
+        private static readonly Symbol s_chainAST = BuildChainAst();
 
-        private static Symbol chainAST()
-        {
-            if (s_chainAST == null)
-            {
-                // only create on demand
-                s_chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
-            }
-            return s_chainAST;
+        private static Symbol BuildChainAst()
+        { 
+            Symbol chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
+            return chainAST;
         }
 
         /**

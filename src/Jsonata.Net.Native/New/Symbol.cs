@@ -46,7 +46,7 @@ namespace Jsonata.Net.Native.New
         internal List<Symbol>? stages;
         internal bool tuple = false;
         internal bool consarray = false;
-        internal JToken? focus;
+        internal string? focus;
         internal bool keepSingletonArray = false;
         internal Symbol? group;
         internal Symbol? expr;

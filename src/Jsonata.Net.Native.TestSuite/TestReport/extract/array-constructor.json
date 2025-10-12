@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "array-constructor",
-  "message": "3 passed | 23 skipped",
+  "message": "21 passed | 1 failed | 4 skipped",
   "color": "orange"
 }
