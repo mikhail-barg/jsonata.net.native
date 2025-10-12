@@ -30,14 +30,7 @@ namespace Jsonata.Net.Native.Json
         public static JsonataArray CreateSequence(JToken child)
         {
             JsonataArray result = new JsonataArray() { sequence = true };
-            if (child is JArray array && array.Count == 1)
-            {
-                result.Add(array.ChildrenTokens[0]);
-            }
-            else
-            {
-                result.Add(child);
-            }
+            result.Add(child);
             return result;
         }
     }

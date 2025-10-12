@@ -92,7 +92,7 @@ namespace Jsonata.Net.Native.New
             }
 
             // mangle result (list of 1 element -> 1 element, empty list -> null)
-            if (result is JsonataArray arrayResult && arrayResult.sequence && !arrayResult.tupleStream)
+            if ((result is JsonataArray arrayResult) && arrayResult.sequence && !arrayResult.tupleStream)
             {
                 if (expr.keepArray)
                 {
@@ -204,19 +204,19 @@ namespace Jsonata.Net.Native.New
             {
                 //TODO: fix magic based on jsonata-js code
                 // If we only got an ArrayList, convert it so we can set the keepSingleton flag
-                if (!(resultSequence is JsonataArray))
+                if (resultSequence is not JsonataArray resultSequenceAsJsonataArray)
                 {
-                    resultSequence = new JsonataArray(resultSequence!.ChildrenTokens);
+                    resultSequenceAsJsonataArray = new JsonataArray(resultSequence!.ChildrenTokens);
+                    resultSequence = resultSequenceAsJsonataArray;
                 }
-
-                JsonataArray jsonataArray = (JsonataArray)resultSequence;
 
                 // if the array is explicitly constructed in the expression and marked to promote singleton sequences to array
-                if (jsonataArray.cons && !jsonataArray.sequence)
+                if (resultSequenceAsJsonataArray.cons && !resultSequenceAsJsonataArray.sequence)
                 {
-                    resultSequence = JsonataArray.CreateSequence(resultSequence);
+                    resultSequenceAsJsonataArray = JsonataArray.CreateSequence(resultSequence);
+                    resultSequence = resultSequenceAsJsonataArray;
                 }
-                jsonataArray.keepSingleton = true;
+                resultSequenceAsJsonataArray.keepSingleton = true;
             }
 
             if (expr.group != null)
@@ -295,7 +295,7 @@ namespace Jsonata.Net.Native.New
                 resultSequence = JsonataArray.CreateSequence();
                 foreach (JToken res in result.ChildrenTokens)
                 {
-                    if (!(res is JArray) || (res is JsonataArray jsonataArray && jsonataArray.cons))
+                    if (!(res is JArray) || ((res is JsonataArray jsonataArray) && jsonataArray.cons))
                     {
                         // it's not an array - just push into the result sequence
                         resultSequence.Add(res);
@@ -593,28 +593,27 @@ namespace Jsonata.Net.Native.New
         */
         private static JToken evaluateUnary(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            JToken result;
-
             switch (expr.value)  // Uli was: expr.value - where is value set???
             {
             case "-":
-                result = JsonataQ.evaluate(expr.expression!, input, environment);
-                switch (result.Type)
-                {
-                case JTokenType.Undefined:
-                    return EvalProcessor.UNDEFINED;
-                case JTokenType.Integer:
-                    return new JValue(-(long)result);
-                case JTokenType.Float:
-                    return new JValue(-(double)result);
-                default:
-                    throw new JException("D1002", expr.position, expr.value, result);
+                { 
+                    JToken result = JsonataQ.evaluate(expr.expression!, input, environment);
+                    switch (result.Type)
+                    {
+                    case JTokenType.Undefined:
+                        return EvalProcessor.UNDEFINED;
+                    case JTokenType.Integer:
+                        return new JValue(-(long)result);
+                    case JTokenType.Float:
+                        return new JValue(-(double)result);
+                    default:
+                        throw new JException("D1002", expr.position, expr.value, result);
+                    }
                 }
             case "[":
                 {
                     // array constructor - evaluate each item
-                    result = new JsonataArray();
-                    int idx = 0;
+                    JArray result = new JArray();
                     foreach (Symbol item in expr.expressions!)
                     {
                         JToken value = JsonataQ.evaluate(item, input, environment);
@@ -622,34 +621,35 @@ namespace Jsonata.Net.Native.New
                         {
                             if (item.value!.Equals("["))
                             {
-                                ((JsonataArray)result).Add(value);
+                                result.Add(value);
                             }
                             else
                             {
-                                result = BuiltinFunctions.append(result, value);
+                                result = (JArray)BuiltinFunctions.append(result, value);
                             }
                         }
-                        ++idx;
                     }
                     if (expr.consarray)
                     {
-                        if (!(result is JsonataArray))
+                        if (result is not JsonataArray jsonataArray)
                         {
-                            result = new JsonataArray(((JArray)result).ChildrenTokens);
+                            jsonataArray = new JsonataArray(result.ChildrenTokens);
+                            result = jsonataArray;
                         }
-                        ((JsonataArray)result).cons = true;
+                        jsonataArray.cons = true;
                     }
+                    return result;
                 }
-                break;
             case "{":
                 // object constructor - apply grouping
-                result = JsonataQ.evaluateGroupExpression(expr, input, environment);
-                break;
+                {
+                    JToken result = JsonataQ.evaluateGroupExpression(expr, input, environment);
+                    return result;
+                }
 
             default:
                 throw new Exception("Should not happen? " + expr.value);
             }
-            return result;
         }
 
         /**
@@ -1431,7 +1431,7 @@ namespace Jsonata.Net.Native.New
             if (expr.value is string strValue && strValue == "")
             {
                 // Empty string == "$" !
-                result = (input is JsonataArray arrayInput && arrayInput.outerWrapper) ? arrayInput.ChildrenTokens[0] : input;
+                result = ((input is JsonataArray arrayInput) && arrayInput.outerWrapper) ? arrayInput.ChildrenTokens[0] : input;
             }
             else
             {

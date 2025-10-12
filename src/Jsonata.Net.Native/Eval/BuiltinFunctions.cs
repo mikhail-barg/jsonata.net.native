@@ -1223,34 +1223,34 @@ namespace Jsonata.Net.Native.Eval
         Returns an array containing the values in array1 followed by the values in array2. 
         If either parameter is not an array, then it is treated as a singleton array containing that value.         
          */
-        public static JToken append(JToken array1, JToken array2)
+        public static JToken append(JToken arg1, JToken arg2)
         {
             // disregard undefined args
-            if (array1.Type == JTokenType.Undefined)
+            if (arg1.Type == JTokenType.Undefined)
             {
-                return array2;
+                return arg2;
             }
-            else if (array2.Type == JTokenType.Undefined)
+            else if (arg2.Type == JTokenType.Undefined)
             {
-                return array1;
+                return arg1;
             };
             // if either argument is not an array, make it so
-            JsonataArray result = JsonataArray.CreateSequence();
-            if (array1.Type == JTokenType.Array)
+            JArray result = new JArray();   //TODO: maybe create it as a sequence? check original jsonata-js append!
+            if (arg1 is JArray array1)
             {
-                result.AddRange(((JArray)array1).ChildrenTokens);
+                result.AddAll(array1.ChildrenTokens);
             }
             else
             {
-                result.Add(array1);
-            };
-            if (array2.Type == JTokenType.Array)
+                result.Add(arg1);
+            }
+            if (arg2 is JArray array2)
             {
-                result.AddRange(((JArray)array2).ChildrenTokens);
+                result.AddAll(array2.ChildrenTokens);
             }
             else
             {
-                result.Add(array2);
+                result.Add(arg2);
             };
             return result;
         }

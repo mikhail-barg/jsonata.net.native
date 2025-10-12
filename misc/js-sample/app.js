@@ -1,16 +1,11 @@
 const jsonata = require('jsonata');
 
 const data = [
-    { a: 'b'}, 
-    { a: 'd'}, 
-    { e: {
-            a: 'f'
-        }
-    }
+    { value: 3 }
 ];
 
 (async () => {
-    const expression = jsonata('**.a');
+    const expression = jsonata('$.[value][]');
     const result = await expression.evaluate(data);  // returns 24
     console.log(result);
 })()
