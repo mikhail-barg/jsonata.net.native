@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "string-concat",
-  "message": "8 passed | 4 skipped",
-  "color": "orange"
+  "message": "12 passed",
+  "color": "brightgreen"
 }

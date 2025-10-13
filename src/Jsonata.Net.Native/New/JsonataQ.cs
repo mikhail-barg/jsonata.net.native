@@ -75,14 +75,16 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateTransformExpression(expr, input, environment);
                 break;
             default:
-                throw new Exception($"Unexpected expression type {expr.type}");
+                //no throws here in jsonata-js
+                result = JsonataQ.UNDEFINED;
+                break;
             }
 
             if (expr.predicate != null)
             {
                 foreach (Symbol element in expr.predicate)
                 {
-                    result = JsonataQ.evaluateFilter(element, result, environment);
+                    result = JsonataQ.evaluateFilter(element.expr!, result, environment);
                 }
             }
 
@@ -462,61 +464,99 @@ namespace Jsonata.Net.Native.New
         */
         private static JToken evaluateFilter(Symbol predicate, JToken input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
-            /*
-            var results = Utils.createSequence();
-            if( input is JList && ((JList)input).tupleStream) {
-                ((JList)results).tupleStream = true;
+            JArray results = JsonataArray.CreateSequence();
+            bool tupleStream;
+            if ((input is JsonataArray inputJsonataArray) && inputJsonataArray.tupleStream)
+            {
+                ((JsonataArray)results).tupleStream = true;
+                tupleStream = true;
             }
-            if (!(input is List)) { // isArray
-                input = Utils.createSequence(input);
+            else
+            {
+                tupleStream = false;
             }
-            if (predicate.type.equals("number")) {
-                var index = ((Number)predicate.value).intValue();  // round it down - was Math.floor
-                if (index < 0) {
+
+            if (input is not JArray inputArray)
+            {
+                inputArray = JsonataArray.CreateSequence(input);
+                input = inputArray;
+            }
+            if (predicate.type == SymbolType.number) 
+            {
+                int index = (int)(long)predicate.value!;  // round it down - was Math.floor //TODO: add Math.Floor if not int
+                if (index < 0) 
+                {
                     // count in from end of array
-                    index = ((List)input).size() + index;
+                    index = inputArray.Count + index;
                 }
-                var item = index<((List)input).size() ? ((List)input).get(index) : null;
-                if(item != null) {
-                    if(item is  List) {
-                        results = (List)item;
-                    } else {
-                        results.add(item);
+                JToken item = index < inputArray.Count ? inputArray.ChildrenTokens[index] : JsonataQ.UNDEFINED;
+                if (item.Type != JTokenType.Undefined) 
+                {
+                    if (item is JArray) 
+                    {
+                        results = (JArray)item;
+                    } 
+                    else 
+                    {
+                        results.Add(item);
                     }
                 }
-            } else {
-                for (int index = 0; index < ((List)input).size(); index++) {
-                    var item = ((List)input).get(index);
-                    var context = item;
-                    var env = environment;
-                    if(input is  JList && ((JList)input).tupleStream) {
-                        context = ((Map)item).get("@");
-                        env = createFrameFromTuple(environment, (Map)item);
+            } 
+            else 
+            {
+                for (int index = 0; index < inputArray.Count; ++index) 
+                {
+                    JToken item = inputArray.ChildrenTokens[index];
+                    JToken context = item;
+                    EvaluationEnvironment env = environment;
+                    if (tupleStream) 
+                    {
+                        JObject itemObj = (JObject)item;
+                        context = itemObj.Properties["@"];
+                        env = JsonataQ.createFrameFromTuple(environment, itemObj);
                     }
-                    var res =  evaluate(predicate, context, env);
-                    if (Utils.isNumeric(res)) {
-                        res = Utils.createSequence(res);
+                    JToken res = JsonataQ.evaluate(predicate, context, env);
+                    if (Utils.isNumeric(res)) 
+                    {
+                        JArray resArray = new JArray();
+                        resArray.Add(res);
+                        res = resArray;
                     }
-                    if (Utils.isArrayOfNumbers(res)) {
-                    for (Object ires : ((List)res)) {
+                    if (Utils.isArrayOfNumbers(res)) 
+                    {
+                        foreach (JToken ires in ((JArray)res).ChildrenTokens) 
+                        {
                             // round it down
-                            var ii = ((Number)ires).intValue(); // Math.floor(ires);
-                            if (ii < 0) {
-                                // count in from end of array
-                                ii = ((List)input).size() + ii;
+                            int ii;
+                            switch (ires.Type)
+                            {
+                            case JTokenType.Integer:
+                                ii = (int)(JValue)ires;
+                                break;
+                            case JTokenType.Float:
+                                ii = (int)(double)(JValue)ires; // round it down
+                                break;
+                            default:
+                                throw new Exception("Should not happen");
                             }
-                            if (ii == index) {
-                                results.add(item);
+                            if (ii < 0) 
+                            {
+                                // count in from end of array
+                                ii = inputArray.Count + ii;
+                            }
+                            if (ii == index) 
+                            {
+                                results.Add(item);
                             }
                         }
-                    } else if (boolize(res)) { // truthy
-                        results.add(item);
+                    } 
+                    else if (Eval.Helpers.Booleanize(res)) // truthy
+                    { 
+                        results.Add(item);
                     }
                 }
             }
             return results;
-            */
         }
 
         /**

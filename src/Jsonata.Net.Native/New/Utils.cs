@@ -28,19 +28,20 @@ namespace Jsonata.Net.Native.New
             */
         }
 
-        public static bool isArrayOfNumbers(Object v) 
+        internal static bool isArrayOfNumbers(JToken v) 
         {
-            throw new NotImplementedException();
-            /*
-            boolean result = false;
-            if (v instanceof Collection) {
-                for (Object o : ((Collection)v))
-                    if (!isNumeric(o))
-                        return false;
-                return true;
+            if (v is not JArray array)
+            {
+                return false;
             }
-            return false;
-            */
+            foreach (JToken item in array.ChildrenTokens)
+            {
+                if (!Utils.isNumeric(item))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public static bool isFunction(Object o) 
