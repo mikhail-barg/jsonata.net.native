@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "joins",
-  "message": "6 passed | 37 skipped",
+  "message": "28 passed | 1 failed | 14 skipped",
   "color": "orange"
 }

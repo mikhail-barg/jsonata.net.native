@@ -313,27 +313,27 @@ namespace Jsonata.Net.Native.New
             return resultSequence;
         }
 
-        private static JArray evaluateStages(List<Symbol> stages, JToken input, EvaluationEnvironment environment)
+        private static JArray evaluateStages(List<Symbol> stages, JArray input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
-            /*
-            var result = input;
-            for(var ss = 0; ss < stages.size(); ss++) {
-                var stage = stages.get(ss);
-                switch(stage.type) {
-                    case "filter":
-                        result =  evaluateFilter(stage.expr, result, environment);
-                        break;
-                    case "index":
-                        for(var ee = 0; ee < ((List)result).size(); ee++) {
-                            var tuple = ((List)result).get(ee);
-                            ((Map)tuple).put(""+stage.value, ee);
-                        }
-                        break;
+            JArray result = input;
+            foreach (Symbol stage in stages) 
+            {
+                switch(stage.type) 
+                {
+                case SymbolType.filter:
+                    result = JsonataQ.evaluateFilter(stage.expr!, result, environment);
+                    break;
+                case SymbolType.index:
+                    for (int ee = 0; ee < result.Count; ++ee)
+                    {
+                        JObject tuple = (JObject)result.ChildrenTokens[ee];
+                        tuple.Set((string)stage.value!, new JValue(ee));
+                    }
+                    result = input;
+                    break;
                 }
             }
             return result;
-            */
         }
 
         private static EvaluationEnvironment createFrameFromTuple(EvaluationEnvironment environment, JObject tuple)
@@ -462,7 +462,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Result after applying predicates
         */
-        private static JToken evaluateFilter(Symbol predicate, JToken input, EvaluationEnvironment environment)
+        private static JArray evaluateFilter(Symbol predicate, JToken input, EvaluationEnvironment environment)
         {
             JArray results = JsonataArray.CreateSequence();
             bool tupleStream;

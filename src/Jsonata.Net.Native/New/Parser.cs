@@ -743,9 +743,9 @@ namespace Jsonata.Net.Native.New
                     result = new Symbol();
                     result.type = SymbolType.parent;
                     result.slot = new Symbol();
-                    result.slot.label = "!" + ++ancestorLabel;
+                    result.slot.label = "!" + this.ancestorLabel++;
                     result.slot.level = 1;
-                    result.slot.index = ++ancestorIndex;
+                    result.slot.index = this.ancestorIndex++;
                     //slot: { label: '!' + ancestorLabel++, level: 1, index: ancestorIndex++ } };
                     this.ancestry.Add(result);
                 }

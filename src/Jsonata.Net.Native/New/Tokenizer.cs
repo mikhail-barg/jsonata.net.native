@@ -304,6 +304,11 @@ namespace Jsonata.Net.Native.New
                         else if (currentChar == 'u') 
                         {
                             //  u should be followed by 4 hex digits
+                            if (this.position + 1 + 4 > length)
+                            {
+                                throw new JException("S0104", this.position);
+                            }
+
                             string octets = this.path.Substring(this.position + 1, 4);
                             if (Regex.Match(octets, @"^[0-9a-fA-F]+$").Success)   //  /^[0-9a-fA-F]+$/.test(octets)) {
                             { 
@@ -319,7 +324,7 @@ namespace Jsonata.Net.Native.New
                         else 
                         {
                             // illegal escape sequence
-                            throw new JException("S0301", this.position, currentChar);
+                            throw new JException("S0103", this.position, currentChar);
                         }
                     } 
                     else if (currentChar == quoteType) 

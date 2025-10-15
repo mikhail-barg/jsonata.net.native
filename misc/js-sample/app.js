@@ -1,13 +1,15 @@
 const jsonata = require('jsonata');
 
-const data = [
-    [
-        { "bazz": "gotcha" }
-    ]
-];
+const data = {
+    "library": {
+        "books": [
+            { "a": "b" }
+        ]
+    }
+};
 
 (async () => {
-    const expression = jsonata('bazz');
+    const expression = jsonata('library.(%%%)');
     const result = await expression.evaluate(data);  // returns 24
     console.log(result);
 })()

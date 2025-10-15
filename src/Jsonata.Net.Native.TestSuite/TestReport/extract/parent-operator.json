@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "parent-operator",
-  "message": "19 passed | 5 failed | 20 skipped",
+  "message": "36 passed | 8 skipped",
   "color": "orange"
 }
