@@ -1548,7 +1548,7 @@ namespace Jsonata.Net.Native.Eval
             {
             case JTokenType.Array:
                 {
-                    JArray result = new Sequence();
+                    JArray result = JsonataArray.CreateSequence();
                     foreach (JToken child in ((JArray)arg).ChildrenTokens)
                     {
                         JToken res = lookup(child, key);

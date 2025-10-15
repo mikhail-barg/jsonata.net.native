@@ -210,7 +210,7 @@ fields.case002;Passed
 fields.case003;Passed
 fields.case004;Passed
 fields.case005;Passed
-fields.case006;Failed
+fields.case006;Passed
 fields.case007;Passed
 flattening.array-inputs[1];Passed
 flattening.array-inputs[2];Passed
@@ -267,8 +267,8 @@ flattening.case042;Passed
 flattening.case043;Passed
 flattening.case044;Skipped
 flattening.case045;Passed
-flattening.large[1];Failed
-flattening.large[2];Failed
+flattening.large[1];Skipped
+flattening.large[2];Skipped
 flattening.sequence-of-arrays[1];Passed
 flattening.sequence-of-arrays[2];Passed
 flattening.sequence-of-arrays[3];Passed
@@ -501,7 +501,7 @@ function-formatInteger.formatInteger[40];Skipped
 function-formatInteger.formatInteger[41];Skipped
 function-formatInteger.formatInteger[42];Skipped
 function-formatInteger.formatInteger[43];Skipped
-function-formatInteger.formatInteger[44];Failed
+function-formatInteger.formatInteger[44];Skipped
 function-formatInteger.formatInteger[45];Skipped
 function-formatInteger.formatInteger[46];Skipped
 function-formatInteger.formatInteger[47];Skipped
@@ -541,7 +541,7 @@ function-formatNumber.case014;Skipped
 function-formatNumber.case015;Skipped
 function-formatNumber.case016;Skipped
 function-formatNumber.case017;Skipped
-function-formatNumber.case018;Failed
+function-formatNumber.case018;Skipped
 function-formatNumber.case019;Skipped
 function-formatNumber.case020;Skipped
 function-formatNumber.case021;Skipped
@@ -874,7 +874,7 @@ function-round.case012;Skipped
 function-round.case013;Skipped
 function-round.case014;Skipped
 function-round.case015;Skipped
-function-round.case016;Failed
+function-round.case016;Skipped
 function-round.case017;Skipped
 function-shuffle.case000;Skipped
 function-shuffle.case001;Skipped
@@ -960,12 +960,12 @@ function-sqrt.case002;Skipped
 function-sqrt.case003;Skipped
 function-string.case000;Skipped
 function-string.case001;Skipped
-function-string.case002;Failed
-function-string.case003;Failed
-function-string.case004;Failed
-function-string.case005;Failed
-function-string.case006;Failed
-function-string.case007;Failed
+function-string.case002;Skipped
+function-string.case003;Skipped
+function-string.case004;Skipped
+function-string.case005;Skipped
+function-string.case006;Skipped
+function-string.case007;Skipped
 function-string.case008;Skipped
 function-string.case009;Skipped
 function-string.case010;Skipped
@@ -1228,8 +1228,8 @@ literals.case002;Passed
 literals.case003;Passed
 literals.case004;Passed
 literals.case005;Passed
-literals.case006;Failed
-literals.case007;Failed
+literals.case006;Passed
+literals.case007;Passed
 literals.case008;Passed
 literals.case009;Passed
 literals.case010;Passed
@@ -1274,7 +1274,7 @@ numeric-operators.case010;Passed
 numeric-operators.case011;Passed
 numeric-operators.case012;Passed
 numeric-operators.case013;Passed
-numeric-operators.case014;Failed
+numeric-operators.case014;Skipped
 numeric-operators.case015;Passed
 numeric-operators.case016;Passed
 numeric-operators.case017;Passed

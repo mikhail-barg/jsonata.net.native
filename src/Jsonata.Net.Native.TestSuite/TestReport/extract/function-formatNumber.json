@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-formatNumber",
-  "message": "1 failed | 36 skipped",
-  "color": "orange"
+  "message": "37 skipped",
+  "color": "yellow"
 }

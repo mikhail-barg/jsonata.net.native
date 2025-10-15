@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-round",
-  "message": "1 failed | 17 skipped",
-  "color": "orange"
+  "message": "18 skipped",
+  "color": "yellow"
 }

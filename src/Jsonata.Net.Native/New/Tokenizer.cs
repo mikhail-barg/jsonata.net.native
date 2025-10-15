@@ -344,12 +344,24 @@ namespace Jsonata.Net.Native.New
                     position += match.Groups[0].Value.Length;
                     return create(SymbolType.number, longValue);
                 }
-                else if (Double.TryParse(match.Groups[0].Value, NumberStyles.Number, CultureInfo.InvariantCulture, out double doubleValue))
+                else if (Double.TryParse(match.Groups[0].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double doubleValue))
                 {
                     if (!Double.IsNaN(doubleValue) && !Double.IsInfinity(doubleValue))
                     {
                         position += match.Groups[0].Value.Length;
                         // If the number is integral, use long as type
+                        try
+                        {
+                            longValue = (long)doubleValue;
+                            if (longValue == doubleValue)
+                            {
+                                return create(SymbolType.number, longValue);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //failed to cast double to long, it's ok
+                        }
                         return create(SymbolType.number, doubleValue);
                     }
                     else
