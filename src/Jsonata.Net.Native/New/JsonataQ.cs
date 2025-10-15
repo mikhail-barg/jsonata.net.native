@@ -1330,51 +1330,46 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateRangeExpression(JToken lhs, JToken rhs)
         {
-            throw new NotImplementedException();
-            /*
-            Object result = null;
-
-            if (lhs != null && (!(lhs is  Long) && !(lhs is  Integer))) {
-                throw new JException("T2003",
-                    //stack: (new Error()).stack,
-                    -1,
-                    lhs
-                );
+            if (lhs.Type != JTokenType.Undefined && lhs.Type != JTokenType.Integer) 
+            {
+                throw new JException("T2003", -1, lhs);
             }
-            if (rhs != null && (!(rhs is  Long) && !(rhs is  Integer))) {
-                throw new JException("T2004",
-                //stack: (new Error()).stack,
-                -1,
-                rhs
-                );
+            if (rhs.Type != JTokenType.Undefined && rhs.Type != JTokenType.Integer) 
+            {
+                throw new JException("T2004", -1, rhs);
             }
 
-            if (rhs==null || lhs==null) {
+            if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined) 
+            {
                 // if either side is undefined, the result is undefined
-                return result;
+                return JsonataQ.UNDEFINED;
             }
 
-            long _lhs = ((Number)lhs).longValue(), _rhs = ((Number)rhs).longValue();
+            long _lhs = (long)(JValue)lhs;
+            long _rhs = (long)(JValue)rhs;
 
-            if (_lhs > _rhs) {
+            if (_lhs > _rhs) 
+            {
                 // if the lhs is greater than the rhs, return undefined
-                return result;
+                return JsonataQ.UNDEFINED;
             }
 
             // limit the size of the array to ten million entries (1e7)
             // this is an implementation defined limit to protect against
             // memory and performance issues.  This value may increase in the future.
-            var size = _rhs - _lhs + 1;
-            if(size > 1e7) {
-                throw new JException("D2014",
-                    //stack: (new Error()).stack,
-                    -1,
-                    size
-                );
+            long size = _rhs - _lhs + 1;
+            if (size > 1e7) 
+            {
+                throw new JException("D2014", -1, size);
             }
 
-            return new Utils.RangeList(_lhs, _rhs);
-            */
+            JsonataArray result = JsonataArray.CreateSequence();
+            for (long item = _lhs; item <= _rhs; ++item)
+            {
+                result.Add(new JValue(item));
+            }
+
+            return result;
         }
 
         /**
