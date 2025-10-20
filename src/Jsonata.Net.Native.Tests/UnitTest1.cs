@@ -429,5 +429,15 @@ namespace Jsonata.Net.Native.Tests
                 @"{ 'test': [ { 'test': 'test' } ] }"
             );
         }
+
+        [Test]
+        public void Test_Sort()
+        {
+            Check(
+                @"$^($)",
+                @"[34.45,21.67,34.45,107.99]",
+                @"[21.67,34.45,34.45,107.99]"
+            );
+        }
     }
 }

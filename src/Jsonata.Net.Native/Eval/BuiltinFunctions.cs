@@ -1324,6 +1324,96 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
+        // // Implements the merge sort (stable) with optional comparator function
+        // 
+        // this is a port of jsonata-js fn.sort() which is not that performant (
+        internal static JArray sort_internal(JToken arrayToken, Func<JToken, JToken, int> comparator)
+        {
+            //TODO: think of Undefined (
+
+            //// undefined inputs always return undefined
+            //if (arrayToken.Type == JTokenType.Undefined)
+            //{
+            //    return arrayToken;
+            //}
+
+            if (arrayToken.Type != JTokenType.Array)
+            {
+                JsonataArray singletonArray = JsonataArray.CreateSequence();
+                singletonArray.keepSingleton = true;
+                singletonArray.Add(arrayToken);
+                return singletonArray;
+            }
+
+            JArray array = (JArray)arrayToken;
+            if (array.Count <= 1)
+            {
+                return array;
+            }
+
+            void merge_iter(JToken[] result, int offset, ArraySegment<JToken> left, ArraySegment<JToken> right) 
+            {
+                if (left.Count == 0)
+                {
+                    foreach (JToken token in right)
+                    {
+                        result[offset++] = token;
+                    }
+                }
+                else if (right.Count == 0)
+                {
+                    foreach (JToken token in left)
+                    {
+                        result[offset++] = token;
+                    }
+                }
+                else if (comparator(left[0], right[0]) > 0) // invoke the comparator function
+                { 
+                    // if it returns true - swap left and right
+                    result[offset++] = right[0];
+                    merge_iter(result, offset, left, new ArraySegment<JToken>(right.Array!, right.Offset + 1, right.Count - 1));
+                }
+                else
+                {
+                    // otherwise keep the same order
+                    result[offset++] = left[0];
+                    merge_iter(result, offset, new ArraySegment<JToken>(left.Array!, left.Offset + 1, left.Count - 1), right);
+                }
+            }
+
+            JToken[] msort(ArraySegment<JToken> array) 
+            {
+                JToken[] result = new JToken[array.Count];
+                if (array.Count == 0)
+                {
+                    return result;
+                }
+                else if (array.Count == 1)
+                {
+                    result[0] = array[0];
+                    return result;
+                }
+                else
+                {
+                    int middle = array.Count / 2;
+                    ArraySegment<JToken> left = new ArraySegment<JToken>(array.Array!, array.Offset + 0, middle);
+                    ArraySegment<JToken> right = new ArraySegment<JToken>(array.Array!, array.Offset + middle, array.Count - middle);
+                    JToken[] leftArray = msort(left);
+                    JToken[] rightArray = msort(right);
+                    merge_iter(result, 0, new ArraySegment<JToken>(leftArray), new ArraySegment<JToken>(rightArray));
+                    return result;
+                }
+            }
+
+            JToken[] result = msort(new ArraySegment<JToken>(array.ChildrenTokens.ToArray()));
+            JArray resultArray = new JArray(result.Length);
+            foreach (JToken token in result)
+            {
+                resultArray.Add(token);
+            }
+            return resultArray;
+        }
+
         /**
          $reverse()
          Signature: $reverse(array)

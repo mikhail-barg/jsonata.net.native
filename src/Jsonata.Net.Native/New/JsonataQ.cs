@@ -1488,88 +1488,101 @@ namespace Jsonata.Net.Native.New
             JArray lhs = (JArray)input;
             bool isTupleSort = (input is JsonataArray jsonataInput) && jsonataInput.tupleStream;
 
-            /*
             // sort the lhs array
             // use comparator function
-            var comparator = new Comparator() { 
-
-            JToken result;
-
-            //@Override
-            public int compare(Object a, Object b) {
-
+            
+            int comparator(JToken a, JToken b)
+            { 
                 // expr.terms is an array of order-by in priority order
-                var comp = 0;
-                for(var index = 0; comp == 0 && index < expr.terms.size(); index++) {
-                    var term = expr.terms.get(index);
+                int comp = 0;
+                for (int index = 0; comp == 0 && index < expr.terms!.Count; ++index) 
+                {
+                    Symbol term = expr.terms[index];
                     //evaluate the sort term in the context of a
-                    var context = a;
-                    var env = environment;
-                    if(isTupleSort) {
-                        context = ((Map)a).get("@");
-                        env = createFrameFromTuple(environment, (Map)a);
+                    JToken context = a;
+                    EvaluationEnvironment env = environment;
+                    if (isTupleSort) 
+                    {
+                        JObject aObj = (JObject)a;
+                        context = aObj.Properties["@"];
+                        env = JsonataQ.createFrameFromTuple(environment, aObj);
                     }
-                    Object aa = evaluate(term.expression, context, env);
+                    JToken aa = JsonataQ.evaluate(term.expression!, context, env);
 
-                     //evaluate the sort term in the context of b
-                     context = b;
-                     env = environment;
-                     if(isTupleSort) {
-                         context = ((Map)b).get("@");
-                         env = createFrameFromTuple(environment, (Map)b);
-                     }
-                     Object bb = evaluate(term.expression, context, env);
+                    //evaluate the sort term in the context of b
+                    context = b;
+                    env = environment;
+                    if (isTupleSort) 
+                    {
+                        JObject bObj = (JObject)b;
+                        context = bObj.Properties["@"];
+                        env = JsonataQ.createFrameFromTuple(environment, bObj);
+                    }
+                    JToken bb = JsonataQ.evaluate(term.expression!, context, env);
  
                     // type checks
-                    //  var atype = typeof aa;
-                    //  var btype = typeof bb;
                     // undefined should be last in sort order
-                    if(aa == null) {
+                    if (aa.Type == JTokenType.Undefined) 
+                    {
                         // swap them, unless btype is also undefined
-                        comp = (bb == null) ? 0 : 1;
+                        comp = (bb.Type == JTokenType.Undefined) ? 0 : 1;
                         continue;
                     }
-                    if(bb == null) {
+                    if (bb.Type == JTokenType.Undefined) 
+                    {
                         comp = -1;
                         continue;
                     }
  
                     // if aa or bb are not string or numeric values, then throw an error
-                    if(!(aa is Number || aa is String) ||
-                    !(bb is Number || bb is String) 
-                    ) {
-                        throw new JException("T2008",
-                            expr.position,
-                            aa,
-                            bb
-                        );
-                    }
- 
-                     //if aa and bb are not of the same type
-                     boolean sameType = false;
-                    if (aa is Number && bb is Number)
-                        sameType = true;
-                    else if (aa.getClass().isAssignableFrom(bb.getClass()) ||
-                        bb.getClass().isAssignableFrom(aa.getClass())) {
-                        sameType = true;
+                    if (aa.Type != JTokenType.Integer && aa.Type != JTokenType.Float && aa.Type != JTokenType.String)
+                    {
+                        throw new JException("T2008", expr.position, aa);
                     }
 
-                    if(!sameType) {
-                        throw new JException("T2007",
-                            expr.position,
-                            aa,
-                            bb
-                        );
+                    JValue aaValue = (JValue)aa;
+                    JValue bbValue = (JValue)bb;
+
+                    if (aaValue.Type == JTokenType.String && bbValue.Type == JTokenType.String)
+                    {
+                        string aaStr = (string)aaValue;
+                        string bbStr = (string)bbValue;
+                        comp = StringComparer.Ordinal.Compare(aaStr, bbStr);
+                        if (comp == 0)
+                        {
+                            // both the same - move on to next term
+                            continue;
+                        }
                     }
-                    if(aa.equals(bb)) {
-                        // both the same - move on to next term
-                        continue;
-                    } else if (((Comparable)aa).compareTo(bb)<0) {
-                        comp = -1;
-                    } else {
-                        comp = 1;
+                    else if (aaValue.Type == JTokenType.String || bbValue.Type == JTokenType.String)
+                    {
+                        //if aa and bb are not of the same type
+                        throw new JException("T2007", expr.position, aa, bb);
                     }
-                    if(term.descending == true) {
+                    else if (aaValue.Type == JTokenType.Integer && bbValue.Type == JTokenType.Integer)
+                    {
+                        long aaLong = (long)aaValue;
+                        long bbLong = (long)bbValue;
+                        comp = aaLong.CompareTo(bbLong);
+                        if (comp == 0)
+                        {
+                            // both the same - move on to next term
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        double aaDouble = aaValue.Type == JTokenType.Float? (double)aaValue : (double)(long)aaValue;
+                        double bbDouble = bbValue.Type == JTokenType.Float ? (double)bbValue : (double)(long)bbValue;
+                        comp = aaDouble.CompareTo(bbDouble);
+                        if (comp == 0)
+                        {
+                            // both the same - move on to next term
+                            continue;
+                        }
+                    }
+                    if (term.descending) 
+                    {
                         comp = -comp;
                     }
                 }
@@ -1577,19 +1590,19 @@ namespace Jsonata.Net.Native.New
                 // return comp == 1;
                 return comp;
             }
-            };
- 
-            //  var focus = {
-            //      environment: environment,
-            //      input: input
-            //  };
-            //  // the `focus` is passed in as the `this` for the invoked function
-            //  result = fn.sort.apply(focus, [lhs, comparator]);
- 
-            result = Functions.sort(lhs, comparator);
+
+            // var focus = {
+            //     environment: environment,
+            //     input: input
+            // };
+            // // the `focus` is passed in as the `this` for the invoked function
+            // result = await fn.sort.apply(focus, [lhs, comparator]);
+            //
+            // but `this` is not being used in builtin sort ..
+
+            //TODO: think of Undefined (
+            JArray result = BuiltinFunctions.sort_internal(lhs, comparator);
             return result;        
-            */
-            throw new NotImplementedException();
         }
 
         /**
