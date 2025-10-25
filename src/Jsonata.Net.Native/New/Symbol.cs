@@ -38,7 +38,7 @@ namespace Jsonata.Net.Native.New
         index
     }
 
-    public partial class Symbol
+    public class Symbol
     {
         internal string id;
         internal SymbolType type;
@@ -52,7 +52,6 @@ namespace Jsonata.Net.Native.New
         internal Symbol? expr;
         internal object? value;
         internal int bp;
-        internal int lbp;
         internal int position;
         internal Symbol? nextFunction;
 
@@ -164,6 +163,139 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.id} value={this.value}";
+        }
+
+        internal void Format(string? prefix, StringBuilder builder, int indent)
+        {
+            static void FormatListIfExists(List<Symbol>? list, string name, StringBuilder builder, int indent)
+            {
+                if (list == null)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < list.Count; ++i)
+                {
+                    list[i].Format($"{name}[{i}]: ", builder, indent);
+                }
+            }
+            static void FormatList2IfExists(List<Symbol[]>? list, string name, StringBuilder builder, int indent)
+            {
+                if (list == null)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < list.Count; ++i)
+                {
+                    for (int j = 0; j < list[i].Length; ++j)
+                    {
+                        list[i][j].Format($"{name}[{i}][{j}]: ", builder, indent);
+                    }
+                }
+            }
+
+            if (prefix != null)
+            {
+                builder.Append('\n');
+            }
+
+            for (int i = 0; i < indent; ++i)
+            {
+                builder.Append('\t');
+            }
+
+            if (prefix != null)
+            {
+                builder.Append(prefix);
+            }
+            builder.Append(this.GetType().Name).Append(' ')
+                .Append(this.type.ToString()).Append(' ')
+                .Append("bp=").Append(this.bp).Append(' ')
+                .Append("pos=").Append(this.position).Append(' ')
+                .Append("id=").Append(this.id).Append(' ')
+                ;
+            if (this.value != null)
+            {
+                builder.Append("value=").Append(this.value).Append(' ');
+            }
+            if (this.tuple)
+            {
+                builder.Append("tuple ");
+            }
+            if (this.consarray)
+            {
+                builder.Append("consarray ");
+            }
+            if (this.keepSingletonArray)
+            {
+                builder.Append("keepSingletonArray ");
+            }
+            if (this._jsonata_lambda != null)
+            {
+                builder.Append("_jsonata_lambda=").Append(this._jsonata_lambda).Append(' ');
+            }
+            if (this.focus != null)
+            {
+                builder.Append("focus=").Append(this.focus).Append(' ');
+            }
+            if (this.label != null)
+            {
+                builder.Append("label=").Append(this.label).Append(' ');
+            }
+            if (this.index != null)
+            {
+                builder.Append("index=").Append(this.index).Append(' ');
+            }
+            if (this.keepArray)
+            {
+                builder.Append("keepArray=").Append(this.keepArray).Append(' ');
+            }
+
+            if (this.ancestor != null)
+            {
+                this.ancestor.Format("ancestor: ", builder, indent + 1);
+            }
+
+            if (this.lhs != null)
+            {
+                this.lhs.Format("lhs: ", builder, indent + 1);
+            }
+            if (this.rhs != null)
+            {
+                this.rhs.Format("rhs: ", builder, indent + 1);
+            }
+
+            if (this.slot != null)
+            {
+                this.slot.Format("slot: ", builder, indent + 1);
+            }
+            if (this.group != null)
+            {
+                this.group.Format("group: ", builder, indent + 1);
+            }
+            if (this.expr != null)
+            {
+                this.expr.Format("expr: ", builder, indent + 1);
+            }
+            if (this.nextFunction != null)
+            {
+                this.nextFunction.Format("nextFunction: ", builder, indent + 1);
+            }
+            if (this.body != null)
+            {
+                this.body.Format("body: ", builder, indent + 1);
+            }
+            FormatListIfExists(this.steps, "steps", builder, indent + 1);
+            FormatListIfExists(this.stages, "stages", builder, indent + 1);
+            FormatListIfExists(this.predicate, "predicate", builder, indent + 1);
+            FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
+            FormatListIfExists(this.expressions, "expressions", builder, indent + 1);
+            FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
+            FormatListIfExists(this.terms, "terms", builder, indent + 1);
+            FormatListIfExists(this.rhsTerms, "rhsTerms", builder, indent + 1);
+            FormatList2IfExists(this.lhsObject, "lhsObject", builder, indent + 1);
+            FormatList2IfExists(this.rhsObject, "rhsObject", builder, indent + 1);
         }
     }
 

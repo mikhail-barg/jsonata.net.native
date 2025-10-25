@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Jsonata.Net.Native.New;
+using System.IO;
 
 namespace Jsonata.Net.Native.Tests
 {
@@ -13,6 +14,17 @@ namespace Jsonata.Net.Native.Tests
         {
             JsonataQ jsonata = new JsonataQ(query);
             string resultStr = jsonata.evaluate(data);
+            JToken resultJson = JToken.Parse(resultStr);
+            JToken expectedResultJson = JToken.Parse(expectedResult);
+            Console.WriteLine("Expected: " + expectedResultJson.ToString(Formatting.None));
+            Console.WriteLine("Got: " + resultJson.ToString(Formatting.None));
+            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToString(Formatting.None)}");
+        }
+
+        private static void CheckFromFile(string query, string dataFileName, string expectedResult)
+        {
+            JsonataQ jsonata = new JsonataQ(query);
+            string resultStr = jsonata.evaluate(File.ReadAllText(dataFileName));
             JToken resultJson = JToken.Parse(resultStr);
             JToken expectedResultJson = JToken.Parse(expectedResult);
             Console.WriteLine("Expected: " + expectedResultJson.ToString(Formatting.None));
@@ -437,6 +449,141 @@ namespace Jsonata.Net.Native.Tests
                 @"$^($)",
                 @"[34.45,21.67,34.45,107.99]",
                 @"[21.67,34.45,34.45,107.99]"
+            );
+        }
+
+        [Test]
+        public void Test_Join1()
+        {
+            CheckFromFile(
+                """
+                library.loans@$l#$il.books@$b#$ib[$l.isbn=$b.isbn]#$ib2.customers@$c#$ic[$l.customer=$c.id].{
+                  'title': $b.title,
+                  'customer': $l.customer,
+                  'name': $c.name,
+                  'loan-index': $il,
+                  'book-index': $ib,
+                  'customer-index': $ic,
+                  'ib2': $ib2
+                }
+                """,
+                "../../../../../jsonata-js/test/test-suite/datasets/library.json",
+                """
+                [
+                  {
+                    "title": "Structure and Interpretation of Computer Programs",
+                    "customer": "10001",
+                    "name": "Joe Doe",
+                    "loan-index": 0,
+                    "book-index": 0,
+                    "customer-index": 0,
+                    "ib2": 0
+                  },
+                  {
+                    "title": "Compilers: Principles, Techniques, and Tools",
+                    "customer": "10003",
+                    "name": "Jason Arthur",
+                    "loan-index": 1,
+                    "book-index": 3,
+                    "customer-index": 2,
+                    "ib2": 1
+                  },
+                  {
+                    "title": "Structure and Interpretation of Computer Programs",
+                    "customer": "10003",
+                    "name": "Jason Arthur",
+                    "loan-index": 2,
+                    "book-index": 0,
+                    "customer-index": 2,
+                    "ib2": 2
+                  }
+                ]
+                """
+            );
+        }
+
+        [Test]
+        public void Test_Join2()
+        {
+            CheckFromFile(
+                """
+                library.loans@$l#$il.books@$b#$ib[$l.isbn=$b.isbn]#$ib2.{
+                  'title': $b.title,
+                  'customer': $l.customer,
+                  'name': $c.name,
+                  'loan-index': $il,
+                  'book-index': $ib,
+                  'customer-index': $ic,
+                  'ib2': $ib2
+                }
+                """,
+                "../../../../../jsonata-js/test/test-suite/datasets/library.json",
+                """
+                [
+                  {
+                    "title": "Structure and Interpretation of Computer Programs",
+                    "customer": "10001",
+                    "loan-index": 0,
+                    "book-index": 0,
+                    "ib2": 0
+                  },
+                  {
+                    "title": "Compilers: Principles, Techniques, and Tools",
+                    "customer": "10003",
+                    "loan-index": 1,
+                    "book-index": 3,
+                    "ib2": 1
+                  },
+                  {
+                    "title": "Structure and Interpretation of Computer Programs",
+                    "customer": "10003",
+                    "loan-index": 2,
+                    "book-index": 0,
+                    "ib2": 2
+                  }
+                ]
+                """
+            );
+        }
+
+        [Test]
+        public void Test_Join3()
+        {
+            CheckFromFile(
+                """
+                library.loans@$l#$il.books@$b#$ib[$l.isbn=$b.isbn].{
+                  'title': $b.title,
+                  'customer': $l.customer,
+                  'name': $c.name,
+                  'loan-index': $il,
+                  'book-index': $ib,
+                  'customer-index': $ic,
+                  'ib2': $ib2
+                }
+                """,
+                "../../../../../jsonata-js/test/test-suite/datasets/library.json",
+                """
+                [
+                  {
+                    "title": "Structure and Interpretation of Computer Programs",
+                    "customer": "10001",
+                    "loan-index": 0,
+                    "book-index": 0
+                  },
+                  {
+                    "title": "Compilers: Principles, Techniques, and Tools",
+                    "customer": "10003",
+                    "loan-index": 1,
+                    "book-index": 3
+                  },
+                  {
+                    "title": "Structure and Interpretation of Computer Programs",
+                    "customer": "10003",
+                    "loan-index": 2,
+                    "book-index": 0
+                  }
+                ]
+                """
             );
         }
     }

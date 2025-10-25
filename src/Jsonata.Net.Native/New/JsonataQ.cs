@@ -5,6 +5,7 @@ using System;
 using Jsonata.Net.Native.Eval;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace Jsonata.Net.Native.New 
 {
@@ -329,7 +330,6 @@ namespace Jsonata.Net.Native.New
                         JObject tuple = (JObject)result.ChildrenTokens[ee];
                         tuple.Set((string)stage.value!, new JValue(ee));
                     }
-                    result = input;
                     break;
                 }
             }
@@ -2604,6 +2604,13 @@ namespace Jsonata.Net.Native.New
             }
 
             return JsonataQ.evaluate(this.m_ast, input, environment);
+        }
+
+        public string FormatAst()
+        {
+            StringBuilder builder = new StringBuilder();
+            this.m_ast.Format(null, builder, 0);
+            return builder.ToString();
         }
     }
 

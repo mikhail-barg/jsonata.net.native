@@ -1200,7 +1200,7 @@ joins.library-joins[4];Passed
 joins.library-joins[5];Passed
 joins.library-joins[6];Passed
 joins.library-joins[7];Passed
-joins.library-joins[8];Failed
+joins.library-joins[8];Passed
 joins.library-joins[9];Passed
 joins.library-joins[10];Passed
 joins.library-joins[11];Passed
