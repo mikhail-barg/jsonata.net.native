@@ -14,6 +14,7 @@ namespace Jsonata.Net.Native.Eval
 	/**
 	... ~> | ... | ... | (Transform)
 	*/
+	/*
 	internal sealed class FunctionTokenTransformation : FunctionToken
 	{
 		internal readonly Node pattern;
@@ -30,13 +31,13 @@ namespace Jsonata.Net.Native.Eval
 			this.environment = environment;
 		}
 
-        /**
+        **
             The ~> operator is the operator for function chaining 
             and passes the value on the left hand side to the function on the right hand side as its first argument. 
         
             The expression on the right hand side must evaluate to a function, 
             hence the |...|...| syntax generates a function with one argument.         
-         */
+         *
 
         internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
@@ -147,4 +148,5 @@ namespace Jsonata.Net.Native.Eval
             //nothing to do for a function transformation;
         }
     }
+	*/
 }

@@ -19,20 +19,6 @@ namespace Jsonata.Net.Native.Json
     {
         public readonly JTokenType Type;
 
-        private JToken? m_parent = null;
-        internal JToken? parent
-        {
-            get => this.m_parent;
-            set 
-            {
-                if (this == EvalProcessor.UNDEFINED && value != null)
-                {
-                    throw new InvalidOperationException($"Attempt to set parent on {nameof(EvalProcessor)}.{nameof(EvalProcessor.UNDEFINED)}");
-                }
-                this.m_parent = value;
-            }
-        }
-
         protected JToken(JTokenType type)
         {
             this.Type = type;
@@ -235,14 +221,6 @@ namespace Jsonata.Net.Native.Json
             }
             return result;
         }
-
-        internal void ClearParent()
-        {
-            this.parent = null;
-            this.ClearParentNested();
-        }
-
-        protected abstract void ClearParentNested();
 
         public string ToIndentedString()
         {

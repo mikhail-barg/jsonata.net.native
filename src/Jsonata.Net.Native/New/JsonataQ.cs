@@ -11,7 +11,7 @@ namespace Jsonata.Net.Native.New
 {
     public class JsonataQ
     {
-        private static readonly JValue UNDEFINED = JValue.CreateUndefined();
+        internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
         private static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
@@ -58,7 +58,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateRegex(expr); //, input, environment);
                 break;
             case SymbolType.function:
-                result = JsonataQ.evaluateFunction(expr, input, environment, null /*Utils.NONE*/);
+                result = JsonataQ.evaluateFunction(expr, input, environment, null);
                 break;
             case SymbolType.variable:
                 result = JsonataQ.evaluateVariable(expr, input, environment);
@@ -641,7 +641,7 @@ namespace Jsonata.Net.Native.New
                     switch (result.Type)
                     {
                     case JTokenType.Undefined:
-                        return EvalProcessor.UNDEFINED;
+                        return JsonataQ.UNDEFINED;
                     case JTokenType.Integer:
                         return new JValue(-(long)result);
                     case JTokenType.Float:
@@ -881,7 +881,7 @@ namespace Jsonata.Net.Native.New
 
             if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
             else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Integer)
             {
@@ -1709,43 +1709,41 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateApplyExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
-            /*
-            Object result = null;
+            JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
 
-            var lhs = evaluate(expr.lhs, input, environment);
-
-            if(expr.rhs.type.equals("function")) {
-            //Symbol applyTo = new Symbol(); applyTo.context = lhs;
-                // this is a Object _invocation_; invoke it with lhs expression as the first argument
-                result =  evaluateFunction(expr.rhs, input, environment, lhs);
-            } else {
-                var func =  evaluate(expr.rhs, input, environment);
-
-                if(!isFunctionLike(func) &&
-                !isFunctionLike(lhs)) {
-                    throw new JException("T2006",
-                        //stack: (new Error()).stack,
-                        expr.position,
-                        func
-                    );
+            JToken result;
+            if (expr.rhs!.type == SymbolType.function) 
+            {
+                // this is a function _invocation_; invoke it with lhs expression as the first argument
+                result = JsonataQ.evaluateFunction(expr.rhs, input, environment, lhs);
+            } 
+            else 
+            {
+                JToken func = JsonataQ.evaluate(expr.rhs, input, environment);
+                if (func is not FunctionToken function)
+                {
+                    throw new JException("T2006", expr.position, func);
                 }
 
-                if(isFunctionLike(lhs)) {
-                    // this is Object chaining (func1 ~> func2)
+                if (lhs is FunctionToken)
+                {
+                    // this is function chaining (func1 ~> func2)
                     // λ($f, $g) { λ($x){ $g($f($x)) } }
-                    var chain =  evaluate(chainAST(), null, environment);
-                    List args = new ArrayList<>(); args.add(lhs); args.add(func); // == [lhs, func]
-                    result =  apply(chain, args, null, environment);
-                } else {
-                    List args = new ArrayList<>(); args.add(lhs); // == [lhs]
-                    result =  apply(func, args, null, environment);
+                    JToken chain = JsonataQ.evaluate(s_chainAST, JValue.CreateNull(), environment);
+                    if (chain is not FunctionToken chainFunction)
+                    {
+                        throw new Exception("Should not happen!");
+                    }
+                    List<JToken> args = new List<JToken>() { lhs, func };
+                    result = JsonataQ.apply(chainFunction, args, JValue.CreateNull(), environment);
+                } 
+                else 
+                {
+                    List<JToken> args = new List<JToken>() { lhs };
+                    result = JsonataQ.apply(function, args, JValue.CreateNull(), environment);
                 }
-
             }
-
             return result;
-            */
         }
 
         /*
@@ -1761,90 +1759,67 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateFunction(Symbol expr, JToken input, EvaluationEnvironment environment, Object? applytoContext)
+        private static JToken evaluateFunction(Symbol expr, JToken input, EvaluationEnvironment environment, JToken? applytoContext)
         {
-            throw new NotImplementedException();
-            /*
-             Object result = null;
+            // create the procedure
+            // can"t assume that expr.procedure is a lambda type directly
+            // could be an expression that evaluates to a Object (e.g. variable reference, parens expr etc.
+            // evaluate it generically first, then check that it is a function.  Throw error if not.
+            JToken proc = JsonataQ.evaluate(expr.procedure!, input, environment);
+ 
+            if (proc.Type == JTokenType.Undefined 
+                && expr.procedure!.type == SymbolType.path 
+                && environment.Lookup((string)(expr.procedure.steps![0].value!)).Type != JTokenType.Undefined
+            ) 
+            {
+                // help the user out here if they simply forgot the leading $
+                throw new JException("T1005", expr.position, expr.procedure.steps[0].value);
+            }
 
-             // Jsonata.current is set by getPerThreadInstance() at this point
- 
-             // create the procedure
-             // can"t assume that expr.procedure is a lambda type directly
-             // could be an expression that evaluates to a Object (e.g. variable reference, parens expr etc.
-             // evaluate it generically first, then check that it is a function.  Throw error if not.
-             var proc = evaluate(expr.procedure, input, environment);
- 
-             if (proc == null && (expr).procedure.type == "path" && environment.lookup((String)expr.procedure.steps.get(0).value)!=null) {
-                 // help the user out here if they simply forgot the leading $
-                 throw new JException(
-                     "T1005",
-                     //stack: (new Error()).stack,
-                     expr.position,
-                     (expr).procedure.steps.get(0).value
-                 );
-             }
- 
-            List<Object> evaluatedArgs = new ArrayList();
-
-             if (applytoContext != Utils.NONE) {
-                evaluatedArgs.add(applytoContext);
-             }
-             // eager evaluation - evaluate the arguments
-             for (int jj = 0; jj < expr.arguments.size(); jj++) {
-                 Object arg = evaluate(expr.arguments.get(jj), input, environment);
-                 if(Utils.isFunction(arg) || Functions.isLambda(arg)) {
+            List<JToken> evaluatedArgs = new();
+            if (applytoContext != null) 
+            {
+                evaluatedArgs.Add(applytoContext);
+            }
+            // eager evaluation - evaluate the arguments
+            foreach (Symbol argSymbol in expr.arguments!) 
+            {
+                JToken arg = JsonataQ.evaluate(argSymbol, input, environment);
+                if (arg is FunctionToken functionArg)
+                {
                     // wrap this in a closure
-                    // Java: not required, already a JFunction
-                    //  const closure = Object (...params) {
-                    //      // invoke func
-                    //      return apply(arg, params, null, environment);
-                    //  };
-                    //  closure.arity = getFunctionArity(arg);
-
-                    // JFunctionCallable fc = (ctx,params) ->
-                    //     apply(arg, params, null, environment);
-
-                    // JFunction cl = new JFunction(fc, "<o:o>");
-
-                    //Object cl = apply(arg, params, null, environment);
-                    evaluatedArgs.add(arg);
-                 } else {
-                    evaluatedArgs.add(arg);
-                 }
-             }
-             // apply the procedure
-             var procName = expr.procedure.type == "path" ? expr.procedure.steps.get(0).value : expr.procedure.value;
-
-            // Error if proc is null
-            if (proc==null)
-                throw new JException("T1006", expr.position, procName);
-
-             try {
-                 if(proc is Symbol) {
-                     ((Symbol)proc).token = procName;
-                     ((Symbol)proc).position = expr.position;
-                 }
-                 result = apply(proc, evaluatedArgs, input, environment);
-             } catch (JException jex) {
-                if (jex.location<0) {
-                    // add the position field to the error
-                    jex.location = expr.position;
+                    FunctionTokenClosure closure = new FunctionTokenClosure(functionArg, environment);
+                    evaluatedArgs.Add(closure);
+                } 
+                else 
+                {
+                    evaluatedArgs.Add(arg);
                 }
-                if (jex.current==null) {
-                    // and the Object identifier
-                    jex.current = expr.token;
+            }
+            
+            // apply the procedure
+            string procName = expr.procedure!.type == SymbolType.path ? (string)expr.procedure.steps![0].value! : (string)expr.procedure.value!;
+
+            try 
+            {
+                //if (typeof proc === 'object')
+                //{
+                //    proc.token = procName;
+                //    proc.position = expr.position;
+                //}
+
+                if (proc is not FunctionToken procFunction)
+                {
+                    throw new JException("T1006", expr.position, procName);
                 }
-                throw jex;
-             } catch (Exception err) {
-                if (!(err is RuntimeException))
-                    throw new RuntimeException(err);
-                //err.printStackTrace();
-                throw err;
-                // new JException(err, "Error calling function "+procName, expr.position, null, null); //err;
-             }
-             return result;
-            */
+
+                JToken result = JsonataQ.apply(procFunction, evaluatedArgs, input, environment);
+                return result;
+            } 
+            catch (JException jex) 
+            {
+                throw new JException(jex, jex.error, jex.location >= 0? jex.location : expr.position, jex.getCurrent() ?? procName, jex.getExpected());
+            } 
         }
 
         /**
@@ -1854,150 +1829,145 @@ namespace Jsonata.Net.Native.New
          * @param {Object} input - input
          * @param {Object} environment - environment
          * @returns {*} Result of procedure
-         *
-        Object apply(Object proc, Object args, Object input, Object environment) {
-           var result =  applyInner(proc, args, input, environment);
-           while(Functions.isLambda(result) && ((Symbol)result).thunk == true) {
-               // trampoline loop - this gets invoked as a result of tail-call optimization
-               // the Object returned a tail-call thunk
-               // unpack it, evaluate its arguments, and apply the tail call
-               var next =  evaluate(((Symbol)result).body.procedure, ((Symbol)result).input, ((Symbol)result).environment);
-               if(((Symbol)result).body.procedure.type == "variable") {
-                   if (next is  Symbol) // Java: not if JFunction
-                       ((Symbol)next).token = ((Symbol)result).body.procedure.value;
-                   }
-                   if (next is  Symbol) // Java: not if JFunction
-                   ((Symbol)next).position = ((Symbol)result).body.procedure.position;
-                   var evaluatedArgs = new ArrayList<>();
-                   for(var ii = 0; ii < ((Symbol)result).body.arguments.size(); ii++) {
-                       evaluatedArgs.add( evaluate(((Symbol)result).body.arguments.get(ii), ((Symbol)result).input, ((Symbol)result).environment));
-               }
-
-               result =  applyInner(next, evaluatedArgs, input, environment);
-           }
-           return result;
-       }
-        */
-
-        /**
-         * Apply procedure or function
-         * @param {Object} proc - Procedure
-         * @param {Array} args - Arguments
-         * @param {Object} input - input
-         * @param {Object} environment - environment
-         * @returns {*} Result of procedure
-         *
-         Object applyInner(Object proc, Object args, Object input, Object environment) {
-            Object result = null;
-            try {
-                var validatedArgs = args;
-                if (proc != null) {
-                    validatedArgs = validateArguments(proc, args, input);
+         */
+        internal static JToken apply(FunctionToken proc, List<JToken> args, JToken input, EvaluationEnvironment environment) 
+        {
+            JToken result = JsonataQ.applyInner(proc, args, input, environment);
+            while (result is FunctionTokenJsonataLambda lambda && lambda.thunk)
+            {
+                // trampoline loop - this gets invoked as a result of tail-call optimization
+                // the Object returned a tail-call thunk
+                // unpack it, evaluate its arguments, and apply the tail call
+                JToken next = JsonataQ.evaluate(lambda.body.procedure!, lambda.input, lambda.environment);
+                if (lambda.body.procedure!.type == SymbolType.variable)
+                {
+                    //TODO:???
+                    //next.token = result.body.procedure.value;
                 }
+                //next.position = result.body.procedure.position;
 
-                if (Functions.isLambda(proc)) {
-                    result =  applyProcedure(proc, validatedArgs);
-                } ** FIXME: need in Java??? else if (proc && proc._jsonata_Object == true) {
-                    var focus = {
-                        environment: environment,
-                        input: input
-                    };
-                    // the `focus` is passed in as the `this` for the invoked function
-                    result = proc.implementation.apply(focus, validatedArgs);
-                    // `proc.implementation` might be a generator function
-                    // and `result` might be a generator - if so, yield
-                    if (isIterable(result)) {
-                        result = result.next().value;
-                    }
-                    if (isPromise(result)) {
-                        result = /await/ result;
-                    } 
-                } ** else if (proc is  JFunction) {
-                    // typically these are functions that are returned by the invocation of plugin functions
-                    // the `input` is being passed in as the `this` for the invoked function
-                    // this is so that functions that return objects containing functions can chain
-                    // e.g.  ( $func())
-
-                   // handling special case of Javascript:
-                   // when calling a function with fn.apply(ctx, args) and args = [undefined]
-                   // Javascript will convert to undefined (without array)
-                   if (validatedArgs is  List && ((List)validatedArgs).size()==1 && ((List)validatedArgs).get(0)==null) {
-                       //validatedArgs = null;
-                   }
-
-                    result = ((JFunction)proc).call(input, (List)validatedArgs);
-                   //  if (isPromise(result)) {
-                   //      result =  result;
-                   //  }
-                } else if (proc is  JLambda) {
-                   // System.err.println("Lambda "+proc);
-                   List _args = (List)validatedArgs;
-                   if (proc is  Fn0) {
-                       result = ((Fn0)proc).get();
-                   } else if (proc is  Fn1) {
-                       result = ((Fn1)proc).apply(_args.size() <= 0 ? null : _args.get(0));
-                   } else if (proc is  Fn2) {
-                       result = ((Fn2)proc).apply(_args.size() <= 0 ? null : _args.get(0), _args.size() <= 1 ? null :_args.get(1));
-                   }
-                } else if (proc is  Pattern) {
-                   List _res = new ArrayList<>();
-                   for (String s : (List<String>)validatedArgs) {
-                   //System.err.println("PAT "+proc+" input "+s);
-                       if (((Pattern)proc).matcher(s).find()) {
-                           //System.err.println("MATCH");
-                           _res.add(s);
-                       }
-                   }
-                   result = _res;
-                } else {
-                   System.out.println("Proc not found "+proc);
-                    throw new JException(
-                        "T1006", 0
-                        //stack: (new Error()).stack
-                    );
+                List<JToken> evaluatedArgs = new ();
+                foreach (Symbol argSymbol in lambda.body.arguments!) 
+                {
+                    JToken arg = JsonataQ.evaluate(argSymbol, lambda.input, lambda.environment);
+                    evaluatedArgs.Add(arg);
                 }
-            } catch(JException err) {
-               //  if(proc) {
-               //      if (typeof err.token == "undefined" && typeof proc.token !== "undefined") {
-               //          err.token = proc.token;
-               //      }
-               //      err.position = proc.position;
-               //  }
-                throw err;
+                if (next is not FunctionToken nextFunc)
+                {
+                    throw new Exception("Should not happen!");
+                }
+                result = JsonataQ.applyInner(nextFunc, evaluatedArgs, input, environment);
             }
             return result;
         }
-        */
 
         /**
-         * Evaluate lambda against input data
-         * @param {Object} expr - JSONata expression
-         * @param {Object} input - Input data to evaluate against
-         * @param {Object} environment - Environment
-         * @returns {{lambda: boolean, input: *, environment: *, arguments: *, body: *}} Evaluated input data
+         * Apply procedure or function
+         * @param {Object} proc - Procedure
+         * @param {Array} args - Arguments
+         * @param {Object} input - input
+         * @param {Object} environment - environment
+         * @returns {*} Result of procedure
+         *
          */
+        private static JToken applyInner(FunctionToken proc, List<JToken> args, JToken input, EvaluationEnvironment environment) 
+        {
+            try 
+            {
+                List<JToken> validatedArgs = args;
+                /*
+                if (proc.Type != JTokenType.Undefined) 
+                {
+                    validatedArgs = JsonataQ.validateArguments(proc.signature, args, input);
+                }
+                */
+
+                JToken result;
+                if (proc is FunctionTokenJsonataLambda procLambda) 
+                {
+                    result = JsonataQ.applyProcedure(procLambda, validatedArgs);
+                }
+                else if (proc is FunctionTokenCsharp procCsharp) 
+                {
+                    // var focus = {
+                    //    environment: environment,
+                    //    input: input
+                    // };
+                    // the `focus` is passed in as the `this` for the invoked function
+                    // result = proc.implementation.apply(focus, validatedArgs);
+                    result = procCsharp.Apply(focus_input: input, focus_environment: environment, args: validatedArgs);
+                    // `proc.implementation` might be a generator function
+                    // and `result` might be a generator - if so, yield
+                    // if (isIterable(result))
+                    // {
+                    //     result = result.next().value;
+                    // }
+                    // if (isPromise(result))
+                    // {
+                    //     result = await result;
+                    // }
+                }
+                else
+                {
+                    // typically these are functions that are returned by the invocation of plugin functions
+                    // the `input` is being passed in as the `this` for the invoked function
+                    // this is so that functions that return objects containing functions can chain
+                    // e.g. await (await $func())
+                    // result = proc.apply(input, validatedArgs);
+
+                    // handling special case of Javascript:
+                    // when calling a function with fn.apply(ctx, args) and args = [undefined]
+                    // Javascript will convert to undefined (without array)
+                    // if (validatedArgs is List && ((List)validatedArgs).size()==1 && ((List)validatedArgs).get(0)==null) {
+                    //     //validatedArgs = null;
+                    //}
+                    result = proc.Apply(focus_input: input, focus_environment: null, args: validatedArgs);
+                    //  if (isPromise(result)) {
+                    //      result =  result;
+                    //  }
+                }
+                return result;
+            } 
+            catch (JException err) 
+            {
+                //  if(proc) {
+                //      if (typeof err.token == "undefined" && typeof proc.token !== "undefined") {
+                //          err.token = proc.token;
+                //      }
+                //      err.position = proc.position;
+                //  }
+                throw new JException(err, err.error, err.getLocation(), err.getCurrent(), err.getExpected());
+            }
+        }
+
+        /**
+        * Evaluate lambda against input data
+        * @param {Object} expr - JSONata expression
+        * @param {Object} input - Input data to evaluate against
+        * @param {Object} environment - Environment
+        * @returns {{lambda: boolean, input: *, environment: *, arguments: *, body: *}} Evaluated input data
+        */
         private static JToken evaluateLambda(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
             /*
-            // make a Object (closure)
-            var procedure = parser.new Symbol();
-        
-            procedure._jsonata_lambda = true;
-            procedure.input = input;
-            procedure.environment = environment;
-            procedure.arguments = expr.arguments;
-            procedure.signature = expr.signature;
-            procedure.body = expr.body;
-        
-            if(expr.thunk == true)
-                    procedure.thunk = true;
-        
-            // procedure.apply = function(self, args) {
-            //     return apply(procedure, args, input, !!self ? self.environment : environment);
-            // };
+            // make a function (closure)
+            var procedure = {
+                _jsonata_lambda: true,
+                input: input,
+                environment: environment,
+                arguments: expr.arguments,
+                signature: expr.signature,
+                body: expr.body
+            };
+            if(expr.thunk === true) {
+                procedure.thunk = true;
+            }
+            procedure.apply = async function(self, args) {
+                return await apply(procedure, args, input, !!self ? self.environment : environment);
+            };
             return procedure;
             */
+            return new FunctionTokenJsonataLambda(expr, input, environment);
         }
 
         /**
@@ -2056,7 +2026,8 @@ namespace Jsonata.Net.Native.New
          * @param {*} context - context value
          * @returns {Array} - validated arguments
          *
-       Object validateArguments(Object signature, Object args, Object context) {
+        private static List<JToken> validateArguments(Object signature, Object args, Object context) 
+        {
            var validatedArgs = args;
            if (Utils.isFunction(signature)) {
                validatedArgs = ((JFunction)signature).validate(args, context);
@@ -2074,25 +2045,30 @@ namespace Jsonata.Net.Native.New
          * @param {Object} proc - Procedure
          * @param {Array} args - Arguments
          * @returns {*} Result of procedure
-         *
-        Object applyProcedure(Object _proc, Object _args) {
-           List args = (List)_args;
-           Symbol proc = (Symbol)_proc;
-           Object result = null;
-           var env = createFrame(proc.environment);
-           for (int i=0; i<proc.arguments.size(); i++) {
-               if (i>=args.size()) break;
-               env.bind(""+proc.arguments.get(i).value, args.get(i));
-           }
-           if (proc.body is  Symbol) {
-               result = evaluate(proc.body, proc.input, env);
-           } else throw new Error("Cannot execute procedure: "+proc+" "+proc.body);
-           //  if (typeof proc.body === "function") {
-           //      // this is a lambda that wraps a native Object - generated by partially evaluating a native
-           //      result =  applyNativeFunction(proc.body, env);
-           return result;
-       }
-        */
+         **/
+        private static JToken applyProcedure(FunctionTokenJsonataLambda proc, List<JToken> args) 
+        {
+            EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
+            for (int index = 0; index < proc.arguments.Count; ++index)
+            {
+                Symbol param = proc.arguments[index];
+                env.BindValue((string)param.value!, args[index]);
+            }
+            JToken result;
+            /* TODO?
+            if (proc.body.type == SymbolType.function)
+            {
+                // this is a lambda that wraps a native function - generated by partially evaluating a native
+                result = JsonataQ.applyNativeFunction(proc.body, env);
+            }
+            else
+            */
+            {
+                result = JsonataQ.evaluate(proc.body, proc.input, env);
+            }
+            return result;
+        }
+        
 
         /**
          * Partially apply procedure
@@ -2177,10 +2153,11 @@ namespace Jsonata.Net.Native.New
          * @param {Object} env - Environment
          * @returns {*} Result of applying native function
          *
+         *
         Object applyNativeFunction(JFunction proc, Frame env) {
            // Not called in Java - JFunction call directly calls native function
            return null;
-       }
+        }
         */
 
         /**

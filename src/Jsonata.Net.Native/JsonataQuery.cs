@@ -42,12 +42,14 @@ namespace Jsonata.Net.Native
             {
                 env = EvaluationEnvironment.DefaultEnvironment;
             };
-            return EvalProcessor.EvaluateJson(this.m_node, data, env);
+            throw new NotImplementedException();
+            //return EvalProcessor.EvaluateJson(this.m_node, data, env);
         }
 
         public JToken Eval(JToken data, EvaluationEnvironment environment)
         {
-            return EvalProcessor.EvaluateJson(this.m_node, data, environment);
+            throw new NotImplementedException();
+            //return EvalProcessor.EvaluateJson(this.m_node, data, environment);
         }
 
         public override string ToString()

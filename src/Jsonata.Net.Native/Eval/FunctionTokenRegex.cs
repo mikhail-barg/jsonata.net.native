@@ -8,7 +8,7 @@ using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
-    internal sealed class FunctionTokenRegex : FunctionToken
+    internal abstract class FunctionTokenRegex : FunctionToken
     {
         internal readonly Regex regex;
 
@@ -18,10 +18,12 @@ namespace Jsonata.Net.Native.Eval
             this.regex = regex;
         }
 
-        /**
+        /*
+        **
             The ~> is the chain operator, and its use here implies that the result of /regex/ is a function. 
             We'll see below that this is in fact the case.         
-         */
+         *
+         *
         internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
         {
             JToken arg;
@@ -56,6 +58,7 @@ namespace Jsonata.Net.Native.Eval
             }
             return ConvertRegexMatch(match);
         }
+        */
 
         internal static JObject ConvertRegexMatch(Match match)
         {
@@ -75,14 +78,11 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
+        /*
         public override JToken DeepClone()
         {
             return new FunctionTokenRegex(this.regex);
         }
-
-        protected override void ClearParentNested()
-        {
-            //nothing to do for a regex;
-        }
+        */
     }
 }

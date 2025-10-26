@@ -67,14 +67,6 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        protected override void ClearParentNested()
-        {
-            foreach (JToken child in this.m_values)
-            {
-                child.ClearParent();
-            }
-        }
-
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options)
         {
             if (this.m_values.Count == 0)

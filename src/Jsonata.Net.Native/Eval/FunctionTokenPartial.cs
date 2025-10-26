@@ -7,6 +7,7 @@ using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Eval
 {
+    /*
     internal sealed class FunctionTokenPartial : FunctionToken
     {
         internal readonly FunctionToken func;
@@ -77,4 +78,5 @@ namespace Jsonata.Net.Native.Eval
             }
         }
     }
+    */
 }

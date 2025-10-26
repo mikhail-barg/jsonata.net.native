@@ -43,14 +43,6 @@ namespace Jsonata.Net.Native.Json
             this.m_properties.Remove(key);
         }
 
-        protected override void ClearParentNested()
-        {
-            foreach (JToken child in this.m_properties.Values)
-            {
-                child.ClearParent();
-            }
-        }
-
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options)
         {
             builder.Append('{');

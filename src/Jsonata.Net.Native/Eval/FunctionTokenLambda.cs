@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
+    /*
     internal sealed class FunctionTokenLambda : FunctionToken
     {
         private readonly ProcessedSignature? signature;
@@ -332,4 +333,5 @@ namespace Jsonata.Net.Native.Eval
             }
         }
     }
+    */
 }

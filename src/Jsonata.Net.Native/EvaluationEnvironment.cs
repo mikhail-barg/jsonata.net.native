@@ -1,5 +1,6 @@
 ﻿using Jsonata.Net.Native.Eval;
 using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,7 +102,7 @@ namespace Jsonata.Net.Native
             }
             else
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
         }
 

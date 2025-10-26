@@ -24,7 +24,7 @@ namespace Jsonata.Net.Native.Eval
             this.RequiredArgsCount = argumentsCount;
         }
 
-        internal abstract JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env);
+        internal abstract JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args);
 
         internal static JToken ReturnDoubleResult(double resultDouble)
         {

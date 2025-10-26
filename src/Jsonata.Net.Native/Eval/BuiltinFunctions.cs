@@ -1,4 +1,5 @@
 ﻿using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -557,6 +558,8 @@ namespace Jsonata.Net.Native.Eval
                         //break;
                     case JTokenType.Function:
                         {
+                            throw new NotImplementedException();
+                            /*
                             FunctionToken replacementFunction = (FunctionToken)replacement;
                             StringBuilder builder = new StringBuilder();
                             EvaluationEnvironment env = EvaluationEnvironment.CreateEvalEnvironment(EvaluationEnvironment.DefaultEnvironment); //TODO: think of providing proper env. Maybe via a func param?
@@ -591,6 +594,7 @@ namespace Jsonata.Net.Native.Eval
                                 builder.Append(str.Substring(replaceStartAt));
                             };
                             return builder.ToString();
+                            */
                         }
                         //break;
                     default:
@@ -1040,7 +1044,7 @@ namespace Jsonata.Net.Native.Eval
 
             if (!found)
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
 
             return FunctionToken.ReturnDecimalResult(result);
@@ -1078,7 +1082,7 @@ namespace Jsonata.Net.Native.Eval
 
             if (!found)
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
 
             return FunctionToken.ReturnDecimalResult(result);
@@ -1112,7 +1116,7 @@ namespace Jsonata.Net.Native.Eval
 
             if (count == 0)
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             };
             return FunctionToken.ReturnDecimalResult(result / count);
         }
@@ -1300,6 +1304,8 @@ namespace Jsonata.Net.Native.Eval
             }
             else if (function.Type == JTokenType.Function)
             {
+                throw new NotImplementedException();
+                /*
                 comparator = (a, b) => {
                     JToken res = EvalProcessor.InvokeFunction(
                         function: (FunctionToken)function,
@@ -1310,6 +1316,7 @@ namespace Jsonata.Net.Native.Eval
                     bool result = Helpers.Booleanize(res);
                     return result ? 1 : -1; //may cause problems because of no zero (
                 };
+                */
             }
             else
             {
@@ -1610,11 +1617,11 @@ namespace Jsonata.Net.Native.Eval
                         .ToList();
                 break;
             default:
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
             if (keys.Count == 0)
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
             else if (keys.Count == 1)
             {
@@ -1662,11 +1669,11 @@ namespace Jsonata.Net.Native.Eval
                     }
                     else
                     {
-                        return EvalProcessor.UNDEFINED;
+                        return JsonataQ.UNDEFINED;
                     };
                 };
             default:
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
 
             }
         }
@@ -1685,7 +1692,7 @@ namespace Jsonata.Net.Native.Eval
                     JObject obj = (JObject)arg;
                     if (obj.Count == 0)
                     {
-                        return EvalProcessor.UNDEFINED;
+                        return JsonataQ.UNDEFINED;
                     }
                     JArray result = new JArray(obj.Properties.Count);
                     foreach (KeyValuePair<string, JToken> property in obj.Properties)
@@ -1701,7 +1708,7 @@ namespace Jsonata.Net.Native.Eval
                     JArray array = (JArray)arg;
                     if (array.Count == 0)
                     {
-                        return EvalProcessor.UNDEFINED;
+                        return JsonataQ.UNDEFINED;
                     }
                     JArray result = new JArray();
                     foreach (JToken element in array.ChildrenTokens)
@@ -1775,6 +1782,8 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
         {
+            throw new NotImplementedException();
+            /*
             int argsCount = function.RequiredArgsCount;
             JsonataArray result = JsonataArray.CreateSequence();
             foreach (KeyValuePair<string, JToken> prop in obj.Properties)
@@ -1800,6 +1809,7 @@ namespace Jsonata.Net.Native.Eval
                 };
             }
             return result;
+            */
         }
 
         /**
@@ -1829,7 +1839,7 @@ namespace Jsonata.Net.Native.Eval
             }
             else
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
         }
 
@@ -1952,6 +1962,8 @@ namespace Jsonata.Net.Native.Eval
 
         private static bool FilterAcceptsElement(FunctionToken function, JToken element, int index, JArray array)
         {
+            throw new NotImplementedException();
+            /*
             int filterArgsCount = function.RequiredArgsCount;
             List<JToken> args = new List<JToken>();
             if (filterArgsCount >= 1)
@@ -1974,6 +1986,7 @@ namespace Jsonata.Net.Native.Eval
             );
             bool result = Helpers.Booleanize(res);
             return result;
+            */
         }
 
         /**
@@ -1987,6 +2000,9 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
         {
+            throw new NotImplementedException();
+            /*
+
             int funcArgsCount = function.RequiredArgsCount;
 
             JsonataArray result = JsonataArray.CreateSequence();
@@ -2020,6 +2036,7 @@ namespace Jsonata.Net.Native.Eval
                 ++index;
             }
             return result;
+            */
         }
 
 
@@ -2101,6 +2118,8 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken reduce([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function, [OptionalArgument(null)] JToken? init)
         {
+            throw new NotImplementedException();
+            /*
             JToken accumulator;
             IEnumerable<JToken> elements;
             int index;
@@ -2108,7 +2127,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 if (array.Count == 0)
                 {
-                    return EvalProcessor.UNDEFINED;
+                    return JsonataQ.UNDEFINED;
                 };
                 accumulator = array.ChildrenTokens[0];
                 elements = array.ChildrenTokens.Skip(1);
@@ -2149,6 +2168,7 @@ namespace Jsonata.Net.Native.Eval
                 ++index;
             }
             return accumulator;
+            */
         }
 
         /**
@@ -2165,6 +2185,9 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
         {
+            throw new NotImplementedException();
+
+            /*
             JObject result = new JObject();
             foreach (KeyValuePair<string, JToken> property in obj.Properties)
             {
@@ -2175,7 +2198,7 @@ namespace Jsonata.Net.Native.Eval
             }
             if (result.Count == 0)
             {
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             }
             return result;
 
@@ -2204,6 +2227,7 @@ namespace Jsonata.Net.Native.Eval
                 bool result = Helpers.Booleanize(res);
                 return result;
             }
+            */
         }
 
 

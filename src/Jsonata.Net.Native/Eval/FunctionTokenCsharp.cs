@@ -6,11 +6,12 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 
 namespace Jsonata.Net.Native.Eval
 {
-
-	internal sealed class FunctionTokenCsharp : FunctionToken
+    //these are the ones with _jsonata_function, right?
+    internal sealed class FunctionTokenCsharp : FunctionToken
 	{
 		private readonly object? m_target;
 		private readonly MethodInfo m_methodInfo;
@@ -94,12 +95,12 @@ namespace Jsonata.Net.Native.Eval
 			}
 		}
 
-		internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
-		{
-			object?[] parameters = this.BindFunctionArguments(args, context, env, out bool returnUndefined);
+        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        {
+			object?[] parameters = this.BindFunctionArguments(args, focus_input!, focus_environment!, out bool returnUndefined);
 			if (returnUndefined)
 			{
-				return EvalProcessor.UNDEFINED;
+				return JsonataQ.UNDEFINED;
 			};
 
 			object? resultObj;
@@ -216,7 +217,7 @@ namespace Jsonata.Net.Native.Eval
 				if (argumentInfo.propagateUndefined)
 				{
 					returnUndefined = true;
-					return EvalProcessor.UNDEFINED;
+					return JsonataQ.UNDEFINED;
 				}
 				if (argumentInfo.isOptional)
 				{
@@ -229,7 +230,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (argumentInfo.packSingleValueToSequence && argToken.Type != JTokenType.Array)
 			{
-				Sequence sequence = new Sequence();
+				JsonataArray sequence = JsonataArray.CreateSequence();
 				sequence.Add(argToken);
 				argToken = sequence;
 			};
@@ -355,11 +356,6 @@ namespace Jsonata.Net.Native.Eval
         public override JToken DeepClone()
         {
 			return new FunctionTokenCsharp(this.m_functionName, this.m_methodInfo, this.m_target);
-        }
-
-        protected override void ClearParentNested()
-        {
-            //nothing to do for a function;
         }
     }
 }

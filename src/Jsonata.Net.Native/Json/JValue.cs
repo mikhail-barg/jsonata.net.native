@@ -94,11 +94,6 @@ namespace Jsonata.Net.Native.Json
             }
         }
 
-        protected override void ClearParentNested()
-        {
-            //nothing to do for a value;
-        }
-
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options)
         {
             this.ToString(builder);
