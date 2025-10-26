@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "tail-recursion",
-  "message": "10 skipped",
-  "color": "yellow"
+  "message": "4 passed | 6 failed",
+  "color": "orange"
 }

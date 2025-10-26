@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-sum",
-  "message": "7 skipped",
-  "color": "yellow"
+  "message": "5 passed | 2 skipped",
+  "color": "orange"
 }

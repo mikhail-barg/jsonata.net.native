@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "inclusion-operator",
-  "message": "8 passed | 1 skipped",
-  "color": "orange"
+  "message": "9 passed",
+  "color": "brightgreen"
 }

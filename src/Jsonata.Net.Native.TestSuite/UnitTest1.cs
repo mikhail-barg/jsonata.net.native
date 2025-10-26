@@ -20,9 +20,8 @@ namespace Jsonata.Net.Native.TestSuite
         private const string TEST_SUITE_ROOT = "../../../../../jsonata-js/test/test-suite";
         private Dictionary<string, JToken> m_datasets = new Dictionary<string, JToken>();
         private readonly Dictionary<string, string> m_disabledTests = new Dictionary<string, string>() {
-            //{ "tail-recursion.case005", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" },
-            //{ "tail-recursion.case006", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" },
-            //{ "tail-recursion.case007", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" }
+            { "tail-recursion.case005", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" },
+            { "tail-recursion.case006", "Tail recursion is not supported yet, and having StackOverflow here breaks tests" },
         };
         private readonly Dictionary<string, string> m_suppressedTests = new Dictionary<string, string>() {
             //{ "function-sum.case002", "The problem with precision: expected '90.57', got '90.57000000000001'. We may use decimal instead of double always, but it looks like an overill?" },

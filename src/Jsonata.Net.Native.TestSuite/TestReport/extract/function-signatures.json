@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-signatures",
-  "message": "1 failed | 34 skipped",
+  "message": "19 passed | 9 failed | 7 skipped",
   "color": "orange"
 }

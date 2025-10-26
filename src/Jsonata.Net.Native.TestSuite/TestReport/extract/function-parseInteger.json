@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-parseInteger",
-  "message": "61 skipped",
-  "color": "yellow"
+  "message": "7 passed | 1 failed | 53 skipped",
+  "color": "orange"
 }

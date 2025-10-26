@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "predicates",
-  "message": "3 passed | 1 skipped",
-  "color": "orange"
+  "message": "4 passed",
+  "color": "brightgreen"
 }

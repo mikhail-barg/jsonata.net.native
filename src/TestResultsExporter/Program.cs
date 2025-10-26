@@ -13,7 +13,7 @@ namespace TestResultsExporter
     {
         static void Main(string[] args)
         {
-            string testReportDir = args[0];
+            string testReportDir = "../../../../Jsonata.Net.Native.TestSuite/TestReport/";
             string fullLogFile = Path.Combine(testReportDir, "Jsonata.Net.Native.TestSuite.xml");
             string extractFile = Path.Combine(testReportDir, "extract.txt");
             string jsonFilesDir = Path.Combine(testReportDir, "extract");

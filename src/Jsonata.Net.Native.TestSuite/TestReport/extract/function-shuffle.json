@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-shuffle",
-  "message": "4 skipped",
-  "color": "yellow"
+  "message": "4 passed",
+  "color": "brightgreen"
 }

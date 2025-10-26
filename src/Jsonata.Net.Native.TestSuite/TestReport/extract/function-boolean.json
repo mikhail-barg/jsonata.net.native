@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-boolean",
-  "message": "24 skipped",
-  "color": "yellow"
+  "message": "22 passed | 2 skipped",
+  "color": "orange"
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-lowercase",
-  "message": "2 skipped",
-  "color": "yellow"
+  "message": "2 passed",
+  "color": "brightgreen"
 }
