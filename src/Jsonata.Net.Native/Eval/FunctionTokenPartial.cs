@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 
 namespace Jsonata.Net.Native.Eval
 {
-    /*
     internal sealed class FunctionTokenPartial : FunctionToken
     {
         internal readonly FunctionToken func;
@@ -20,10 +20,10 @@ namespace Jsonata.Net.Native.Eval
             this.argsOrPlaceholders = argsOrPlaceholders;
         }
 
-        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
+        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
         {
-            List<JToken> alignedArgs = this.AlignPartialFunctionArgs(args, context);
-            JToken result = this.func.Invoke(alignedArgs, null, env);
+            List<JToken> alignedArgs = this.AlignPartialFunctionArgs(args, focus_input);
+            JToken result = this.func.Apply(focus_input, focus_environment, alignedArgs);
             return result;
         }
 
@@ -53,7 +53,7 @@ namespace Jsonata.Net.Native.Eval
                     }
                     else
                     {
-                        result.Add(EvalProcessor.UNDEFINED);
+                        result.Add(JsonataQ.UNDEFINED);
                     }
                 }
                 else
@@ -69,14 +69,5 @@ namespace Jsonata.Net.Native.Eval
             return new FunctionTokenPartial(this.func, this.argsOrPlaceholders.Select(i => i?.DeepClone()).ToList());
         }
 
-        protected override void ClearParentNested()
-        {
-            //not sure if args/placeholders parents should be cleared or no
-            foreach (JToken? token in this.argsOrPlaceholders)
-            {
-                token?.ClearParent();
-            }
-        }
     }
-    */
 }

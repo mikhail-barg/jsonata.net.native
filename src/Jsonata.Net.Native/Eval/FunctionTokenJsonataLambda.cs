@@ -23,6 +23,12 @@ namespace Jsonata.Net.Native.Eval
         {
         }
 
+        //see jsonata.js partialApplyProcedure 
+        internal FunctionTokenJsonataLambda(JToken input, EvaluationEnvironment environment, List<Symbol> arguments, Symbol body)
+            : this(input: input, environment: environment, arguments: arguments, signature: null, body: body, thunk: false)
+        {
+        }
+
         private FunctionTokenJsonataLambda(JToken input, EvaluationEnvironment environment, List<Symbol> arguments, Signature? signature, Symbol body, bool thunk)
             : base(jsonName: "lambda", argumentsCount: arguments.Count)
         {

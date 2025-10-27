@@ -1979,44 +1979,49 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluatePartialApplication(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
-            /*
             // partially apply a function
-            Object result = null;
             // evaluate the arguments
-            var evaluatedArgs = new ArrayList<>();
-            for(var ii = 0; ii < expr.arguments.size(); ii++) {
-                var arg = expr.arguments.get(ii);
-                if (arg.type.equals("operator") && (arg.value.equals("?"))) {
-                    evaluatedArgs.add(arg);
-                } else {
-                    evaluatedArgs.add(evaluate(arg, input, environment));
+            List<JToken?> evaluatedArgsOrPlaceholders = new ();
+            foreach (Symbol arg in expr.arguments!) 
+            {
+                if (arg.type == SymbolType.@operator && (string)arg.value! == "?") 
+                {
+                    evaluatedArgsOrPlaceholders.Add(null);
+                } 
+                else 
+                {
+                    evaluatedArgsOrPlaceholders.Add(JsonataQ.evaluate(arg, input, environment));
                 }
             }
             // lookup the procedure
-            var proc = evaluate(expr.procedure, input, environment);
-            if (proc != null && expr.procedure.type.equals("path") && environment.lookup((String)expr.procedure.steps.get(0).value)!=null) {
+            JToken proc = JsonataQ.evaluate(expr.procedure!, input, environment);
+            if (proc.Type == JTokenType.Undefined
+                && expr.procedure!.type == SymbolType.path
+                && environment.Lookup((string)(expr.procedure.steps![0].value!)).Type != JTokenType.Undefined
+            )
+            {
                 // help the user out here if they simply forgot the leading $
-                throw new JException("T1007",
-                    expr.position,
-                    expr.procedure.steps.get(0).value
-                );
+                throw new JException("T1007", expr.position, expr.procedure.steps[0].value);
             }
-            if (Functions.isLambda(proc)) {
-                result = partialApplyProcedure((Symbol)proc, (List)evaluatedArgs);
-            } else if (Utils.isFunction(proc)) {
-                result = partialApplyNativeFunction((JFunction)proc /*.implementation*, evaluatedArgs);
-        //  } else if (typeof proc === "function") {
-        //      result = partialApplyNativeFunction(proc, evaluatedArgs);
-            } else {
-                throw new JException("T1008",
-                    //stack: (new Error()).stack,
-                    expr.position,
-                    expr.procedure.type.equals("path") ? expr.procedure.steps.get(0).value : expr.procedure.value
-                );
+
+            JToken result;
+            if (proc is FunctionTokenJsonataLambda procLambda)
+            {
+                result = JsonataQ.partialApplyProcedure(procLambda, evaluatedArgsOrPlaceholders);
+            }
+            else if (proc is FunctionTokenCsharp procCsharp)
+            {
+                result = JsonataQ.partialApplyNativeFunction(procCsharp, evaluatedArgsOrPlaceholders);
+            }
+            else if (proc is FunctionToken procFunc)
+            {
+                result = JsonataQ.partialApplyNativeFunction(procFunc, evaluatedArgsOrPlaceholders);
+            }
+            else
+            {
+                throw new JException("T1008", expr.position, expr.procedure!.type == SymbolType.path ? expr.procedure.steps![0].value : expr.procedure.value);
             }
             return result;
-            */
         }
 
         /**
@@ -2076,32 +2081,31 @@ namespace Jsonata.Net.Native.New
          * @param {Array} args - Arguments
          * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applied procedure
          *
-       Object partialApplyProcedure(Symbol proc, List<Symbol> args) {
-           // create a closure, bind the supplied parameters and return a Object that takes the remaining (?) parameters
-           // Note Uli: if no env, bind to default env so the native functions can be found
-           var env = createFrame(proc.environment!=null ? proc.environment : Jsonata.environment);
-           var unboundArgs = new ArrayList<Symbol>();
-           int index = 0;
-           for (var param : proc.arguments) {
-   //         proc.arguments.forEach(Object (param, index) {
-               Object arg = index<args.size() ? args.get(index) : null;
-               if ((arg==null) || (arg is  Symbol && ("operator".equals(((Symbol)arg).type) && "?".equals(((Symbol)arg).value)))) {
-                   unboundArgs.add(param);
-               } else {
-                   env.bind((String)param.value, arg);
-               }
-               index++;
-           }
-           var procedure = parser.new Symbol();
-           procedure._jsonata_lambda = true;
-           procedure.input = proc.input;
-           procedure.environment = env;
-           procedure.arguments = unboundArgs;
-           procedure.body = proc.body;
+         */
 
-           return procedure;
-       }
-        */
+        private static JToken partialApplyProcedure(FunctionTokenJsonataLambda proc, List<JToken?> argsOrPlaceholders) 
+        {
+            // create a closure, bind the supplied parameters and return a function that takes the remaining (?) parameters
+            EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
+            List<Symbol> unboundArgs = new();
+            for (int index = 0; index < proc.arguments.Count; ++ index)
+            {
+                Symbol param = proc.arguments[index];
+                JToken? arg = argsOrPlaceholders[index];
+                if (arg == null)
+                {
+                    unboundArgs.Add(param);
+                }
+                else
+                {
+                    env.BindValue((string)param.value!, arg);
+                }
+            }
+
+            JToken procedure = new FunctionTokenJsonataLambda(input: proc.input, environment: env, arguments: unboundArgs, body: proc.body);
+            return procedure;
+        }
+        
 
         /**
          * Partially apply native function
@@ -2109,43 +2113,27 @@ namespace Jsonata.Net.Native.New
          * @param {Array} args - Arguments
          * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applying native function
          *
-       Object partialApplyNativeFunction(JFunction _native, List args) {
-           // create a lambda Object that wraps and invokes the native function
-           // get the list of declared arguments from the native function
-           // this has to be picked out from the toString() value
+         */
+        private static JToken partialApplyNativeFunction(FunctionToken native, List<JToken?> argsOrPlaceholders) 
+        {
+            /*
+            // create a lambda function that wraps and invokes the native function
+            // get the list of declared arguments from the native function
+            // this has to be picked out from the toString() value
+            var sigArgs = getNativeFunctionArguments(native);
+            sigArgs = sigArgs.map(function(sigArg) {
+                return '$' + sigArg.trim();
+            });
+            var body = 'function(' + sigArgs.join(', ') + '){ _ }';
 
+            var bodyAST = parser(body);
+            bodyAST.body = native;
 
-           //var body = "function($a,$c) { $substring($a,0,$c) }";
-
-           List sigArgs = new ArrayList<>();
-           List partArgs = new ArrayList<>();
-           for (int i=0; i<_native.getNumberOfArgs(); i++) {
-               String argName = "$" + (char)('a'+i);
-               sigArgs.add(argName);
-               if (i>=args.size() || args.get(i)==null)
-                   partArgs.add(argName);
-               else
-                   partArgs.add(args.get(i));
-           }
-
-           var body = "function(" + String.join(", ", sigArgs) + "){";
-           body += "$"+_native.functionName+"("+String.join(", ", sigArgs) + ") }";
-
-           if (parser.dbg) System.out.println("partial trampoline = "+body);
-
-           //  var sigArgs = getNativeFunctionArguments(_native);
-           //  sigArgs = sigArgs.stream().map(sigArg -> {
-           //      return "$" + sigArg;
-           //  }).toList();
-           //  var body = "function(" + String.join(", ", sigArgs) + "){ _ }";
-
-           var bodyAST = parser.parse(body);
-           //bodyAST.body = _native;
-
-           var partial = partialApplyProcedure(bodyAST, (List)args);
-           return partial;
-       }
-        */
+            var partial = partialApplyProcedure(bodyAST, args);
+            return partial;
+            */
+            return new FunctionTokenPartial(native, argsOrPlaceholders);
+        }
 
         /**
          * Apply native function

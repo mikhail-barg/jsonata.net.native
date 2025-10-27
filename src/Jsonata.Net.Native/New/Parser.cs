@@ -992,6 +992,7 @@ namespace Jsonata.Net.Native.New
         }
 
 
+        //TODO: do only once!
         public Parser() 
         {
             register(new TerminalFactory("(end)"));

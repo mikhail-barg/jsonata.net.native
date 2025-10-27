@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-applications",
-  "message": "11 passed | 11 skipped",
+  "message": "13 passed | 9 skipped",
   "color": "orange"
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "errors",
-  "message": "23 passed | 4 skipped",
+  "message": "24 passed | 3 skipped",
   "color": "orange"
 }
