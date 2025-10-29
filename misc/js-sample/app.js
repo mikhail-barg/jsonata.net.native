@@ -127,29 +127,20 @@ function Format(symbol, prefix, indent) {
 }
 
 const data = {
-    "library": {
-        "books": [
-            { "a": "b" }
-        ]
-    }
+//    "library": {
+//        "books": [
+//            { "a": "b" }
+//        ]
+//    }
 };
 
 (async () => {
-    const expression = jsonata(`library.loans@$l#$il.books@$b#$ib[$l.isbn=$b.isbn]#$ib2.customers@$c#$ic[$l.customer=$c.id].{
-  'title': $b.title,
-  'customer': $l.customer,
-  'name': $c.name,
-  'loan-index': $il,
-  'book-index': $ib,
-  'customer-index': $ic,
-  'ib2': $ib2
-}        
-`);
-    Format(expression.ast(), null, 0);
-    console.log('\n');
-    //const result = await expression.evaluate(data);  // returns 24
-    const data2 = JSON.parse(fs.readFileSync("../../jsonata-js/test/test-suite/datasets/library.json").toString());
-    const result = await expression.evaluate(data2);
+    const expression = jsonata(`$split("Hello", " ")`);
+    //Format(expression.ast(), null, 0);
+    //console.log('\n');
+    const result = await expression.evaluate(data);  // returns 24
+    //const data2 = JSON.parse(fs.readFileSync("../../jsonata-js/test/test-suite/datasets/library.json").toString());
+    //const result = await expression.evaluate(data2);
     console.log(result);
 })()
 

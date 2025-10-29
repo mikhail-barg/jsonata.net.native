@@ -6,6 +6,7 @@ using Jsonata.Net.Native.Eval;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Jsonata.Net.Native.New 
 {
@@ -1444,11 +1445,8 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateRegex(Symbol expr)
         {
-            //TODO: implement
-            // Note: in Java we just use the compiled regex Pattern
-            // The apply functions need to take care to evaluate
-            //return expr.value;
-            throw new NotImplementedException();
+            Regex re = (Regex)expr.value!;
+            return new FunctionTokenRegex(re);
         }
 
         /**
@@ -1987,7 +1985,8 @@ namespace Jsonata.Net.Native.New
             for (int index = 0; index < proc.arguments.Count; ++index)
             {
                 Symbol param = proc.arguments[index];
-                env.BindValue((string)param.value!, args[index]);
+                JToken argValue = index < args.Count? args[index] : JsonataQ.UNDEFINED;
+                env.BindValue((string)param.value!, argValue);
             }
             JToken result;
             /* TODO?

@@ -5,10 +5,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 
 namespace Jsonata.Net.Native.Eval
 {
-    internal abstract class FunctionTokenRegex : FunctionToken
+    // see jsonata.js evaluateRegex
+    internal sealed class FunctionTokenRegex : FunctionToken
     {
         internal readonly Regex regex;
 
@@ -18,18 +20,12 @@ namespace Jsonata.Net.Native.Eval
             this.regex = regex;
         }
 
-        /*
-        **
-            The ~> is the chain operator, and its use here implies that the result of /regex/ is a function. 
-            We'll see below that this is in fact the case.         
-         *
-         *
-        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
+        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
         {
             JToken arg;
-            if (args.Count == 0 && context != null)
+            if (args.Count == 0 && focus_input != null)
             {
-                arg = context;
+                arg = focus_input;
             }
             else if (args.Count > 0)
             {
@@ -37,13 +33,13 @@ namespace Jsonata.Net.Native.Eval
             }
             else
             {
-                arg = EvalProcessor.UNDEFINED;
+                arg = JsonataQ.UNDEFINED;
             }
 
             switch (arg.Type)
             {
             case JTokenType.Undefined:
-                return EvalProcessor.UNDEFINED;
+                return JsonataQ.UNDEFINED;
             case JTokenType.String:
                 break;
             default:
@@ -51,38 +47,66 @@ namespace Jsonata.Net.Native.Eval
             }
 
             string str = (string)arg!;
-            Match match = this.regex.Match(str);
-            if (!match.Success)
-            {
-                return EvalProcessor.UNDEFINED;
-            }
-            return ConvertRegexMatch(match);
-        }
-        */
-
-        internal static JObject ConvertRegexMatch(Match match)
-        {
-            JObject result = new JObject();
-            result.Add("match", new JValue(match.Value));
-            result.Add("index", new JValue(match.Index));
-            if (match.Groups.Count > 1) //0th is a whole regex
-            {
-                JArray groups = new JArray(match.Groups.Count);
-                for (int i = 1; i < match.Groups.Count; ++i)
-                {
-                    groups.Add(new JValue(match.Groups[i].Value));
-                };
-                result.Add("groups", groups);
-            }
-            //TODO: add "next", see http://docs.jsonata.org/regex#generic-matchers
+            FunctionTokenNextMatch closure = new FunctionTokenNextMatch(this.regex, str, 0);
+            JToken result = closure.Apply(null, null, new List<JToken>());
             return result;
         }
 
-        /*
         public override JToken DeepClone()
         {
             return new FunctionTokenRegex(this.regex);
         }
-        */
+
+
+        // var closure = function(str, fromIndex)
+        private sealed class FunctionTokenNextMatch : FunctionToken
+        {
+            private readonly Regex m_regex;
+            private readonly string m_str;
+            private readonly int m_fromIndex;
+
+            public FunctionTokenNextMatch(Regex regex, string str, int fromIndex) 
+                :base("_regex_match", 0)
+            {
+                this.m_regex = regex;
+                this.m_str = str;
+                this.m_fromIndex = fromIndex;
+            }
+
+            internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+            {
+                if (this.m_fromIndex >= this.m_str.Length)
+                {
+                    return JsonataQ.UNDEFINED;
+                }
+
+                Match match = this.m_regex.Match(this.m_str, this.m_fromIndex);
+                if (match == null)
+                {
+                    return JsonataQ.UNDEFINED;
+                }
+
+                JObject result = new JObject();
+                result.Add("match", new JValue(match.Value));
+                result.Add("index", new JValue(match.Index));
+                JArray groups = new JArray(match.Groups.Count - 1);
+                if (match.Groups.Count > 1) //0th is a whole regex
+                {
+                    for (int i = 1; i < match.Groups.Count; ++i)
+                    {
+                        groups.Add(new JValue(match.Groups[i].Value));
+                    }
+                }
+                result.Add("groups", groups);
+                result.Add("next", new FunctionTokenNextMatch(this.m_regex, this.m_str, fromIndex: match.Index + match.Value.Length));
+
+                return result;
+            }
+
+            public override JToken DeepClone()
+            {
+                return new FunctionTokenNextMatch(this.m_regex, this.m_str, this.m_fromIndex);
+            }
+        }
     }
 }

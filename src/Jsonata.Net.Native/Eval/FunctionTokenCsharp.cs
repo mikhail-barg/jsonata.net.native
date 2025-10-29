@@ -108,8 +108,9 @@ namespace Jsonata.Net.Native.Eval
 			}
 			catch (TargetInvocationException ti)
 			{
-				if (ti.InnerException is JsonataException)
-				{
+				if (ti.InnerException is JsonataException 
+					|| ti.InnerException is JException)
+                {
 					ExceptionDispatchInfo.Capture(ti.InnerException).Throw();
 				}
 				else

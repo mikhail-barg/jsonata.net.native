@@ -236,16 +236,10 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.String:
                 return str.Contains((string)pattern!);
             case JTokenType.Function:
-                if (pattern is not FunctionTokenRegex regex)
-                {
-                    throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed function {pattern.GetType().Name})");
-                }
-                else
-                {
-                    return regex.regex.IsMatch(str);
-                }
+                JToken matches = evaluateMatcher((FunctionToken)pattern, new JValue(str));
+                return matches.Type != JTokenType.Undefined;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or regex. Passed {pattern.Type} ({pattern.ToFlatString()})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or function. Passed {pattern.Type} ({pattern.ToFlatString()})");
             }
         }
 
@@ -268,14 +262,12 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JArray split([PropagateUndefined] string str, JToken separator, [OptionalArgument(Int32.MaxValue)] int limit)
         {
-            //TODO: support RegExes!!
-
-            if (limit < 0)
-            {
-                throw new JsonataException("D3020", $"Third argument of {nameof(split)} function must evaluate to a positive number. Passed {limit}");
-            }
-
             JArray result = new JArray();
+
+            if (limit <= 0)
+            {
+                return result;
+            }
 
             switch (separator.Type)
             {
@@ -308,22 +300,34 @@ namespace Jsonata.Net.Native.Eval
                 break;
             case JTokenType.Function:
                 {
-                    if (separator is not FunctionTokenRegex regex)
+                    JToken strToken = new JValue(str);
+                    FunctionToken separatorFunc = (FunctionToken)separator;
+                    JToken matches = evaluateMatcher(separatorFunc, strToken);
+                    if (matches.Type != JTokenType.Undefined)
                     {
-                        throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed function {separator.GetType().Name})");
-                    };
-                    foreach (string part in regex.regex.Split(str))
-                    {
-                        if (result.Count >= limit)
+                        int count = 0;
+                        int start = 0;
+                        while (matches.Type != JTokenType.Undefined && count < limit)
                         {
-                            break;
+                            JObject matchesObj = (JObject)matches;
+                            result.Add(new JValue(str.Substring(start, matchesObj.GetPropertyAsInt("start")- start)));
+                            start = matchesObj.GetPropertyAsInt("end");
+                            matches = evaluateMatcher((FunctionToken)matchesObj.Properties["next"]);
+                            ++count;
                         }
-                        result.Add(new JValue(part));
-                    };
+                        if (count < limit)
+                        {
+                            result.Add(new JValue(str.Substring(start)));
+                        }
+                    }
+                    else
+                    {
+                        result.Add(strToken);
+                    }
                 }
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or regex. Passed {separator.Type} ({separator.ToFlatString()})");
+                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or function. Passed {separator.Type} ({separator.ToFlatString()})");
             }
             return result;
         }
@@ -398,26 +402,31 @@ namespace Jsonata.Net.Native.Eval
         */
         public static JArray match([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(Int32.MaxValue)] int limit)
         {
-            if (pattern is not FunctionTokenRegex regex)
-            {
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(match)} should be regex. Passed {pattern.Type} ({pattern.ToFlatString()})");
-            };
+            JsonataArray result = JsonataArray.CreateSequence();
 
-            if (limit < 0)
+            if (limit <= 0)
             {
-                throw new JsonataException("D3040", $"Third argument of {nameof(match)} function must evaluate to a positive number");
-            };
-
-            JArray result = new JArray();
-            foreach (Match match in regex.regex.Matches(str))
-            {
-                if (result.Count >= limit)
-                {
-                    break;
-                };
-                result.Add(FunctionTokenRegex.ConvertRegexMatch(match));
+                return result;
             }
 
+            if (pattern is not FunctionToken patternFunc)
+            {
+                throw new JException("TODO: ???");
+            }
+
+            int count = 0;
+            JToken matches = evaluateMatcher(patternFunc, new JValue(str));
+            while (matches.Type != JTokenType.Undefined && count < limit)
+            {
+                JObject matchesObj = (JObject)matches;
+                JObject matchObj = new JObject();
+                matchObj.Add("match", matchesObj.Properties["match"]);
+                matchObj.Add("index", matchesObj.Properties["start"]);
+                matchObj.Add("groups", matchesObj.Properties["groups"]);
+                result.Add(matchObj);
+                matches = evaluateMatcher((FunctionToken)matchesObj.Properties["next"]);
+                ++count;
+            }
             return result;
         }
 
@@ -2242,5 +2251,43 @@ namespace Jsonata.Net.Native.Eval
             return arg.DeepClone();
         }
 
+
+        internal static JToken evaluateMatcher(FunctionToken matcher, JToken str)
+        {
+            JToken result = matcher.Apply(null, null, new List<JToken>() { str });
+            if (result.Type == JTokenType.Undefined)
+            {
+                return result;
+            }
+            else if (!(result is JObject resultObj
+                && resultObj.HasPropertyOfType("start", JTokenType.Integer)
+                && resultObj.HasPropertyOfType("end", JTokenType.Integer)
+                && resultObj.HasPropertyOfType("groups", JTokenType.Array)
+                && resultObj.HasPropertyOfType("next", JTokenType.Function)
+            ))
+            {
+                throw new JException("T1010");
+            }
+            return result;
+        }
+
+        internal static JToken evaluateMatcher(FunctionToken matcher)
+        {
+            JToken result = matcher.Apply(null, null, new List<JToken>() {});
+            if (result.Type == JTokenType.Undefined)
+            {
+                return result;
+            }
+            else if (!(result is JObject resultObj
+                && resultObj.HasPropertyOfType("start", JTokenType.Integer)
+                && resultObj.HasPropertyOfType("end", JTokenType.Integer)
+                && resultObj.HasPropertyOfType("groups", JTokenType.Array)
+                && resultObj.HasPropertyOfType("next", JTokenType.Function)
+            ))
+            {
+                throw new JException("T1010");
+            }
+            return result;
+        }
     }
 }

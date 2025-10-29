@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-split",
-  "message": "12 passed | 7 skipped",
+  "message": "12 passed | 2 failed | 5 skipped",
   "color": "orange"
 }

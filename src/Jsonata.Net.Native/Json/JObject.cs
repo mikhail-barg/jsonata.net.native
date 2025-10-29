@@ -43,6 +43,20 @@ namespace Jsonata.Net.Native.Json
             this.m_properties.Remove(key);
         }
 
+        internal bool HasPropertyOfType(string key, JTokenType type)
+        {
+            if (!this.Properties.TryGetValue(key, out JToken? value))
+            {
+                return false;
+            }
+            return value.Type == type;
+        }
+
+        internal int GetPropertyAsInt(string key)
+        {
+            return (int)(JValue)this.Properties[key];
+        }
+
         internal override void ToIndentedStringImpl(StringBuilder builder, int indent, SerializationSettings options)
         {
             builder.Append('{');

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "lambdas",
-  "message": "13 passed | 1 skipped",
-  "color": "orange"
+  "message": "14 passed",
+  "color": "brightgreen"
 }

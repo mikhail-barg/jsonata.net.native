@@ -586,5 +586,15 @@ namespace Jsonata.Net.Native.Tests
                 """
             );
         }
+
+        [Test]
+        public void Test_Split()
+        {
+            Check(
+                @"$split(""Hello"", "" "")",
+                @"{}",
+                @"['Hello']"
+            );
+        }
     }
 }
