@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Threading.Tasks;
 using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native.New;
 
 namespace Jsonata.Net.Native.Eval
 {
-    //these are the ones with _jsonata_function, right?
+    //these are the ones with _jsonata_function, right? also see FunctionTokenTransformation
     internal sealed class FunctionTokenCsharp : FunctionToken
 	{
 		private readonly object? m_target;

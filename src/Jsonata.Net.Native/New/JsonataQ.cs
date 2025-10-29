@@ -13,7 +13,7 @@ namespace Jsonata.Net.Native.New
     {
         internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
-        private static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
+        internal static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
 
@@ -1614,82 +1614,12 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateTransformExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            throw new NotImplementedException();
-            /*
-            // create a Object to implement the transform definition
-            JFunctionCallable transformer = (_input, args) -> {
-            // Object (obj) { // signature <(oa):o>
-
-                var obj = ((List)args).get(0);
-
-                // undefined inputs always return undefined
-                if(obj == null) {
-                    return null;
-                }
- 
-                // this Object returns a copy of obj with changes specified by the pattern/operation
-                Object result = Functions.functionClone(obj);
-
-                var _matches =  evaluate(expr.pattern, result, environment);
-                if(_matches != null) {
-                    if(!(_matches is List)) {
-                        _matches = new ArrayList<>(List.of(_matches));
-                    }
-                    List matches = (List)_matches;
-                    for(var ii = 0; ii < matches.size(); ii++) {
-                        var match = matches.get(ii);
-                        // evaluate the update value for each match
-                        var update =  evaluate(expr.update, match, environment);
-                        // update must be an object
-                        //var updateType = typeof update;
-                        //if(updateType != null) 
-                    
-                        if (update!=null) {
-                        if(!(update is Map)) {
-                                // throw type error
-                                throw new JException("T2011",
-                                    expr.update.position,
-                                    update
-                                );
-                            }
-                            // merge the update
-                            for(var prop : ((Map)update).keySet()) {
-                                ((Map)match).put(prop, ((Map)update).get(prop));
-                            }
-                        }
-
-                        // delete, if specified, must be an array of strings (or single string)
-                        if(expr.delete != null) {
-                            var deletions =  evaluate(expr.delete, match, environment);
-                            if(deletions != null) {
-                                var val = deletions;
-                                if (!(deletions is List)) {
-                                    deletions = new ArrayList<>(List.of(deletions));
-                                }
-                                if (!Utils.isArrayOfStrings(deletions)) {
-                                    // throw type error
-                                    throw new JException("T2012",
-                                        expr.delete.position,
-                                        val
-                                    );
-                                }
-                                List _deletions = (List)deletions;
-                                for (var jj = 0; jj < _deletions.size(); jj++) {
-                                    if(match is Map) {
-                                    ((Map)match).remove(_deletions.get(jj));
-                                        //delete match[deletions[jj]];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return result;
-            };
-
-            return new JFunction(transformer, "<(oa):o>");
-            */
+            // create a function to implement the transform definition
+            // var transformer = async function (obj) { // signature <(oa):o>
+            // ... 
+            // }
+            // return defineFunction(transformer, '<(oa):o>');
+            return new FunctionTokenTransformation(expr.pattern!, expr.update!, expr.delete, environment);
         }
 
         private static readonly Symbol s_chainAST = BuildChainAst();

@@ -1,5 +1,6 @@
 ﻿using Jsonata.Net.Native.Dom;
 using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 using Jsonata.Net.Native.Parsing;
 using System;
 using System.Collections.Generic;
@@ -7,146 +8,130 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
-	/**
+    /**
 	... ~> | ... | ... | (Transform)
 	*/
-	/*
-	internal sealed class FunctionTokenTransformation : FunctionToken
+    // see jsonata.js evaluateTransformExpression
+    // this one is also registered as _jsonata_function
+    internal sealed class FunctionTokenTransformation : FunctionToken
 	{
-		internal readonly Node pattern;
-		internal readonly Node updates;
-		internal readonly Node? deletes;
+		internal readonly Symbol pattern;
+		internal readonly Symbol update;
+		internal readonly Symbol? delete;
 		internal readonly EvaluationEnvironment environment;
 
-		public FunctionTokenTransformation(Node pattern, Node updates, Node? deletes, EvaluationEnvironment environment)
+		public FunctionTokenTransformation(Symbol pattern, Symbol update, Symbol? delete, EvaluationEnvironment environment)
 			: base("transform", 1)
 		{
-			this.pattern = pattern;
-			this.updates = updates;
-			this.deletes = deletes;
+            //TODO: signature <(oa):o>
+            this.pattern = pattern;
+			this.update = update;
+			this.delete = delete;
 			this.environment = environment;
 		}
 
-        **
-            The ~> operator is the operator for function chaining 
-            and passes the value on the left hand side to the function on the right hand side as its first argument. 
-        
-            The expression on the right hand side must evaluate to a function, 
-            hence the |...|...| syntax generates a function with one argument.         
-         *
 
-        internal override JToken Invoke(List<JToken> args, JToken? context, EvaluationEnvironment env)
+        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
         {
-			if (args.Count != this.ArgumentsCount)
+            // transformer = async function (obj)
+
+            JToken obj = args[0];
+
+            // undefined inputs always return undefined
+            if (obj.Type == JTokenType.Undefined)
 			{
-				throw new ApplicationException("Should not happen");
+				return JsonataQ.UNDEFINED;
 			}
 
-			switch (args[0].Type)
-			{
-			case JTokenType.Undefined:
-				return EvalProcessor.UNDEFINED;
-			case JTokenType.Array:
-			case JTokenType.Object:
-				break;
-			default:
-				throw new JsonataException("T0410", $"Argument 1 of transform should be either Object or Array, got {args[0].Type}");
-			}
+			/*
+			 var cloneFunction = environment.lookup('clone');
+            if(!isFunction(cloneFunction)) {
+                // throw type error
+                throw {
+                    code: "T2013",
+                    stack: (new Error()).stack,
+                    position: expr.position
+                };
+            }
+            var result = await apply(cloneFunction, [obj], null, environment);
+			*/
+			JToken result = obj.DeepClone();
 
-
-			JToken arg = args[0].DeepClone();
-
-			JToken matches = EvalProcessor.Eval(this.pattern, arg, this.environment);
-			if (matches.Type != JTokenType.Undefined)
-			{
-				if (matches.Type != JTokenType.Array)
-				{
-					this.ProcessItem(matches);
-				}
-				else
-				{
-					JArray matchesArray = (JArray)matches;
-					foreach (JToken child in matchesArray.ChildrenTokens)
+            JToken matches = JsonataQ.evaluate(this.pattern, result, this.environment);
+            if (matches.Type != JTokenType.Undefined)
+            {
+                if (matches is not JArray matchesArray)
+                {
+                    matchesArray = new JArray();
+					matchesArray.Add(matches);
+                }
+                foreach (JToken match in matchesArray.ChildrenTokens)
+                {
+					// javascript-specific
+                    // if (match && (match.isPrototypeOf(result) || match instanceof Object.constructor)) 
+					// {
+					// 	throw { code: "D1010", stack: (new Error()).stack, position: expr.position };
+					// }
+					if (match is not JObject matchObject)
 					{
-						this.ProcessItem(child);
+						//throw new Exception("??");
+						continue; 
 					}
-				}
-			};
-			return arg;
-		}
-		private void ProcessItem(JToken item)
-		{
-			if (item.Type != JTokenType.Object)
-			{
-				//TODO:? 
-				//throw new JsonataException("????", $"Update can be applied only to objects. Got {item.Type} ({item.ToStringFlat()})");
-				return;
-			};
-			JObject srcObj = (JObject)item;
 
-			//update
-			{
-				JToken update = EvalProcessor.Eval(this.updates, item, this.environment);
-				if (update.Type != JTokenType.Undefined)
-				{
-					if (update.Type != JTokenType.Object)
+					// evaluate the update value for each match
+					JToken update = JsonataQ.evaluate(this.update, match, this.environment);
+					// update must be an object
+					if (update.Type != JTokenType.Undefined)
 					{
-						throw new JsonataException("T2011", $"The insert/update clause of the transform expression must evaluate to an object. Got {update.Type} ({update.ToFlatString()})");
-					};
-
-					srcObj.Merge((JObject)update);
-				}
-			}
-
-			//delete
-			if (this.deletes != null)
-			{
-				JToken delete = EvalProcessor.Eval(this.deletes, item, this.environment);
-				if (delete.Type != JTokenType.Undefined)
-				{
-					switch (delete.Type)
-					{
-					case JTokenType.String:
-						this.Remove(srcObj, delete);
-						break;
-					case JTokenType.Array:
+						if (update.Type != JTokenType.Object)
 						{
-							JArray deleteArray = (JArray)delete;
-							foreach (JToken child in deleteArray.ChildrenTokens)
+							// throw type error
+							throw new JException("T2011", this.update.position, update);
+						}
+
+                        // merge the update
+                        foreach (KeyValuePair<string, JToken> prop in ((JObject)update).Properties)
+						{
+                            matchObject.Set(prop.Key, prop.Value);
+						}
+					}
+
+					// delete, if specified, must be an array of strings (or single string)
+					if (this.delete != null)
+					{
+						JToken deletions = JsonataQ.evaluate(this.delete, match, environment);
+						if (deletions.Type != JTokenType.Undefined)
+						{
+							if (deletions is not JArray deletionsArray)
 							{
-								this.Remove(srcObj, child);
+								deletionsArray = new JArray();
+                                deletionsArray.Add(deletions);
+							}
+							if (!Helpers.IsArrayOfStrings(deletionsArray))
+							{
+								// throw type error
+								throw new JException("T2012", this.delete.position, deletions);
+							}
+							foreach (JToken del in deletionsArray.ChildrenTokens)
+							{
+								matchObject.Remove((string)(JValue)del);
 							}
 						}
-						break;
-					default:
-						throw new JsonataException("T2012", $"The delete clause of the transform expression must evaluate to a string or array of strings: {delete.Type} ({delete.ToFlatString()})");
 					}
 				}
 			}
-		}
-
-		private void Remove(JObject srcObj, JToken keyToRemove)
-		{
-			if (keyToRemove.Type != JTokenType.String)
-			{
-				throw new JsonataException("T2012", $"The delete clause of the transform expression must evaluate to a string or array of strings: {keyToRemove.Type} ({keyToRemove.ToFlatString()})");
-			}
-			srcObj.Remove((string)keyToRemove!);
-		}
+            return result;
+        }
 
 		public override JToken DeepClone()
 		{
-			return new FunctionTokenTransformation(this.pattern, this.updates, this.deletes, this.environment);
+			return new FunctionTokenTransformation(this.pattern, this.update, this.delete, this.environment);
 		}
 
-        protected override void ClearParentNested()
-        {
-            //nothing to do for a function transformation;
-        }
     }
-	*/
 }

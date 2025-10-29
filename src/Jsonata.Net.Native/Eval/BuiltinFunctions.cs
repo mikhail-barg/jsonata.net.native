@@ -2234,5 +2234,13 @@ namespace Jsonata.Net.Native.Eval
         #endregion
 
 
+        /**
+            staticFrame.bind('clone', defineFunction(functionClone, '<(oa)-:o>'));
+         */
+        public static JToken clone([AllowContextAsValue][PropagateUndefined] JToken arg)
+        {
+            return arg.DeepClone();
+        }
+
     }
 }
