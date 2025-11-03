@@ -1761,7 +1761,7 @@ namespace Jsonata.Net.Native.New
         internal static JToken apply(FunctionToken proc, List<JToken> args, JToken input, EvaluationEnvironment environment) 
         {
             JToken result = JsonataQ.applyInner(proc, args, input, environment);
-            while (result is FunctionTokenJsonataLambda lambda && lambda.thunk)
+            while (result is FunctionTokenLambda lambda && lambda.thunk)
             {
                 // trampoline loop - this gets invoked as a result of tail-call optimization
                 // the Object returned a tail-call thunk
@@ -1811,7 +1811,7 @@ namespace Jsonata.Net.Native.New
                 */
 
                 JToken result;
-                if (proc is FunctionTokenJsonataLambda procLambda) 
+                if (proc is FunctionTokenLambda procLambda) 
                 {
                     result = JsonataQ.applyProcedure(procLambda, validatedArgs);
                 }
@@ -1895,7 +1895,7 @@ namespace Jsonata.Net.Native.New
             };
             return procedure;
             */
-            return new FunctionTokenJsonataLambda(expr, input, environment);
+            return new FunctionTokenLambda(expr, input, environment);
         }
 
         /**
@@ -1933,7 +1933,7 @@ namespace Jsonata.Net.Native.New
             }
 
             JToken result;
-            if (proc is FunctionTokenJsonataLambda procLambda)
+            if (proc is FunctionTokenLambda procLambda)
             {
                 result = JsonataQ.partialApplyProcedure(procLambda, evaluatedArgsOrPlaceholders);
             }
@@ -1979,7 +1979,7 @@ namespace Jsonata.Net.Native.New
          * @param {Array} args - Arguments
          * @returns {*} Result of procedure
          **/
-        private static JToken applyProcedure(FunctionTokenJsonataLambda proc, List<JToken> args) 
+        private static JToken applyProcedure(FunctionTokenLambda proc, List<JToken> args) 
         {
             EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
             for (int index = 0; index < proc.arguments.Count; ++index)
@@ -2012,7 +2012,7 @@ namespace Jsonata.Net.Native.New
          *
          */
 
-        private static JToken partialApplyProcedure(FunctionTokenJsonataLambda proc, List<JToken?> argsOrPlaceholders) 
+        private static JToken partialApplyProcedure(FunctionTokenLambda proc, List<JToken?> argsOrPlaceholders) 
         {
             // create a closure, bind the supplied parameters and return a function that takes the remaining (?) parameters
             EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
@@ -2031,7 +2031,7 @@ namespace Jsonata.Net.Native.New
                 }
             }
 
-            JToken procedure = new FunctionTokenJsonataLambda(input: proc.input, environment: env, arguments: unboundArgs, body: proc.body);
+            JToken procedure = new FunctionTokenLambda(input: proc.input, environment: env, arguments: unboundArgs, body: proc.body);
             return procedure;
         }
         

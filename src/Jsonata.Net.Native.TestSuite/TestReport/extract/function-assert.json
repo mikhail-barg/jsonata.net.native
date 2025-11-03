@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-assert",
-  "message": "3 passed | 5 skipped",
-  "color": "orange"
+  "message": "8 passed",
+  "color": "brightgreen"
 }

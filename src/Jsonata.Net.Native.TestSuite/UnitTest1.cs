@@ -106,6 +106,10 @@ namespace Jsonata.Net.Native.TestSuite
                 {
                     throw; //forward to next catch
                 }
+                catch (JsonataException ex)
+                {
+                    throw new JException(ex, error: ex.Code, location: -1, currentToken: null, expected: null);
+                }
                 catch (NotImplementedException niEx)
                 {
 #if IGNORE_FAILED

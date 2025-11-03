@@ -459,231 +459,90 @@ namespace Jsonata.Net.Native.Eval
          */
         public static string replace([PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(Int32.MaxValue)] int limit)
         {
+            if (pattern.Type == JTokenType.String && (string)(JValue)(pattern) == "")
+            {
+                throw new JsonataException("D3010", $"Second argument of {nameof(replace)} function cannot be an empty string");
+            }
+
             if (limit < 0)
             {
                 throw new JsonataException("D3011", $"Fourth argument of {nameof(replace)} function must evaluate to a positive number");
             }
-            else if (limit == 0)
+
+            FunctionToken replacer;
+            switch (replacement.Type)
+            {
+            case JTokenType.String:
+                replacer = new FunctionTokenReplacer((string)replacement);
+                break;
+            case JTokenType.Function:
+                replacer = (FunctionToken)replacement;
+                break;
+            default:
+                throw new JsonataException("T0410", "replacement should be either func or string");
+            }
+
+            if (limit == 0)
             {
                 return str;
             }
 
-            switch (pattern.Type)
+            StringBuilder result = new StringBuilder();
+            if (pattern.Type == JTokenType.String)
             {
-            case JTokenType.String:
-                {
-                    string patternString = (string)pattern!;
-                    if (patternString == "")
-                    {
-                        throw new JsonataException("D3010", $"Second argument of {nameof(replace)} function cannot be an empty string");
-                    }
-                    else
-                    {
-                        if (replacement.Type != JTokenType.String)
-                        {
-                            throw new JsonataException("D3012", "Attempted to replace a matched string with a non-string value");
-                        };
-                        string replacementString = (string)replacement!;
-                        StringBuilder builder = new StringBuilder();
-                        int replacesCount = 0;
-                        int replaceStartAt = 0;
-                        while (true)
-                        {
-                            if (replacesCount >= limit)
-                            {
-                                break;
-                            };
-                            int pos = str.IndexOf(patternString, startIndex: replaceStartAt);
-                            if (pos < 0)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                if (pos > replaceStartAt)
-                                {
-                                    builder.Append(str.Substring(replaceStartAt, pos - replaceStartAt));
-                                }
-                                builder.Append(replacementString);
-                                ++replacesCount;
-                                replaceStartAt = pos + patternString.Length;
-                            };
-                        }
-                        if (replaceStartAt < str.Length)
-                        {
-                            builder.Append(str.Substring(replaceStartAt));
-                        };
-                        return builder.ToString();
-                    }
-                }
-                //break;
-            case JTokenType.Function:
-                {
-                    if (pattern is not FunctionTokenRegex regex)
-                    {
-                        throw new JsonataException("T0410", $"Argument 2 of function {nameof(replace)} should be either string or regex. Passed function {pattern.GetType().Name})");
-                    };
-
-                    MatchCollection matches = regex.regex.Matches(str);
-                    if (matches.Count == 0)
-                    {
-                        return str;
-                    };
-
-                    switch (replacement.Type)
-                    {
-                    case JTokenType.String:
-                        {
-                            string replacementString = (string)replacement!;
-                            StringBuilder builder = new StringBuilder();
-                            int replacesCount = 0;
-                            int replaceStartAt = 0;
-                            foreach (Match match in matches)
-                            {
-                                if (replacesCount >= limit)
-                                {
-                                    break;
-                                };
-                                if (match.Index < replaceStartAt)
-                                {
-                                    continue;   //overlapping matches
-                                }
-                                else if (match.Index > replaceStartAt)
-                                {
-                                    builder.Append(str.Substring(replaceStartAt, match.Index - replaceStartAt));
-                                }
-                                //TODO: use ProcessAppendReplacementStringForMatch instead of Result, but actually it's too ugly!
-                                //ProcessAppendReplacementStringForMatch(builder, match, replacementString);
-                                builder.Append(match.Result(replacementString));
-                                ++replacesCount;
-                                replaceStartAt = match.Index + match.Length;
-                            }
-                            if (replaceStartAt < str.Length)
-                            {
-                                builder.Append(str.Substring(replaceStartAt));
-                            };
-                            return builder.ToString();
-                        }
-                        //break;
-                    case JTokenType.Function:
-                        {
-                            throw new NotImplementedException();
-                            /*
-                            FunctionToken replacementFunction = (FunctionToken)replacement;
-                            StringBuilder builder = new StringBuilder();
-                            EvaluationEnvironment env = EvaluationEnvironment.CreateEvalEnvironment(EvaluationEnvironment.DefaultEnvironment); //TODO: think of providing proper env. Maybe via a func param?
-                            int replacesCount = 0;
-                            int replaceStartAt = 0;
-                            foreach (Match match in matches)
-                            {
-                                if (replacesCount >= limit)
-                                {
-                                    break;
-                                };
-                                if (match.Index < replaceStartAt)
-                                {
-                                    continue;   //overlapping matches
-                                }
-                                else if (match.Index > replaceStartAt)
-                                {
-                                    builder.Append(str.Substring(replaceStartAt, match.Index - replaceStartAt));
-                                };
-                                JObject matchObject = FunctionTokenRegex.ConvertRegexMatch(match);
-                                JToken replacementToken = EvalProcessor.InvokeFunction(replacementFunction, new List<JToken>() { matchObject }, null, env);
-                                if (replacementToken.Type != JTokenType.String)
-                                {
-                                    throw new JsonataException("D3012", "Attempted to replace a matched string with a non-string value");
-                                }
-                                builder.Append((string)replacementToken!);
-                                ++replacesCount;
-                                replaceStartAt = match.Index + match.Length;
-                            }
-                            if (replaceStartAt < str.Length)
-                            {
-                                builder.Append(str.Substring(replaceStartAt));
-                            };
-                            return builder.ToString();
-                            */
-                        }
-                        //break;
-                    default:
-                        throw new JsonataException("T0410", $"Argument 3 of function {nameof(replace)} should be either string or function. Passed {replacement.Type} ({replacement.ToFlatString()})");
-                    };
-                }
-                //break;
-            default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(replace)} should be either string or regex. Passed {pattern.Type} ({pattern.ToFlatString()})");
-            };
-
-            /*
-            //see jsonata-js functions.js around line 440: "replacer = function (regexMatch)"
-            void ProcessAppendReplacementStringForMatch(StringBuilder builder, Match match, string replacement)
-            {
-                int maxDigits;
-                if (match.Groups.Count == 1)
-                {
-                    // no sub-matches; any $ followed by a digit will be replaced by an empty string
-                    maxDigits = 1;
-                }
-                else
-                {
-                    // max number of digits to parse following the $
-                    maxDigits = (int)Math.Floor(Math.Log(match.Groups.Count) * Math.Log10(Math.E)) + 1;
-                }
-
-
-                // scan forward, copying the replacement text into the substitute string
-                // and replace any occurrence of $n with the values matched by the regex
+                string patternString = (string)pattern!;
                 int position = 0;
-                int index = replacement.IndexOf('$', position);
-                while (index >= 0 && position < replacement.Length)
+                int count = 0;
+                int index = str.IndexOf(patternString, position);
+                while (index >= 0 && count < limit)
                 {
-                    builder.Append(replacement.Substring(position, index - position));
-                    position = index + 1;
-                    char dollarVal = replacement[position];
-                    if (dollarVal == '$')
+                    result.Append(str.Substring(position, index - position));
+                    // result += replacement; //TODO: wat? it assumes replacement is a string, which i not guranteed here
+                    result.Append((string)replacement);
+                    position = index + patternString.Length;
+                    ++count;
+                    index = str.IndexOf(patternString, position);
+                }
+                result.Append(str.Substring(position));
+            }
+            else
+            {
+                int position = 0;
+                int count = 0;
+                FunctionToken patternFunc = (FunctionToken)pattern; //assumed in js-code
+                JToken matches = evaluateMatcher(patternFunc, new JValue(str));
+                if (matches.Type != JTokenType.Undefined)
+                {
+                    while (matches.Type != JTokenType.Undefined && count < limit)
                     {
-                        // literal $
-                        builder.Append('$');
-                        ++position;
-                    }
-                    else if (dollarVal == '0')
-                    {
-                        builder.Append(match.Value);
-                        ++position;
-                    }
-                    else
-                    {
-                        
-                        index = Int32.TryParse(replacement.substring(position, position + maxDigits), 10);
-                        if (maxDigits > 1 && index > regexMatch.groups.length)
+                        JObject matchesObj = (JObject)matches;
+                        int start = matchesObj.GetPropertyAsInt("start");
+                        result.Append(str.Substring(position, start));
+                        // var self = this;
+                        // var replacedWith = replacer.apply(self, [matches]);  //Here it's not possible to pass this as focus for apply, as we don't have it here..
+                        JToken replacedWith = replacer.Apply(null, null, new List<JToken>() { matches });
+                        // check replacedWith is a string
+                        if (replacedWith.Type == JTokenType.String)
                         {
-                            index = parseInt(replacement.substring(position, position + maxDigits - 1), 10);
-                        }
-                        if (!isNaN(index))
-                        {
-                            if (regexMatch.groups.length > 0)
-                            {
-                                var submatch = regexMatch.groups[index - 1];
-                                if (typeof submatch !== 'undefined')
-                                {
-                                    substitute += submatch;
-                                }
-                            }
-                            position += index.toString().length;
+                            result.Append((string)replacedWith);
                         }
                         else
                         {
-                            // not a capture group, treat the $ as literal
-                            substitute += '$';
+                            // not a string - throw error
+                            throw new JException("D3012", -1, replacedWith);
                         }
+                        position = start + ((string)matchesObj.Properties["match"]).Length;
+                        ++count;
+                        matches = evaluateMatcher((FunctionToken)matchesObj.Properties["next"]);
                     }
-                    index = replacement.indexOf('$', position);
+                    result.Append(str.Substring(position));
                 }
-                substitute += replacement.substring(position);
-                return substitute;
+                else
+                {
+                    result.Append(str);
+                }
             }
-            */
+            return result.ToString();
         }
 
         /**

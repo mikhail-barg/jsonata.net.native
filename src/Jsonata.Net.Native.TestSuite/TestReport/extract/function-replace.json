@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-replace",
-  "message": "5 passed | 7 skipped",
-  "color": "orange"
+  "message": "12 passed",
+  "color": "brightgreen"
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-sqrt",
-  "message": "3 passed | 1 skipped",
+  "message": "3 passed | 1 failed",
   "color": "orange"
 }
