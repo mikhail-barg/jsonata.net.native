@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "hof-filter",
-  "message": "1 passed | 3 skipped",
-  "color": "orange"
+  "message": "4 passed",
+  "color": "brightgreen"
 }

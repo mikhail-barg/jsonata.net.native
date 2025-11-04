@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "regex",
-  "message": "1 passed | 36 failed | 2 skipped",
+  "message": "1 passed | 38 failed",
   "color": "orange"
 }

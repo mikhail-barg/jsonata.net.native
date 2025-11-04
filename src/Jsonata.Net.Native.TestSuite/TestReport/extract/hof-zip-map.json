@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "hof-zip-map",
-  "message": "4 skipped",
-  "color": "yellow"
+  "message": "4 passed",
+  "color": "brightgreen"
 }

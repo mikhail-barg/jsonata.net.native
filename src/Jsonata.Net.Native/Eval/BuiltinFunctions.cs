@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -1648,36 +1649,24 @@ namespace Jsonata.Net.Native.Eval
             function(value, name)
          where the value parameter is the value of each name/value pair in the object and name is its name. The name parameter is optional.* 
          */
-        public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
+        public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken func)
         {
-            throw new NotImplementedException();
-            /*
-            int argsCount = function.RequiredArgsCount;
             JsonataArray result = JsonataArray.CreateSequence();
-            foreach (KeyValuePair<string, JToken> prop in obj.Properties)
+
+            foreach (KeyValuePair<string, JToken> kvp in obj.Properties)
             {
-                List<JToken> args = new List<JToken>();
-                if (argsCount >= 1)
+                List<JToken> func_args = hofFuncArgs(func, kvp.Value, new JValue(kvp.Key), obj);
+                // invoke func
+                //var val = await func.apply(this, func_args);
+                // TODO: no way to pass `this` for now
+                JToken val = func.Apply(null, null, func_args);
+                if (val.Type != JTokenType.Undefined)
                 {
-                    args.Add(prop.Value);
-                };
-                if (argsCount >= 2)
-                {
-                    args.Add(new JValue(prop.Key));
-                };
-                JToken res = EvalProcessor.InvokeFunction(
-                    function: function,
-                    args: args,
-                    context: null,
-                    env: null! //TODO: pass some real environment?
-                );
-                if (res.Type != JTokenType.Undefined)
-                {
-                    result.Add(res);
-                };
+                    result.Add(val);
+                }
             }
+
             return result;
-            */
         }
 
         /**
@@ -1828,35 +1817,6 @@ namespace Jsonata.Net.Native.Eval
 
         #region Higher order functions
 
-        private static bool FilterAcceptsElement(FunctionToken function, JToken element, int index, JArray array)
-        {
-            throw new NotImplementedException();
-            /*
-            int filterArgsCount = function.RequiredArgsCount;
-            List<JToken> args = new List<JToken>();
-            if (filterArgsCount >= 1)
-            {
-                args.Add(element);
-            };
-            if (filterArgsCount >= 2)
-            {
-                args.Add(new JValue(index));
-            };
-            if (filterArgsCount >= 3)
-            {
-                args.Add(array);
-            };
-            JToken res = EvalProcessor.InvokeFunction(
-                function: function,
-                args: args,
-                context: null,
-                env: null! //TODO: pass some real environment?
-            );
-            bool result = Helpers.Booleanize(res);
-            return result;
-            */
-        }
-
         /**
          Signature: $map(array, function)
          Returns an array containing the results of applying the function parameter to each value in the array parameter.
@@ -1866,45 +1826,23 @@ namespace Jsonata.Net.Native.Eval
          The index (position) of that value in the input array is passed in as the second parameter, if specified. 
          The whole input array is passed in as the third parameter, if specified.
          */
-        public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
+        public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
         {
-            throw new NotImplementedException();
-            /*
-
-            int funcArgsCount = function.RequiredArgsCount;
-
             JsonataArray result = JsonataArray.CreateSequence();
-
-            int index = 0;
-            foreach (JToken element in array.ChildrenTokens)
+            // do the map - iterate over the arrays, and invoke func
+            for (int i = 0; i < arr.Count; ++i)
             {
-                List<JToken> args = new List<JToken>();
-                if (funcArgsCount >= 1)
-                {
-                    args.Add(element);
-                };
-                if (funcArgsCount >= 2)
-                {
-                    args.Add(new JValue(index));
-                };
-                if (funcArgsCount >= 3)
-                {
-                    args.Add(array);
-                };
-                JToken res = EvalProcessor.InvokeFunction(
-                    function: function,
-                    args: args,
-                    context: null,
-                    env: null! //TODO: pass some real environment?
-                );
+                List<JToken> func_args = hofFuncArgs(func, arr.ChildrenTokens[i], new JValue(i), arr);
+                // invoke func
+                //var res = func.apply(this, func_args);
+                //TODO: no way to pass 'this' for now (
+                JToken res = func.Apply(null, null, func_args);
                 if (res.Type != JTokenType.Undefined)
                 {
                     result.Add(res);
-                };
-                ++index;
+                }
             }
             return result;
-            */
         }
 
 
@@ -1917,19 +1855,22 @@ namespace Jsonata.Net.Native.Eval
         The index (position) of that value in the input array is passed in as the second parameter, if specified. 
         The whole input array is passed in as the third parameter, if specified.         
          */
-        public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function)
+        public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
-            int index = 0;
-            foreach (JToken element in array.ChildrenTokens)
+            
+            for (int i = 0; i < arr.Count; ++i)
             {
-                if (FilterAcceptsElement(function, element, index, array))
+                JToken entry = arr.ChildrenTokens[i];
+                List<JToken> func_args = hofFuncArgs(func, entry, new JValue(i), arr);
+                //var res = func.apply(this, func_args);
+                //TODO: no way to pass `this` for now
+                JToken res = func.Apply(null, null, func_args);
+                if (Helpers.Booleanize(res))
                 {
-                    result.Add(element);
+                    result.Add(entry);
                 }
-                ++index;
             }
-            //return result.Simplify();
             return result;
         }
 
@@ -1945,34 +1886,45 @@ namespace Jsonata.Net.Native.Eval
           The index (position) of that value in the input array is passed in as the second parameter, if specified. 
           The whole input array is passed in as the third parameter, if specified.         
          */
-        public static JToken single([PropagateUndefined][PackSingleValueToSequence] JArray array, [OptionalArgument(null)] FunctionToken? function)
+        public static JToken single([PropagateUndefined][PackSingleValueToSequence] JArray arr, [OptionalArgument(null)] FunctionToken? func)
         {
             JToken? result = null;
-            int index = 0;
-            foreach (JToken element in array.ChildrenTokens)
+
+            for (int i = 0; i < arr.Count; ++i)
             {
-                bool filterPassed = function != null ? 
-                    FilterAcceptsElement(function, element, index, array) 
-                    : true;
-                if (filterPassed)
+                JToken entry = arr.ChildrenTokens[i];
+                bool positiveResult = true;
+                if (func != null)
                 {
-                    if (result != null)
+                    List<JToken> func_args = hofFuncArgs(func, entry, new JValue(i), arr);
+                    // invoke func
+                    // var res = await func.apply(this, func_args);
+                    // TODO: no way to pass `this` for now
+                    JToken res = func.Apply(null, null, func_args);
+                    positiveResult = Helpers.Booleanize(res);
+                }
+                if (positiveResult)
+                {
+                    if (result == null)
                     {
-                        throw new JsonataException("D3138", "The $single() function expected exactly 1 matching result.  Instead it matched more.");
+                        result = entry;
                     }
                     else
                     {
-                        result = element;
+                        throw new JException(error: "D3138");
+                        // index: i
                     }
                 }
-                ++index;
             }
-            
+
             if (result == null)
             {
-                throw new JsonataException("D3139", "The $single() function expected exactly 1 matching result.  Instead it matched 0.");
+                throw new JException("D3139");
             }
-            return result;
+            else
+            {
+                return result;
+            }
         }
 
         /**
@@ -2051,51 +2003,29 @@ namespace Jsonata.Net.Native.Eval
          The key (property name) of that value in the input object is passed in as the second parameter, if specified. 
          The whole input object is passed in as the third parameter, if specified.
          */
-        public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken function)
+        public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject arg, FunctionToken func)
         {
-            throw new NotImplementedException();
-
-            /*
             JObject result = new JObject();
-            foreach (KeyValuePair<string, JToken> property in obj.Properties)
+
+            foreach (KeyValuePair<string, JToken> kvp in arg.Properties)
             {
-                if (filterAcceptsElement(property.Value, property.Key, obj))
+                List<JToken> func_args = hofFuncArgs(func, kvp.Value, new JValue(kvp.Key), arg);
+                // invoke func
+                // var res = await func.apply(this, func_args);
+                // TODO: no way to pass `this` for now
+                JToken res = func.Apply(null, null, func_args);
+                if (Helpers.Booleanize(res))
                 {
-                    result.Add(property.Key, property.Value);
+                    result.Add(kvp.Key, kvp.Value);
                 }
             }
-            if (result.Count == 0)
+
+            // empty objects should be changed to undefined
+            if (result.Properties.Count == 0)
             {
                 return JsonataQ.UNDEFINED;
             }
             return result;
-
-            bool filterAcceptsElement(JToken value, string key, JObject obj)
-            {
-                List<JToken> args = new List<JToken>();
-                int filterArgsCount = function.RequiredArgsCount;
-                if (filterArgsCount >= 1)
-                {
-                    args.Add(value);
-                };
-                if (filterArgsCount >= 2)
-                {
-                    args.Add(new JValue(key));
-                };
-                if (filterArgsCount >= 3)
-                {
-                    args.Add(obj);
-                };
-                JToken res = EvalProcessor.InvokeFunction(
-                    function: function,
-                    args: args,
-                    context: null,
-                    env: null! //TODO: pass some real environment?
-                );
-                bool result = Helpers.Booleanize(res);
-                return result;
-            }
-            */
         }
 
 
@@ -2111,7 +2041,7 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        internal static JToken evaluateMatcher(FunctionToken matcher, JToken str)
+        private static JToken evaluateMatcher(FunctionToken matcher, JToken str)
         {
             JToken result = matcher.Apply(null, null, new List<JToken>() { str });
             if (result.Type == JTokenType.Undefined)
@@ -2130,7 +2060,7 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
-        internal static JToken evaluateMatcher(FunctionToken matcher)
+        private static JToken evaluateMatcher(FunctionToken matcher)
         {
             JToken result = matcher.Apply(null, null, new List<JToken>() {});
             if (result.Type == JTokenType.Undefined)
@@ -2147,6 +2077,32 @@ namespace Jsonata.Net.Native.Eval
                 throw new JException("T1010");
             }
             return result;
+        }
+
+        /**
+         * Helper function to build the arguments to be supplied to the function arg of the
+         * HOFs map, filter, each, sift and single
+         * @param {function} func - the function to be invoked
+         * @param {*} arg1 - the first (required) arg - the value
+         * @param {*} arg2 - the second (optional) arg - the position (index or key)
+         * @param {*} arg3 - the third (optional) arg - the whole structure (array or object)
+         * @returns {*[]} the argument list
+         */
+        private static List<JToken> hofFuncArgs(FunctionToken func, JToken arg1, JToken arg2, JToken arg3)
+        {
+            int length = func.ArgumentsCount;
+            List<JToken> func_args = new List<JToken>(length);
+            func_args.Add(arg1); // the first arg (the value) is required
+            // the other two are optional - only supply it if the function can take it
+            if (length >= 2)
+            {
+                func_args.Add(arg2);
+            }
+            if (length >= 3)
+            {
+                func_args.Add(arg3);
+            }
+            return func_args;
         }
     }
 }
