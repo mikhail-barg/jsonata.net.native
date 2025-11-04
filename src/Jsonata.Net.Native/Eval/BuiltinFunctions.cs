@@ -652,7 +652,42 @@ namespace Jsonata.Net.Native.Eval
                 //Strings that contain a sequence of characters that represent a legal JSON number are converted to that number
                 {
                     string str = (string)arg!;
-                    if (Int64.TryParse(str, out long longValue))
+                    if (str.StartsWith("0x") || str.StartsWith("0X"))
+                    {
+                        if (Int64.TryParse(str.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out long longValue))
+                        {
+                            return new JValue(longValue);
+                        }
+                        else
+                        {
+                            throw new JsonataException("D3030", $"Failed to parse string to Hex number: '{str}'");
+                        }
+                    }
+                    else if (str.StartsWith("0b") || str.StartsWith("0B"))
+                    {
+                        try
+                        {
+                            long longValue = Convert.ToInt64(str.Substring(2), 2);
+                            return new JValue(longValue);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new JsonataException("D3030", $"Failed to parse string to Binary number: '{str}' ({ex.Message})");
+                        }
+                    }
+                    else if (str.StartsWith("0o") || str.StartsWith("0O"))
+                    {
+                        try
+                        {
+                            long longValue = Convert.ToInt64(str.Substring(2), 8);
+                            return new JValue(longValue);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new JsonataException("D3030", $"Failed to parse string to Oct number: '{str}' ({ex.Message})");
+                        }
+                    }
+                    else if (Int64.TryParse(str, out long longValue))
                     {
                         return new JValue(longValue);
                     }
@@ -806,7 +841,7 @@ namespace Jsonata.Net.Native.Eval
         Casts the number to a string and formats it to an integer represented in the number base specified by the radix argument.
         If radix is not specified, then it defaults to base 10. radix can be between 2 and 36, otherwise an error is thrown.         
         */
-        public static string formatBase([AllowContextAsValue][PropagateUndefined] long number, [OptionalArgument(10)] int radix)
+        public static string formatBase([AllowContextAsValue][PropagateUndefined] double number, [OptionalArgument(10)] double radix)
         {
             if (radix < 2 || radix > 36)
             {
@@ -818,15 +853,36 @@ namespace Jsonata.Net.Native.Eval
             {
                 return "-" + formatBase(-number, radix);
             };
+
+            int radixInt = (int)Math.Round(radix);
+            long numberLong = (long)Math.Round(number);
+
             switch (radix)
             {
             case 2:
             case 8:
             case 10:
             case 16:
-                return Convert.ToString(number, radix);
+                return Convert.ToString(numberLong, radixInt);
             default:
-                throw new NotImplementedException($"No support for radix={radix} in {nameof(formatBase)}() yet");
+                {
+                    List<char> result = new List<char>();
+                    while (numberLong > 0)
+                    {
+                        int remainder = (int)(numberLong % radixInt);
+                        if (remainder < 10)
+                        {
+                            result.Add((char)(((int)'0') + remainder));
+                        }
+                        else
+                        {
+                            result.Add((char)(((int)'a') + (remainder - 10)));
+                        }
+                        numberLong /= radixInt;
+                    }
+                    result.Reverse();
+                    return String.Join("", result);
+                }
             }
         }
 
@@ -1770,7 +1826,7 @@ namespace Jsonata.Net.Native.Eval
          If the optional picture string is supplied, then the timestamp is formatted occording to the representation specified in that string. The behaviour of this function is consistent with the two-argument version of the XPath/XQuery function fn:format-dateTime as defined in the XPath F&O 3.1 specification. The picture string parameter defines how the timestamp is formatted and has the same syntax as fn:format-dateTime.
          If the optional timezone string is supplied, then the formatted timestamp will be in that timezone. The timezone string should be in the format "±HHMM", where ± is either the plus or minus sign and HHMM is the offset in hours and minutes from UTC. Positive offset for timezones east of UTC, negative offset for timezones west of UTC.         
          */
-        public static string fromMillis([PropagateUndefined] long number, [OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone)
+        public static string fromMillis([PropagateUndefined, AllowContextAsValue] long number, [OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone)
         {
             DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(number);
             if (timezone != null)

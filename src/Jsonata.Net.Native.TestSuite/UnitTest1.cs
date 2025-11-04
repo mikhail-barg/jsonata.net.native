@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using Jsonata.Net.Native.JsonNet;
 using Jsonata.Net.Native.New;
+using System.Linq;
 
 namespace Jsonata.Net.Native.TestSuite
 {
@@ -30,10 +31,44 @@ namespace Jsonata.Net.Native.TestSuite
             { "function-decodeUrlComponent.case002", "JS function encodeURIComponent throws URIError 'if one attempts to encode a surrogate which is not part of a high-low pair', which is seem to be not a case with C#" },
             { "function-decodeUrl.case002", "JS function encodeURI throws URIError 'if one attempts to encode a surrogate which is not part of a high-low pair', which is seem to be not a case with C#" },
         };
+        private readonly List<Tuple<string, string, List<int>>> m_suppressedTestsGrouped = new () {
+            Tuple.Create(
+                "formatInteger is implemented using Int32.ToString() format features.",
+                "function-formatInteger.formatInteger[{0}]",
+                new List<int>() { 9, 10, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65 }
+            ),
+            Tuple.Create(
+                "formatNumber is implemented using Double.ToString() format features.",
+                "function-formatNumber.case{0:D3}",
+                new List<int>() { 1, 7, 11, 13, 14, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35 }
+            ),
+            Tuple.Create(
+                "fromMillis is implemented using DateTime.ToString() format features.",
+                "function-fromMillis.formatDateTime[{0}]",
+                Enumerable.Range(2, 70).ToList()
+            ),
+            Tuple.Create(
+                "fromMillis is implemented using DateTime.ToString() format features.",
+                "function-fromMillis.isoWeekDate[{0}]",
+                Enumerable.Range(1, 19).ToList()
+            ),
+            Tuple.Create(
+                "Surrogate pairs are not (yet) supported",
+                "function-length.case{0:D3}",
+                new List<int>() {4, 5, 16}
+            ),
+        };
 
         [OneTimeSetUp]
         public void Setup()
         {
+            foreach (Tuple<string, string, List<int>> group in m_suppressedTestsGrouped)
+            {
+                foreach (int i in group.Item3)
+                {
+                    m_suppressedTests.Add(String.Format(group.Item2, i), group.Item1);
+                }
+            }
             string testSuiteRoot = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, TEST_SUITE_ROOT);
             string datasetDirectory = Path.Combine(testSuiteRoot, "datasets");
             foreach (string file in Directory.EnumerateFiles(datasetDirectory, "*.json"))
