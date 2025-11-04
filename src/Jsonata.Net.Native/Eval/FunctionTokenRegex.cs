@@ -81,7 +81,7 @@ namespace Jsonata.Net.Native.Eval
                 }
 
                 Match match = this.m_regex.Match(this.m_str, this.m_fromIndex);
-                if (match == null)
+                if (!match.Success)
                 {
                     return JsonataQ.UNDEFINED;
                 }

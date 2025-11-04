@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "hof-reduce",
-  "message": "1 passed | 10 skipped",
-  "color": "orange"
+  "message": "11 passed",
+  "color": "brightgreen"
 }

@@ -596,5 +596,25 @@ namespace Jsonata.Net.Native.Tests
                 @"['Hello']"
             );
         }
+
+        [Test]
+        public void Test_Filter()
+        {
+            Check(
+                @"Product[$.""Product Name"" ~> /hat/i].ProductID",
+                @"
+                    {
+                      'Product': [
+                        {
+                          'ProductID': 345664,
+                          'Product Name': 'Cloak'
+                        }
+                      ]
+                    }
+
+                ",
+                @"undefined"
+            );
+        }
     }
 }

@@ -127,15 +127,16 @@ function Format(symbol, prefix, indent) {
 }
 
 const data = {
-//    "library": {
-//        "books": [
-//            { "a": "b" }
-//        ]
-//    }
+    "Product": [
+        {
+            "ProductID": 345664,
+            "Product Name": "Cloak"
+        }
+    ]
 };
 
 (async () => {
-    const expression = jsonata(`$split("Hello", " ")`);
+    const expression = jsonata(`Product[$."Product Name" ~> /hat/i].ProductID`);
     //Format(expression.ast(), null, 0);
     //console.log('\n');
     const result = await expression.evaluate(data);  // returns 24

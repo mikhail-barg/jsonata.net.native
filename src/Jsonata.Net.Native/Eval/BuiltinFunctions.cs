@@ -1936,59 +1936,53 @@ namespace Jsonata.Net.Native.Eval
           If the optional init parameter is supplied, then that value is used as the initial value in the aggregation (fold) process. 
           If not supplied, the initial value is the first value in the array parameter.
          */
-        public static JToken reduce([PropagateUndefined][PackSingleValueToSequence] JArray array, FunctionToken function, [OptionalArgument(null)] JToken? init)
+        public static JToken reduce([PropagateUndefined][PackSingleValueToSequence] JArray sequence, FunctionToken func, [OptionalArgument(null)] JToken? init)
         {
-            throw new NotImplementedException();
-            /*
-            JToken accumulator;
-            IEnumerable<JToken> elements;
-            int index;
-            if (init == null || init.Type == JTokenType.Undefined)
+            //known as functions.foldLeft in josnata.js
+
+            JToken result;
+
+            int arity = func.ArgumentsCount;
+            if (arity < 2)
             {
-                if (array.Count == 0)
-                {
-                    return JsonataQ.UNDEFINED;
-                };
-                accumulator = array.ChildrenTokens[0];
-                elements = array.ChildrenTokens.Skip(1);
+                throw new JException("D3050");
+                //index: 1
+            }
+
+            if (sequence.Count == 0)
+            {
+                return JsonataQ.UNDEFINED;
+            }
+
+            int index;
+            if (init == null)
+            {
+                result = sequence.ChildrenTokens[0];
                 index = 1;
             }
             else
             {
-                accumulator = init;
-                elements = array.ChildrenTokens;
+                result = init;
                 index = 0;
-            };
-
-            int funcArgsCount = function.RequiredArgsCount;
-            if (funcArgsCount < 2)
-            {
-                throw new JsonataException("D3050", "The second argument of reduce function must be a function with at least two arguments");
             }
 
-            foreach (JToken element in elements)
+            while (index < sequence.Count)
             {
-                List<JToken> args = new List<JToken>(funcArgsCount);
-                args.Add(accumulator);
-                args.Add(element);
-                if (funcArgsCount >= 3)
+                List<JToken> args = new List<JToken>() { result, sequence.ChildrenTokens[index] };
+                if (arity >= 3)
                 {
                     args.Add(new JValue(index));
-                };
-                if (funcArgsCount >= 4)
+                }
+                if (arity >= 4)
                 {
-                    args.Add(array);
-                };
-                accumulator = EvalProcessor.InvokeFunction(
-                    function: function,
-                    args: args,
-                    context: null,
-                    env: null! //TODO: pass some real environment?
-                );
+                    args.Add(sequence);
+                }
+                // result = await func.apply(this, args);
+                //TODO: no way to pass `this` for now
+                result = func.Apply(null, null, args);
                 ++index;
             }
-            return accumulator;
-            */
+            return result;
         }
 
         /**
