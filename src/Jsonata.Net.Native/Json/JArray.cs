@@ -7,34 +7,6 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Json
 {
-    public class JsonataArray: JArray
-    {
-        public bool sequence { get; set; }
-        public bool cons { get; set; }
-        public bool keepSingleton { get; set; }
-        public bool outerWrapper { get; set; }
-        public bool tupleStream { get; set; }
-
-        internal JsonataArray() { }
-
-        internal JsonataArray(IReadOnlyList<JToken> childTokens) 
-        { 
-            this.AddAll(childTokens);
-        }
-
-        public static JsonataArray CreateSequence()
-        {
-            return new JsonataArray() { sequence = true };
-        }
-
-        public static JsonataArray CreateSequence(JToken child)
-        {
-            JsonataArray result = new JsonataArray() { sequence = true };
-            result.Add(child);
-            return result;
-        }
-    }
-
     public class JArray : JToken
     {
         private readonly List<JToken> m_values;
@@ -106,7 +78,7 @@ namespace Jsonata.Net.Native.Json
 
         public override JToken DeepClone()
         {
-            JArray result = DeepCloneArrayNoChildren();
+            JArray result = CloneArrayNoChildren();
             foreach (JToken child in this.m_values)
             {
                 result.Add(child.DeepClone());
@@ -114,7 +86,7 @@ namespace Jsonata.Net.Native.Json
             return result;
         }
 
-        protected virtual JArray DeepCloneArrayNoChildren()
+        protected internal virtual JArray CloneArrayNoChildren()
         {
             return new JArray();
         }
@@ -126,6 +98,10 @@ namespace Jsonata.Net.Native.Json
                 return false;
             }
             JArray otherArray = (JArray)other;
+            if (!this.EqualsArrayNoChildren(otherArray))
+            {
+                return false;
+            }
             if (this.m_values.Count != otherArray.m_values.Count)
             {
                 return false;
@@ -137,6 +113,11 @@ namespace Jsonata.Net.Native.Json
                     return false;
                 }
             }
+            return true;
+        }
+
+        protected virtual bool EqualsArrayNoChildren(JArray other)
+        {
             return true;
         }
     }

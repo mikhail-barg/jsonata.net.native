@@ -1162,16 +1162,19 @@ namespace Jsonata.Net.Native.Eval
             else if (arg2.Type == JTokenType.Undefined)
             {
                 return arg1;
-            };
+            }
+            ;
+
             // if either argument is not an array, make it so
-            JArray result = new JArray();   //TODO: maybe create it as a sequence? check original jsonata-js append!
+            JArray result;
             if (arg1 is JArray array1)
             {
+                result = array1.CloneArrayNoChildren(); //assure to copy features of the source array if it's a jsonata array
                 result.AddAll(array1.ChildrenTokens);
             }
             else
             {
-                result.Add(arg1);
+                result = JsonataArray.CreateSequence(arg1);
             }
             if (arg2 is JArray array2)
             {
@@ -1180,7 +1183,7 @@ namespace Jsonata.Net.Native.Eval
             else
             {
                 result.Add(arg2);
-            };
+            }
             return result;
         }
 

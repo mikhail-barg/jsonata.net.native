@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-sift",
-  "message": "4 passed | 1 skipped",
-  "color": "orange"
+  "message": "5 passed",
+  "color": "brightgreen"
 }
