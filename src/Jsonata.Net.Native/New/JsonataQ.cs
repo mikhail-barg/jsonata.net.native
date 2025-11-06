@@ -742,7 +742,7 @@ namespace Jsonata.Net.Native.New
                     if (value is JArray)
                     {
                         JToken flatValue = JsonataQ.flatten(value, null);
-                        results = (JsonataArray)BuiltinFunctions.append(results, flatValue);
+                        results = (JsonataArray)BuiltinFunctions.append(results, flatValue);    //because `results` arg is a JsonataArray, result is also a JsonataArray, so it's safe to cast
                     }
                     else
                     {
@@ -758,7 +758,7 @@ namespace Jsonata.Net.Native.New
                     if (value is JArray)
                     {
                         JToken flatValue = JsonataQ.flatten(value, null);
-                        results = (JsonataArray)BuiltinFunctions.append(results, flatValue);
+                        results = (JsonataArray)BuiltinFunctions.append(results, flatValue);    //because `results` arg is a JsonataArray, result is also a JsonataArray, so it's safe to cast
                     }
                     else
                     {
