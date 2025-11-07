@@ -56,6 +56,16 @@ namespace Jsonata.Net.Native.TestSuite
                 "function-length.case{0:D3}",
                 new List<int>() {4, 5, 16}
             ),
+            Tuple.Create(
+                "Utf32 is not properly supported",
+                "function-pad.case{0:D3}",
+                new List<int>() {7, 8, 9, 10}
+            ),
+            Tuple.Create(
+                "parseInteger is implemented using Int32.Parse()",
+                "function-parseInteger.parseInteger[{0}]",
+                Enumerable.Range(7, 61 - 7 + 1).ToList()
+            ),
         };
 
         [OneTimeSetUp]

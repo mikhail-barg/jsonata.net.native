@@ -829,7 +829,14 @@ namespace Jsonata.Net.Native.Eval
          */
         public static double power([AllowContextAsValue][PropagateUndefined] double @base, double exponent)
         {
-            return Math.Pow(@base, exponent);
+            double result = Math.Pow(@base, exponent);
+
+            if (Double.IsNaN(result) || Double.IsInfinity(result))
+            {
+                throw new JException("D3061");
+            }
+
+            return result;
         }
 
         /**
@@ -1232,6 +1239,7 @@ namespace Jsonata.Net.Native.Eval
          */
         public static JArray sort([PropagateUndefined] JToken arrayToken, [OptionalArgument(null)] JToken? function)
         {
+            //This is not in the implementation of functions.js sort() but it is needed for `function-sort.case001` to pass. Not sure how it works in Jsonata itself (
             if (arrayToken.Type != JTokenType.Array)
             {
                 JsonataArray singletonArray = JsonataArray.CreateSequence();
@@ -1241,22 +1249,23 @@ namespace Jsonata.Net.Native.Eval
             }
 
             JArray array = (JArray)arrayToken;
+
             if (array.Count <= 1)
             {
                 return array;
             }
 
-            System.Comparison<JToken> comparator;
+            Func<JToken, JToken, bool> comparator;
 
             if (function == null || function.Type == JTokenType.Undefined)
             {
-                if (Helpers.IsArrayOfNumbers(array))
+                if (Helpers.IsArrayOfNumbers(arrayToken))
                 {
-                    comparator = (a, b) => Helpers.GetDoubleValue(a).CompareTo(Helpers.GetDoubleValue(b));
+                    comparator = (a, b) => Helpers.GetDoubleValue(a).CompareTo(Helpers.GetDoubleValue(b)) > 0;
                 }
-                else if (Helpers.IsArrayOfStrings(array))
+                else if (Helpers.IsArrayOfStrings(arrayToken))
                 {
-                    comparator = (a, b) => String.CompareOrdinal((string)a!, (string)b!);
+                    comparator = (a, b) => String.CompareOrdinal((string)a!, (string)b!) > 0;
                 }
                 else
                 {
@@ -1265,37 +1274,25 @@ namespace Jsonata.Net.Native.Eval
             }
             else if (function.Type == JTokenType.Function)
             {
-                throw new NotImplementedException();
-                /*
+                FunctionToken functionToken = (FunctionToken)function;
                 comparator = (a, b) => {
-                    JToken res = EvalProcessor.InvokeFunction(
-                        function: (FunctionToken)function,
-                        args: new List<JToken>() { a, b },
-                        context: null,
-                        env: null! //TODO: pass some real environment?
-                    );
+                    JToken res = functionToken.Apply(null, null, args: new List<JToken>() { a, b });
                     bool result = Helpers.Booleanize(res);
-                    return result ? 1 : -1; //may cause problems because of no zero (
+                    return result;
                 };
-                */
             }
             else
             {
                 //TODO: get proper code
                 throw new JsonataException("????", $"Argument 2 of function {nameof(sort)} should be a function(left, right) returning boolean");
             }
-
-            List<JToken> tokens = array.ChildrenTokens.ToList();
-            tokens.Sort(comparator);
-            JsonataArray result = JsonataArray.CreateSequence();
-            result.AddRange(tokens);
-            return result;
+            return sort_internal(arrayToken, comparator);
         }
 
         // // Implements the merge sort (stable) with optional comparator function
         // 
         // this is a port of jsonata-js fn.sort() which is not that performant (
-        internal static JArray sort_internal(JToken arrayToken, Func<JToken, JToken, int> comparator)
+        internal static JArray sort_internal(JToken arrayToken, Func<JToken, JToken, bool> comparator)
         {
             //TODO: think of Undefined (
 
@@ -1335,7 +1332,7 @@ namespace Jsonata.Net.Native.Eval
                         result[offset++] = token;
                     }
                 }
-                else if (comparator(left[0], right[0]) > 0) // invoke the comparator function
+                else if (comparator(left[0], right[0])) // invoke the comparator function
                 { 
                     // if it returns true - swap left and right
                     result[offset++] = right[0];

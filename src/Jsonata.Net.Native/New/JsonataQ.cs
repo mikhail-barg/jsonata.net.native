@@ -1484,12 +1484,13 @@ namespace Jsonata.Net.Native.New
         {
             // evaluate the lhs, then sort the results in order according to rhs expression
             JArray lhs = (JArray)input;
+
             bool isTupleSort = (input is JsonataArray jsonataInput) && jsonataInput.tupleStream;
 
             // sort the lhs array
             // use comparator function
             
-            int comparator(JToken a, JToken b)
+            bool comparator(JToken a, JToken b)
             { 
                 // expr.terms is an array of order-by in priority order
                 int comp = 0;
@@ -1586,9 +1587,10 @@ namespace Jsonata.Net.Native.New
                 }
                 // only swap a & b if comp equals 1
                 // return comp == 1;
-                return comp;
+                return comp > 0;
             }
 
+            // TODO: this
             // var focus = {
             //     environment: environment,
             //     input: input
@@ -1599,6 +1601,11 @@ namespace Jsonata.Net.Native.New
             // but `this` is not being used in builtin sort ..
 
             //TODO: think of Undefined (
+            // not currently possible here because result is expected to be JArray
+            //if (lhs.Type == JTokenType.Undefined)
+            //{
+            //    return JsonataQ.UNDEFINED;
+            //}
             JArray result = BuiltinFunctions.sort_internal(lhs, comparator);
             return result;        
         }
