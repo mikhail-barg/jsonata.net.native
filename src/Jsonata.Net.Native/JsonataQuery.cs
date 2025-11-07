@@ -1,37 +1,55 @@
-﻿using Jsonata.Net.Native.Dom;
-using Jsonata.Net.Native.Eval;
-using Jsonata.Net.Native.Json;
-using Jsonata.Net.Native.Parsing;
+﻿using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.New;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native
 {
     public sealed class JsonataQuery
     {
-        private readonly Node m_node;
+        private readonly Symbol m_ast;
 
         public JsonataQuery(string queryText)
             : this(Parser.Parse(queryText))
         {
         }
 
-        public JsonataQuery(Node node)
+        public JsonataQuery(Symbol ast)
         {
-            this.m_node = node.optimize();
+            this.m_ast = ast;
         }
 
-        public string Eval(string dataJson)
+        public string FormatAst()
         {
-            JToken data = JToken.Parse(dataJson, ParseSettings.DefaultSettings);
-            JToken result = this.Eval(data);
-            return result.ToIndentedString();
+            StringBuilder builder = new StringBuilder();
+            this.m_ast.Format(null, builder, 0);
+            return builder.ToString();
         }
 
-        public JToken Eval(JToken data, JObject? bindings = null)
+        public JToken Eval(JToken data, EvaluationEnvironment environment)
+        {
+            return JsonataQ.evaluateMain(this.m_ast, data, environment);
+        }
+
+        public override string ToString()
+        {
+            return this.m_ast.ToString()!;
+        }
+
+        public Symbol GetAst() 
+        { 
+            return this.m_ast; 
+        }
+    }
+
+    public static class JsonataExtensions
+    {
+        public static JToken Eval(this JsonataQuery query, JToken input)
+        {
+            return query.Eval(input, bindings: null);
+        }
+
+        public static JToken Eval(this JsonataQuery query, JToken input, JObject? bindings)
         {
             EvaluationEnvironment env;
             if (bindings != null)
@@ -41,24 +59,22 @@ namespace Jsonata.Net.Native
             else
             {
                 env = EvaluationEnvironment.DefaultEnvironment;
-            };
-            throw new NotImplementedException();
-            //return EvalProcessor.EvaluateJson(this.m_node, data, env);
+            }
+            return query.Eval(input, env);
         }
 
-        public JToken Eval(JToken data, EvaluationEnvironment environment)
+        public static string Eval(this JsonataQuery query, string dataJson, bool indentResult = true)
         {
-            throw new NotImplementedException();
-            //return EvalProcessor.EvaluateJson(this.m_node, data, environment);
+            JToken data = JToken.Parse(dataJson, ParseSettings.DefaultSettings);
+            JToken result = query.Eval(data);
+            return indentResult ? result.ToIndentedString() : result.ToFlatString();
         }
 
-        public override string ToString()
+        public static string Eval(this JsonataQuery query, string dataJson)
         {
-            return this.m_node.ToString()!;
-        }
-
-        public Node GetDom() { 
-            return this.m_node; 
+            JToken data = JToken.Parse(dataJson, ParseSettings.DefaultSettings);
+            JToken result = query.Eval(data);
+            return result.ToIndentedString();
         }
     }
 }

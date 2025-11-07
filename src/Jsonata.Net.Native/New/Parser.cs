@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.New
 { 
-    internal class Parser 
+    internal sealed class Parser 
     {
         // This parser implements the 'Top down operator precedence' algorithm developed by Vaughan R Pratt; http://dl.acm.org/citation.cfm?id=512931.
         // and builds on the Javascript framework described by Douglas Crockford at http://javascript.crockford.com/tdop/tdop.html
@@ -54,7 +52,7 @@ namespace Jsonata.Net.Native.New
             SymbolFactoryBase factory;
             if (next_token == null) 
             {
-                factory = this.m_symbolFactoryTable["(end)"];
+                factory = Parser.s_symbolFactoryTable["(end)"];
                 this.node = factory.Invoke();
                 this.node.position = source.Length;
                 return this.node;
@@ -65,10 +63,10 @@ namespace Jsonata.Net.Native.New
             {
             case SymbolType.name:
             case SymbolType.variable:
-                factory = this.m_symbolFactoryTable["(name)"];
+                factory = Parser.s_symbolFactoryTable["(name)"];
                 break;
             case SymbolType.@operator:
-                if (!this.m_symbolFactoryTable.TryGetValue(value!.ToString()!, out SymbolFactoryBase? foundFactory))
+                if (!Parser.s_symbolFactoryTable.TryGetValue(value!.ToString()!, out SymbolFactoryBase? foundFactory))
                 {
                     throw new JException("S0204", next_token.position, value);
                 }
@@ -80,10 +78,10 @@ namespace Jsonata.Net.Native.New
             case SymbolType.@string:
             case SymbolType.number:
             case SymbolType.value:
-                factory = m_symbolFactoryTable["(literal)"];
+                factory = Parser.s_symbolFactoryTable["(literal)"];
                 break;
             case SymbolType.regex:
-                factory = m_symbolFactoryTable["(regex)"];
+                factory = Parser.s_symbolFactoryTable["(regex)"];
                 break;
             /* istanbul ignore next */
             default:
@@ -839,7 +837,7 @@ namespace Jsonata.Net.Native.New
             return res;
         }
 
-        public Symbol parse(string jsonata) 
+        internal Symbol parse(string jsonata) 
         {
             this.source = jsonata;
 
@@ -862,6 +860,12 @@ namespace Jsonata.Net.Native.New
             }
 
             return expr;
+        }
+
+        internal static Symbol Parse(string query)
+        {
+            Parser parser = new Parser();
+            return parser.parse(query);
         }
 
         //This was Symbol.create()
@@ -954,9 +958,9 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private Dictionary<string, SymbolFactoryBase> m_symbolFactoryTable = new();
+        private static Dictionary<string, SymbolFactoryBase> s_symbolFactoryTable = CreateSymbolTable();
 
-        private void register(SymbolFactoryBase t)
+        private static void register(Dictionary<string, SymbolFactoryBase> symbolFactoryTable, SymbolFactoryBase t)
         {
             //if (t instanceof Infix || t instanceof InfixR) return;
 
@@ -981,59 +985,58 @@ namespace Jsonata.Net.Native.New
             }
             */
 
-            if (this.m_symbolFactoryTable.TryGetValue(t.id, out SymbolFactoryBase? s))
+            if (symbolFactoryTable.TryGetValue(t.id, out SymbolFactoryBase? s))
             {
                 throw new Exception("Handle combine?? " + t.id);
             }
             else
             {
-                this.m_symbolFactoryTable.Add(t.id, t);
+                symbolFactoryTable.Add(t.id, t);
             }
         }
 
-
-        //TODO: do only once!
-        public Parser() 
+        private static Dictionary<string, SymbolFactoryBase> CreateSymbolTable() 
         {
-            register(new TerminalFactory("(end)"));
-            register(new TerminalFactory("(name)"));
-            register(new TerminalFactory("(literal)"));
-            register(new TerminalFactory("(regex)"));
-            register(new SymbolFactory(":"));
-            register(new SymbolFactory(";"));
-            register(new SymbolFactory(","));
-            register(new SymbolFactory(")"));
-            register(new SymbolFactory("]"));
-            register(new SymbolFactory("}"));
-            register(new SymbolFactory("..")); // range operator
-            register(new InfixFactory(".")); // map operator
-            register(new InfixFactory("+")); // numeric addition
-            register(new CustomFactory("-", () => new InfixAndPrefix("-"))); // numeric subtraction // unary numeric negation
+            Dictionary<string, SymbolFactoryBase> symbolFactoryTable = new();
+            register(symbolFactoryTable, new TerminalFactory("(end)"));
+            register(symbolFactoryTable, new TerminalFactory("(name)"));
+            register(symbolFactoryTable, new TerminalFactory("(literal)"));
+            register(symbolFactoryTable, new TerminalFactory("(regex)"));
+            register(symbolFactoryTable, new SymbolFactory(":"));
+            register(symbolFactoryTable, new SymbolFactory(";"));
+            register(symbolFactoryTable, new SymbolFactory(","));
+            register(symbolFactoryTable, new SymbolFactory(")"));
+            register(symbolFactoryTable, new SymbolFactory("]"));
+            register(symbolFactoryTable, new SymbolFactory("}"));
+            register(symbolFactoryTable, new SymbolFactory("..")); // range operator
+            register(symbolFactoryTable, new InfixFactory(".")); // map operator
+            register(symbolFactoryTable, new InfixFactory("+")); // numeric addition
+            register(symbolFactoryTable, new CustomFactory("-", () => new InfixAndPrefix("-"))); // numeric subtraction // unary numeric negation
 
-            register(new InfixWithTypedNudFactory("*", SymbolType.wildcard)); // field wildcard (single level) // numeric multiplication
-            register(new InfixFactory("/")); // numeric division
-            register(new InfixWithTypedNudFactory("%", SymbolType.parent)); // parent operator // numeric modulus
-            register(new InfixFactory("=")); // equality
-            register(new InfixFactory("<")); // less than
-            register(new InfixFactory(">")); // greater than
-            register(new InfixFactory("!=")); // not equal to
-            register(new InfixFactory("<=")); // less than or equal
-            register(new InfixFactory(">=")); // greater than or equal
-            register(new InfixFactory("&")); // string concatenation
+            register(symbolFactoryTable, new InfixWithTypedNudFactory("*", SymbolType.wildcard)); // field wildcard (single level) // numeric multiplication
+            register(symbolFactoryTable, new InfixFactory("/")); // numeric division
+            register(symbolFactoryTable, new InfixWithTypedNudFactory("%", SymbolType.parent)); // parent operator // numeric modulus
+            register(symbolFactoryTable, new InfixFactory("=")); // equality
+            register(symbolFactoryTable, new InfixFactory("<")); // less than
+            register(symbolFactoryTable, new InfixFactory(">")); // greater than
+            register(symbolFactoryTable, new InfixFactory("!=")); // not equal to
+            register(symbolFactoryTable, new InfixFactory("<=")); // less than or equal
+            register(symbolFactoryTable, new InfixFactory(">=")); // greater than or equal
+            register(symbolFactoryTable, new InfixFactory("&")); // string concatenation
 
-            register(new InfixWithNudFactory("and")); // allow as terminal // Boolean AND
-            register(new InfixWithNudFactory("or")); // allow as terminal // Boolean OR
-            register(new InfixWithNudFactory("in")); // allow as terminal // is member of array
+            register(symbolFactoryTable, new InfixWithNudFactory("and")); // allow as terminal // Boolean AND
+            register(symbolFactoryTable, new InfixWithNudFactory("or")); // allow as terminal // Boolean OR
+            register(symbolFactoryTable, new InfixWithNudFactory("in")); // allow as terminal // is member of array
             // merged Infix: register(new Terminal("and")); // the 'keywords' can also be used as terminals (field names)
             // merged Infix: register(new Terminal("or")); //
             // merged Infix: register(new Terminal("in")); //
             // merged Infix: register(new Prefix("-")); // unary numeric negation
-            register(new InfixFactory("~>")); // function application
+            register(symbolFactoryTable, new InfixFactory("~>")); // function application
 
             // coalescing operator
-            register(new CustomFactory("??", () => new InfixCoalescing("??", Tokenizer.operators["??"])));
+            register(symbolFactoryTable, new CustomFactory("??", () => new InfixCoalescing("??", Tokenizer.operators["??"])));
 
-            register(new CustomFactory("(error)", () => new InfixRError("(error)", 10)));
+            register(symbolFactoryTable, new CustomFactory("(error)", () => new InfixRError("(error)", 10)));
 
             // field wildcard (single level)
             // merged with Infix *
@@ -1046,7 +1049,7 @@ namespace Jsonata.Net.Native.New
 
             // descendant wildcard (multi-level)
 
-            register(new CustomFactory("**", () => new PrefixDescendantWindcard("**")));
+            register(symbolFactoryTable, new CustomFactory("**", () => new PrefixDescendantWindcard("**")));
 
             // parent operator
             // merged with Infix %
@@ -1058,36 +1061,38 @@ namespace Jsonata.Net.Native.New
             // });
 
             // function invocation
-            register(new CustomFactory("(", () => new InfixInvocation("(", Tokenizer.operators["("])));
+            register(symbolFactoryTable, new CustomFactory("(", () => new InfixInvocation("(", Tokenizer.operators["("])));
 
 
             // array constructor
 
             // merged: register(new Prefix("[") {        
-            register(new CustomFactory("[", () => new InfixArray("[", Tokenizer.operators["["])));
+            register(symbolFactoryTable, new CustomFactory("[", () => new InfixArray("[", Tokenizer.operators["["])));
 
             // order-by
-            register(new CustomFactory("^", () => new InfixOrderBy("^", Tokenizer.operators["^"])));
+            register(symbolFactoryTable, new CustomFactory("^", () => new InfixOrderBy("^", Tokenizer.operators["^"])));
 
-            register(new CustomFactory("{", () => new InfixBlock("{", Tokenizer.operators["{"])));
+            register(symbolFactoryTable, new CustomFactory("{", () => new InfixBlock("{", Tokenizer.operators["{"])));
 
             // bind variable
-            register(new CustomFactory(":=", () => new InfixRVariableBind(":=", Tokenizer.operators[":="])));
+            register(symbolFactoryTable, new CustomFactory(":=", () => new InfixRVariableBind(":=", Tokenizer.operators[":="])));
 
             // focus variable bind
-            register(new CustomFactory("@", () => new InfixFocus("@", Tokenizer.operators["@"])));
+            register(symbolFactoryTable, new CustomFactory("@", () => new InfixFocus("@", Tokenizer.operators["@"])));
 
             // index (position) variable bind
-            register(new CustomFactory("#", () => new InfixIndex("#", Tokenizer.operators["#"])));
+            register(symbolFactoryTable, new CustomFactory("#", () => new InfixIndex("#", Tokenizer.operators["#"])));
 
             // if/then/else ternary operator ?:
-            register(new CustomFactory("?", () => new InfixTernary("?", Tokenizer.operators["?"])));
+            register(symbolFactoryTable, new CustomFactory("?", () => new InfixTernary("?", Tokenizer.operators["?"])));
 
             // elvis/default operator
-            register(new CustomFactory("?:", () => new InfixElvis("?:", Tokenizer.operators["?:"])));
+            register(symbolFactoryTable, new CustomFactory("?:", () => new InfixElvis("?:", Tokenizer.operators["?:"])));
 
             // object transformer
-            register(new CustomFactory("|", () => new PrefixTransformer("|")));
+            register(symbolFactoryTable, new CustomFactory("|", () => new PrefixTransformer("|")));
+
+            return symbolFactoryTable;
         }
     }
 }

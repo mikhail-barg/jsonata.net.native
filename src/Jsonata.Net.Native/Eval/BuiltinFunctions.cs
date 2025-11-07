@@ -4,11 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
@@ -551,10 +548,46 @@ namespace Jsonata.Net.Native.Eval
         Parses and evaluates the string expr which contains literal JSON or a JSONata expression using the current context as the context for evaluation.         
         Optionally override the context by specifying the second parameter
          */
-        public static JToken eval([PropagateUndefined] string expr, [AllowContextAsValue] JToken context)
+        public static JToken eval([PropagateUndefined] string expr, [AllowContextAsValue] JToken focus)
         {
-            JsonataQuery query = new JsonataQuery(expr);
-            return query.Eval(context);    //TODO: think of using bindings from current environment (custom bindings). Also propagating time from parentevaluationEnvironment
+            Symbol ast;
+            try
+            {
+                ast = Parser.Parse(expr);
+            }
+            catch (Exception ex)
+            {
+                throw new JsonataException("D3120", "Caused by " + ex.Message);
+            }
+
+            JsonataQuery query = new JsonataQuery(ast);
+
+            /* TODO: pass `this`!
+             
+                var input = this.input;
+                if(typeof focus !== 'undefined') {
+                    input = focus;
+                    // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
+                    if(Array.isArray(input) && !isSequence(input)) {
+                        input = createSequence(input);
+                        input.outerWrapper = true;
+                    }
+                }    
+                
+                ..
+
+                var result = await evaluate(ast, input, this.environment);
+
+             */
+
+            try
+            {
+                return query.Eval(focus);
+            }
+            catch (Exception ex)
+            {
+                throw new JsonataException("D3121", "Caused by " + ex.Message);
+            }
         }
 
         /**

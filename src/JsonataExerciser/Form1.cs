@@ -1,7 +1,6 @@
 ﻿using Jsonata.Net.Native;
 using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native.JsonNet;
-using Jsonata.Net.Native.New;
 using Jsonata.Net.Native.SystemTextJson;
 using System;
 using System.Windows.Forms;
@@ -16,7 +15,7 @@ namespace JsonataExerciser
 
         private JToken? m_datasetJson = null;
         private JObject? m_bindingsJson = null;
-        private JsonataQ? m_query = null;
+        private JsonataQuery? m_query = null;
         private bool m_ignoreTextChanges = false;
         private OutputProcessingMode m_outputProcessingMode = OutputProcessingMode.Default;
 
@@ -117,7 +116,7 @@ namespace JsonataExerciser
         {
             try
             {
-                this.m_query = new JsonataQ(this.QueryFctb.Text);
+                this.m_query = new JsonataQuery(this.QueryFctb.Text);
             }
             catch (Exception ex)
             {
@@ -137,7 +136,7 @@ namespace JsonataExerciser
 
             try
             {
-                JToken result = this.m_query.evaluate(this.m_datasetJson, bindings: this.m_bindingsJson);
+                JToken result = this.m_query.Eval(this.m_datasetJson, bindings: this.m_bindingsJson);
                 string resultText;
                 switch (this.m_outputProcessingMode)
                 {

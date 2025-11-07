@@ -14,13 +14,15 @@ namespace Jsonata.Net.Native.Tests
         private void CheckStructure(string expectedQueryString, Node value)
         {
             JsonataQuery expectedQuery = new JsonataQuery(expectedQueryString);
-            Assert.IsTrue(expectedQuery.GetDom().Equals(value), "Structural comparison failed");
+            Assert.IsTrue(expectedQuery.GetAst().Equals(value), "Structural comparison failed");
         }
 
 
         [Test] 
         public void TestSimple_1()
         {
+            throw new NotImplementedException();
+            /*
             string expectedQuery = "$x := $count($foo) > 0";
             Node node = new AssignmentNode(
                 "x",
@@ -37,12 +39,15 @@ namespace Jsonata.Net.Native.Tests
             string result = query.Eval("{}");
             Assert.AreEqual("false", result);
             CheckStructure(expectedQuery, node);
+            */
         }
 
 
         [Test]
         public void TestSimple_2()
         {
+            throw new NotImplementedException();
+            /*
             string expectedQuery = @"
                 (
                   $factorial := function($x) {
@@ -94,6 +99,7 @@ namespace Jsonata.Net.Native.Tests
             string result = query.Eval("{}");
             Assert.AreEqual("120", result);
             CheckStructure(expectedQuery, node);
+            */
         }
     }
 }

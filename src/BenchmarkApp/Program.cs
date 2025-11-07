@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using Jsonata.Net.Js;
+using Jsonata.Net.Native;
 using Jsonata.Net.Native.Json;
 using System;
 using System.Diagnostics;
@@ -38,7 +39,7 @@ namespace BenchmarkApp
         [Benchmark]
         public void ProcessNative()
         {
-            Jsonata.Net.Native.JsonataQuery query = new Jsonata.Net.Native.JsonataQuery(this.m_query);
+            JsonataQuery query = new JsonataQuery(this.m_query);
             JToken json = JToken.Parse(this.m_data);
             for (int i = 0; i < this.m_iterations; ++i)
             {

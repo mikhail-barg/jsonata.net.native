@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace Jsonata.Net.Native.New 
 {
-    public class JsonataQ
+    internal static class JsonataQ
     {
         internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
@@ -2444,44 +2444,7 @@ namespace Jsonata.Net.Native.New
             return err;
         }
 
-        /*
-        List<Exception> errors;
-        Frame environment;
-        Symbol ast;
-        long timestamp;
-        Object input;
-
-        static {
-            staticFrame = new Frame(null);
-            registerFunctions();
-        }
-        */
-
-        private readonly Symbol m_ast;
-        //private readonly EvaluationEnvironment m_environment;
-
-        /**
-         * JSONata
-         * @param {Object} expr - JSONata expression
-         * @returns Evaluated expression
-         * @throws JException An exception if an error occured.
-         */
-        public static JsonataQ jsonata(String expression)
-        {
-            return new JsonataQ(expression);
-        }
-
-        /**
-         * Internal constructor
-         * @param expr
-         */
-        public JsonataQ(string expr)
-        {
-            Parser parser = new Parser();
-            this.m_ast = parser.parse(expr);
-        }
-
-        public JToken evaluate(JToken input, EvaluationEnvironment parentEnvironment)
+        public static JToken evaluateMain(Symbol ast, JToken input, EvaluationEnvironment parentEnvironment)
         {
             // the variable bindings have been passed in - create a frame to hold these
             EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
@@ -2490,50 +2453,17 @@ namespace Jsonata.Net.Native.New
             environment.BindValue("$", input);
 
             // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
-            if (input is JArray /* && !isSequence(input)*/) //it cannot be sequence
+            if (
+                input is JArray 
+                && (input is not JsonataArray jsonataArray || !jsonataArray.sequence)   //this may happen via BuiltinFunctions.Eval
+            )
             {
                 JsonataArray inputWrapper = JsonataArray.CreateSequence(input);
                 inputWrapper.outerWrapper = true;
                 input = inputWrapper;
             }
 
-            return JsonataQ.evaluate(this.m_ast, input, environment);
-        }
-
-        public string FormatAst()
-        {
-            StringBuilder builder = new StringBuilder();
-            this.m_ast.Format(null, builder, 0);
-            return builder.ToString();
-        }
-    }
-
-    public static class JsonataExtensions
-    {
-        public static JToken evaluate(this JsonataQ query, JToken input)
-        {
-            return JsonataExtensions.evaluate(query, input, null);
-        }
-
-        public static JToken evaluate(this JsonataQ query, JToken input, JObject? bindings)
-        {
-            EvaluationEnvironment env;
-            if (bindings != null)
-            {
-                env = new EvaluationEnvironment(bindings);
-            }
-            else
-            {
-                env = EvaluationEnvironment.DefaultEnvironment;
-            }
-            return query.evaluate(input, env);
-        }
-
-        public static string evaluate(this JsonataQ query, string dataJson, bool indentResult = true)
-        {
-            JToken data = JToken.Parse(dataJson, ParseSettings.DefaultSettings);
-            JToken result = query.evaluate(data);
-            return indentResult? result.ToIndentedString() : result.ToFlatString();
+            return JsonataQ.evaluate(ast, input, environment);
         }
     }
 }
