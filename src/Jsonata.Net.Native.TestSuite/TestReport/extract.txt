@@ -340,7 +340,7 @@ function-boolean.case010;Passed
 function-boolean.case011;Passed
 function-boolean.case012;Passed
 function-boolean.case013;Passed
-function-boolean.case014;Skipped
+function-boolean.case014;Passed
 function-boolean.case015;Passed
 function-boolean.case016;Passed
 function-boolean.case017;Passed
@@ -432,7 +432,7 @@ function-exists.case007;Passed
 function-exists.case008;Passed
 function-exists.case009;Passed
 function-exists.case010;Passed
-function-exists.case011;Skipped
+function-exists.case011;Passed
 function-exists.case012;Passed
 function-exists.case013;Passed
 function-exists.case014;Passed
@@ -1254,8 +1254,8 @@ multiple-array-selectors.case000;Passed
 multiple-array-selectors.case001;Passed
 multiple-array-selectors.case002;Passed
 null.case000;Passed
-null.case001;Skipped
-null.case002;Skipped
+null.case001;Passed
+null.case002;Passed
 null.case003;Passed
 null.case004;Passed
 null.case005;Passed

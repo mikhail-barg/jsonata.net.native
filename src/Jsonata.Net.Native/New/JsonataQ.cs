@@ -658,9 +658,9 @@ namespace Jsonata.Net.Native.New
                     foreach (Symbol item in expr.expressions!)
                     {
                         JToken value = JsonataQ.evaluate(item, input, environment);
-                        if (value != null)
+                        if (value.Type != JTokenType.Undefined)
                         {
-                            if (item.value!.Equals("["))
+                            if ("[".Equals(item.value))
                             {
                                 result.Add(value);
                             }

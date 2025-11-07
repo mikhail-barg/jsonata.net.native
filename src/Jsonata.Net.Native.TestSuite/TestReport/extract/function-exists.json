@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-exists",
-  "message": "24 passed | 1 skipped",
-  "color": "orange"
+  "message": "25 passed",
+  "color": "brightgreen"
 }
