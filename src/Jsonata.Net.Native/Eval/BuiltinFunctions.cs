@@ -25,6 +25,11 @@ namespace Jsonata.Net.Native.Eval
         */
         public static JToken @string([AllowContextAsValue] JToken arg, [OptionalArgument(false)] bool prettify)
         {
+            if (arg is JsonataArray jsonataArray && jsonataArray.outerWrapper)
+            {
+                arg = jsonataArray.ChildrenTokens[0];
+            }
+
             switch (arg.Type)
             {
             case JTokenType.Undefined:
@@ -262,9 +267,10 @@ namespace Jsonata.Net.Native.Eval
         {
             JArray result = new JArray();
 
-            if (limit <= 0)
+            // limit, if specified, must be a non-negative number
+            if (limit < 0)
             {
-                return result;
+                throw new JException("D3020");
             }
 
             switch (separator.Type)
@@ -847,6 +853,11 @@ namespace Jsonata.Net.Native.Eval
         */
         public static double sqrt([AllowContextAsValue][PropagateUndefined] double number)
         {
+            if (number < 0)
+            {
+                throw new JException("D3060");
+            }
+
             return Math.Sqrt(number);
         }
 

@@ -44,7 +44,15 @@ namespace Jsonata.Net.Native.Json
             }
             try
             {
-                return (decimal)value;
+                decimal decimalValue = (decimal)value;
+                if ((double)decimalValue == value)
+                {
+                    return decimalValue;
+                }
+                else
+                {
+                    return value;
+                }
             }
             /*
             catch (Exception ex)
