@@ -463,11 +463,13 @@ namespace Jsonata.Net.Native.Eval
          */
         public static string replace([PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(Int32.MaxValue)] int limit)
         {
-            if (pattern.Type == JTokenType.String && (string)(JValue)(pattern) == "")
+            // pattern cannot be an empty string
+            if (pattern.Type == JTokenType.String && (string)(JValue)pattern == "")
             {
                 throw new JsonataException("D3010", $"Second argument of {nameof(replace)} function cannot be an empty string");
             }
 
+            // limit, if specified, must be a non-negative number
             if (limit < 0)
             {
                 throw new JsonataException("D3011", $"Fourth argument of {nameof(replace)} function must evaluate to a positive number");
@@ -521,7 +523,7 @@ namespace Jsonata.Net.Native.Eval
                     {
                         JObject matchesObj = (JObject)matches;
                         int start = matchesObj.GetPropertyAsInt("start");
-                        result.Append(str.Substring(position, start));
+                        result.Append(str.Substring(position, start - position));
                         // var self = this;
                         // var replacedWith = replacer.apply(self, [matches]);  //Here it's not possible to pass this as focus for apply, as we don't have it here..
                         JToken replacedWith = replacer.Apply(null, null, new List<JToken>() { matches });

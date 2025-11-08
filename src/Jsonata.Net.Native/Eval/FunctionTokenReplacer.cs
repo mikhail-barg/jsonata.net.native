@@ -28,7 +28,8 @@ namespace Jsonata.Net.Native.Eval
             {
                 substitute.Append(this.replacement.Substring(position, index - position));
                 position = index + 1;
-                char dollarVal = this.replacement[position];
+                // var dollarVal = replacement.charAt(position); -- returns empty string for out of bounds
+                char? dollarVal = position < 0 || position >= this.replacement.Length? null : this.replacement[position];
                 if (dollarVal == '$')
                 {
                     // literal $
@@ -54,19 +55,25 @@ namespace Jsonata.Net.Native.Eval
                         // max number of digits to parse following the $
                         maxDigits = (int)(Math.Log10(groups.Count)) + 1;
                     }
-                    bool isNotNan = parseInt(replacement.Substring(position, maxDigits), out index, out int parsedChars);
+                    bool isNotNan = parseInt(replacement, position, maxDigits, out index, out int parsedChars);
                     if (maxDigits > 1 && index > groups.Count)
                     {
-                        isNotNan = parseInt(replacement.Substring(position, maxDigits - 1), out index, out parsedChars);
+                        isNotNan = parseInt(replacement, position, maxDigits - 1, out index, out parsedChars);
                     }
                     if (isNotNan)
                     {
                         if (groups.Count > 0)
                         {
-                            JToken submatch = groups.ChildrenTokens[index - 1];
-                            if (submatch.Type != JTokenType.Undefined)
+                            //var submatch = regexMatch.groups[index - 1]; -- here js will return undefined for out of bounds!!
+                            //if (typeof submatch !== 'undefined')
+                            int groupIndex = index - 1;
+                            if (groupIndex >= 0 && groupIndex < groups.Count)
                             {
-                                substitute.Append((string)(JValue)submatch);
+                                JToken submatch = groups.ChildrenTokens[index - 1];
+                                if (submatch.Type != JTokenType.Undefined)
+                                {
+                                    substitute.Append((string)(JValue)submatch);
+                                }
                             }
                         }
                         position += parsedChars;
@@ -83,21 +90,21 @@ namespace Jsonata.Net.Native.Eval
             return new JValue(substitute.ToString());
         }
 
-        private static bool parseInt(string str, out int result, out int consumedChars)
+        private static bool parseInt(string str, int startPos, int length, out int result, out int consumedChars)
         {
             result = 0;
             consumedChars = 0;
-            if (str.Length == 0 || str[0] < '0' || str[0] > '9')
+            if (str.Length == 0 || startPos >= str.Length ||  str[startPos] < '0' || str[startPos] > '9')
             {
                 return false;
             }
 
-            for (int i = 0; i < str.Length; ++i)
+            for (int i = startPos; i < (startPos + length) && i < str.Length; ++i)
             {
                 char c = str[i];
                 if (c >= '0' && c <= '9')
                 {
-                    result *= 10 + (c - '0');
+                    result = result * 10 + (c - '0');
                     ++consumedChars;
                 }
                 else

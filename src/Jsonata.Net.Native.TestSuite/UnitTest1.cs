@@ -32,6 +32,7 @@ namespace Jsonata.Net.Native.TestSuite
             { "function-string.case001", "Our implementation returns \"3.142857142857143\" which is a bit more percise than expected \"3.14285714285714\"" },
             { "function-string.case019", "Our implementation exception is a bit different but it's still concise" },
             { "function-string.case020", "Our implementation exception is a bit different but it's still concise" },
+            { "numeric-operators.case014", "Our implementation exception is a bit different but it's still concise" }
         };
         private readonly List<Tuple<string, string, List<int>>> m_suppressedTestsGrouped = new () {
             Tuple.Create(

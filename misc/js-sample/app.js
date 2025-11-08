@@ -136,7 +136,7 @@ const data = {
 };
 
 (async () => {
-    const expression = jsonata(`$map([1,2,3], $string)`);
+    const expression = jsonata(`$split("ababbxabbcc",/b+/)`);
     //Format(expression.ast(), null, 0);
     //console.log('\n');
     const result = await expression.evaluate(data);  // returns 24

@@ -10,6 +10,7 @@ using Jsonata.Net.Native.New;
 namespace Jsonata.Net.Native.Eval
 {
     // see jsonata.js evaluateRegex
+    // this one is "closure"
     internal sealed class FunctionTokenRegex : FunctionToken
     {
         internal readonly Regex regex;
@@ -18,6 +19,32 @@ namespace Jsonata.Net.Native.Eval
             : base("regex", 1)
         {
             this.regex = regex;
+        }
+
+        internal static JToken InvokeClosure(Regex regex, string str, int fromIndex)
+        {
+            Match match = regex.Match(str, fromIndex);
+            if (!match.Success)
+            {
+                return JsonataQ.UNDEFINED;
+            }
+
+            JObject result = new JObject();
+            result.Add("match", new JValue(match.Value));
+            result.Add("start", new JValue(match.Index));
+            result.Add("end", new JValue(match.Index + match.Value.Length));
+            JArray groups = new JArray(match.Groups.Count - 1);
+            if (match.Groups.Count > 1) //0th is a whole regex
+            {
+                for (int i = 1; i < match.Groups.Count; ++i)
+                {
+                    groups.Add(new JValue(match.Groups[i].Value));
+                }
+            }
+            result.Add("groups", groups);
+            result.Add("next", new FunctionTokenNextMatch(regex, str, fromIndex: match.Index + match.Value.Length));
+
+            return result;
         }
 
         internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
@@ -47,9 +74,7 @@ namespace Jsonata.Net.Native.Eval
             }
 
             string str = (string)arg!;
-            FunctionTokenNextMatch closure = new FunctionTokenNextMatch(this.regex, str, 0);
-            JToken result = closure.Apply(null, null, new List<JToken>());
-            return result;
+            return InvokeClosure(this.regex, str, 0);
         }
 
         public override JToken DeepClone()
@@ -58,7 +83,7 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        // var closure = function(str, fromIndex)
+        // this one is "next = function()"
         private sealed class FunctionTokenNextMatch : FunctionToken
         {
             private readonly Regex m_regex;
@@ -80,27 +105,17 @@ namespace Jsonata.Net.Native.Eval
                     return JsonataQ.UNDEFINED;
                 }
 
-                Match match = this.m_regex.Match(this.m_str, this.m_fromIndex);
-                if (!match.Success)
+                JToken next = FunctionTokenRegex.InvokeClosure(this.m_regex, this.m_str, this.m_fromIndex);
+                if (next.Type == JTokenType.Undefined)
                 {
-                    return JsonataQ.UNDEFINED;
+                    return next;
                 }
-
-                JObject result = new JObject();
-                result.Add("match", new JValue(match.Value));
-                result.Add("index", new JValue(match.Index));
-                JArray groups = new JArray(match.Groups.Count - 1);
-                if (match.Groups.Count > 1) //0th is a whole regex
+                JObject nextMatch = (JObject)next;
+                if ((string)nextMatch.Properties["match"] == "")
                 {
-                    for (int i = 1; i < match.Groups.Count; ++i)
-                    {
-                        groups.Add(new JValue(match.Groups[i].Value));
-                    }
+                    throw new JException("D1004");
                 }
-                result.Add("groups", groups);
-                result.Add("next", new FunctionTokenNextMatch(this.m_regex, this.m_str, fromIndex: match.Index + match.Value.Length));
-
-                return result;
+                return next;
             }
 
             public override JToken DeepClone()
