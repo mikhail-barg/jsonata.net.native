@@ -69,6 +69,21 @@ namespace Jsonata.Net.Native.TestSuite
                 "function-parseInteger.parseInteger[{0}]",
                 Enumerable.Range(7, 61 - 7 + 1).ToList()
             ),
+            Tuple.Create(
+                "Utf32 is not properly supported",
+                "function-substring.case{0:D3}",
+                new List<int>() {4, 5, 6, 15, 16, 17, 18}
+            ),
+            Tuple.Create(
+                "toMillis is implemented using DateTimeOffset.TryParse() format features.",
+                "function-tomillis.case{0:D3}",
+                new List<int>() {5, 7, 8, 9, 10, 11, 12, 13}
+            ),
+            Tuple.Create(
+                "toMillis is implemented using DateTimeOffset.TryParse() format features.",
+                "function-tomillis.parseDateTime[{0}]",
+                Enumerable.Range(2, 46 - 2 + 1).ToList()
+            ),
         };
 
         [OneTimeSetUp]
