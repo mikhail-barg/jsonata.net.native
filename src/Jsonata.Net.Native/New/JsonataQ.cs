@@ -920,7 +920,7 @@ namespace Jsonata.Net.Native.New
 
         private static JToken evalIntOperator(long lhs, long rhs, string op)
         {
-            long result = op switch {
+            long resultLong = op switch {
                 "+" => lhs + rhs,
                 "-" => lhs - rhs,
                 "*" => lhs * rhs,
@@ -928,7 +928,24 @@ namespace Jsonata.Net.Native.New
                 "%" => lhs % rhs,
                 _ => throw new ArgumentException($"Unexpected operator '{op}'")
             };
-            return new JValue(result);
+            decimal resultDecimal = op switch {
+                "+" => (decimal)lhs + (decimal)rhs,
+                "-" => (decimal)lhs - (decimal)rhs,
+                "*" => (decimal)lhs * (decimal)rhs,
+                "/" => (decimal)lhs / (decimal)rhs,
+                "%" => (decimal)lhs % (decimal)rhs,
+                _ => throw new ArgumentException($"Unexpected operator '{op}'")
+            };
+
+            //handling long overflows
+            if (resultDecimal != resultLong)
+            {
+                return new JValue(resultDecimal);
+            }
+            else
+            {
+                return new JValue(resultLong);
+            }
         }
 
         private static JToken evalDoubleOperator(double lhs, double rhs, string op)
