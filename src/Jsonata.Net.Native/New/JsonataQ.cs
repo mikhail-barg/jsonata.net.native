@@ -16,6 +16,8 @@ namespace Jsonata.Net.Native.New
 
         internal static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
+            environment.IncDepth();
+
             JToken result;
 
             switch (expr.type)
@@ -111,6 +113,8 @@ namespace Jsonata.Net.Native.New
                     result = arrayResult.keepSingleton ? arrayResult : arrayResult.ChildrenTokens[0];
                 }
             }
+
+            environment.DecDepth();
 
             return result;
         }

@@ -46,10 +46,15 @@ namespace Jsonata.Net.Native
         private readonly Dictionary<string, JToken> m_bindings = new Dictionary<string, JToken>();
         private readonly EvaluationEnvironment? m_parent;
         private readonly EvaluationSupplement? m_evaluationSupplement;
+        public int MaxDepth { get; set; } = 250;
 
         private EvaluationEnvironment(EvaluationEnvironment? parent, EvaluationSupplement? evaluationSupplement)
         {
             this.m_parent = parent;
+            if (this.m_parent != null)
+            {
+                this.MaxDepth = this.m_parent.MaxDepth;
+            }
             this.m_evaluationSupplement = evaluationSupplement;
         }
 
@@ -113,6 +118,20 @@ namespace Jsonata.Net.Native
                 throw new Exception($"Calling {nameof(GetEvaluationSupplement)}() at non-evaluation env. Should not happen");
             };
             return this.m_evaluationSupplement;
+        }
+
+        internal void IncDepth()
+        {
+            int depth = this.GetEvaluationSupplement().IncDepth();
+            if (depth > this.MaxDepth)
+            {
+                throw new JsonataException("U1001", "Stack overflow error: Check for non-terminating recursive function.  Consider rewriting as tail-recursive.");
+            }
+        }
+
+        internal void DecDepth()
+        {
+            this.GetEvaluationSupplement().DecDepth();
         }
     }
 }

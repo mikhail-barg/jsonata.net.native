@@ -1499,10 +1499,10 @@ string-concat.case010;Passed
 string-concat.case011;Passed
 tail-recursion.case000;Passed
 tail-recursion.case001;Passed
-tail-recursion.case002;Failed
+tail-recursion.case002;Passed
 tail-recursion.case003;Passed
 tail-recursion.case004;Passed
-tail-recursion.case005;Failed
+tail-recursion.case005;Passed
 tail-recursion.case006;Failed
 tail-recursion.case007;Passed
 tail-recursion.case008;Passed
