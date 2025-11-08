@@ -1477,7 +1477,7 @@ sorting.case009;Passed
 sorting.case010;Passed
 sorting.case011;Passed
 sorting.case012;Passed
-sorting.case013;Skipped
+sorting.case013;Passed
 sorting.case014;Passed
 sorting.case015;Passed
 sorting.case016;Passed

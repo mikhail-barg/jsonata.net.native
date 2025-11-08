@@ -1538,6 +1538,10 @@ namespace Jsonata.Net.Native.New
                     {
                         throw new JException("T2008", expr.position, aa);
                     }
+                    if (bb.Type != JTokenType.Integer && bb.Type != JTokenType.Float && bb.Type != JTokenType.String)
+                    {
+                        throw new JException("T2008", expr.position, bb);
+                    }
 
                     JValue aaValue = (JValue)aa;
                     JValue bbValue = (JValue)bb;
