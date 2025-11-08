@@ -16,6 +16,7 @@ namespace Jsonata.Net.Native.Eval
         {
             this.proc = proc;
             this.environment = environment;
+            this.RequiredArgsCount = proc.RequiredArgsCount; //closure.arity = getFunctionArity(arg);
         }
 
         internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)

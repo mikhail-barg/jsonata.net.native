@@ -136,7 +136,7 @@ const data = {
 };
 
 (async () => {
-    const expression = jsonata(`Product[$."Product Name" ~> /hat/i].ProductID`);
+    const expression = jsonata(`$map([1,2,3], $string)`);
     //Format(expression.ast(), null, 0);
     //console.log('\n');
     const result = await expression.evaluate(data);  // returns 24

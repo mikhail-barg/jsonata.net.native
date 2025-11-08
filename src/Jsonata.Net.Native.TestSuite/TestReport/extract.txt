@@ -1118,7 +1118,7 @@ hof-map.case000;Passed
 hof-map.case001;Passed
 hof-map.case0010;Passed
 hof-map.case0011;Passed
-hof-map.case002;Failed
+hof-map.case002;Passed
 hof-map.case003;Passed
 hof-map.case004;Passed
 hof-map.case005;Passed

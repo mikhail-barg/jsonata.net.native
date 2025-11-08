@@ -2184,7 +2184,7 @@ namespace Jsonata.Net.Native.Eval
          */
         private static List<JToken> hofFuncArgs(FunctionToken func, JToken arg1, JToken arg2, JToken arg3)
         {
-            int length = func.ArgumentsCount;
+            int length = func.RequiredArgsCount;    //in JS function.length returns only number of required params: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/length
             List<JToken> func_args = new List<JToken>(length);
             func_args.Add(arg1); // the first arg (the value) is required
             // the other two are optional - only supply it if the function can take it
