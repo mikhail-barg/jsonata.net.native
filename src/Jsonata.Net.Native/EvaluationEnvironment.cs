@@ -87,14 +87,16 @@ namespace Jsonata.Net.Native
             this.BindFunction(mi.Name, mi);
         }
 
-        public void BindFunction(string name, MethodInfo mi)
+        public void BindFunction(string name, MethodInfo mi, string? signature = null)
         {
-            this.m_bindings.Add(name, new FunctionTokenCsharp(name, mi));
+            Signature? sign = signature != null? new Signature(signature) : null;
+            this.m_bindings.Add(name, new FunctionTokenCsharp(name, mi, sign));
         }
 
-        public void BindFunction(string name, Delegate funcDelegate)
+        public void BindFunction(string name, Delegate funcDelegate, string? signature = null)
         {
-            this.m_bindings.Add(name, new FunctionTokenCsharp(name, funcDelegate));
+            Signature? sign = signature != null ? new Signature(signature) : null;
+            this.m_bindings.Add(name, new FunctionTokenCsharp(name, funcDelegate, sign));
         }
 
         internal JToken Lookup(string name)

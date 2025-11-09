@@ -18,8 +18,8 @@ namespace Jsonata.Net.Native.Eval
 		private readonly bool m_hasContextParameter;
 		private readonly bool m_hasEnvParameter;
 
-        internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo)
-			:this(funcName, methodInfo, null)
+        internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo, Signature? signature)
+			:this(funcName, methodInfo, null, signature)
 		{
 			if (!methodInfo.IsStatic)
 			{
@@ -27,13 +27,13 @@ namespace Jsonata.Net.Native.Eval
             }
 		}
 
-        internal FunctionTokenCsharp(string funcName, Delegate delegateFunc)
-			: this(funcName, delegateFunc.Method, delegateFunc.Target)
+        internal FunctionTokenCsharp(string funcName, Delegate delegateFunc, Signature? signature)
+			: this(funcName, delegateFunc.Method, delegateFunc.Target, signature)
         {
         }
 
-        private FunctionTokenCsharp(string funcName, MethodInfo methodInfo, object? target)
-			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length)
+        private FunctionTokenCsharp(string funcName, MethodInfo methodInfo, object? target, Signature? signature)
+			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length, signature: signature)
 		{
 			this.m_functionName = funcName;
 			this.m_methodInfo = methodInfo;
@@ -354,7 +354,7 @@ namespace Jsonata.Net.Native.Eval
 
         public override JToken DeepClone()
         {
-			return new FunctionTokenCsharp(this.m_functionName, this.m_methodInfo, this.m_target);
+			return new FunctionTokenCsharp(this.m_functionName, this.m_methodInfo, this.m_target, this.Signature);
         }
     }
 }

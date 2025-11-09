@@ -1840,13 +1840,15 @@ namespace Jsonata.Net.Native.New
         {
             try 
             {
-                List<JToken> validatedArgs = args;
-                /*
-                if (proc.Type != JTokenType.Undefined) 
+                List<JToken> validatedArgs;
+                if (proc.Signature != null)
                 {
-                    validatedArgs = JsonataQ.validateArguments(proc.signature, args, input);
+                    validatedArgs = proc.Signature.Validate(args, input);
                 }
-                */
+                else
+                {
+                    validatedArgs = args;
+                }
 
                 JToken result;
                 if (proc is FunctionTokenLambda procLambda) 

@@ -1,142 +1,49 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.New
 {
-    internal class Signature
+    public sealed class Signature
     {
-        /*
-        static class Param
+        private sealed class Param
         {
-            String type;
-            String regex;
-            boolean context;
-            boolean array;
-            String subtype;
-            String contextRegex;
-
-            @Override
-            public String toString()
-            {
-                return "Param " + type + " regex=" + regex + " ctx=" + context + " array=" + array;
-            }
+            internal string? regex;
+            internal string? type;
+            internal bool array;
+            internal bool context;
+            internal string? subtype;
+            internal Regex? contextRegex;
         }
 
-        Param _param = new Param();
+        private readonly Regex m_regex;
+        private readonly List<Param> m_params;
 
-        List<Param> _params = new ArrayList<>();
-        Param _prevParam = _param;
-        Pattern _regex = null;
-        String _signature = "";
-        String functionName;
-        */
-
-        public Signature(String signature, String function)
+        internal Signature(string signature)
         {
-            //TODO:
-            //this.functionName = function;
-            //parseSignature(signature);
-        }
-
-        /*
-        public void setFunctionName(String functionName)
-        {
-            this.functionName = functionName;
-        }
-
-        public static void main(String[] args)
-        {
-            Signature s = new Signature("<s-:s>", "test");//<s-(sf)(sf)n?:s>");
-            System.out.println(s._params);
-        }
-
-        int findClosingBracket(String str, int start, char openSymbol, char closeSymbol)
-        {
-            // returns the position of the closing symbol (e.g. bracket) in a string
-            // that balances the opening symbol at position start
-            int depth = 1;
-            int position = start;
-            while (position < str.length())
-            {
-                position++;
-                char symbol = str.charAt(position);
-                if (symbol == closeSymbol)
-                {
-                    depth--;
-                    if (depth == 0)
-                    {
-                        // we're done
-                        break; // out of while loop
-                    }
-                }
-                else if (symbol == openSymbol)
-                {
-                    depth++;
-                }
-            }
-            return position;
-        };
-
-        String getSymbol(Object value)
-        {
-            String symbol;
-            if (value == null)
-            {
-                symbol = "m";
-            }
-            else
-            {
-                // first check to see if this is a function
-                if (Utils.isFunction(value) || Functions.isLambda(value) || (value instanceof Pattern)) { //} instanceof JFunction || value instanceof Function) {
-                    symbol = "f";
-                } else if (value instanceof String)
-                symbol = "s";
-            else if (value instanceof Number)
-                symbol = "n";
-            else if (value instanceof Boolean)
-                symbol = "b";
-            else if (value instanceof List)
-                symbol = "a";
-            else if (value instanceof Map)
-                symbol = "o";
-            else if (value instanceof NullType) // Uli: is this used???
-                 symbol = "l";
-            else
-                    // any value can be undefined, but should be allowed to match
-                    symbol = "m"; // m for missing
-            }
-            return symbol;
-        };
-
-        void next()
-        {
-            _params.add(_param);
-            _prevParam = _param;
-            _param = new Param();
-        }
-
-        **
-         * Parses a function signature definition and returns a validation function
-         * 
-         * @param {string}
-         *                 signature - the signature between the <angle brackets>
-         * @returns validation pattern
-         *
-        Pattern parseSignature(String signature)
-        {
-            // create a Regex that represents this signature and return a function that when
-            // invoked,
-            // returns the validated (possibly fixed-up) arguments, or throws a validation
-            // error
+            // create a Regex that represents this signature and return a function that when invoked,
+            // returns the validated (possibly fixed-up) arguments, or throws a validation error
             // step through the signature, one symbol at a time
+
             int position = 1;
-            while (position < signature.length())
+            List<Param> @params = new();
+            Param param = new Param();
+            Param prevParam = param;
+
+            void next()
             {
-                char symbol = signature.charAt(position);
+                @params.Add(param);
+                prevParam = param;
+                param = new Param();
+            }
+
+            while (position < signature.Length)
+            {
+                char symbol = signature[position];
                 if (symbol == ':')
                 {
                     // TODO figure out what to do with the return type
@@ -150,239 +57,231 @@ namespace Jsonata.Net.Native.New
                 case 'n': // number
                 case 'b': // boolean
                 case 'l': // not so sure about expecting null?
-                case 'o':
-                    { // object
-                        _param.regex = ("[" + symbol + "m]");
-                        _param.type = ("" + symbol);
-                        next();
-                        break;
-                    }
-                case 'a':
-                    { // array
-                      // normally treat any value as singleton array
-                        _param.regex = ("[asnblfom]");
-                        _param.type = ("" + symbol);
-                        _param.array = (true);
-                        next();
-                        break;
-                    }
-                case 'f':
-                    { // function
-                        _param.regex = ("f");
-                        _param.type = ("" + symbol);
-                        next();
-                        break;
-                    }
-                case 'j':
-                    { // any JSON type
-                        _param.regex = ("[asnblom]");
-                        _param.type = ("" + symbol);
-                        next();
-                        break;
-                    }
-                case 'x':
-                    { // any type
-                        _param.regex = ("[asnblfom]");
-                        _param.type = ("" + symbol);
-                        next();
-                        break;
-                    }
-                case '-':
-                    { // use context if _param not supplied
-                        _prevParam.context = true;
-                        _prevParam.regex += "?";
-                        break;
-                    }
-                case '?': // optional _param
-                case '+':
-                    { // one or more
-                        _prevParam.regex += symbol;
-                        break;
-                    }
-                case '(':
-                    { // choice of types
-                      // search forward for matching ')'
-                        int endParen = findClosingBracket(signature, position, '(', ')');
-                        String choice = signature.substring(position + 1, endParen);
-                        if (choice.indexOf("<") == -1)
-                        {
-                            // no _parameterized types, simple regex
-                            _param.regex = ("[" + choice + "m]");
-                        }
-                        else
-                        {
-                            // TODO harder
-                            throw new RuntimeException("Choice groups containing parameterized types are not supported");
-                        }
-                        _param.type = ("(" + choice + ")");
-                        position = endParen;
-                        next();
-                        break;
-                    }
-                case '<':
-                    { // type _parameter - can only be applied to 'a' and 'f'
-                        String test = _prevParam.type;
-                        if (test != null)
-                        {
-                            String type = test;//.asText();
-                            if (type.equals("a") || type.equals("f"))
-                            {
-                                // search forward for matching '>'
-                                int endPos = findClosingBracket(signature, position, '<', '>');
-                                _prevParam.subtype = signature.substring(position + 1, endPos);
-                                position = endPos;
-                            }
-                            else
-                            {
-                                throw new RuntimeException("Type parameters can only be applied to functions and arrays");
-                            }
-                        }
-                        else
-                        {
-                            throw new RuntimeException("Type parameters can only be applied to functions and arrays");
-                        }
-                        break;
-                    }
-                }
-                position++;
-            } // end while processing symbols in signature
-
-            String regexStr = "^";
-            for (Param param : _params)
-            {
-                regexStr += "(" + param.regex + ")";
-            }
-            regexStr += "$";
-
-            _regex = null;
-            try
-            {
-                _regex = Pattern.compile(regexStr);
-                _signature = regexStr;
-            }
-            catch (PatternSyntaxException pse)
-            {
-                throw new RuntimeException(pse.getLocalizedMessage());
-            }
-            return _regex;
-        }
-
-        void throwValidationError(List<?> badArgs, String badSig, String functionName)
-        {
-            // to figure out where this went wrong we need apply each component of the
-            // regex to each argument until we get to the one that fails to match
-            String partialPattern = "^";
-
-            int goodTo = 0;
-            for (int index = 0; index < _params.size(); index++)
-            {
-                partialPattern += _params.get(index).regex;
-                Pattern tester = Pattern.compile(partialPattern);
-                Matcher match = tester.matcher(badSig);
-                if (match.matches() == false)
-                {
-                    // failed here
-                    throw new JException("T0410", -1, (goodTo + 1), functionName);
-                }
-                goodTo = match.end();
-            }
-            // if it got this far, it's probably because of extraneous arguments (we
-            // haven't added the trailing '$' in the regex yet.
-            throw new JException("T0410", -1, (goodTo + 1), functionName);
-        }
-
-        @SuppressWarnings({ "rawtypes", "unchecked"})
-    public Object validate(Object _args, Object context)
-        {
-
-            var result = new ArrayList<>();
-
-            var args = (List)_args;
-            String suppliedSig = "";
-            for (Object arg : args)
-                suppliedSig += getSymbol(arg);
-
-            Matcher isValid = _regex.matcher(suppliedSig);
-            if (isValid != null && isValid.matches())
-            {
-                var validatedArgs = new ArrayList<>();
-                var argIndex = 0;
-                int index = 0;
-                for (Object _param : _params)
-                {
-                    Param param = (Param)_param;
-                    var arg = argIndex < args.size() ? args.get(argIndex) : null;
-                    String match = isValid.group(index + 1);
-                    if ("".equals(match))
+                case 'o': // object
+                    param.regex = "[" + symbol + "m]";
+                    param.type = symbol.ToString();
+                    next();
+                    break;
+                case 'a': // array
+                    //  normally treat any value as singleton array
+                    param.regex = "[asnblfom]";
+                    param.type = symbol.ToString();
+                    param.array = true;
+                    next();
+                    break;
+                case 'f': // function
+                    param.regex = "f";
+                    param.type = symbol.ToString();
+                    next();
+                    break;
+                case 'j': // any JSON type
+                    param.regex = "[asnblom]";
+                    param.type = symbol.ToString();
+                    next();
+                    break;
+                case 'x': // any type
+                    param.regex = "[asnblfom]";
+                    param.type = symbol.ToString();
+                    next();
+                    break;
+                case '-': // use context if param not supplied
+                    prevParam.context = true;
+                    prevParam.contextRegex = new Regex(prevParam.regex!, RegexOptions.Compiled); // pre-compiled to test the context type at runtime
+                    prevParam.regex += '?';
+                    break;
+                case '?': // optional param
+                case '+': // one or more
+                    prevParam.regex += symbol;
+                    break;
+                case '(': // choice of types
+                    // search forward for matching ')'
+                    int endParen = findClosingBracket(signature, position, '(', ')');
+                    string choice = signature.Substring(position + 1, endParen - (position + 1));
+                    if (choice.IndexOf('<') < 0)
                     {
-                        if (param.context && param.regex != null)
+                        // no parameterized types, simple regex
+                        param.regex = "[" + choice + "m]";
+                    }
+                    else
+                    {
+                        // TODO harder
+                        throw new JException("S0402");
+                    }
+                    param.type = "(" + choice + ")";
+                    position = endParen;
+                    next();
+                    break;
+                case '<': // type parameter - can only be applied to 'a' and 'f'
+                    if (prevParam.type == "a" || prevParam.type == "f")
+                    {
+                        // search forward for matching '>'
+                        int endPos = findClosingBracket(signature, position, '<', '>');
+                        prevParam.subtype = signature.Substring(position + 1, endPos - (position + 1));
+                        position = endPos;
+                    }
+                    else
+                    {
+                        throw new JException("S0401");
+                    }
+                    break;
+                }
+                ++position;
+            }
+
+            StringBuilder regexStr = new StringBuilder();
+            regexStr.Append('^');
+            foreach (Param p in @params)
+            {
+                regexStr.Append('(').Append(p.regex).Append(')');
+            }
+            regexStr.Append('$');
+            Regex regex = new Regex(regexStr.ToString(), RegexOptions.Compiled);
+            this.m_regex = regex;
+            this.m_params = @params;
+        }
+
+        private static int findClosingBracket(string str, int start, char openSymbol, char closeSymbol)
+        {
+            // returns the position of the closing symbol (e.g. bracket) in a string
+            // that balances the opening symbol at position start
+            int depth = 1;
+            int position = start;
+            while (position < str.Length - 1)
+            {
+                position++;
+                char symbol = str[position];
+                if (symbol == closeSymbol)
+                {
+                    --depth;
+                    if (depth == 0)
+                    {
+                        // we're done
+                        break; // out of while loop
+                    }
+                }
+                else if (symbol == openSymbol)
+                {
+                    ++depth;
+                }
+            }
+            return position;
+        }
+
+        private static char GetSymbol(JToken value) 
+        {
+            switch (value.Type) 
+            {
+            case JTokenType.Function:
+                return 'f';
+            case JTokenType.String:
+                return 's';
+            case JTokenType.Float:
+            case JTokenType.Integer:
+                return 'n';
+            case JTokenType.Boolean:
+                return 'b';
+            case JTokenType.Null:
+                return 'l';
+            case JTokenType.Array:
+                return 'a';
+            case JTokenType.Object:
+                return 'o';
+            case JTokenType.Undefined:
+            default:
+                // any value can be undefined, but should be allowed to match
+                return 'm'; // m for missing
+            }
+        }
+
+        internal List<JToken> Validate(List<JToken> args, JToken context)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (JToken arg in args)
+            {
+                builder.Append(GetSymbol(arg));
+            }
+            string suppliedSig = builder.ToString();
+            Match isValid = this.m_regex.Match(suppliedSig);
+            if (isValid.Success)
+            {
+                List<JToken> validatedArgs = new();
+                int argIndex = 0;
+                for (int index = 0; index < this.m_params.Count; ++index)
+                {
+                    Param param = this.m_params[index];
+                    JToken arg;
+                    if (argIndex < args.Count)
+                    {
+                        arg = args[argIndex];
+                    }
+                    else
+                    {
+                        arg = JsonataQ.UNDEFINED;
+                    }
+                    Group match = isValid.Groups[index + 1];
+                    if (match.Value == "")
+                    {
+                        if (param.context && param.contextRegex != null)
                         {
                             // substitute context value for missing arg
                             // first check that the context value is the right type
-                            var contextType = getSymbol(context);
+                            string contextType = GetSymbol(context).ToString();
                             // test contextType against the regex for this arg (without the trailing ?)
-                            if (Pattern.matches(param.regex, contextType))
+                            if (param.contextRegex.IsMatch(contextType))
                             {
-                                //if (param.contextRegex.test(contextType)) {
-                                validatedArgs.add(context);
+                                validatedArgs.Add(context);
                             }
                             else
                             {
                                 // context value not compatible with this argument
-                                throw new JException("T0411", -1,
-                                    context,
-                                    argIndex + 1
-                                );
+                                throw new JException("T0411");
                             }
                         }
                         else
                         {
-                            validatedArgs.add(arg);
-                            argIndex++;
+                            validatedArgs.Add(arg);
+                            ++argIndex;
                         }
                     }
                     else
                     {
                         // may have matched multiple args (if the regex ends with a '+'
                         // split into single tokens
-                        String[] singles = match.split("");
-                        for (String single : singles)
+                        foreach (char single in match.Value)
                         {
-                            //match.split('').forEach(function (single) {
-                            if (param.type.equals("a"))
+                            if (param.type == "a")
                             {
-                                if (single.equals("m"))
+                                if (single == 'm')
                                 {
                                     // missing (undefined)
-                                    arg = null;
+                                    arg = JsonataQ.UNDEFINED;
                                 }
                                 else
                                 {
-                                    arg = argIndex < args.size() ? args.get(argIndex) : null;
-                                    var arrayOK = true;
+                                    arg = args[argIndex];
+                                    bool arrayOK = true;
                                     // is there type information on the contents of the array?
                                     if (param.subtype != null)
                                     {
-                                        if (!single.equals("a") && !match.equals(param.subtype))
+                                        if (single != 'a' && match.Value != param.subtype)
                                         {
                                             arrayOK = false;
                                         }
-                                        else if (single.equals("a"))
+                                        else if (single == 'a')
                                         {
-                                            List argArr = (List)arg;
-                                            if (argArr.size() > 0)
+                                            JArray argArray = (JArray)arg;
+                                            if (argArray.Count > 0)
                                             {
-                                                var itemType = getSymbol(argArr.get(0));
-                                                if (!itemType.equals("" + param.subtype.charAt(0)))
+                                                char itemType = GetSymbol(argArray.ChildrenTokens[0]);
+                                                if (itemType != param.subtype[0])
                                                 { // TODO recurse further
                                                     arrayOK = false;
                                                 }
                                                 else
                                                 {
-                                                    // make sure every item in the array is this type
-                                                    for (Object o : argArr)
+                                                    for (int i = 1; i < argArray.Count; ++i)
                                                     {
-                                                        if (!getSymbol(o).equals(itemType))
+                                                        if (GetSymbol(argArray.ChildrenTokens[i]) != itemType)
                                                         {
                                                             arrayOK = false;
                                                             break;
@@ -394,54 +293,93 @@ namespace Jsonata.Net.Native.New
                                     }
                                     if (!arrayOK)
                                     {
-                                        throw new JException("T0412", -1,
-                                            arg,
-                                            //argIndex + 1,
-                                            param.subtype//arraySignatureMapping[param.subtype]
-                                        );
+                                        throw new JsonataException("T0412", "Argument {{index}} of object {{token}} must be an array of {{type}}");
                                     }
-                                    // the function expects an array. If it's not one, make it so
-                                    if (!single.equals("a"))
+
+                                    if (single != 'a')
                                     {
-                                        List _arg = new ArrayList<>(); _arg.add(arg);
-                                        arg = _arg;
+                                        // the function expects an array. If it's not one, make it so
+                                        JArray arrayArg = new JArray();
+                                        arrayArg.Add(arg);
+                                        arg = arrayArg;
                                     }
                                 }
-                                validatedArgs.add(arg);
-                                argIndex++;
+                                validatedArgs.Add(arg);
+                                ++argIndex;
                             }
                             else
                             {
-                                arg = argIndex < args.size() ? args.get(argIndex) : null;
-                                validatedArgs.add(arg);
-                                argIndex++;
+                                validatedArgs.Add(arg);
+                                ++argIndex;
                             }
                         }
                     }
                 }
                 return validatedArgs;
             }
-            throwValidationError(args, suppliedSig, functionName);
-            return null; // dead code -> compiler happy
-        }
+            else
+            {
+                // throwValidationError(args, suppliedSig);
+                // var throwValidationError = function (badArgs, badSig) {
+                throw new JsonataException("T0410", "TODO: implement proper error search");
 
-        public int getNumberOfArgs()
-        {
-            return _params.size();
+                // to figure out where this went wrong we need apply each component of the
+                // regex to each argument until we get to the one that fails to match
+                /*
+                StringBuilder partialPattern = new StringBuilder();
+                partialPattern.Append('^');
+                int goodTo = 0;
+                for (int index = 0; index < this.m_params.Count; ++index) 
+                {
+                    partialPattern.Append(this.m_params[index].regex);
+                    var match = badSig.match(partialPattern);
+                    if (match === null) {
+                        // failed here
+                        throw {
+                            code: "T0410",
+                            stack: (new Error()).stack,
+                            value: badArgs[goodTo],
+                            index: goodTo + 1
+                        };
+                    }
+                    goodTo = match[0].length;
+                }
+                // if it got this far, it's probably because of extraneous arguments (we
+                // haven't added the trailing '$' in the regex yet.
+                throw {
+                    code: "T0410",
+                    stack: (new Error()).stack,
+                    value: badArgs[goodTo],
+                    index: goodTo + 1
+                };// to figure out where this went wrong we need apply each component of the
+                // regex to each argument until we get to the one that fails to match
+                var partialPattern = '^';
+                var goodTo = 0;
+                for (var index = 0; index < params.length; index++) {
+                    partialPattern += params[index].regex;
+                    var match = badSig.match(partialPattern);
+                    if (match === null) {
+                        // failed here
+                        throw {
+                            code: "T0410",
+                            stack: (new Error()).stack,
+                            value: badArgs[goodTo],
+                            index: goodTo + 1
+                        };
+                    }
+                    goodTo = match[0].length;
+                }
+                // if it got this far, it's probably because of extraneous arguments (we
+                // haven't added the trailing '$' in the regex yet.
+                throw {
+                    code: "T0410",
+                    stack: (new Error()).stack,
+                    value: badArgs[goodTo],
+                    index: goodTo + 1
+                };
+                }
+                */
+            }
         }
-
-        **
-         * Returns the minimum # of arguments.
-         * I.e. the # of all non-optional arguments.
-         *
-        public int getMinNumberOfArgs()
-        {
-            int res = 0;
-            for (Param p : _params)
-                if (!p.regex.contains("?"))
-                    res++;
-            return res;
-        }
-        */
     }
 }

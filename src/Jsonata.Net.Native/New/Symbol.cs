@@ -720,7 +720,7 @@ namespace Jsonata.Net.Native.New
                         sig += tok.value;
                     }
                     parser.advance(">");
-                    this.signature = new Signature(sig, "lambda");
+                    this.signature = new Signature(sig);
                 }
                 // parse the function body
                 parser.advance("{");

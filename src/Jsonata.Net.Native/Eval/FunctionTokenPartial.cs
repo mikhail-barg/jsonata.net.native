@@ -14,7 +14,7 @@ namespace Jsonata.Net.Native.Eval
         internal readonly List<JToken?> argsOrPlaceholders;
 
         internal FunctionTokenPartial(FunctionToken func, List<JToken?> argsOrPlaceholders)
-            : base(func.Name + "_partial", argsOrPlaceholders.Count(t => t == null))
+            : base(func.Name + "_partial", argsOrPlaceholders.Count(t => t == null), signature: null)
         {
             this.func = func;
             this.argsOrPlaceholders = argsOrPlaceholders;

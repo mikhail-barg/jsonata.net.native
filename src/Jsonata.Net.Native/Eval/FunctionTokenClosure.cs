@@ -12,7 +12,7 @@ namespace Jsonata.Net.Native.Eval
         internal readonly EvaluationEnvironment environment;
 
         internal FunctionTokenClosure(FunctionToken proc, EvaluationEnvironment environment)
-            :base(jsonName: "closure", argumentsCount:proc.ArgumentsCount)  //closure.arity = getFunctionArity(arg);
+            :base(jsonName: "closure", argumentsCount:proc.ArgumentsCount, signature: null)  //closure.arity = getFunctionArity(arg);
         {
             this.proc = proc;
             this.environment = environment;

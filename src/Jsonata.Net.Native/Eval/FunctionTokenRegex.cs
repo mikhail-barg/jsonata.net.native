@@ -16,7 +16,7 @@ namespace Jsonata.Net.Native.Eval
         internal readonly Regex regex;
 
         public FunctionTokenRegex(Regex regex)
-            : base("regex", 1)
+            : base("regex", 1, signature: null)
         {
             this.regex = regex;
         }
@@ -91,7 +91,7 @@ namespace Jsonata.Net.Native.Eval
             private readonly int m_fromIndex;
 
             public FunctionTokenNextMatch(Regex regex, string str, int fromIndex) 
-                :base("_regex_match", 0)
+                :base("_regex_match", 0, signature: null)
             {
                 this.m_regex = regex;
                 this.m_str = str;

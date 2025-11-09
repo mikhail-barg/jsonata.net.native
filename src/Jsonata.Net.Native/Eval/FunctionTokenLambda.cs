@@ -13,7 +13,6 @@ namespace Jsonata.Net.Native.Eval
         internal readonly JToken input;
         internal readonly EvaluationEnvironment environment;
         internal readonly List<Symbol> arguments;
-        internal readonly Signature? signature;
         internal readonly Symbol body;
         internal readonly bool thunk;
 
@@ -30,12 +29,11 @@ namespace Jsonata.Net.Native.Eval
         }
 
         private FunctionTokenLambda(JToken input, EvaluationEnvironment environment, List<Symbol> arguments, Signature? signature, Symbol body, bool thunk)
-            : base(jsonName: "lambda", argumentsCount: arguments.Count)
+            : base(jsonName: "lambda", argumentsCount: arguments.Count, signature: signature)
         {
             this.input = input;
             this.environment = environment;
             this.arguments = arguments;
-            this.signature = signature;
             this.body = body;
             this.thunk = thunk;
         }
@@ -47,7 +45,7 @@ namespace Jsonata.Net.Native.Eval
 
         public override JToken DeepClone()
         {
-            return new FunctionTokenLambda(input: this.input, environment: this.environment, arguments: this.arguments, signature: this.signature, body: this.body, thunk: this.thunk);
+            return new FunctionTokenLambda(input: this.input, environment: this.environment, arguments: this.arguments, signature: this.Signature, body: this.body, thunk: this.thunk);
         }
     }
 }

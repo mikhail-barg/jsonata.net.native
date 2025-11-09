@@ -26,7 +26,7 @@ namespace Jsonata.Net.Native.Eval
 		internal readonly EvaluationEnvironment environment;
 
 		public FunctionTokenTransformation(Symbol pattern, Symbol update, Symbol? delete, EvaluationEnvironment environment)
-			: base("transform", 1)
+			: base("transform", 1, signature: new Signature("<(oa):o>"))
 		{
             //TODO: signature <(oa):o>
             this.pattern = pattern;

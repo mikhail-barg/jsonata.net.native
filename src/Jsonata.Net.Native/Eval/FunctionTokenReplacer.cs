@@ -11,7 +11,7 @@ namespace Jsonata.Net.Native.Eval
         private readonly string replacement;
 
         internal FunctionTokenReplacer(string replacement)
-            :base("_replacer", 1)
+            :base("_replacer", 1, signature: null)
         {
             this.replacement = replacement;
         }
