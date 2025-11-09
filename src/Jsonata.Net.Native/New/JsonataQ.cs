@@ -1793,8 +1793,14 @@ namespace Jsonata.Net.Native.New
         internal static JToken apply(FunctionToken proc, List<JToken> args, JToken input, EvaluationEnvironment environment) 
         {
             JToken result = JsonataQ.applyInner(proc, args, input, environment);
+            int iteration = 0;
             while (result is FunctionTokenLambda lambda && lambda.thunk)
             {
+                ++iteration;
+                if (iteration > environment.MaxTailRecursionIteration)
+                {
+                    throw new JsonataException("U1001", "Expression evaluation limit: Check for infinite loop or tail recursion");
+                }
                 // trampoline loop - this gets invoked as a result of tail-call optimization
                 // the Object returned a tail-call thunk
                 // unpack it, evaluate its arguments, and apply the tail call

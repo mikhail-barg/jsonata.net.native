@@ -1503,7 +1503,7 @@ tail-recursion.case002;Passed
 tail-recursion.case003;Passed
 tail-recursion.case004;Passed
 tail-recursion.case005;Passed
-tail-recursion.case006;Failed
+tail-recursion.case006;Passed
 tail-recursion.case007;Passed
 tail-recursion.case008;Passed
 tail-recursion.case009;Failed

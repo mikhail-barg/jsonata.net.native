@@ -47,6 +47,7 @@ namespace Jsonata.Net.Native
         private readonly EvaluationEnvironment? m_parent;
         private readonly EvaluationSupplement? m_evaluationSupplement;
         public int MaxDepth { get; set; } = 250;
+        public int MaxTailRecursionIteration { get; set; } = 10000;
 
         private EvaluationEnvironment(EvaluationEnvironment? parent, EvaluationSupplement? evaluationSupplement)
         {
@@ -54,6 +55,7 @@ namespace Jsonata.Net.Native
             if (this.m_parent != null)
             {
                 this.MaxDepth = this.m_parent.MaxDepth;
+                this.MaxTailRecursionIteration = this.m_parent.MaxTailRecursionIteration;
             }
             this.m_evaluationSupplement = evaluationSupplement;
         }
