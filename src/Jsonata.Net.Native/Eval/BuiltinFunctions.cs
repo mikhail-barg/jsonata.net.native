@@ -23,6 +23,7 @@ namespace Jsonata.Net.Native.Eval
 
         If prettify is true, then "prettified" JSON is produced. i.e One line per field and lines will be indented based on the field depth.
         */
+        [FunctionSignature("<x-b?:s>")]
         public static JToken @string([AllowContextAsValue] JToken arg, [OptionalArgument(false)] bool prettify)
         {
             if (arg is JsonataArray jsonataArray && jsonataArray.outerWrapper)
@@ -61,6 +62,7 @@ namespace Jsonata.Net.Native.Eval
          If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
          An error is thrown if str is not a string.
          */
+        [FunctionSignature("<s-:n>")]
         public static int length([AllowContextAsValue][PropagateUndefined] string str)
         {
             return str.Length;
@@ -73,6 +75,7 @@ namespace Jsonata.Net.Native.Eval
         If length is specified, then the substring will contain maximum length characters.
         If start is negative then it indicates the number of characters from the end of str. See substr for full definition.         
          */
+        [FunctionSignature("<s-nn?:s>")]
         public static string substring([AllowContextAsValue][PropagateUndefined] string str, int start, [OptionalArgument(100000000)] int len)
         {
             //see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substr
@@ -101,6 +104,7 @@ namespace Jsonata.Net.Native.Eval
          If str is not specified (i.e. this function is invoked with only one argument), then the context value is used as the value of str. 
          If str does not contain chars, then it returns str. An error is thrown if str and chars are not strings.         
          */
+        [FunctionSignature("<s-s:s>")]
         public static string substringBefore([AllowContextAsValue][PropagateUndefined] string str, string chars)
         {
             int index = str.IndexOf(chars);
@@ -120,6 +124,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with only one argument), then the context value is used as the value of str. 
           If str does not contain chars, then it returns str. An error is thrown if str and chars are not strings.         
          */
+        [FunctionSignature("<s-s:s>")]
         public static string substringAfter([AllowContextAsValue][PropagateUndefined] string str, string chars)
         {
             int index = str.IndexOf(chars);
@@ -139,6 +144,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
           An error is thrown if str is not a string.         
          */
+        [FunctionSignature("<s-:s>")]
         public static string uppercase([AllowContextAsValue][PropagateUndefined] string str)
         {
             return str.ToUpper();
@@ -150,6 +156,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
           An error is thrown if str is not a string.         
          */
+        [FunctionSignature("<s-:s>")]
         public static string lowercase([AllowContextAsValue][PropagateUndefined] string str)
         {
             return str.ToLower();
@@ -164,6 +171,7 @@ namespace Jsonata.Net.Native.Eval
           If str is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of str. 
           An error is thrown if str is not a string.         
          */
+        [FunctionSignature("<s-:s>")]
         public static string trim([AllowContextAsValue][PropagateUndefined] string str)
         {
             str = Regex.Replace(str, @"\s+", " ");
@@ -178,6 +186,7 @@ namespace Jsonata.Net.Native.Eval
          The optional char argument specifies the padding character(s) to use. 
          If not specified, it defaults to the space character        
          */
+        [FunctionSignature("<s-ns?:s>")]
         public static string pad([AllowContextAsValue][PropagateUndefined] string str, int width, [OptionalArgument(" ")] string chars)
         {
             if (chars == "")
@@ -232,6 +241,7 @@ namespace Jsonata.Net.Native.Eval
                 $contains("Hello World", /wo/) => false
                 $contains("Hello World", /wo/i) => true
          */
+        [FunctionSignature("<s-(sf):b>")]
         public static bool contains([AllowContextAsValue][PropagateUndefined] string str, JToken pattern)
         {
             switch (pattern.Type)
@@ -263,6 +273,7 @@ namespace Jsonata.Net.Native.Eval
         If limit is not specified, then str is fully split with no limit to the size of the resultant array. 
         It is an error if limit is not a non-negative number.         
          */
+        [FunctionSignature("<s-(sf)n?:a<s>>")]
         public static JArray split([PropagateUndefined] string str, JToken separator, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             JArray result = new JArray();
@@ -343,6 +354,7 @@ namespace Jsonata.Net.Native.Eval
         If separator is not specified, then it is assumed to be the empty string, i.e. no separator between the component strings. 
         It is an error if separator is not a string.         
         */
+        [FunctionSignature("<a<s>s?:s>")]
         public static string join([PropagateUndefined] JToken array, [OptionalArgument(null)] JToken? separator)
         {
             string separatorString;
@@ -404,6 +416,7 @@ namespace Jsonata.Net.Native.Eval
 
         If str is not specified, then the context value is used as the value of str. It is an error if str is not a string.         
         */
+        [FunctionSignature("<s-f<s:o>n?:a<o>>")]
         public static JArray match([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             JsonataArray result = JsonataArray.CreateSequence();
@@ -461,6 +474,7 @@ namespace Jsonata.Net.Native.Eval
         The optional limit parameter, is a number that specifies the maximum number of replacements to make before stopping. 
         The remainder of the input beyond this limit will be copied to the output unchanged.         
          */
+        [FunctionSignature("<s-(sf)(sf)n?:s>")]
         public static string replace([PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             // pattern cannot be an empty string
@@ -556,6 +570,7 @@ namespace Jsonata.Net.Native.Eval
         Parses and evaluates the string expr which contains literal JSON or a JSONata expression using the current context as the context for evaluation.         
         Optionally override the context by specifying the second parameter
          */
+        [FunctionSignature("<sx?:x>")]
         public static JToken eval([PropagateUndefined] string expr, [AllowContextAsValue] JToken focus)
         {
             Symbol ast;
@@ -605,6 +620,7 @@ namespace Jsonata.Net.Native.Eval
           This requires that all characters in the string are in the 0x00 to 0xFF range, which includes all characters in URI encoded strings. 
           Unicode characters outside of that range are not supported.         
          */
+        [FunctionSignature("<s-:s>")]
         public static string base64encode([AllowContextAsValue][PropagateUndefined] string str)
         {
             return Convert.ToBase64String(UTF8_NO_BOM.GetBytes(str));
@@ -615,6 +631,7 @@ namespace Jsonata.Net.Native.Eval
           Signature: $base64decode()
           Converts base 64 encoded bytes to a string, using a UTF-8 Unicode codepage.        
          */
+        [FunctionSignature("<s-:s>")]
         public static string base64decode([AllowContextAsValue][PropagateUndefined] string str)
         {
             return UTF8_NO_BOM.GetString(Convert.FromBase64String(str));
@@ -625,6 +642,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $encodeUrlComponent(str)
         Encodes a Uniform Resource Locator(URL) component by replacing each instance of certain characters by one, two, three, or four escape sequences representing the UTF-8 encoding of the character.
         */
+        [FunctionSignature("<s-:s>")]
         public static string encodeUrlComponent([AllowContextAsValue][PropagateUndefined] string str)
         {
             //return WebUtility.UrlEncode(str);
@@ -636,6 +654,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $encodeUrl(str)
         Encodes a Uniform Resource Locator (URL) by replacing each instance of certain characters by one, two, three, or four escape sequences representing the UTF-8 encoding of the character.
         */
+        [FunctionSignature("<s-:s>")]
         public static string encodeUrl([AllowContextAsValue][PropagateUndefined] string str)
         {
             //see https://stackoverflow.com/a/34189188/376066 and 
@@ -651,6 +670,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $decodeUrlComponent(str)
         Decodes a Uniform Resource Locator (URL) component previously created by encodeUrlComponent.
         */
+        [FunctionSignature("<s-:s>")]
         public static string decodeUrlComponent([AllowContextAsValue][PropagateUndefined] string str)
         {
             //return WebUtility.UrlEncode(str);
@@ -662,6 +682,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $decodeUrl(str)
         Decodes a Uniform Resource Locator (URL) previously created by encodeUrl.
         */
+        [FunctionSignature("<s-:s>")]
         public static string decodeUrl([AllowContextAsValue][PropagateUndefined] string str)
         {
             return Uri.UnescapeDataString(str); //there's no Uri.UnescapeUriString, but actually - what's the difference? 
@@ -676,6 +697,7 @@ namespace Jsonata.Net.Native.Eval
          Casts the arg parameter to a number using the following casting rules
          If arg is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of arg.
         */
+        [FunctionSignature("<(nsb)-:n>")]
         public static JToken number([AllowContextAsValue] JToken arg)
         {
             switch (arg.Type)
@@ -773,6 +795,7 @@ namespace Jsonata.Net.Native.Eval
         
          If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
+        [FunctionSignature("<n-:n>")]
         public static double abs([AllowContextAsValue][PropagateUndefined] double number)
         {
             return Math.Abs(number);
@@ -784,6 +807,7 @@ namespace Jsonata.Net.Native.Eval
          
          If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
+        [FunctionSignature("<n-:n>")]
         public static long floor([AllowContextAsValue][PropagateUndefined] double number)
         {
             return (long)Math.Floor(number);
@@ -795,6 +819,7 @@ namespace Jsonata.Net.Native.Eval
          
          If number is not specified (i.e. this function is invoked with no arguments), then the context value is used as the value of number.
          */
+        [FunctionSignature("<n-:n>")]
         public static long ceil([AllowContextAsValue][PropagateUndefined] double number)
         {
             return (long)Math.Ceiling(number);
@@ -812,6 +837,7 @@ namespace Jsonata.Net.Native.Eval
          This function uses the Round half to even strategy to decide which way to round numbers that fall exactly between two candidates at the specified precision. 
          This strategy is commonly used in financial calculations and is the default rounding mode in IEEE 754.         
          */
+        [FunctionSignature("<n-n?:n>")]
         public static decimal round([AllowContextAsValue][PropagateUndefined] decimal number, [OptionalArgument(0)] int precision)
         {
             //This function uses decimal because Math.Round for double in C# does not exactly follow the expectations because of binary arithmetics issues
@@ -835,6 +861,7 @@ namespace Jsonata.Net.Native.Eval
          If base is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of base.
          An error is thrown if the values of base and exponent lead to a value that cannot be represented as a JSON number (e.g. Infinity, complex numbers).
          */
+        [FunctionSignature("<n-n:n>")]
         public static double power([AllowContextAsValue][PropagateUndefined] double @base, double exponent)
         {
             double result = Math.Pow(@base, exponent);
@@ -853,6 +880,7 @@ namespace Jsonata.Net.Native.Eval
         If number is not specified (i.e. this function is invoked with one argument), then the context value is used as the value of number.
         An error is thrown if the value of number is negative.         
         */
+        [FunctionSignature("<n-:n>")]
         public static double sqrt([AllowContextAsValue][PropagateUndefined] double number)
         {
             if (number < 0)
@@ -867,6 +895,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $random()
         Returns a pseudo random number greater than or equal to zero and less than one (0 ≤ n < 1)
         */
+        [FunctionSignature("<:n>")]
         public static double random([EvalSupplementArgument] EvaluationSupplement evalEnv)
         {
             return evalEnv.Random.NextDouble();
@@ -881,9 +910,9 @@ namespace Jsonata.Net.Native.Eval
         The optional third argument options is used to override the default locale specific formatting characters such as the decimal separator. 
         If supplied, this argument must be an object containing name/value pairs specified in the decimal format section of the XPath F&O 3.1 specification.         
          */
+        [FunctionSignature("<n-so?:s>")]
         public static string formatNumber([AllowContextAsValue][PropagateUndefined] double number, string picture, [OptionalArgument(null)] JObject? options)
         {
-            //TODO: try implementing or using proper XPath fn:format-number
             picture = Regex.Replace(picture, @"[1-9]", "0");
             picture = Regex.Replace(picture, @",", @"\,");
             return number.ToString(picture, CultureInfo.InvariantCulture);
@@ -894,6 +923,7 @@ namespace Jsonata.Net.Native.Eval
         Casts the number to a string and formats it to an integer represented in the number base specified by the radix argument.
         If radix is not specified, then it defaults to base 10. radix can be between 2 and 36, otherwise an error is thrown.         
         */
+        [FunctionSignature("<n-n?:s>")]
         public static string formatBase([AllowContextAsValue][PropagateUndefined] double number, [OptionalArgument(10)] double radix)
         {
             if (radix < 2 || radix > 36)
@@ -901,7 +931,6 @@ namespace Jsonata.Net.Native.Eval
                 throw new JsonataException("D3100", $"The radix of the {nameof(formatBase)} function must be between 2 and 36. It was given {radix}");
             };
 
-            //TODO: implement properly
             if (number < 0)
             {
                 return "-" + formatBase(-number, radix);
@@ -945,6 +974,7 @@ namespace Jsonata.Net.Native.Eval
          The behaviour of this function is consistent with the two-argument version of the XPath/XQuery function fn:format-integer as defined in the XPath F&O 3.1 specification. 
          The picture string parameter defines how the number is formatted and has the same syntax as fn:format-integer.
          */
+        [FunctionSignature("<n-s:s>")]
         public static string formatInteger([AllowContextAsValue][PropagateUndefined] long number, string picture)
         {
             //TODO: try implementing or using proper XPath fn:format-integer
@@ -959,6 +989,7 @@ namespace Jsonata.Net.Native.Eval
          The picture string parameter has the same format as $formatInteger. 
          Although the XPath specification does not have an equivalent function for parsing integers, this capability has been added to JSONata.
          */
+        [FunctionSignature("<s-s:n>")]
         public static long parseInteger([AllowContextAsValue][PropagateUndefined] string str, [OptionalArgument(null)] string? picture)
         {
             //TODO: try implementing properly
@@ -972,6 +1003,7 @@ namespace Jsonata.Net.Native.Eval
          Returns the arithmetic sum of an array of numbers. 
          It is an error if the input array contains an item which isn't a number.
          */
+        [FunctionSignature("<a<n>:n>")]
         public static JToken sum([PropagateUndefined] JToken arg)
         {
             switch (arg.Type)
@@ -995,6 +1027,7 @@ namespace Jsonata.Net.Native.Eval
         Returns the maximum number in an array of numbers. 
         It is an error if the input array contains an item which isn't a number.
          */
+        [FunctionSignature("<a<n>:n>")]
         public static JToken max([PropagateUndefined] JToken arg)
         {
             switch (arg.Type)
@@ -1029,10 +1062,11 @@ namespace Jsonata.Net.Native.Eval
         }
 
         /**
-        Signature: min(array)
+        Signature: $min(array)
         Returns the minimum number in an array of numbers.
         It is an error if the input array contains an item which isn't a number.
         */
+        [FunctionSignature("<a<n>:n>")]
         public static JToken min([PropagateUndefined] JToken arg)
         {
             switch (arg.Type)
@@ -1070,6 +1104,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $average(array)
         Returns the mean value of an array of numbers. It is an error if the input array contains an item which isn't a number.         
          */
+        [FunctionSignature("<a<n>:n>")]
         public static JToken average([PropagateUndefined] JToken arg)
         {
             switch (arg.Type)
@@ -1105,6 +1140,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $boolean(arg)
          Casts the argument to a Boolean using the following rules: http://docs.jsonata.org/boolean-functions#boolean 
          */
+        [FunctionSignature("<x-:b>")]
         public static JToken boolean([AllowContextAsValue] JToken arg)
         {
             switch (arg.Type)
@@ -1158,6 +1194,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $not(arg)
          Returns Boolean NOT on the argument. arg is first cast to a boolean
          */
+        [FunctionSignature("<x-:b>")]
         public static JToken not([AllowContextAsValue] JToken arg)
         {
             arg = BuiltinFunctions.boolean(arg);
@@ -1173,6 +1210,7 @@ namespace Jsonata.Net.Native.Eval
         Signature: $exists(arg)
         Returns Boolean true if the arg expression evaluates to a value, or false if the expression does not match anything (e.g. a path to a non-existent field reference).         
         */
+        [FunctionSignature("<x:b>")]
         public static bool exists(JToken arg)
         {
             return arg.Type != JTokenType.Undefined;
@@ -1186,6 +1224,7 @@ namespace Jsonata.Net.Native.Eval
           If the array parameter is not an array, but rather a value of another JSON type, then the parameter is treated as a singleton array containing that value, and this function returns 1.
          If array is not specified, then the context value is used as the value of array         
          */
+        [FunctionSignature("<a:n>")]
         public static int count([AllowContextAsValue] JToken arg)
         {
             switch (arg.Type)
@@ -1205,6 +1244,7 @@ namespace Jsonata.Net.Native.Eval
         Returns an array containing the values in array1 followed by the values in array2. 
         If either parameter is not an array, then it is treated as a singleton array containing that value.         
          */
+        [FunctionSignature("<xx:a>")]
         public static JToken append(JToken arg1, JToken arg2)
         {
             // disregard undefined args
@@ -1250,6 +1290,7 @@ namespace Jsonata.Net.Native.Eval
         This function gets invoked by the sorting algorithm to compare two values left and right. 
         If the value of left should be placed after the value of right in the desired sort order, then the function must return Boolean true to indicate a swap. Otherwise it must return false.         
          */
+        [FunctionSignature("<af?:a>")]
         public static JArray sort([PropagateUndefined] JToken arrayToken, [OptionalArgument(null)] JToken? function)
         {
             //This is not in the implementation of functions.js sort() but it is needed for `function-sort.case001` to pass. Not sure how it works in Jsonata itself (
@@ -1397,6 +1438,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $reverse(array)
          Returns an array containing all the values from the array parameter, but in reverse order.
          */
+        [FunctionSignature("<a:a>")]
         public static JArray reverse([PropagateUndefined] JToken arrayToken)
         {
             if (arrayToken.Type != JTokenType.Array)
@@ -1425,6 +1467,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $shuffle(array)
          Returns an array containing all the values from the array parameter, but shuffled into random order.
          */
+        [FunctionSignature("<a:a>")]
         public static JArray shuffle([PropagateUndefined] JToken arrayToken, [EvalSupplementArgument] EvaluationSupplement evalEnv)
         {
             if (arrayToken.Type != JTokenType.Array)
@@ -1469,6 +1512,7 @@ namespace Jsonata.Net.Native.Eval
           Returns an array containing all the values from the array parameter, but with any duplicates removed. 
           Values are tested for deep equality as if by using the equality operator.
         */
+        [FunctionSignature("<x:x>")]
         public static JArray distinct([PropagateUndefined] JToken arrayToken)
         {
             if (arrayToken.Type != JTokenType.Array)
@@ -1524,6 +1568,7 @@ namespace Jsonata.Net.Native.Eval
         This function accepts a variable number of arguments. 
         The length of the returned array is equal to the length of the shortest array in the arguments.         
         */
+        [FunctionSignature("<a+>")]
         public static JArray zip([VariableNumberArgumentAsArray] JArray args)
         {
             JArray result = new JArray();
@@ -1572,6 +1617,7 @@ namespace Jsonata.Net.Native.Eval
          Returns an array containing the keys in the object. 
          If the argument is an array of objects, then the array returned contains a de-duplicated list of all the keys in all of the objects         
          */
+        [FunctionSignature("<x-:a<s>>")]
         public static JToken keys([AllowContextAsValue][PropagateUndefined] JToken arg)
         {
             ICollection<string> keys;
@@ -1610,6 +1656,7 @@ namespace Jsonata.Net.Native.Eval
          Signature: $lookup(object, key)
          Returns the value associated with key in object. If the first argument is an array of objects, then all of the objects in the array are searched, and the values associated with all occurrences of key are returned.         
          */
+        [FunctionSignature("<x-s:x>")]
         public static JToken lookup(JToken arg, string key)
         {
             switch (arg.Type)
@@ -1654,6 +1701,7 @@ namespace Jsonata.Net.Native.Eval
          Splits an object containing key/value pairs into an array of objects, each of which has a single key/value pair from the input object. 
          If the parameter is an array of objects, then the resultant array contains an object for every key/value pair in every object in the supplied array.
          */
+        [FunctionSignature("<x-:a<o>>")]
         public static JToken spread([AllowContextAsValue][PropagateUndefined] JToken arg)
         {
             switch (arg.Type)
@@ -1709,6 +1757,7 @@ namespace Jsonata.Net.Native.Eval
          Merges an array of objects into a single object containing all the key/value pairs from each of the objects in the input array. 
          If any of the input objects contain the same key, then the returned object will contain the value of the last one in the array. It is an error if the input array contains an item that is not an object.         
          */
+        [FunctionSignature("<a<o>:o>")]
         public static JObject merge([AllowContextAsValue][PropagateUndefined] JToken arg)
         {
             switch (arg.Type)
@@ -1751,6 +1800,7 @@ namespace Jsonata.Net.Native.Eval
             function(value, name)
          where the value parameter is the value of each name/value pair in the object and name is its name. The name parameter is optional.* 
          */
+        [FunctionSignature("<o-f:a>")]
         public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
@@ -1776,6 +1826,7 @@ namespace Jsonata.Net.Native.Eval
          Signature:$error(message)
          Deliberately throws an error with an optional message
          */
+        [FunctionSignature("<s?:x>")]
         public static JToken error([OptionalArgument(null)] string message)
         {
             throw new JsonataException("D3137", message ?? "$error() function evaluated");
@@ -1786,6 +1837,7 @@ namespace Jsonata.Net.Native.Eval
          If condition is true, the function returns undefined. 
          If the condition is false, an exception is thrown with the message as the message of the exception.         
          */
+        [FunctionSignature("<bs?:x>")]
         public static JToken assert(bool condition, [OptionalArgument(null)] string message)
         {
             if (!condition)
@@ -1814,6 +1866,7 @@ namespace Jsonata.Net.Native.Eval
             "function" 
         Returns (non-string) undefined when value is undefined.
          */
+        [FunctionSignature("<x:s>")]
         public static string @type([PropagateUndefined] JToken value)
         {
             switch (value.Type)
@@ -1872,6 +1925,7 @@ namespace Jsonata.Net.Native.Eval
          If the optional picture string is supplied, then the timestamp is formatted occording to the representation specified in that string. The behaviour of this function is consistent with the two-argument version of the XPath/XQuery function fn:format-dateTime as defined in the XPath F&O 3.1 specification. The picture string parameter defines how the timestamp is formatted and has the same syntax as fn:format-dateTime.
          If the optional timezone string is supplied, then the formatted timestamp will be in that timezone. The timezone string should be in the format "±HHMM", where ± is either the plus or minus sign and HHMM is the offset in hours and minutes from UTC. Positive offset for timezones east of UTC, negative offset for timezones west of UTC.         
          */
+        [FunctionSignature("<n-s?s?:s>")]
         public static string fromMillis([PropagateUndefined, AllowContextAsValue] long number, [OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone)
         {
             DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(number);
@@ -1895,6 +1949,7 @@ namespace Jsonata.Net.Native.Eval
          An error is thrown if the string is not in the correct format.
          If the picture string is specified, then the format is assumed to be described by this picture string using the same syntax as the XPath/XQuery function fn:format-dateTime, defined in the XPath F&O 3.1 specification.         
          */
+        [FunctionSignature("<s-s?:n>")]
         public static long toMillis([PropagateUndefined] string timestamp, [OptionalArgument(null)] string? picture)
         {
             DateTimeOffset result;
@@ -1928,6 +1983,7 @@ namespace Jsonata.Net.Native.Eval
          The index (position) of that value in the input array is passed in as the second parameter, if specified. 
          The whole input array is passed in as the third parameter, if specified.
          */
+        [FunctionSignature("<af>")]
         public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
@@ -1957,6 +2013,7 @@ namespace Jsonata.Net.Native.Eval
         The index (position) of that value in the input array is passed in as the second parameter, if specified. 
         The whole input array is passed in as the third parameter, if specified.         
          */
+        [FunctionSignature("<af>")]
         public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
@@ -1988,6 +2045,7 @@ namespace Jsonata.Net.Native.Eval
           The index (position) of that value in the input array is passed in as the second parameter, if specified. 
           The whole input array is passed in as the third parameter, if specified.         
          */
+        [FunctionSignature("<af?>")]
         public static JToken single([PropagateUndefined][PackSingleValueToSequence] JArray arr, [OptionalArgument(null)] FunctionToken? func)
         {
             JToken? result = null;
@@ -2038,6 +2096,7 @@ namespace Jsonata.Net.Native.Eval
           If the optional init parameter is supplied, then that value is used as the initial value in the aggregation (fold) process. 
           If not supplied, the initial value is the first value in the array parameter.
          */
+        [FunctionSignature("<afj?:j>")]
         public static JToken reduce([PropagateUndefined][PackSingleValueToSequence] JArray sequence, FunctionToken func, [OptionalArgument(null)] JToken? init)
         {
             //known as functions.foldLeft in josnata.js
@@ -2099,6 +2158,7 @@ namespace Jsonata.Net.Native.Eval
          The key (property name) of that value in the input object is passed in as the second parameter, if specified. 
          The whole input object is passed in as the third parameter, if specified.
          */
+        [FunctionSignature("<o-f?:o>")]
         public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject arg, FunctionToken func)
         {
             JObject result = new JObject();
@@ -2131,6 +2191,7 @@ namespace Jsonata.Net.Native.Eval
         /**
             staticFrame.bind('clone', defineFunction(functionClone, '<(oa)-:o>'));
          */
+        [FunctionSignature("<(oa)-:o>")]
         public static JToken clone([AllowContextAsValue][PropagateUndefined] JToken arg)
         {
             return arg.DeepClone();

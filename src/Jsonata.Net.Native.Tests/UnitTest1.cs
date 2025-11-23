@@ -615,5 +615,20 @@ namespace Jsonata.Net.Native.Tests
                 @"undefined"
             );
         }
+
+        [Test]
+        public void Test_Eval()
+        {
+            Check(
+                @"$eval('Quantity ~> $sum()')",
+                @"
+                    {
+                        'Quantity': 2
+                    }
+                ",
+                "2"
+            );
+        }
+
     }
 }

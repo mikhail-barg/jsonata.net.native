@@ -127,16 +127,11 @@ function Format(symbol, prefix, indent) {
 }
 
 const data = {
-    "Product": [
-        {
-            "ProductID": 345664,
-            "Product Name": "Cloak"
-        }
-    ]
+    "Quantity": 2
 };
 
 (async () => {
-    const expression = jsonata(`$split("ababbxabbcc",/b+/)`);
+    const expression = jsonata(`$eval('Quantity ~> $sum()')`);
     //Format(expression.ast(), null, 0);
     //console.log('\n');
     const result = await expression.evaluate(data);  // returns 24

@@ -84,7 +84,8 @@ namespace Jsonata.Net.Native
 
         public void BindFunction(MethodInfo mi)
         {
-            this.BindFunction(mi.Name, mi);
+            FunctionSignatureAttribute? signAttr = mi.GetCustomAttribute<FunctionSignatureAttribute>();
+            this.BindFunction(mi.Name, mi, signAttr?.Signature);
         }
 
         public void BindFunction(string name, MethodInfo mi, string? signature = null)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
   "label": "function-join",
-  "message": "11 passed | 1 failed",
-  "color": "orange"
+  "message": "12 passed",
+  "color": "brightgreen"
 }
