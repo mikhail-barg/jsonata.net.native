@@ -16,7 +16,7 @@ namespace Jsonata.Net.Native.Eval
         private IReadOnlyList<ArgumentInfo> m_parameters;
 		private readonly string m_functionName;
 		private readonly bool m_hasContextParameter;
-		private readonly bool m_hasEnvParameter;
+		private readonly bool m_hasJsThisParameter;
 
         internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo, Signature? signature)
 			:this(funcName, methodInfo, null, signature)
@@ -42,21 +42,21 @@ namespace Jsonata.Net.Native.Eval
 				.Select(pi => new ArgumentInfo(funcName, pi))
 				.ToList();
 			this.m_hasContextParameter = this.m_parameters.Any(p => p.allowContextAsValue);
-			this.m_hasEnvParameter = this.m_parameters.Any(p => p.isEvaluationSupplement);
+			this.m_hasJsThisParameter = this.m_parameters.Any(p => p.isJsThis);
 
-			this.RequiredArgsCount = this.m_parameters.Where(p => !p.isOptional && !p.isEvaluationSupplement).Count();
+			this.RequiredArgsCount = this.m_parameters.Where(p => !p.isOptional && !p.isJsThis).Count();
 		}
 
         internal sealed class ArgumentInfo
 		{
 			internal readonly string name;
 			internal readonly Type parameterType;
-			internal readonly bool propagateUndefined;
+            internal readonly bool isJsThis;
+            internal readonly bool propagateUndefined;
 			internal readonly bool allowContextAsValue;
 			internal readonly bool packSingleValueToSequence;
 			internal readonly bool isOptional;
 			internal readonly object? defaultValueForOptional;
-			internal readonly bool isEvaluationSupplement;
 			internal readonly bool isVariableArgumentsArray;
 
 			internal ArgumentInfo(string functionName, ParameterInfo parameterInfo)
@@ -77,25 +77,44 @@ namespace Jsonata.Net.Native.Eval
 				{
 					this.isOptional = false;
 					this.defaultValueForOptional = null;
-				};
-
-				this.isEvaluationSupplement = parameterInfo.IsDefined(typeof(EvalSupplementArgumentAttribute), false);
-				if (this.isEvaluationSupplement && parameterInfo.ParameterType != typeof(EvaluationSupplement))
-				{
-					throw new JsonataException("????", $"Declaration error for function '{functionName}': attribute [{nameof(EvalSupplementArgumentAttribute)}] can only be specified for arguments of type {nameof(EvaluationSupplement)}");
-				};
+				}
 
 				this.isVariableArgumentsArray = parameterInfo.IsDefined(typeof(VariableNumberArgumentAsArrayAttribute), false);
 				if (this.isVariableArgumentsArray && parameterInfo.ParameterType != typeof(JArray))
 				{
 					throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(VariableNumberArgumentAsArrayAttribute)}] can only be specified for arguments of type {nameof(JArray)}");
-				};
-			}
+				}
+
+                this.isJsThis = this.parameterType == typeof(JsThisArgument);
+				if (this.isJsThis)
+				{
+					if (this.propagateUndefined)
+					{
+                        throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(PropagateUndefinedAttribute)}] can not be defined for the argument {this.name} of type {nameof(JsThisArgument)}");
+                    }
+                    if (this.allowContextAsValue)
+                    {
+                        throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(AllowContextAsValueAttribute)}] can not be defined for the argument {this.name} of type {nameof(JsThisArgument)}");
+                    }
+                    if (this.packSingleValueToSequence)
+                    {
+                        throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(PackSingleValueToSequenceAttribute)}] can not be defined for the argument {this.name} of type {nameof(JsThisArgument)}");
+                    }
+                    if (this.isOptional)
+                    {
+                        throw new Exception($"Declaration error for function '{functionName}': argument  {this.name} of type {nameof(JsThisArgument)} cannot be optional");
+                    }
+                    if (this.isVariableArgumentsArray)
+                    {
+                        throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(VariableNumberArgumentAsArrayAttribute)}] can not be defined for the argument {this.name} of type {nameof(JsThisArgument)}");
+                    }
+                }
+            }
 		}
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
-			object?[] parameters = this.BindFunctionArguments(args, focus_input!, focus_environment!, out bool returnUndefined);
+			object?[] parameters = this.BindFunctionArguments(jsThis, args, out bool returnUndefined);
 			if (returnUndefined)
 			{
 				return JsonataQ.UNDEFINED;
@@ -123,18 +142,18 @@ namespace Jsonata.Net.Native.Eval
 			return result;
 		}
 
-		private object?[] BindFunctionArguments(List<JToken> args, JToken? context, EvaluationEnvironment env, out bool returnUndefined)
+		private object?[] BindFunctionArguments(JsThisArgument jsThis, List<JToken> args, out bool returnUndefined)
 		{
 			try
 			{
-				return this.TryBindFunctionArguments(args, null, env, out returnUndefined);
+				return this.TryBindFunctionArguments(jsThis, args, out returnUndefined);
 			}
 			catch (JsonataException)
 			{
 				//try binding with context if possible
-				if (context != null && this.m_hasContextParameter)
+				if (this.m_hasContextParameter)
 				{
-					return this.TryBindFunctionArguments(args, context, env, out returnUndefined);
+					return this.TryBindFunctionArguments(jsThis, args, out returnUndefined);
 				}
 				else
 				{
@@ -144,7 +163,7 @@ namespace Jsonata.Net.Native.Eval
 		}
 
 
-		private object?[] TryBindFunctionArguments(List<JToken> args, JToken? context, EvaluationEnvironment env, out bool returnUndefined)
+		private object?[] TryBindFunctionArguments(JsThisArgument jsThis, List<JToken> args, out bool returnUndefined)
 		{
 			returnUndefined = false;
 			object?[] result = new object[this.m_parameters.Count];
@@ -152,19 +171,21 @@ namespace Jsonata.Net.Native.Eval
 			for (int targetIndex = 0; targetIndex < this.m_parameters.Count; ++targetIndex)
 			{
 				ArgumentInfo argumentInfo = this.m_parameters[targetIndex];
-				if (context != null && argumentInfo.allowContextAsValue)
+                if (argumentInfo.isJsThis)
+                {
+                    result[targetIndex] = jsThis;
+                }
+				/*
+                else if (argumentInfo.allowContextAsValue)
                 {
 					//if we explicitly provide context, then hurry and use it!
-					result[targetIndex] = this.ConvertFunctionArg(targetIndex, context, argumentInfo, out bool needReturnUndefined);
+					result[targetIndex] = this.ConvertFunctionArg(targetIndex, jsThis.Input, argumentInfo, out bool needReturnUndefined);
 					if (needReturnUndefined)
 					{
 						returnUndefined = true;
 					}
 				}
-				else if (argumentInfo.isEvaluationSupplement)
-                {
-					result[targetIndex] = env.GetEvaluationSupplement();
-				}
+				*/
 				else if (sourceIndex >= args.Count)
 				{
 					if (argumentInfo.isOptional)
@@ -174,9 +195,10 @@ namespace Jsonata.Net.Native.Eval
 					}
 					else
 					{
-						throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
+						throw new JsonataException("T0410", $"Function '{this.m_functionName}' requires {this.m_parameters.Count + (this.m_hasJsThisParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
 					}
 				}
+				/*
 				else if (argumentInfo.isVariableArgumentsArray)
 				{
 					//pack all remaining args to vararg.
@@ -189,6 +211,7 @@ namespace Jsonata.Net.Native.Eval
 					}
 					result[targetIndex] = vararg;
 				}
+				*/
 				else
 				{
 					result[targetIndex] = this.ConvertFunctionArg(targetIndex, args[sourceIndex], argumentInfo, out bool needReturnUndefined);
@@ -202,7 +225,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (sourceIndex < args.Count)
 			{
-				throw new JsonataException("T0410", $"Function '{m_functionName}' requires {this.m_parameters.Count + (this.m_hasEnvParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
+				throw new JsonataException("T0410", $"Function '{this.m_functionName}' requires {this.m_parameters.Count + (this.m_hasJsThisParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
 			};
 
 			return result;

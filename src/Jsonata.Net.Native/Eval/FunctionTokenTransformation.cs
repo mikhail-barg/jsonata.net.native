@@ -36,7 +36,7 @@ namespace Jsonata.Net.Native.Eval
 		}
 
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
             // transformer = async function (obj)
 
@@ -132,6 +132,5 @@ namespace Jsonata.Net.Native.Eval
 		{
 			return new FunctionTokenTransformation(this.pattern, this.update, this.delete, this.environment);
 		}
-
     }
 }

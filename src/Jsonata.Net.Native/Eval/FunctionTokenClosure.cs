@@ -19,8 +19,15 @@ namespace Jsonata.Net.Native.Eval
             this.RequiredArgsCount = proc.RequiredArgsCount; //closure.arity = getFunctionArity(arg);
         }
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
+            //as we see in js code `this` is not used here, instead the captured args are passed to the apply() call
+            // 
+            // wrap this in a closure
+            // const closure = async function(...params) {
+            //     // invoke func
+            //     return await apply(arg, params, null, environment);
+            // };
             return JsonataQ.apply(this.proc, args, JValue.CreateNull(), this.environment);
         }
 

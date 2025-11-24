@@ -20,10 +20,10 @@ namespace Jsonata.Net.Native.Eval
             this.argsOrPlaceholders = argsOrPlaceholders;
         }
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
-            List<JToken> alignedArgs = this.AlignPartialFunctionArgs(args, focus_input);
-            JToken result = this.func.Apply(focus_input, focus_environment, alignedArgs);
+            List<JToken> alignedArgs = this.AlignPartialFunctionArgs(args, jsThis.Input);
+            JToken result = this.func.Apply(jsThis, alignedArgs);
             return result;
         }
 
@@ -68,6 +68,5 @@ namespace Jsonata.Net.Native.Eval
         {
             return new FunctionTokenPartial(this.func, this.argsOrPlaceholders.Select(i => i?.DeepClone()).ToList());
         }
-
     }
 }

@@ -16,7 +16,7 @@ namespace Jsonata.Net.Native.Eval
             this.replacement = replacement;
         }
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
             JObject regexMatch = (JObject)args[0];
             StringBuilder substitute = new StringBuilder();

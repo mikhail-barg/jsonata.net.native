@@ -41,12 +41,6 @@ namespace Jsonata.Net.Native.Eval
         }
     }
 
-    //provides support for builtin functions that require EvaluationSupplement
-    [AttributeUsage(AttributeTargets.Parameter)]
-    internal sealed class EvalSupplementArgumentAttribute : Attribute
-    {
-    }
-
     [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class VariableNumberArgumentAsArrayAttribute : Attribute
     {

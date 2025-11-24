@@ -38,9 +38,14 @@ namespace Jsonata.Net.Native.Eval
             this.thunk = thunk;
         }
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
-            return JsonataQ.apply(this, args, this.input, focus_environment ?? this.environment);
+            // it's not clear how the `self` here could be null
+            //
+            // procedure.apply = async function(self, args) {
+            //     return await apply(procedure, args, input, !!self ? self.environment : environment);
+            // };
+            return JsonataQ.apply(this, args, this.input, jsThis.Environment);
         }
 
         public override JToken DeepClone()

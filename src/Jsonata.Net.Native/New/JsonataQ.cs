@@ -1855,44 +1855,10 @@ namespace Jsonata.Net.Native.New
                 {
                     result = JsonataQ.applyProcedure(procLambda, validatedArgs);
                 }
-                else if (proc is FunctionTokenCsharp procCsharp) 
-                {
-                    // var focus = {
-                    //    environment: environment,
-                    //    input: input
-                    // };
-                    // the `focus` is passed in as the `this` for the invoked function
-                    // result = proc.implementation.apply(focus, validatedArgs);
-                    result = procCsharp.Apply(focus_input: input, focus_environment: environment, args: validatedArgs);
-                    // `proc.implementation` might be a generator function
-                    // and `result` might be a generator - if so, yield
-                    // if (isIterable(result))
-                    // {
-                    //     result = result.next().value;
-                    // }
-                    // if (isPromise(result))
-                    // {
-                    //     result = await result;
-                    // }
-                }
                 else
                 {
-                    // typically these are functions that are returned by the invocation of plugin functions
-                    // the `input` is being passed in as the `this` for the invoked function
-                    // this is so that functions that return objects containing functions can chain
-                    // e.g. await (await $func())
-                    // result = proc.apply(input, validatedArgs);
-
-                    // handling special case of Javascript:
-                    // when calling a function with fn.apply(ctx, args) and args = [undefined]
-                    // Javascript will convert to undefined (without array)
-                    // if (validatedArgs is List && ((List)validatedArgs).size()==1 && ((List)validatedArgs).get(0)==null) {
-                    //     //validatedArgs = null;
-                    //}
-                    result = proc.Apply(focus_input: input, focus_environment: null, args: validatedArgs);
-                    //  if (isPromise(result)) {
-                    //      result =  result;
-                    //  }
+                    JsThisArgument jsThis = new JsThisArgument(input: input, environment: environment);
+                    result = proc.Apply(jsThis, args: validatedArgs);
                 }
                 return result;
             } 

@@ -10,6 +10,33 @@ using System.Threading.Tasks;
 
 namespace Jsonata.Net.Native.Eval
 {
+    //The object that is passed as "this" argument for js apply() call, mostly called `focus`
+    // eg 
+    //
+    // var focus = {
+    //      environment: env
+    // };
+    // var result = proc.apply(focus, args);
+    //
+    // or
+    //
+    // var focus = {
+    //   environment: environment,
+    //   input: input
+    // };
+
+    public sealed class JsThisArgument
+    {
+        public readonly EvaluationEnvironment Environment;
+        public readonly JToken Input;
+
+        public JsThisArgument(EvaluationEnvironment environment, JToken input)
+        {
+            this.Environment = environment;
+            this.Input = input;
+        }
+    }
+
     public abstract class FunctionToken: JToken
     {
         internal readonly string Name;
@@ -27,7 +54,8 @@ namespace Jsonata.Net.Native.Eval
             this.Signature = signature;
         }
 
-        internal abstract JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args);
+        //implementation of js apply() call
+        internal abstract JToken Apply(JsThisArgument jsThis, List<JToken> args);
 
         internal static JToken ReturnDoubleResult(double resultDouble)
         {

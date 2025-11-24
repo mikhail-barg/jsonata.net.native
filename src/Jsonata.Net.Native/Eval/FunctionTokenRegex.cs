@@ -47,12 +47,12 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
-        internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+        internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
         {
             JToken arg;
-            if (args.Count == 0 && focus_input != null)
+            if (args.Count == 0 && jsThis.Input != null)
             {
-                arg = focus_input;
+                arg = jsThis.Input;
             }
             else if (args.Count > 0)
             {
@@ -98,7 +98,7 @@ namespace Jsonata.Net.Native.Eval
                 this.m_fromIndex = fromIndex;
             }
 
-            internal override JToken Apply(JToken? focus_input, EvaluationEnvironment? focus_environment, List<JToken> args)
+            internal override JToken Apply(JsThisArgument jsThis, List<JToken> args)
             {
                 if (this.m_fromIndex >= this.m_str.Length)
                 {

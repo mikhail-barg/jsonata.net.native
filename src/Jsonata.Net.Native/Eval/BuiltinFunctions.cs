@@ -242,14 +242,14 @@ namespace Jsonata.Net.Native.Eval
                 $contains("Hello World", /wo/i) => true
          */
         [FunctionSignature("<s-(sf):b>")]
-        public static bool contains([AllowContextAsValue][PropagateUndefined] string str, JToken pattern)
+        public static bool contains(JsThisArgument jsThis, [AllowContextAsValue][PropagateUndefined] string str, JToken pattern)
         {
             switch (pattern.Type)
             {
             case JTokenType.String:
                 return str.Contains((string)pattern!);
             case JTokenType.Function:
-                JToken matches = evaluateMatcher((FunctionToken)pattern, new JValue(str));
+                JToken matches = evaluateMatcher(jsThis, (FunctionToken)pattern, new JValue(str));
                 return matches.Type != JTokenType.Undefined;
             default:
                 throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or function. Passed {pattern.Type} ({pattern.ToFlatString()})");
@@ -274,7 +274,7 @@ namespace Jsonata.Net.Native.Eval
         It is an error if limit is not a non-negative number.         
          */
         [FunctionSignature("<s-(sf)n?:a<s>>")]
-        public static JArray split([PropagateUndefined] string str, JToken separator, [OptionalArgument(Int32.MaxValue)] int limit)
+        public static JArray split(JsThisArgument jsThis, [PropagateUndefined] string str, JToken separator, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             JArray result = new JArray();
 
@@ -317,7 +317,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     JToken strToken = new JValue(str);
                     FunctionToken separatorFunc = (FunctionToken)separator;
-                    JToken matches = evaluateMatcher(separatorFunc, strToken);
+                    JToken matches = evaluateMatcher(jsThis, separatorFunc, strToken);
                     if (matches.Type != JTokenType.Undefined)
                     {
                         int count = 0;
@@ -327,7 +327,7 @@ namespace Jsonata.Net.Native.Eval
                             JObject matchesObj = (JObject)matches;
                             result.Add(new JValue(str.Substring(start, matchesObj.GetPropertyAsInt("start")- start)));
                             start = matchesObj.GetPropertyAsInt("end");
-                            matches = evaluateMatcher((FunctionToken)matchesObj.Properties["next"]);
+                            matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"]);
                             ++count;
                         }
                         if (count < limit)
@@ -417,7 +417,7 @@ namespace Jsonata.Net.Native.Eval
         If str is not specified, then the context value is used as the value of str. It is an error if str is not a string.         
         */
         [FunctionSignature("<s-f<s:o>n?:a<o>>")]
-        public static JArray match([AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(Int32.MaxValue)] int limit)
+        public static JArray match(JsThisArgument jsThis, [AllowContextAsValue][PropagateUndefined] string str, JToken pattern, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             JsonataArray result = JsonataArray.CreateSequence();
 
@@ -432,7 +432,7 @@ namespace Jsonata.Net.Native.Eval
             }
 
             int count = 0;
-            JToken matches = evaluateMatcher(patternFunc, new JValue(str));
+            JToken matches = evaluateMatcher(jsThis, patternFunc, new JValue(str));
             while (matches.Type != JTokenType.Undefined && count < limit)
             {
                 JObject matchesObj = (JObject)matches;
@@ -441,7 +441,7 @@ namespace Jsonata.Net.Native.Eval
                 matchObj.Add("index", matchesObj.Properties["start"]);
                 matchObj.Add("groups", matchesObj.Properties["groups"]);
                 result.Add(matchObj);
-                matches = evaluateMatcher((FunctionToken)matchesObj.Properties["next"]);
+                matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"]);
                 ++count;
             }
             return result;
@@ -475,7 +475,7 @@ namespace Jsonata.Net.Native.Eval
         The remainder of the input beyond this limit will be copied to the output unchanged.         
          */
         [FunctionSignature("<s-(sf)(sf)n?:s>")]
-        public static string replace([PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(Int32.MaxValue)] int limit)
+        public static string replace(JsThisArgument jsThis, [PropagateUndefined] string str, JToken pattern, JToken replacement, [OptionalArgument(Int32.MaxValue)] int limit)
         {
             // pattern cannot be an empty string
             if (pattern.Type == JTokenType.String && (string)(JValue)pattern == "")
@@ -530,7 +530,7 @@ namespace Jsonata.Net.Native.Eval
                 int position = 0;
                 int count = 0;
                 FunctionToken patternFunc = (FunctionToken)pattern; //assumed in js-code
-                JToken matches = evaluateMatcher(patternFunc, new JValue(str));
+                JToken matches = evaluateMatcher(jsThis, patternFunc, new JValue(str));
                 if (matches.Type != JTokenType.Undefined)
                 {
                     while (matches.Type != JTokenType.Undefined && count < limit)
@@ -539,8 +539,8 @@ namespace Jsonata.Net.Native.Eval
                         int start = matchesObj.GetPropertyAsInt("start");
                         result.Append(str.Substring(position, start - position));
                         // var self = this;
-                        // var replacedWith = replacer.apply(self, [matches]);  //Here it's not possible to pass this as focus for apply, as we don't have it here..
-                        JToken replacedWith = replacer.Apply(null, null, new List<JToken>() { matches });
+                        // var replacedWith = replacer.apply(self, [matches]);
+                        JToken replacedWith = replacer.Apply(jsThis, new List<JToken>() { matches });
                         // check replacedWith is a string
                         if (replacedWith.Type == JTokenType.String)
                         {
@@ -553,7 +553,7 @@ namespace Jsonata.Net.Native.Eval
                         }
                         position = start + ((string)matchesObj.Properties["match"]).Length;
                         ++count;
-                        matches = evaluateMatcher((FunctionToken)matchesObj.Properties["next"]);
+                        matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"]);
                     }
                     result.Append(str.Substring(position));
                 }
@@ -571,8 +571,22 @@ namespace Jsonata.Net.Native.Eval
         Optionally override the context by specifying the second parameter
          */
         [FunctionSignature("<sx?:x>")]
-        public static JToken eval([PropagateUndefined] string expr, [AllowContextAsValue] JToken focus)
+        public static JToken eval(JsThisArgument jsThis, [PropagateUndefined] string expr, [AllowContextAsValue] JToken focus)
         {
+            JToken input = jsThis.Input;
+            if (focus.Type != JTokenType.Undefined)
+            {
+                input = focus;
+                // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
+                if (input is JArray array && (array is not JsonataArray jsonataArray || !jsonataArray.sequence))
+                {
+                    jsonataArray = JsonataArray.CreateSequence(input);
+                    jsonataArray.outerWrapper = true;
+                    input = jsonataArray;
+                }
+            }
+
+
             Symbol ast;
             try
             {
@@ -585,27 +599,9 @@ namespace Jsonata.Net.Native.Eval
 
             JsonataQuery query = new JsonataQuery(ast);
 
-            /* TODO: pass `this`!
-             
-                var input = this.input;
-                if(typeof focus !== 'undefined') {
-                    input = focus;
-                    // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
-                    if(Array.isArray(input) && !isSequence(input)) {
-                        input = createSequence(input);
-                        input.outerWrapper = true;
-                    }
-                }    
-                
-                ..
-
-                var result = await evaluate(ast, input, this.environment);
-
-             */
-
             try
             {
-                return query.Eval(focus);
+                return query.Eval(input);
             }
             catch (Exception ex)
             {
@@ -896,9 +892,9 @@ namespace Jsonata.Net.Native.Eval
         Returns a pseudo random number greater than or equal to zero and less than one (0 ≤ n < 1)
         */
         [FunctionSignature("<:n>")]
-        public static double random([EvalSupplementArgument] EvaluationSupplement evalEnv)
+        public static double random(JsThisArgument jsThis)
         {
-            return evalEnv.Random.NextDouble();
+            return jsThis.Environment.GetEvaluationSupplement().Random.NextDouble();
         }
 
 
@@ -1291,7 +1287,7 @@ namespace Jsonata.Net.Native.Eval
         If the value of left should be placed after the value of right in the desired sort order, then the function must return Boolean true to indicate a swap. Otherwise it must return false.         
          */
         [FunctionSignature("<af?:a>")]
-        public static JArray sort([PropagateUndefined] JToken arrayToken, [OptionalArgument(null)] JToken? function)
+        public static JArray sort(JsThisArgument jsThis, [PropagateUndefined] JToken arrayToken, [OptionalArgument(null)] JToken? function)
         {
             //This is not in the implementation of functions.js sort() but it is needed for `function-sort.case001` to pass. Not sure how it works in Jsonata itself (
             if (arrayToken.Type != JTokenType.Array)
@@ -1330,7 +1326,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 FunctionToken functionToken = (FunctionToken)function;
                 comparator = (a, b) => {
-                    JToken res = functionToken.Apply(null, null, args: new List<JToken>() { a, b });
+                    JToken res = functionToken.Apply(jsThis, args: new List<JToken>() { a, b });
                     bool result = Helpers.Booleanize(res);
                     return result;
                 };
@@ -1468,7 +1464,7 @@ namespace Jsonata.Net.Native.Eval
          Returns an array containing all the values from the array parameter, but shuffled into random order.
          */
         [FunctionSignature("<a:a>")]
-        public static JArray shuffle([PropagateUndefined] JToken arrayToken, [EvalSupplementArgument] EvaluationSupplement evalEnv)
+        public static JArray shuffle(JsThisArgument jsThis, [PropagateUndefined] JToken arrayToken)
         {
             if (arrayToken.Type != JTokenType.Array)
             {
@@ -1487,9 +1483,10 @@ namespace Jsonata.Net.Native.Eval
             {
                 arr[i] = array.ChildrenTokens[i]; 
             }
+            Random random = jsThis.Environment.GetEvaluationSupplement().Random;
             for (int i = 0; i < arr.Length; ++i)
             {
-                int j = evalEnv.Random.Next(i, arr.Length);
+                int j = random.Next(i, arr.Length);
                 if (i != j)
                 {
                     JToken tmp = arr[i];
@@ -1801,7 +1798,7 @@ namespace Jsonata.Net.Native.Eval
          where the value parameter is the value of each name/value pair in the object and name is its name. The name parameter is optional.* 
          */
         [FunctionSignature("<o-f:a>")]
-        public static JArray each([AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken func)
+        public static JArray each(JsThisArgument jsThis, [AllowContextAsValue][PropagateUndefined] JObject obj, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
 
@@ -1809,9 +1806,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 List<JToken> func_args = hofFuncArgs(func, kvp.Value, new JValue(kvp.Key), obj);
                 // invoke func
-                //var val = await func.apply(this, func_args);
-                // TODO: no way to pass `this` for now
-                JToken val = func.Apply(null, null, func_args);
+                JToken val = func.Apply(jsThis, func_args);
                 if (val.Type != JTokenType.Undefined)
                 {
                     result.Add(val);
@@ -1901,9 +1896,9 @@ namespace Jsonata.Net.Native.Eval
          Generates a UTC timestamp in ISO 8601 compatible format and returns it as a string. All invocations of $now() within an evaluation of an expression will all return the same timestamp value.
          If the optional picture and timezone parameters are supplied, then the current timestamp is formatted as described by the $fromMillis() function.         
          */
-        public static string now([OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone, [EvalSupplementArgument] EvaluationSupplement evalEnv)
+        public static string now(JsThisArgument jsThis, [OptionalArgument(UTC_FORMAT)] string picture, [OptionalArgument(null)] string? timezone)
         {
-            return fromMillis(millis(evalEnv), picture, timezone);
+            return fromMillis(millis(jsThis), picture, timezone);
         }
 
         /**
@@ -1912,9 +1907,9 @@ namespace Jsonata.Net.Native.Eval
          Returns the number of milliseconds since the Unix Epoch (1 January, 1970 UTC) as a number. 
          All invocations of $millis() within an evaluation of an expression will all return the same value.
          */
-        public static long millis([EvalSupplementArgument] EvaluationSupplement evalEnv)
+        public static long millis(JsThisArgument jsThis)
         {
-            return evalEnv.Now.ToUnixTimeMilliseconds();
+            return jsThis.Environment.GetEvaluationSupplement().Now.ToUnixTimeMilliseconds();
         }
 
         /**
@@ -1984,7 +1979,7 @@ namespace Jsonata.Net.Native.Eval
          The whole input array is passed in as the third parameter, if specified.
          */
         [FunctionSignature("<af>")]
-        public static JToken map([PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
+        public static JToken map(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
             // do the map - iterate over the arrays, and invoke func
@@ -1992,9 +1987,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 List<JToken> func_args = hofFuncArgs(func, arr.ChildrenTokens[i], new JValue(i), arr);
                 // invoke func
-                //var res = func.apply(this, func_args);
-                //TODO: no way to pass 'this' for now (
-                JToken res = func.Apply(null, null, func_args);
+                JToken res = func.Apply(jsThis, func_args);
                 if (res.Type != JTokenType.Undefined)
                 {
                     result.Add(res);
@@ -2014,7 +2007,7 @@ namespace Jsonata.Net.Native.Eval
         The whole input array is passed in as the third parameter, if specified.         
          */
         [FunctionSignature("<af>")]
-        public static JToken filter([PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
+        public static JToken filter(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
             
@@ -2024,7 +2017,7 @@ namespace Jsonata.Net.Native.Eval
                 List<JToken> func_args = hofFuncArgs(func, entry, new JValue(i), arr);
                 //var res = func.apply(this, func_args);
                 //TODO: no way to pass `this` for now
-                JToken res = func.Apply(null, null, func_args);
+                JToken res = func.Apply(jsThis, func_args);
                 if (Helpers.Booleanize(res))
                 {
                     result.Add(entry);
@@ -2046,7 +2039,7 @@ namespace Jsonata.Net.Native.Eval
           The whole input array is passed in as the third parameter, if specified.         
          */
         [FunctionSignature("<af?>")]
-        public static JToken single([PropagateUndefined][PackSingleValueToSequence] JArray arr, [OptionalArgument(null)] FunctionToken? func)
+        public static JToken single(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray arr, [OptionalArgument(null)] FunctionToken? func)
         {
             JToken? result = null;
 
@@ -2058,9 +2051,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     List<JToken> func_args = hofFuncArgs(func, entry, new JValue(i), arr);
                     // invoke func
-                    // var res = await func.apply(this, func_args);
-                    // TODO: no way to pass `this` for now
-                    JToken res = func.Apply(null, null, func_args);
+                    JToken res = func.Apply(jsThis, func_args);
                     positiveResult = Helpers.Booleanize(res);
                 }
                 if (positiveResult)
@@ -2097,7 +2088,7 @@ namespace Jsonata.Net.Native.Eval
           If not supplied, the initial value is the first value in the array parameter.
          */
         [FunctionSignature("<afj?:j>")]
-        public static JToken reduce([PropagateUndefined][PackSingleValueToSequence] JArray sequence, FunctionToken func, [OptionalArgument(null)] JToken? init)
+        public static JToken reduce(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray sequence, FunctionToken func, [OptionalArgument(null)] JToken? init)
         {
             //known as functions.foldLeft in josnata.js
 
@@ -2138,9 +2129,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     args.Add(sequence);
                 }
-                // result = await func.apply(this, args);
-                //TODO: no way to pass `this` for now
-                result = func.Apply(null, null, args);
+                result = func.Apply(jsThis, args);
                 ++index;
             }
             return result;
@@ -2159,7 +2148,7 @@ namespace Jsonata.Net.Native.Eval
          The whole input object is passed in as the third parameter, if specified.
          */
         [FunctionSignature("<o-f?:o>")]
-        public static JToken sift([AllowContextAsValue][PropagateUndefined] JObject arg, FunctionToken func)
+        public static JToken sift(JsThisArgument jsThis, [AllowContextAsValue][PropagateUndefined] JObject arg, FunctionToken func)
         {
             JObject result = new JObject();
 
@@ -2167,9 +2156,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 List<JToken> func_args = hofFuncArgs(func, kvp.Value, new JValue(kvp.Key), arg);
                 // invoke func
-                // var res = await func.apply(this, func_args);
-                // TODO: no way to pass `this` for now
-                JToken res = func.Apply(null, null, func_args);
+                JToken res = func.Apply(jsThis, func_args);
                 if (Helpers.Booleanize(res))
                 {
                     result.Add(kvp.Key, kvp.Value);
@@ -2198,9 +2185,9 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        private static JToken evaluateMatcher(FunctionToken matcher, JToken str)
+        private static JToken evaluateMatcher(JsThisArgument jsThis, FunctionToken matcher, JToken str)
         {
-            JToken result = matcher.Apply(null, null, new List<JToken>() { str });
+            JToken result = matcher.Apply(jsThis, new List<JToken>() { str });
             if (result.Type == JTokenType.Undefined)
             {
                 return result;
@@ -2217,9 +2204,9 @@ namespace Jsonata.Net.Native.Eval
             return result;
         }
 
-        private static JToken evaluateMatcher(FunctionToken matcher)
+        private static JToken evaluateMatcher(JsThisArgument jsThis, FunctionToken matcher)
         {
-            JToken result = matcher.Apply(null, null, new List<JToken>() {});
+            JToken result = matcher.Apply(jsThis, new List<JToken>() {});
             if (result.Type == JTokenType.Undefined)
             {
                 return result;
