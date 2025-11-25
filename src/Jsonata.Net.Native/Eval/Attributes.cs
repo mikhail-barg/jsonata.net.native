@@ -28,12 +28,12 @@ namespace Jsonata.Net.Native.Eval
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
-    internal sealed class VariableNumberArgumentAsArrayAttribute : Attribute
+    public sealed class VariableNumberArgumentAsArrayAttribute : Attribute
     {
     }
 
     [AttributeUsage(AttributeTargets.Method)]
-    internal sealed class FunctionSignatureAttribute : Attribute
+    public sealed class FunctionSignatureAttribute : Attribute
     {
         internal readonly string Signature;
 

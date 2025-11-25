@@ -20,11 +20,14 @@ namespace Jsonata.Net.Native.New
             internal Regex? contextRegex;
         }
 
+        private readonly string m_signature;
         private readonly Regex m_regex;
         private readonly List<Param> m_params;
 
         internal Signature(string signature)
         {
+            this.m_signature = signature;
+
             // create a Regex that represents this signature and return a function that when invoked,
             // returns the validated (possibly fixed-up) arguments, or throws a validation error
             // step through the signature, one symbol at a time
