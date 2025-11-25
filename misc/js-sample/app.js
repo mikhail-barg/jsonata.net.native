@@ -131,7 +131,7 @@ const data = {
 };
 
 (async () => {
-    const expression = jsonata(`$eval('Quantity ~> $sum()')`);
+    const expression = jsonata(`$zip([1,2,3],[4,5,6])`);
     //Format(expression.ast(), null, 0);
     //console.log('\n');
     const result = await expression.evaluate(data);  // returns 24

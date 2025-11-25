@@ -630,5 +630,24 @@ namespace Jsonata.Net.Native.Tests
             );
         }
 
+        [Test]
+        public void Test_Zip()
+        {
+            Check(
+                @"$zip([1,2,3],[4,5,6])",
+                @"{}",
+                "[[1,4],[2,5],[3,6]]"
+            );
+        }
+
+        [Test]
+        public void Test_Zip2()
+        {
+            Check(
+                @"$zip([1,2,3],[4,5,6],[7,8])",
+                @"{}",
+                "[[1,4,7],[2,5,8]]"
+            );
+        }
     }
 }
