@@ -17,6 +17,11 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
+        public static bool IsNumeric(JToken v)
+        {
+            return v.Type == JTokenType.Integer || v.Type == JTokenType.Float;
+        }
+
         public static bool IsArrayOfNumbers(JToken token)
         {
             if (token.Type != JTokenType.Array)
@@ -25,7 +30,7 @@ namespace Jsonata.Net.Native.Eval
             }
             foreach (JToken subtoken in ((JArray)token).ChildrenTokens)
             {
-                if (subtoken.Type != JTokenType.Integer && subtoken.Type != JTokenType.Float)
+                if (!Helpers.IsNumeric(subtoken))
                 {
                     return false;
                 }

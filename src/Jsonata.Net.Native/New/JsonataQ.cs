@@ -521,13 +521,13 @@ namespace Jsonata.Net.Native.New
                         env = JsonataQ.createFrameFromTuple(environment, itemObj);
                     }
                     JToken res = JsonataQ.evaluate(predicate, context, env);
-                    if (Utils.isNumeric(res)) 
+                    if (Helpers.IsNumeric(res)) 
                     {
                         JArray resArray = new JArray();
                         resArray.Add(res);
                         res = resArray;
                     }
-                    if (Utils.isArrayOfNumbers(res)) 
+                    if (Helpers.IsArrayOfNumbers(res)) 
                     {
                         foreach (JToken ires in ((JArray)res).ChildrenTokens) 
                         {
@@ -869,11 +869,11 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateNumericExpression(JToken lhs, JToken rhs, string op)
         {
-            if (lhs.Type != JTokenType.Undefined && !Utils.isNumeric(lhs))
+            if (lhs.Type != JTokenType.Undefined && !Helpers.IsNumeric(lhs))
             {
                 throw new JException("T2001", -1, op, lhs);
             }
-            if (rhs.Type != JTokenType.Undefined && !Utils.isNumeric(rhs))
+            if (rhs.Type != JTokenType.Undefined && !Helpers.IsNumeric(rhs))
             {
                 throw new JException("T2002", -1, op, rhs);
             }
