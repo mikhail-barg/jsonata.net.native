@@ -963,9 +963,9 @@ function-string.case001;Skipped
 function-string.case002;Passed
 function-string.case003;Passed
 function-string.case004;Passed
-function-string.case005;Failed
+function-string.case005;Passed
 function-string.case006;Passed
-function-string.case007;Failed
+function-string.case007;Passed
 function-string.case008;Passed
 function-string.case009;Passed
 function-string.case010;Passed

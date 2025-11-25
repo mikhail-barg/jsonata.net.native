@@ -79,11 +79,22 @@ namespace Jsonata.Net.Native.Json
             case JTokenType.Float:
                 if (this.Value is decimal decimalValue)
                 {
-                    builder.Append(decimalValue.ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
+                    //see https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-numeric-format-strings
+                    //see https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-numeric-format-strings#SpecifierExponent
+                    //see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toString
+                    // Scientific notation is used if the radix is 10 and the number's magnitude (ignoring sign) is greater than or equal to 10^21 or less than 10^-6.
+                    string format = "g";    //General
+                    if (decimalValue < 1e-6m || decimalValue >= 1e21m)
+                    {
+                        //format = "e";
+                        format = "0.######e+0";
+                    }
+
+                    builder.Append(decimalValue.ToString(format, CultureInfo.InvariantCulture));
                 }
                 else
                 {
-                    builder.Append(((double)this).ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
+                    builder.Append(((double)this).ToString("g", CultureInfo.InvariantCulture));
                 }
                 break;
             case JTokenType.Integer:
