@@ -98,7 +98,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 case '(': // choice of types
                     // search forward for matching ')'
-                    int endParen = findClosingBracket(signature, position, '(', ')');
+                    int endParen = FindClosingBracket(signature, position, '(', ')');
                     string choice = signature.Substring(position + 1, endParen - (position + 1));
                     if (choice.IndexOf('<') < 0)
                     {
@@ -118,7 +118,7 @@ namespace Jsonata.Net.Native.New
                     if (prevParam.type == "a" || prevParam.type == "f")
                     {
                         // search forward for matching '>'
-                        int endPos = findClosingBracket(signature, position, '<', '>');
+                        int endPos = FindClosingBracket(signature, position, '<', '>');
                         prevParam.subtype = signature.Substring(position + 1, endPos - (position + 1));
                         position = endPos;
                     }
@@ -143,7 +143,7 @@ namespace Jsonata.Net.Native.New
             this.m_params = @params;
         }
 
-        private static int findClosingBracket(string str, int start, char openSymbol, char closeSymbol)
+        private static int FindClosingBracket(string str, int start, char openSymbol, char closeSymbol)
         {
             // returns the position of the closing symbol (e.g. bracket) in a string
             // that balances the opening symbol at position start
@@ -383,6 +383,11 @@ namespace Jsonata.Net.Native.New
                 }
                 */
             }
+        }
+
+        public override string ToString()
+        {
+            return this.m_signature;
         }
     }
 }

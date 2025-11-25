@@ -20,10 +20,6 @@ namespace Jsonata.Net.Native.Eval
         internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo, Signature? signature)
 			:this(funcName, methodInfo, null, signature)
 		{
-			if (!methodInfo.IsStatic)
-			{
-                throw new ArgumentException("Only static methods are allowed to be bound as Jsonata functions via MethodInfo");
-            }
 		}
 
         internal FunctionTokenCsharp(string funcName, Delegate delegateFunc, Signature? signature)
@@ -31,10 +27,15 @@ namespace Jsonata.Net.Native.Eval
         {
         }
 
-        private FunctionTokenCsharp(string funcName, MethodInfo methodInfo, object? target, Signature? signature)
+        internal FunctionTokenCsharp(string funcName, MethodInfo methodInfo, object? target, Signature? signature)
 			: base($"{methodInfo.DeclaringType?.Name}.{methodInfo.Name}", methodInfo.GetParameters().Length, signature: signature)
 		{
-			this.m_functionName = funcName;
+            if (methodInfo.IsStatic != (target == null))
+            {
+                throw new ArgumentException("Static methods should have no target, and instance methods should have a target");
+            }
+
+            this.m_functionName = funcName;
 			this.m_methodInfo = methodInfo;
 			this.m_target = target;
             this.m_parameters = this.m_methodInfo.GetParameters()
