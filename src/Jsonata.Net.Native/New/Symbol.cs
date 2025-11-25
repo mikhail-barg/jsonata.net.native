@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.New
 {
@@ -311,7 +309,7 @@ namespace Jsonata.Net.Native.New
         }
 
         internal Infix(string id, int bp)
-            :base(id, bp != 0 ? bp : (id != "" ? Tokenizer.operators[id] : 0))
+            :base(id, bp != 0 ? bp : (id != "" ? Tokenizer.OPERATORS[id] : 0))
         {
             
         }
@@ -479,7 +477,7 @@ namespace Jsonata.Net.Native.New
         internal override Symbol led(Symbol left, Parser parser)
         {
             this.lhs = left;
-            this.rhs = parser.expression(Tokenizer.operators["@"]);
+            this.rhs = parser.expression(Tokenizer.OPERATORS["@"]);
             if (this.rhs.type != SymbolType.variable)
             {
                 throw new JException("S0214", this.rhs.position, "@");
@@ -499,7 +497,7 @@ namespace Jsonata.Net.Native.New
         internal override Symbol led(Symbol left, Parser parser)
         {
             this.lhs = left;
-            this.rhs = parser.expression(Tokenizer.operators["#"]);
+            this.rhs = parser.expression(Tokenizer.OPERATORS["#"]);
             if (this.rhs.type != SymbolType.variable)
             {
                 throw new JException("S0214", this.rhs.position, "#");
@@ -645,7 +643,7 @@ namespace Jsonata.Net.Native.New
                 throw new JException("S0212", left.position, left.value);
             }
             this.lhs = left;
-            this.rhs = parser.expression(Tokenizer.operators[":="] - 1); // subtract 1 from bindingPower for right associative operators
+            this.rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
             this.type = SymbolType.binary;
             return this;
         }
@@ -817,7 +815,7 @@ namespace Jsonata.Net.Native.New
             else
             {
                 this.lhs = left;
-                this.rhs = parser.expression(Tokenizer.operators["]"]);
+                this.rhs = parser.expression(Tokenizer.OPERATORS["]"]);
                 this.type = SymbolType.binary;
                 parser.advance("]", true);
                 return this;

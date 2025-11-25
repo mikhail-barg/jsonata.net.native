@@ -1034,7 +1034,7 @@ namespace Jsonata.Net.Native.New
             register(symbolFactoryTable, new InfixFactory("~>")); // function application
 
             // coalescing operator
-            register(symbolFactoryTable, new CustomFactory("??", () => new InfixCoalescing("??", Tokenizer.operators["??"])));
+            register(symbolFactoryTable, new CustomFactory("??", () => new InfixCoalescing("??", Tokenizer.OPERATORS["??"])));
 
             register(symbolFactoryTable, new CustomFactory("(error)", () => new InfixRError("(error)", 10)));
 
@@ -1061,33 +1061,33 @@ namespace Jsonata.Net.Native.New
             // });
 
             // function invocation
-            register(symbolFactoryTable, new CustomFactory("(", () => new InfixInvocation("(", Tokenizer.operators["("])));
+            register(symbolFactoryTable, new CustomFactory("(", () => new InfixInvocation("(", Tokenizer.OPERATORS["("])));
 
 
             // array constructor
 
             // merged: register(new Prefix("[") {        
-            register(symbolFactoryTable, new CustomFactory("[", () => new InfixArray("[", Tokenizer.operators["["])));
+            register(symbolFactoryTable, new CustomFactory("[", () => new InfixArray("[", Tokenizer.OPERATORS["["])));
 
             // order-by
-            register(symbolFactoryTable, new CustomFactory("^", () => new InfixOrderBy("^", Tokenizer.operators["^"])));
+            register(symbolFactoryTable, new CustomFactory("^", () => new InfixOrderBy("^", Tokenizer.OPERATORS["^"])));
 
-            register(symbolFactoryTable, new CustomFactory("{", () => new InfixBlock("{", Tokenizer.operators["{"])));
+            register(symbolFactoryTable, new CustomFactory("{", () => new InfixBlock("{", Tokenizer.OPERATORS["{"])));
 
             // bind variable
-            register(symbolFactoryTable, new CustomFactory(":=", () => new InfixRVariableBind(":=", Tokenizer.operators[":="])));
+            register(symbolFactoryTable, new CustomFactory(":=", () => new InfixRVariableBind(":=", Tokenizer.OPERATORS[":="])));
 
             // focus variable bind
-            register(symbolFactoryTable, new CustomFactory("@", () => new InfixFocus("@", Tokenizer.operators["@"])));
+            register(symbolFactoryTable, new CustomFactory("@", () => new InfixFocus("@", Tokenizer.OPERATORS["@"])));
 
             // index (position) variable bind
-            register(symbolFactoryTable, new CustomFactory("#", () => new InfixIndex("#", Tokenizer.operators["#"])));
+            register(symbolFactoryTable, new CustomFactory("#", () => new InfixIndex("#", Tokenizer.OPERATORS["#"])));
 
             // if/then/else ternary operator ?:
-            register(symbolFactoryTable, new CustomFactory("?", () => new InfixTernary("?", Tokenizer.operators["?"])));
+            register(symbolFactoryTable, new CustomFactory("?", () => new InfixTernary("?", Tokenizer.OPERATORS["?"])));
 
             // elvis/default operator
-            register(symbolFactoryTable, new CustomFactory("?:", () => new InfixElvis("?:", Tokenizer.operators["?:"])));
+            register(symbolFactoryTable, new CustomFactory("?:", () => new InfixElvis("?:", Tokenizer.OPERATORS["?:"])));
 
             // object transformer
             register(symbolFactoryTable, new CustomFactory("|", () => new PrefixTransformer("|")));

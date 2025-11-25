@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace Jsonata.Net.Native.New
 {
-    public sealed class Token
+    internal sealed class Token
     {
         public SymbolType type;
         public object? value;
@@ -20,10 +20,9 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class Tokenizer  // = function (path) {
+    internal sealed class Tokenizer  // = function (path) {
     {
-        internal static Dictionary<string, int> operators = new() 
-        {
+        internal static readonly IReadOnlyDictionary<string, int> OPERATORS = new Dictionary<string, int> {
             ["."] = 75,
             ["["] = 80,
             ["]"] = 0,
@@ -64,8 +63,7 @@ namespace Jsonata.Net.Native.New
             ["~"] = 0
         };
 
-        static Dictionary<string, string> escapes = new()
-        {
+        private static readonly IReadOnlyDictionary<string, string> s_escapes = new Dictionary<string, string>() {
             // JSON string escape sequences - see json.org
             ["\""] = "\"",
             ["\\"] = "\\",
@@ -77,10 +75,12 @@ namespace Jsonata.Net.Native.New
             ["t"] = "\t",
         };
 
+        private static Regex s_numregex = new Regex(@"^-?(0|([1-9][0-9]*))(\.[0-9]+)?([Ee][-+]?[0-9]+)?", RegexOptions.Compiled);
+
         // Tokenizer (lexer) - invoked by the parser to return one token at a time
-        String path;
-        int position = 0;
-        int length; // = path.length;
+        private string path;
+        private int position = 0;
+        private int length;
 
         internal Tokenizer(string path) 
         {
@@ -88,40 +88,38 @@ namespace Jsonata.Net.Native.New
             this.length = path.Length;
         }
 
-        Token create(SymbolType type, object? value) 
+        private Token create(SymbolType type, object? value) 
         {
             Token t = new Token(type, value, this.position);
             return t;
         }
 
-        private static Regex s_numregex = new Regex(@"^-?(0|([1-9][0-9]*))(\.[0-9]+)?([Ee][-+]?[0-9]+)?", RegexOptions.Compiled);
-        int depth;
-
-        bool isClosingSlash(int position) 
+        private Regex scanRegex() 
         {
-            if (this.path[position] == '/' && depth == 0) 
+            int depth = 0;
+
+            bool isClosingSlash(int position)
             {
-                int backslashCount = 0;
-                while (path[position - (backslashCount + 1)] == '\\') 
+                if (this.path[position] == '/' && depth == 0)
                 {
-                    ++backslashCount;
+                    int backslashCount = 0;
+                    while (path[position - (backslashCount + 1)] == '\\')
+                    {
+                        ++backslashCount;
+                    }
+                    if (backslashCount % 2 == 0)
+                    {
+                        return true;
+                    }
                 }
-                if (backslashCount % 2 == 0) 
-                {
-                    return true;
-                }
+                return false;
             }
-            return false;
-        }
 
-        Regex scanRegex() 
-        {
             // the prefix '/' will have been previously scanned. Find the end of the regex.
             // search for closing '/' ignoring any that are escaped, or within brackets
             int start = this.position;
-            //int depth = 0;
-            String pattern;
-            String flags;
+            string pattern;
+            string flags;
 
             while (this.position < this.length) 
             {
@@ -151,7 +149,6 @@ namespace Jsonata.Net.Native.New
                         }
                     }
                     flags = this.path.Substring(start, this.position - start) + 'g';
-                    // Convert flags to Java Pattern flags
                     RegexOptions _flags = RegexOptions.Compiled;
                     if (flags.Contains('i'))
                     {
@@ -161,15 +158,15 @@ namespace Jsonata.Net.Native.New
                     {
                         _flags |= RegexOptions.Multiline;
                     }
-                    return new Regex(pattern, _flags); // Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+                    return new Regex(pattern, _flags);
                 }
                 if ((currentChar == '(' || currentChar == '[' || currentChar == '{') && this.path[this.position - 1] != '\\') 
                 {
-                    ++this.depth;
+                    ++depth;
                 }
                 if ((currentChar == ')' || currentChar == ']' || currentChar == '}') && this.path[this.position - 1] != '\\') 
                 {
-                    --this.depth;
+                    --depth;
                 }
                 ++this.position;
             }
@@ -278,7 +275,7 @@ namespace Jsonata.Net.Native.New
             }
             // test for single char operators
             string currentCharAsStr = currentChar.ToString();
-            if (Tokenizer.operators.ContainsKey(currentCharAsStr) )
+            if (Tokenizer.OPERATORS.ContainsKey(currentCharAsStr) )
             {
                 this.position++;
                 return create(SymbolType.@operator, currentCharAsStr);
@@ -297,7 +294,7 @@ namespace Jsonata.Net.Native.New
                     { // escape sequence
                         this.position++;
                         currentChar = this.path[this.position];
-                        if (Tokenizer.escapes.TryGetValue(currentChar.ToString(), out string? escaped)) 
+                        if (Tokenizer.s_escapes.TryGetValue(currentChar.ToString(), out string? escaped)) 
                         {
                             qstr += escaped;
                         } 
@@ -381,7 +378,7 @@ namespace Jsonata.Net.Native.New
             }
 
             // test for quoted names (backticks)
-            String name;
+            string name;
             if (currentChar == '`') 
             {
                 // scan for closing quote
@@ -398,24 +395,23 @@ namespace Jsonata.Net.Native.New
             }
             // test for names
             int i = this.position;
-            char ch;
             while (true) 
             {
-                //if (i>=length) return null; // Uli: JS relies on charAt returns null
+                //if (i>=length) return null; // JS relies on charAt returning null
 
-                ch = i < this.length ? this.path[i] : (char)0;
-                if (i == this.length || Char.IsWhiteSpace(ch) || Tokenizer.operators.ContainsKey(ch.ToString())) 
+                char ch = i < this.length ? this.path[i] : (char)0;
+                if (i == this.length || Char.IsWhiteSpace(ch) || Tokenizer.OPERATORS.ContainsKey(ch.ToString())) 
                 {
                     if (this.path[this.position] == '$') 
                     {
                         // variable reference
-                        String _name = this.path.Substring(this.position + 1, i - (this.position + 1));
+                        string _name = this.path.Substring(this.position + 1, i - (this.position + 1));
                         this.position = i;
                         return create(SymbolType.variable, _name);
                     } 
                     else 
                     {
-                        String _name = this.path.Substring(this.position, i - this.position);
+                        string _name = this.path.Substring(this.position, i - this.position);
                         this.position = i;
                         switch (_name) 
                         {
