@@ -14,6 +14,28 @@ namespace Jsonata.Net.Native.New
     {
         internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
+        internal static JToken evaluateMain(Symbol ast, JToken input, EvaluationEnvironment parentEnvironment)
+        {
+            // the variable bindings have been passed in - create a frame to hold these
+            EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
+
+            // put the input document into the environment as the root object
+            environment.BindValue("$", input);
+
+            // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
+            if (
+                input is JArray
+                && (input is not JsonataArray jsonataArray || !jsonataArray.sequence)   //this may happen via BuiltinFunctions.Eval
+            )
+            {
+                JsonataArray inputWrapper = JsonataArray.CreateSequence(input);
+                inputWrapper.outerWrapper = true;
+                input = inputWrapper;
+            }
+
+            return JsonataQ.evaluate(ast, input, environment);
+        }
+
         internal static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
             environment.IncDepth();
@@ -627,8 +649,6 @@ namespace Jsonata.Net.Native.New
             return result;
         }
 
-        //final public static Object NULL_VALUE = new Object() { public String toString() { return "null"; }};
-
         /**
          * Evaluate unary expression against input data
         * @param {Object} expr - JSONata expression
@@ -1013,8 +1033,8 @@ namespace Jsonata.Net.Native.New
          */
         private static JToken evaluateComparisonExpression(JToken lhs, JToken rhs, string op)
         {
-            bool lcomparable = JsonataQ.IsComparable(lhs);
-            bool rcomparable = JsonataQ.IsComparable(rhs);
+            bool lcomparable = JsonataQ.isComparable(lhs);
+            bool rcomparable = JsonataQ.isComparable(rhs);
 
             // if either aa or bb are not comparable (string or numeric) values, then throw an error
             if (!lcomparable || !rcomparable)
@@ -1050,15 +1070,15 @@ namespace Jsonata.Net.Native.New
             }
             if (lhs.Type == JTokenType.String)
             {
-                return CompareStrings(op, (string)lhs!, (string)rhs!);
+                return compareStrings(op, (string)lhs!, (string)rhs!);
             }
             else if (lhs.Type == JTokenType.Integer)
             {
-                return CompareInts(op, (long)lhs, (long)rhs);
+                return compareInts(op, (long)lhs, (long)rhs);
             }
             else if (lhs.Type == JTokenType.Float)
             {
-                return CompareDoubles(op, (double)lhs, (double)rhs);
+                return compareDoubles(op, (double)lhs, (double)rhs);
             }
             else
             {
@@ -1067,7 +1087,7 @@ namespace Jsonata.Net.Native.New
         }
 
 
-		private static bool IsComparable(JToken token)
+		private static bool isComparable(JToken token)
         {
             return token.Type == JTokenType.Integer
                 || token.Type == JTokenType.Float
@@ -1075,7 +1095,7 @@ namespace Jsonata.Net.Native.New
                 || token.Type == JTokenType.Undefined;
         }
 
-        private static JToken CompareDoubles(string op, double lhs, double rhs)
+        private static JToken compareDoubles(string op, double lhs, double rhs)
         {
             switch (op)
             {
@@ -1092,7 +1112,7 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private static JToken CompareInts(string op, long lhs, long rhs)
+        private static JToken compareInts(string op, long lhs, long rhs)
         {
             switch (op)
             {
@@ -1109,7 +1129,7 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private static JToken CompareStrings(string op, string lhs, string rhs)
+        private static JToken compareStrings(string op, string lhs, string rhs)
         {
             switch (op)
             {
@@ -1706,12 +1726,6 @@ namespace Jsonata.Net.Native.New
             return result;
         }
 
-        /*
-        bool isFunctionLike(Object o) {
-            return Utils.isFunction(o) || Functions.isLambda(o) || (o is  Pattern);
-        }
-        */
-
         /**
          * Evaluate Object against input data
          * @param {Object} expr - JSONata expression
@@ -1959,27 +1973,6 @@ namespace Jsonata.Net.Native.New
         }
 
         /**
-         * Validate the arguments against the signature validator (if it exists)
-         * @param {Function} signature - validator function
-         * @param {Array} args - Object arguments
-         * @param {*} context - context value
-         * @returns {Array} - validated arguments
-         *
-        private static List<JToken> validateArguments(Object signature, Object args, Object context) 
-        {
-           var validatedArgs = args;
-           if (Utils.isFunction(signature)) {
-               validatedArgs = ((JFunction)signature).validate(args, context);
-           } else if (Functions.isLambda(signature)) {
-               Signature sig = ((Signature) ((Symbol)signature).signature);
-               if (sig != null)
-                   validatedArgs = sig.validate(args, context);
-           }
-           return validatedArgs;
-       }
-        */
-
-        /**
          * Apply procedure
          * @param {Object} proc - Procedure
          * @param {Array} args - Arguments
@@ -2008,7 +2001,6 @@ namespace Jsonata.Net.Native.New
             }
             return result;
         }
-        
 
         /**
          * Partially apply procedure
@@ -2017,7 +2009,6 @@ namespace Jsonata.Net.Native.New
          * @returns {{lambda: boolean, input: *, environment: {bind, lookup}, arguments: Array, body: *}} Result of partially applied procedure
          *
          */
-
         private static JToken partialApplyProcedure(FunctionTokenLambda proc, List<JToken?> argsOrPlaceholders) 
         {
             // create a closure, bind the supplied parameters and return a function that takes the remaining (?) parameters
@@ -2041,7 +2032,6 @@ namespace Jsonata.Net.Native.New
             return procedure;
         }
         
-
         /**
          * Partially apply native function
          * @param {Function} native - Native function
@@ -2068,408 +2058,6 @@ namespace Jsonata.Net.Native.New
             return partial;
             */
             return new FunctionTokenPartial(native, argsOrPlaceholders);
-        }
-
-        /**
-         * Apply native function
-         * @param {Object} proc - Procedure
-         * @param {Object} env - Environment
-         * @returns {*} Result of applying native function
-         *
-         *
-        Object applyNativeFunction(JFunction proc, Frame env) {
-           // Not called in Java - JFunction call directly calls native function
-           return null;
-        }
-        */
-
-        /**
-         * Get native Object arguments
-         * @param {Function} func - Function
-         * @returns {*|Array} Native Object arguments
-         *
-       List getNativeFunctionArguments(JFunction func) {
-           // Not called in Java
-           return null;
-       }
-        */
-
-        /**
-         * Creates a Object definition
-         * @param {Function} func - Object implementation in Javascript
-         * @param {string} signature - JSONata Object signature definition
-         * @returns {{implementation: *, signature: *}} Object definition
-         *
-       static JFunction defineFunction(String func, String signature) {
-           return defineFunction(func, signature, func);
-       }
-       static JFunction defineFunction(String func, String signature, String funcImplMethod) {
-           JFunction fn = new JFunction(func, signature, Functions.class, null, funcImplMethod);
-           staticFrame.bind(func, fn);
-           return fn;
-       }
-
-       public static JFunction function(String name, String signature, Class clazz, Object instance, String methodName) {
-           return new JFunction(name, signature, clazz, instance, methodName);
-       }
-
-       public static<A,B,R> JFunction function(String name, FnVarArgs<R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,R> JFunction function(String name, Fn0<R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,R> JFunction function(String name, Fn1<A,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,R> JFunction function(String name, Fn2<A,B,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,C,R> JFunction function(String name, Fn3<A,B,C,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,C,D,R> JFunction function(String name, Fn4<A,B,C,D,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,C,D,E,R> JFunction function(String name, Fn5<A,B,C,D,E,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,C,D,E,F,R> JFunction function(String name, Fn6<A,B,C,D,E,F,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,C,D,E,F,G,R> JFunction function(String name, Fn7<A,B,C,D,E,F,G,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-       public static<A,B,C,D,E,F,G,H,R> JFunction function(String name, Fn8<A,B,C,D,E,F,G,H,R> func, String signature) {
-           return new JFunction(func.getJFunctionCallable(), signature);
-       }
-        */
-
-        /**
-         * parses and evaluates the supplied expression
-         * @param {string} expr - expression to evaluate
-         * @returns {*} - result of evaluating the expression
-         */
-
-        //Object functionEval(String expr, Object focus) {
-        // moved to Functions !
-        //}
-
-        /**
-         * Clones an object
-         * @param {Object} arg - object to clone (deep copy)
-         * @returns {*} - the cloned object
-         */
-        //Object functionClone(Object arg) {
-        // moved to Functions !
-        //}
-
-        /**
-         * Create frame
-         * @param {Object} enclosingEnvironment - Enclosing environment
-         * @returns {{bind: bind, lookup: lookup}} Created frame
-         *
-       public Frame createFrame() { return createFrame(null); }
-       public Frame createFrame(Frame enclosingEnvironment) {
-           return new Frame(enclosingEnvironment);
-
-           // The following logic is in class Frame:
-           //  var bindings = {};
-           //  return {
-           //      bind: Object (name, value) {
-           //          bindings[name] = value;
-           //      },
-           //      lookup: Object (name) {
-           //          var value;
-           //          if(bindings.hasOwnProperty(name)) {
-           //              value = bindings[name];
-           //          } else if (enclosingEnvironment) {
-           //              value = enclosingEnvironment.lookup(name);
-           //          }
-           //          return value;
-           //      },
-           //      timestamp: enclosingEnvironment ? enclosingEnvironment.timestamp : null,
-           //      async: enclosingEnvironment ? enclosingEnvironment. : false,
-           //      isParallelCall: enclosingEnvironment ? enclosingEnvironment.isParallelCall : false,
-           //      global: enclosingEnvironment ? enclosingEnvironment.global : {
-           //          ancestry: [ null ]
-           //      }
-           //  };
-       }
-        */
-
-        /*
-        public static interface JLambda {
-        }
-
-        public static interface FnVarArgs<R> extends JLambda, Function<List<?>, R> {
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> {
-                        return apply((List<?>) args);
-                };
-            }
-        }
-        public static interface Fn0<R> extends JLambda, Supplier<R> {
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> get();
-            }
-        }
-        public static interface Fn1<A,R> extends JLambda, Function<A,R> {
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0));
-            }
-        }
-        public static interface Fn2<A,B,R> extends JLambda, BiFunction<A,B,R> {
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1));
-            }
-        }
-        public static interface Fn3<A,B,C,R> extends JLambda {
-            R apply(A a, B b, C c);
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1),
-                    (C) args.get(2));
-            }
-        }
-        public static interface Fn4<A,B,C,D,R> extends JLambda {
-            R apply(A a, B b, C c, D d);
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1),
-                    (C) args.get(2), (D) args.get(3));
-            }
-        }
-        public static interface Fn5<A,B,C,D,E,R> extends JLambda {
-            R apply(A a, B b, C c, D d, E e);
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1),
-                    (C) args.get(2), (D) args.get(3), (E) args.get(4));
-            }
-        }
-        public static interface Fn6<A,B,C,D,E,F,R> extends JLambda {
-            R apply(A a, B b, C c, D d, E e, F f);
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1),
-                    (C) args.get(2), (D) args.get(3), (E) args.get(4),
-                    (F) args.get(5));
-            }
-        }
-        public static interface Fn7<A,B,C,D,E,F,G,R> extends JLambda {
-            R apply(A a, B b, C c, D d, E e, F f, G g);
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1),
-                    (C) args.get(2), (D) args.get(3), (E) args.get(4),
-                    (F) args.get(5), (G) args.get(6));
-            }
-        }
-        public static interface Fn8<A,B,C,D,E,F,G,H,R> extends JLambda {
-            R apply(A a, B b, C c, D d, E e, F f, G g, H h);
-            default JFunctionCallable getJFunctionCallable() {
-                return (input, args) -> apply((A) args.get(0), (B) args.get(1),
-                    (C) args.get(2), (D) args.get(3), (E) args.get(4),
-                    (F) args.get(5), (G) args.get(6), (H) args.get(7));
-            }
-        }
-        */
-
-        /**
-         * JFunction callable Lambda interface
-         *
-        public static interface JFunctionCallable {
-            Object call(Object input, List args) throws Throwable;
-        }
-
-        public static interface JFunctionSignatureValidation {
-            Object validate(Object args, Object context);
-        }
-        */
-
-        /**
-         * JFunction definition class
-         *
-        public static class JFunction implements JFunctionCallable, JFunctionSignatureValidation {
-            JFunctionCallable function;
-            String functionName;
-            Signature signature;
-            Method method;
-            Object methodInstance;
-
-            public JFunction(JFunctionCallable function, String signature) {
-                Jsonata.function = function;
-                if (signature!=null)
-                    // use classname as default, gets overwritten once the function is registered
-                    Jsonata.signature = new Signature(signature, function.getClass().getName());
-            }
-
-            public JFunction(String functionName, String signature, Class clz, Object instance, String implMethodName) {
-                Jsonata.functionName = functionName;
-                Jsonata.signature = new Signature(signature, functionName);
-                Jsonata.method = Functions.getFunction(clz, implMethodName);
-                Jsonata.methodInstance = instance;
-                if (method==null) {
-                    System.err.println("Function not implemented: "+functionName+" impl="+implMethodName);
-                }
-            }
-
-            @Override
-            public Object call(Object input, List args) {
-                try {
-                    if (function!=null) {
-                        return function.call(input, args);
-                    } else {
-                        return Functions.call(methodInstance, method, args);
-                    }
-                } catch (JException e) {
-                    throw e;
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e.getTargetException());
-                } catch (Throwable e) {
-                    if (e is  RuntimeException)
-                        throw (RuntimeException)e;
-                    throw new RuntimeException(e);
-                    //throw new JException(e, "T0410", -1, args, functionName);
-                }
-            }
-
-            @Override
-            public Object validate(Object args, Object context) {
-                if (signature!=null)
-                    return signature.validate(args, context);
-                else
-                    return args;
-            }
-
-            public int getNumberOfArgs() {
-                return method != null ? method.getParameterTypes().length : 0;
-            }
-        }
-        */
-
-        /*
-         // Function registration
-        static void registerFunctions() {
-            defineFunction("sum", "<a<n>:n>");
-            defineFunction("count", "<a:n>");
-            defineFunction("max", "<a<n>:n>");
-            defineFunction("min", "<a<n>:n>");
-            defineFunction("average", "<a<n>:n>");
-            defineFunction("string", "<x-b?:s>");
-            defineFunction("substring", "<s-nn?:s>");
-            defineFunction("substringBefore", "<s-s:s>");
-            defineFunction("substringAfter", "<s-s:s>");
-            defineFunction("lowercase", "<s-:s>");
-            defineFunction("uppercase", "<s-:s>");
-            defineFunction("length", "<s-:n>");
-            defineFunction("trim", "<s-:s>");
-            defineFunction("pad", "<s-ns?:s>");
-            defineFunction("match", "<s-f<s:o>n?:a<o>>");
-            defineFunction("contains", "<s-(sf):b>"); // TODO <s-(sf<s:o>):b>
-            defineFunction("replace", "<s-(sf)(sf)n?:s>"); // TODO <s-(sf<s:o>)(sf<o:s>)n?:s>
-            defineFunction("split", "<s-(sf)n?:a<s>>"); // TODO <s-(sf<s:o>)n?:a<s>>
-            defineFunction("join", "<a<s>s?:s>");
-            defineFunction("formatNumber", "<n-so?:s>");
-            defineFunction("formatBase", "<n-n?:s>");
-            defineFunction("formatInteger", "<n-s:s>");
-            defineFunction("parseInteger", "<s-s:n>");
-            defineFunction("number", "<(nsb)-:n>");
-            defineFunction("floor", "<n-:n>");
-            defineFunction("ceil", "<n-:n>");
-            defineFunction("round", "<n-n?:n>");
-            defineFunction("abs", "<n-:n>");
-            defineFunction("sqrt", "<n-:n>");
-            defineFunction("power", "<n-n:n>");
-            defineFunction("random", "<:n>");
-            defineFunction("boolean", "<x-:b>", "toBoolean");
-            defineFunction("not", "<x-:b>");
-            defineFunction("map", "<af>");
-            defineFunction("zip", "<a+>");
-            defineFunction("filter", "<af>");
-            defineFunction("single", "<af?>");
-            defineFunction("reduce", "<afj?:j>", "foldLeft"); // TODO <f<jj:j>a<j>j?:j>
-            defineFunction("sift", "<o-f?:o>");
-            defineFunction("keys", "<x-:a<s>>");
-            defineFunction("lookup", "<x-s:x>");
-            defineFunction("append", "<xx:a>");
-            defineFunction("exists", "<x:b>");
-            defineFunction("spread", "<x-:a<o>>");
-            defineFunction("merge", "<a<o>:o>");
-            defineFunction("reverse", "<a:a>");
-            defineFunction("each", "<o-f:a>");
-            defineFunction("error", "<s?:x>");
-            defineFunction("assert", "<bs?:x>", "assertFn");
-            defineFunction("type", "<x:s>");
-            defineFunction("sort", "<af?:a>");
-            defineFunction("shuffle", "<a:a>");
-            defineFunction("distinct", "<x:x>");
-            defineFunction("base64encode", "<s-:s>");
-            defineFunction("base64decode", "<s-:s>");
-            defineFunction("encodeUrlComponent", "<s-:s>");
-            defineFunction("encodeUrl", "<s-:s>");
-            defineFunction("decodeUrlComponent", "<s-:s>");
-            defineFunction("decodeUrl", "<s-:s>");
-            defineFunction("eval", "<sx?:x>", "functionEval");
-            defineFunction("toMillis", "<s-s?:n>", "dateTimeToMillis");
-            defineFunction("fromMillis", "<n-s?s?:s>", "dateTimeFromMillis");
-            defineFunction("clone", "<(oa)-:o>", "functionClone");
-
-            defineFunction("now", "<s?s?:s>");
-            defineFunction("millis", "<:n>");
-
-            //  environment.bind("now", defineFunction(function(picture, timezone) {
-            //      return datetime.fromMillis(timestamp.getTime(), picture, timezone);
-            //  }, "<s?s?:s>"));
-            //  environment.bind("millis", defineFunction(function() {
-            //      return timestamp.getTime();
-            //  }, "<:n>"));
-
-        }
-        */
-
-        /**
-         * lookup a message template from the catalog and substitute the inserts.
-         * Populates `err.message` with the substituted message. Leaves `err.message`
-         * untouched if code lookup fails.
-         * @param {string} err - error code to lookup
-         * @returns {undefined} - `err` is modified in place
-         */
-        private static Exception populateMessage(Exception err)
-        {
-            //  var template = errorCodes[err.code];
-            //  if(typeof template !== "undefined") {
-            //      // if there are any handlebars, replace them with the field references
-            //      // triple braces - replace with value
-            //      // double braces - replace with json stringified value
-            //      var message = template.replace(/\{\{\{([^}]+)}}}/g, function() {
-            //          return err[arguments[1]];
-            //      });
-            //      message = message.replace(/\{\{([^}]+)}}/g, function() {
-            //          return JSON.stringify(err[arguments[1]]);
-            //      });
-            //      err.message = message;
-            //  }
-            // Otherwise retain the original `err.message`
-            return err;
-        }
-
-        public static JToken evaluateMain(Symbol ast, JToken input, EvaluationEnvironment parentEnvironment)
-        {
-            // the variable bindings have been passed in - create a frame to hold these
-            EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
-
-            // put the input document into the environment as the root object
-            environment.BindValue("$", input);
-
-            // if the input is a JSON array, then wrap it in a singleton sequence so it gets treated as a single input
-            if (
-                input is JArray 
-                && (input is not JsonataArray jsonataArray || !jsonataArray.sequence)   //this may happen via BuiltinFunctions.Eval
-            )
-            {
-                JsonataArray inputWrapper = JsonataArray.CreateSequence(input);
-                inputWrapper.outerWrapper = true;
-                input = inputWrapper;
-            }
-
-            return JsonataQ.evaluate(ast, input, environment);
         }
     }
 }
