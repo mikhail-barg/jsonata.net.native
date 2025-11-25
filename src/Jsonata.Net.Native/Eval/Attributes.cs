@@ -15,13 +15,6 @@ namespace Jsonata.Net.Native.Eval
     }
 
     //provides support for cases when
-    // function expects an array as an argument, but a non-array is passed as argument value, e.g. in map or filter
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class PackSingleValueToSequenceAttribute : Attribute
-    {
-    }
-
-    //provides support for cases when
     // "undefined inputs always return undefined"
     [AttributeUsage(AttributeTargets.Parameter)]
     public sealed class OptionalArgumentAttribute : Attribute

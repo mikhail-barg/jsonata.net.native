@@ -1979,7 +1979,7 @@ namespace Jsonata.Net.Native.Eval
          The whole input array is passed in as the third parameter, if specified.
          */
         [FunctionSignature("<af>")]
-        public static JToken map(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
+        public static JToken map(JsThisArgument jsThis, [PropagateUndefined] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
             // do the map - iterate over the arrays, and invoke func
@@ -2007,7 +2007,7 @@ namespace Jsonata.Net.Native.Eval
         The whole input array is passed in as the third parameter, if specified.         
          */
         [FunctionSignature("<af>")]
-        public static JToken filter(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray arr, FunctionToken func)
+        public static JToken filter(JsThisArgument jsThis, [PropagateUndefined] JArray arr, FunctionToken func)
         {
             JsonataArray result = JsonataArray.CreateSequence();
             
@@ -2039,7 +2039,7 @@ namespace Jsonata.Net.Native.Eval
           The whole input array is passed in as the third parameter, if specified.         
          */
         [FunctionSignature("<af?>")]
-        public static JToken single(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray arr, [OptionalArgument(null)] FunctionToken? func)
+        public static JToken single(JsThisArgument jsThis, [PropagateUndefined] JArray arr, [OptionalArgument(null)] FunctionToken? func)
         {
             JToken? result = null;
 
@@ -2088,7 +2088,7 @@ namespace Jsonata.Net.Native.Eval
           If not supplied, the initial value is the first value in the array parameter.
          */
         [FunctionSignature("<afj?:j>")]
-        public static JToken reduce(JsThisArgument jsThis, [PropagateUndefined][PackSingleValueToSequence] JArray sequence, FunctionToken func, [OptionalArgument(null)] JToken? init)
+        public static JToken reduce(JsThisArgument jsThis, [PropagateUndefined] JArray sequence, FunctionToken func, [OptionalArgument(null)] JToken? init)
         {
             //known as functions.foldLeft in josnata.js
 

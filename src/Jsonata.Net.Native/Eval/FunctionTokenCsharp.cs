@@ -51,7 +51,6 @@ namespace Jsonata.Net.Native.Eval
 			internal readonly Type parameterType;
             internal readonly bool isJsThis;
             internal readonly bool propagateUndefined;
-			internal readonly bool packSingleValueToSequence;
 			internal readonly bool isOptional;
 			internal readonly object? defaultValueForOptional;
 			internal readonly bool isVariableArgumentsArray;
@@ -61,9 +60,9 @@ namespace Jsonata.Net.Native.Eval
 				this.name = parameterInfo.Name!;
 				this.parameterType = parameterInfo.ParameterType;
 				this.propagateUndefined = parameterInfo.IsDefined(typeof(PropagateUndefinedAttribute), false);
-				this.packSingleValueToSequence = parameterInfo.IsDefined(typeof(PackSingleValueToSequenceAttribute), false);
 
-				OptionalArgumentAttribute? optionalArgumentAttribute = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>(false);
+
+                OptionalArgumentAttribute? optionalArgumentAttribute = parameterInfo.GetCustomAttribute<OptionalArgumentAttribute>(false);
 				if (optionalArgumentAttribute != null)
 				{
 					this.isOptional = true;
@@ -87,10 +86,6 @@ namespace Jsonata.Net.Native.Eval
 					if (this.propagateUndefined)
 					{
                         throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(PropagateUndefinedAttribute)}] can not be defined for the argument {this.name} of type {nameof(JsThisArgument)}");
-                    }
-                    if (this.packSingleValueToSequence)
-                    {
-                        throw new Exception($"Declaration error for function '{functionName}': attribute [{nameof(PackSingleValueToSequenceAttribute)}] can not be defined for the argument {this.name} of type {nameof(JsThisArgument)}");
                     }
                     if (this.isOptional)
                     {
@@ -203,13 +198,6 @@ namespace Jsonata.Net.Native.Eval
 				};
 			};
 			returnUndefined = false;
-
-			if (argumentInfo.packSingleValueToSequence && argToken.Type != JTokenType.Array)
-			{
-				JsonataArray sequence = JsonataArray.CreateSequence();
-				sequence.Add(argToken);
-				argToken = sequence;
-			};
 
 			//TODO: add support for broadcasting Undefined
 			if (argumentInfo.parameterType.IsAssignableFrom(argToken.GetType()))
