@@ -24,7 +24,7 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<Version>2.10.0</Version>
+		<Version>3.0.0-pre2</Version>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>..\sgKey.snk</AssemblyOriginatorKeyFile>
 
