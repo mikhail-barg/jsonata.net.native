@@ -71,7 +71,7 @@ namespace Jsonata.Net.Native.New
                 result = environment.Lookup(expr.slot!.label!);
                 break;
             case SymbolType.condition:
-                result = JsonataQ.evaluateCondition(expr, input, environment);
+                result = JsonataQ.evaluateCondition((InfixCondition)expr, input, environment);
                 break;
             case SymbolType.block:
                 result = JsonataQ.evaluateBlock(expr, input, environment);
@@ -658,7 +658,7 @@ namespace Jsonata.Net.Native.New
         */
         private static JToken evaluateUnary(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            switch (expr.value)  // Uli was: expr.value - where is value set???
+            switch (expr.value)
             {
             case "-":
                 { 
@@ -1437,7 +1437,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateCondition(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateCondition(InfixCondition expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
             JToken condition = JsonataQ.evaluate(expr.condition!, input, environment);

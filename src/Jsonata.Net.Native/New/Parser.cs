@@ -129,11 +129,12 @@ namespace Jsonata.Net.Native.New
             } 
             else if (expr.type == SymbolType.condition) 
             {
+                InfixCondition conditionExpr = (InfixCondition)expr;
                 // analyse both branches
-                expr.then = this.tailCallOptimize(expr.then!);
-                if (expr.@else != null) 
+                conditionExpr.then = this.tailCallOptimize(conditionExpr.then!);
+                if (conditionExpr.@else != null) 
                 {
-                    expr.@else = this.tailCallOptimize(expr.@else);
+                    conditionExpr.@else = this.tailCallOptimize(conditionExpr.@else);
                 }
                 result = expr;
             } 
@@ -668,18 +669,20 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.condition:
                 {
-                    result = new Symbol();
-                    result.type = expr.type; 
-                    result.position = expr.position;
-                    result.condition = this.processAST(expr.condition!);
-                    this.pushAncestry(result, result.condition);
-                    result.then = this.processAST(expr.then!);
-                    this.pushAncestry(result, result.then);
-                    if (expr.@else != null)
+                    InfixCondition exprCondition = (InfixCondition)expr;
+                    InfixCondition resultCondition = new InfixCondition("", 0);
+                    resultCondition.type = expr.type;
+                    resultCondition.position = expr.position;
+                    resultCondition.condition = this.processAST(exprCondition.condition!);
+                    this.pushAncestry(resultCondition, resultCondition.condition);
+                    resultCondition.then = this.processAST(exprCondition.then!);
+                    this.pushAncestry(resultCondition, resultCondition.then);
+                    if (exprCondition.@else != null)
                     {
-                        result.@else = this.processAST(expr.@else);
-                        this.pushAncestry(result, result.@else);
+                        resultCondition.@else = this.processAST(exprCondition.@else);
+                        this.pushAncestry(resultCondition, resultCondition.@else);
                     }
+                    result = resultCondition;
                 }
                 break;
             case SymbolType.transform:

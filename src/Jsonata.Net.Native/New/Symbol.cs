@@ -39,6 +39,7 @@ namespace Jsonata.Net.Native.New
     public class Symbol
     {
         internal string id;
+        internal int bp;
         internal SymbolType type;
         internal List<Symbol>? steps;
         internal List<Symbol>? stages;
@@ -49,10 +50,8 @@ namespace Jsonata.Net.Native.New
         internal Symbol? group;
         internal Symbol? expr;
         internal object? value;
-        internal int bp;
         internal int position;
         internal Symbol? nextFunction;
-
 
         // Infix attributes
         public Symbol? lhs, rhs;
@@ -60,11 +59,6 @@ namespace Jsonata.Net.Native.New
         internal List<Symbol>? predicate;
         internal List<Symbol>? arguments;
         internal Symbol? body;
-
-        // Ternary operator:
-        internal Symbol? condition;
-        internal Symbol? then;
-        internal Symbol? @else;
 
         // Block
         internal List<Symbol>? expressions;
@@ -101,12 +95,9 @@ namespace Jsonata.Net.Native.New
 
 
         internal int level;
-        //public Object token;
         internal bool thunk;
 
         // Procedure:
-        //public Object input;
-        //public EvaluationEnvironment environment;
         internal string? name;
 
 
@@ -347,7 +338,25 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixCoalescing : Infix
+    internal class InfixCondition: Infix
+    {
+        // Ternary operator:
+        internal Symbol? condition;
+        internal Symbol? then;
+        internal Symbol? @else;
+
+        internal InfixCondition(string id, int bp)
+            : base(id, bp)
+        {
+        }
+
+        internal override Symbol led(Symbol left, Parser parser)
+        {
+            throw new Exception("Should not happen");
+        }
+    }
+
+    internal class InfixCoalescing : InfixCondition
     {
         internal InfixCoalescing(string id, int bp)
             : base(id, bp)
@@ -477,7 +486,7 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixTernary : Infix
+    internal class InfixTernary : InfixCondition
     {
         internal InfixTernary(string id, int bp)
             : base(id, bp)
@@ -499,7 +508,7 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixElvis : Infix
+    internal class InfixElvis : InfixCondition
     {
         internal InfixElvis(string id, int bp)
             : base(id, bp)
