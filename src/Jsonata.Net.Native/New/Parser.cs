@@ -106,7 +106,6 @@ namespace Jsonata.Net.Native.New
             {
                 t = this.node;
                 advance(null, false);
-                //if (dbg) System.out.println("t="+t+", left="+left.type);
                 left = t.led(left, this);
             }
             return left;
@@ -307,7 +306,6 @@ namespace Jsonata.Net.Native.New
                             result = new InfixCustom();
                             result.type = SymbolType.path;
                             result.steps = new() { lstep! };
-                            //result = {type: 'path', steps: [lstep]};
                         }
                         if (lstep.type == SymbolType.parent)
                         {
@@ -334,7 +332,6 @@ namespace Jsonata.Net.Native.New
                             {
                                 rest.stages = rest.predicate;
                                 rest.predicate = null;
-                                //delete rest.predicate;
                             }
                             result.steps!.Add(rest);
                         }
@@ -346,7 +343,6 @@ namespace Jsonata.Net.Native.New
                                 // don't allow steps to be numbers or the values true/false/null
                                 throw new JException("S0213", step.position, step.value);
                             }
-                            //System.out.println("step "+step+" type="+step.type);
                             if (step.type == SymbolType.@string)
                             {
                                 step.type = SymbolType.name;
@@ -413,9 +409,11 @@ namespace Jsonata.Net.Native.New
                         {
                             foreach (Symbol slot in predicate.seekingParent)
                             {
-                                if (slot.level == 1) {
+                                if (slot.level == 1) 
+                                {
                                     this.seekParent(step, slot);
-                                } else {
+                                } else 
+                                {
                                     --slot.level;
                                 }
                             }
@@ -744,7 +742,6 @@ namespace Jsonata.Net.Native.New
                     result.slot.label = "!" + this.ancestorLabel++;
                     result.slot.level = 1;
                     result.slot.index = this.ancestorIndex++;
-                    //slot: { label: '!' + ancestorLabel++, level: 1, index: ancestorIndex++ } };
                     this.ancestry.Add(result);
                 }
                 break;
@@ -868,7 +865,7 @@ namespace Jsonata.Net.Native.New
             return parser.parse(query);
         }
 
-        //This was Symbol.create()
+        //This was Symbol.create() in Java
         private abstract class SymbolFactoryBase
         {
             internal readonly string id;
@@ -962,29 +959,6 @@ namespace Jsonata.Net.Native.New
 
         private static void register(Dictionary<string, SymbolFactoryBase> symbolFactoryTable, SymbolFactoryBase t)
         {
-            //if (t instanceof Infix || t instanceof InfixR) return;
-
-            /*
-
-            if (this.m_symbolFactoryTable.TryGetValue(t.id, out Symbol? s))
-            {
-                //if (dbg) System.out.println("Symbol in table "+t.id+" "+s.getClass().getName()+" -> "+ t.getClass().getName());
-                //symbolTable.put(t.id, t);
-                if (t.bp >= s.lbp)
-                {
-                    //if (dbg) System.out.println("Symbol in table "+t.id+" lbp="+s.lbp+" -> "+t.bp);
-                    s.lbp = t.bp;
-                }
-            }
-            else
-            {
-                s = t.create();
-                s.value = s.id = t.id;
-                s.lbp = t.bp;
-                this.m_symbolFactoryTable.Add(t.id, s);
-            }
-            */
-
             if (symbolFactoryTable.TryGetValue(t.id, out SymbolFactoryBase? s))
             {
                 throw new Exception("Handle combine?? " + t.id);

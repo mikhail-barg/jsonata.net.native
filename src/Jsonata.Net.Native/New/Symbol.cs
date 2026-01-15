@@ -111,19 +111,6 @@ namespace Jsonata.Net.Native.New
 
         internal Signature? signature;
 
-
-        virtual internal Symbol nud(Parser parser)
-        {
-            // error - symbol has been invoked as a unary operator
-            throw new JException("S0211", this.position, this.value);
-        }
-
-        virtual internal Symbol led(Symbol left, Parser parser)
-        {
-            throw new Exception("led not implemented");
-        }
-
-        //class Symbol {
         public Symbol() 
             :this("", 0)
         {
@@ -140,22 +127,16 @@ namespace Jsonata.Net.Native.New
             this.id = id; 
             this.value = id;
             this.bp = bp;
-            /* use register(Symbol) ! Otherwise inheritance doesn't work
-                        Symbol s = symbolTable.get(id);
-                        //bp = bp != 0 ? bp : 0;
-                        if (s != null) {
-                            if (bp >= s.lbp) {
-                                s.lbp = bp;
-                            }
-                        } else {
-                            s = new Symbol();
-                            s.value = s.id = id;
-                            s.lbp = bp;
-                            symbolTable.put(id, s);
-                        }
+        }
 
-            */
-            //return s;
+        virtual internal Symbol nud(Parser parser)
+        {
+            throw new JException("S0211", this.position, this.value);
+        }
+
+        virtual internal Symbol led(Symbol left, Parser parser)
+        {
+            throw new Exception("led not implemented");
         }
 
         public override string ToString()
@@ -339,12 +320,6 @@ namespace Jsonata.Net.Native.New
         {
         }
 
-        //internal InfixWithNud(string id, int bp)
-        //    : base(id, bp)
-        //{
-        //
-        //}
-
         internal override Symbol nud(Parser parser)
         {
             return this;
@@ -359,12 +334,6 @@ namespace Jsonata.Net.Native.New
         {
             this.m_symbolType = symbolType;
         }
-
-        //internal InfixTyped(string id, int bp)
-        //    : base(id, bp)
-        //{
-        //
-        //}
 
         internal override Symbol nud(Parser parser)
         {
@@ -385,15 +354,13 @@ namespace Jsonata.Net.Native.New
             this.type = SymbolType.condition;
             Symbol c = new Symbol();
             this.condition = c;
-            {
-                c.type = SymbolType.function;
-                c.value = "(";
-                Symbol p = new Symbol();
-                c.procedure = p; 
-                p.type = SymbolType.variable; 
-                p.value = "exists";
-                c.arguments = new List<Symbol>() { left };
-            }
+            c.type = SymbolType.function;
+            c.value = "(";
+            c.arguments = new List<Symbol>() { left };
+            Symbol p = new Symbol();
+            c.procedure = p; 
+            p.type = SymbolType.variable; 
+            p.value = "exists";
             this.then = left;
             this.@else = parser.expression(0);
             return this;
@@ -454,13 +421,11 @@ namespace Jsonata.Net.Native.New
         {
         }
 
-        // merged register(new Prefix("{") {
         internal override Symbol nud(Parser parser)
         {
             return parser.objectParser(null);
         }
 
-        // register(new Infix("{", Tokenizer.operators.get("{")) {
         internal override Symbol led(Symbol left, Parser parser)
         {
             return parser.objectParser(left);
@@ -564,15 +529,10 @@ namespace Jsonata.Net.Native.New
     // <operator> <expression>
     internal class Prefix: Symbol
     {
-        //public List<Symbol[]> lhs;
-
         internal Prefix(string id) 
             :base(id)
         {
-            //type = "unary";
         }
-
-        //Symbol _expression;
 
         internal override Symbol nud(Parser parser) 
         {
@@ -614,8 +574,6 @@ namespace Jsonata.Net.Native.New
             : base(id, bp)
         {
         }
-
-        //abstract Object led();
     }
 
     internal class InfixRError : InfixR
@@ -728,10 +686,6 @@ namespace Jsonata.Net.Native.New
             return this;
         }
 
-        // parenthesis - block expression
-        // Note: in Java both nud and led are in same class!
-        //register(new Prefix("(") {
-
         internal override Symbol nud(Parser parser)
         {
             List<Symbol> expressions = new ();
@@ -790,9 +744,6 @@ namespace Jsonata.Net.Native.New
             this.type = SymbolType.unary;
             return this;
         }
-
-        // filter - predicate or array index
-        //register(new Infix("[", Tokenizer.operators.get("[")) {
 
         internal override Symbol led(Symbol left, Parser parser)
         {
