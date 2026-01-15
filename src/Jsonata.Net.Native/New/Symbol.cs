@@ -70,8 +70,9 @@ namespace Jsonata.Net.Native.New
         internal List<Symbol>? expressions;
 
         // Ancestor attributes
-        internal String? label;
-        internal Object? index; //TODO: int
+        internal string? label;
+        internal int? index_int;
+        internal string? index_string;
         internal bool? _jsonata_lambda;
         internal Symbol? ancestor;
 
@@ -222,9 +223,13 @@ namespace Jsonata.Net.Native.New
             {
                 builder.Append("label=").Append(this.label).Append(' ');
             }
-            if (this.index != null)
+            if (this.index_int != null)
             {
-                builder.Append("index=").Append(this.index).Append(' ');
+                builder.Append("index(int)=").Append(this.index_int).Append(' ');
+            }
+            if (this.index_string != null)
+            {
+                builder.Append("index(str)=").Append(this.index_string).Append(' ');
             }
             if (this.keepArray)
             {

@@ -174,7 +174,7 @@ namespace Jsonata.Net.Native.New
                     else 
                     {
                         // reuse the existing label
-                        this.ancestry[(int)slot.index!].slot!.label = node.ancestor.label;
+                        this.ancestry[slot.index_int!.Value].slot!.label = node.ancestor.label;
                         node.ancestor = slot;
                     }
                     node.tuple = true;
@@ -543,7 +543,7 @@ namespace Jsonata.Net.Native.New
                         }
                         if (step.stages == null)
                         {
-                            step.index = expr.rhs!.value; // name of index variable = String
+                            step.index_string = (string)expr.rhs!.value!; // name of index variable = String
                         }
                         else
                         {
@@ -730,7 +730,7 @@ namespace Jsonata.Net.Native.New
                     result.slot = new Symbol();
                     result.slot.label = "!" + this.ancestorLabel++;
                     result.slot.level = 1;
-                    result.slot.index = this.ancestorIndex++;
+                    result.slot.index_int = this.ancestorIndex++;
                     this.ancestry.Add(result);
                 }
                 break;
