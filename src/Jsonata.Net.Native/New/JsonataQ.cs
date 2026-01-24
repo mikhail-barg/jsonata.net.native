@@ -14,7 +14,7 @@ namespace Jsonata.Net.Native.New
     {
         internal static readonly JValue UNDEFINED = JValue.CreateUndefined();
 
-        internal static JToken evaluateMain(Symbol ast, JToken input, EvaluationEnvironment parentEnvironment)
+        internal static JToken evaluateMain(Node ast, JToken input, EvaluationEnvironment parentEnvironment)
         {
             // the variable bindings have been passed in - create a frame to hold these
             EvaluationEnvironment environment = EvaluationEnvironment.CreateEvalEnvironment(parentEnvironment);
@@ -36,7 +36,7 @@ namespace Jsonata.Net.Native.New
             return JsonataQ.evaluate(ast, input, environment);
         }
 
-        internal static JToken evaluate(Symbol expr, JToken input, EvaluationEnvironment environment)
+        internal static JToken evaluate(Node expr, JToken input, EvaluationEnvironment environment)
         {
             environment.IncDepth();
 
@@ -71,7 +71,7 @@ namespace Jsonata.Net.Native.New
                 result = environment.Lookup(expr.slot!.label!);
                 break;
             case SymbolType.condition:
-                result = JsonataQ.evaluateCondition((ConditionSymbol)expr, input, environment);
+                result = JsonataQ.evaluateCondition((ConditionNode)expr, input, environment);
                 break;
             case SymbolType.block:
                 result = JsonataQ.evaluateBlock(expr, input, environment);
@@ -108,7 +108,7 @@ namespace Jsonata.Net.Native.New
 
             if (expr.predicate != null)
             {
-                foreach (Symbol element in expr.predicate)
+                foreach (Node element in expr.predicate)
                 {
                     result = JsonataQ.evaluateFilter(element.expr!, result, environment);
                 }
@@ -148,7 +148,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluatePath(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluatePath(Node expr, JToken input, EvaluationEnvironment environment)
         {
             JArray inputSequence;
             // expr is an array of steps
@@ -172,7 +172,7 @@ namespace Jsonata.Net.Native.New
             // evaluate each step in turn
             for (int ii = 0; ii < expr.steps!.Count; ++ii)
             {
-                Symbol step = expr.steps[ii];
+                Node step = expr.steps[ii];
 
                 if (step.tuple)
                 {
@@ -279,7 +279,7 @@ namespace Jsonata.Net.Native.New
         * @param {boolean} lastStep - flag the last step in a path
         * @returns {*} Evaluated input data
         */
-        private static JArray evaluateStep(Symbol expr, JToken input, EvaluationEnvironment environment, bool lastStep)
+        private static JArray evaluateStep(Node expr, JToken input, EvaluationEnvironment environment, bool lastStep)
         {
             if (expr.type == SymbolType.sort)
             {
@@ -299,7 +299,7 @@ namespace Jsonata.Net.Native.New
                 JToken res = JsonataQ.evaluate(expr, child, environment);
                 if (expr.stages != null)
                 {
-                    foreach (Symbol stage in expr.stages)
+                    foreach (Node stage in expr.stages)
                     {
                         res = JsonataQ.evaluateFilter(stage.expr!, res, environment);
                     }
@@ -341,10 +341,10 @@ namespace Jsonata.Net.Native.New
             return resultSequence;
         }
 
-        private static JArray evaluateStages(List<Symbol> stages, JArray input, EvaluationEnvironment environment)
+        private static JArray evaluateStages(List<Node> stages, JArray input, EvaluationEnvironment environment)
         {
             JArray result = input;
-            foreach (Symbol stage in stages) 
+            foreach (Node stage in stages) 
             {
                 switch(stage.type) 
                 {
@@ -381,7 +381,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JArray evaluateTupleStep(Symbol expr, JArray input, JArray? tupleBindings, EvaluationEnvironment environment) 
+        private static JArray evaluateTupleStep(Node expr, JArray input, JArray? tupleBindings, EvaluationEnvironment environment) 
         {
             JArray result;
             if (expr.type == SymbolType.sort) 
@@ -489,7 +489,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Result after applying predicates
         */
-        private static JArray evaluateFilter(Symbol predicate, JToken input, EvaluationEnvironment environment)
+        private static JArray evaluateFilter(Node predicate, JToken input, EvaluationEnvironment environment)
         {
             JArray results = JsonataArray.CreateSequence();
             bool tupleStream;
@@ -593,7 +593,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateBinary(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBinary(Node expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
             JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
@@ -655,7 +655,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateUnary(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateUnary(Node expr, JToken input, EvaluationEnvironment environment)
         {
             switch (expr.value)
             {
@@ -678,7 +678,7 @@ namespace Jsonata.Net.Native.New
                 {
                     // array constructor - evaluate each item
                     JArray result = new JArray();
-                    foreach (Symbol item in expr.expressions!)
+                    foreach (Node item in expr.expressions!)
                     {
                         JToken value = JsonataQ.evaluate(item, input, environment);
                         if (value.Type != JTokenType.Undefined)
@@ -723,7 +723,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateName(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateName(Node expr, JToken input, EvaluationEnvironment environment)
         {
             // lookup the "name" item in the input
             if (expr.value is not string strValue)
@@ -738,7 +738,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} expr - JSONata expression
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateLiteral(Symbol expr)
+        private static JToken evaluateLiteral(Node expr)
         {
             return JValue.FromObject(expr.value);
         }
@@ -749,7 +749,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} input - Input data to evaluate against
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateWildcard(Symbol expr, JToken input)
+        private static JToken evaluateWildcard(Node expr, JToken input)
         {
             JsonataArray results = JsonataArray.CreateSequence();
             if ((input is JsonataArray arrayInput) && arrayInput.outerWrapper && arrayInput.Count > 0)
@@ -826,7 +826,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} input - Input data to evaluate against
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateDescendants(Symbol expr, JToken input)
+        private static JToken evaluateDescendants(Node expr, JToken input)
         {
             JToken result;
             if (input.Type != JTokenType.Undefined)
@@ -1247,7 +1247,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {{}} Evaluated input data
          */
-        private static JToken evaluateGroupExpression(Symbol expr, JToken _input, EvaluationEnvironment environment)
+        private static JToken evaluateGroupExpression(Node expr, JToken _input, EvaluationEnvironment environment)
         {
             bool reduce = (_input is JsonataArray jsonataArrayInput) && jsonataArrayInput.tupleStream;
             // group the input sequence by "key" expression
@@ -1268,7 +1268,7 @@ namespace Jsonata.Net.Native.New
                 EvaluationEnvironment env = reduce ? JsonataQ.createFrameFromTuple(environment, (JObject)item) : environment;
                 for (int pairIndex = 0; pairIndex < expr.lhsObject!.Count; ++pairIndex) 
                 {
-                    Symbol[] pair = expr.lhsObject[pairIndex];
+                    Node[] pair = expr.lhsObject[pairIndex];
                     JToken key = JsonataQ.evaluate(pair[0], reduce ? ((JObject)item).Properties["@"] : item, env);
                     // key has to be a string
                     switch (key.Type)
@@ -1420,7 +1420,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateBindExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBindExpression(Node expr, JToken input, EvaluationEnvironment environment)
         {
             // The RHS is the expression to evaluate
             // The LHS is the name of the variable to bind to - should be a VARIABLE token (enforced by parser)
@@ -1436,7 +1436,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateCondition(ConditionSymbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateCondition(ConditionNode expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
             JToken condition = JsonataQ.evaluate(expr.condition!, input, environment);
@@ -1462,7 +1462,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateBlock(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBlock(Node expr, JToken input, EvaluationEnvironment environment)
         {
 
             // create a new frame to limit the scope of variable assignments
@@ -1471,7 +1471,7 @@ namespace Jsonata.Net.Native.New
             // invoke each expression in turn
             // only return the result of the last one
             JToken result = JsonataQ.UNDEFINED;
-            foreach (Symbol ex in expr.expressions!)
+            foreach (Node ex in expr.expressions!)
             {
                 result = JsonataQ.evaluate(ex, input, frame);
             }
@@ -1483,7 +1483,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} expr - expression containing regex
          * @returns {Function} Higher order Object representing prepared regex
          */
-        private static JToken evaluateRegex(Symbol expr)
+        private static JToken evaluateRegex(Node expr)
         {
             Regex re = (Regex)expr.value!;
             return new FunctionTokenRegex(re);
@@ -1496,7 +1496,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateVariable(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateVariable(Node expr, JToken input, EvaluationEnvironment environment)
         {
             // lookup the variable value in the environment
             JToken result;
@@ -1520,7 +1520,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Ordered sequence
          */
-        private static JArray evaluateSortExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JArray evaluateSortExpression(Node expr, JToken input, EvaluationEnvironment environment)
         {
             // evaluate the lhs, then sort the results in order according to rhs expression
             JArray lhs = (JArray)input;
@@ -1536,7 +1536,7 @@ namespace Jsonata.Net.Native.New
                 int comp = 0;
                 for (int index = 0; comp == 0 && index < expr.terms!.Count; ++index) 
                 {
-                    Symbol term = expr.terms[index];
+                    Node term = expr.terms[index];
                     //evaluate the sort term in the context of a
                     JToken context = a;
                     EvaluationEnvironment env = environment;
@@ -1661,7 +1661,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} tranformer function
          */
-        private static JToken evaluateTransformExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateTransformExpression(Node expr, JToken input, EvaluationEnvironment environment)
         {
             // create a function to implement the transform definition
             // var transformer = async function (obj) { // signature <(oa):o>
@@ -1671,11 +1671,11 @@ namespace Jsonata.Net.Native.New
             return new FunctionTokenTransformation(expr.pattern!, expr.update!, expr.delete, environment);
         }
 
-        private static readonly Symbol s_chainAST = BuildChainAst();
+        private static readonly Node s_chainAST = BuildChainAst();
 
-        private static Symbol BuildChainAst()
+        private static Node BuildChainAst()
         { 
-            Symbol chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
+            Node chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
             return chainAST;
         }
 
@@ -1686,7 +1686,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateApplyExpression(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateApplyExpression(Node expr, JToken input, EvaluationEnvironment environment)
         {
             JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
 
@@ -1732,7 +1732,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateFunction(Symbol expr, JToken input, EvaluationEnvironment environment, JToken? applytoContext)
+        private static JToken evaluateFunction(Node expr, JToken input, EvaluationEnvironment environment, JToken? applytoContext)
         {
             // create the procedure
             // can"t assume that expr.procedure is a lambda type directly
@@ -1755,7 +1755,7 @@ namespace Jsonata.Net.Native.New
                 evaluatedArgs.Add(applytoContext);
             }
             // eager evaluation - evaluate the arguments
-            foreach (Symbol argSymbol in expr.arguments!) 
+            foreach (Node argSymbol in expr.arguments!) 
             {
                 JToken arg = JsonataQ.evaluate(argSymbol, input, environment);
                 if (arg is FunctionToken functionArg)
@@ -1826,7 +1826,7 @@ namespace Jsonata.Net.Native.New
                 //next.position = result.body.procedure.position;
 
                 List<JToken> evaluatedArgs = new ();
-                foreach (Symbol argSymbol in lambda.body.arguments!) 
+                foreach (Node argSymbol in lambda.body.arguments!) 
                 {
                     JToken arg = JsonataQ.evaluate(argSymbol, lambda.input, lambda.environment);
                     evaluatedArgs.Add(arg);
@@ -1894,7 +1894,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {{lambda: boolean, input: *, environment: *, arguments: *, body: *}} Evaluated input data
         */
-        private static JToken evaluateLambda(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateLambda(Node expr, JToken input, EvaluationEnvironment environment)
         {
             /*
             // make a function (closure)
@@ -1924,12 +1924,12 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluatePartialApplication(Symbol expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluatePartialApplication(Node expr, JToken input, EvaluationEnvironment environment)
         {
             // partially apply a function
             // evaluate the arguments
             List<JToken?> evaluatedArgsOrPlaceholders = new ();
-            foreach (Symbol arg in expr.arguments!) 
+            foreach (Node arg in expr.arguments!) 
             {
                 if (arg.type == SymbolType.@operator && (string)arg.value! == "?") 
                 {
@@ -1982,7 +1982,7 @@ namespace Jsonata.Net.Native.New
             EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
             for (int index = 0; index < proc.arguments.Count; ++index)
             {
-                Symbol param = proc.arguments[index];
+                Node param = proc.arguments[index];
                 JToken argValue = index < args.Count? args[index] : JsonataQ.UNDEFINED;
                 env.BindValue((string)param.value!, argValue);
             }
@@ -2012,10 +2012,10 @@ namespace Jsonata.Net.Native.New
         {
             // create a closure, bind the supplied parameters and return a function that takes the remaining (?) parameters
             EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
-            List<Symbol> unboundArgs = new();
+            List<Node> unboundArgs = new();
             for (int index = 0; index < proc.arguments.Count; ++ index)
             {
-                Symbol param = proc.arguments[index];
+                Node param = proc.arguments[index];
                 JToken? arg = argsOrPlaceholders[index];
                 if (arg == null)
                 {

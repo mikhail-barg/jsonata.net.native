@@ -587,7 +587,7 @@ namespace Jsonata.Net.Native.Eval
             }
 
 
-            Symbol ast;
+            Node ast;
             try
             {
                 ast = Parser.Parse(expr);

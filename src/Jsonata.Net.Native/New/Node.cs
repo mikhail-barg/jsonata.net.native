@@ -37,58 +37,58 @@ namespace Jsonata.Net.Native.New
         _end //added in dotnet to make proper handling
     }
 
-    public class Symbol
+    public class Node
     {
         internal SymbolType type;
-        internal List<Symbol>? steps;
-        internal List<Symbol>? stages;
+        internal List<Node>? steps;
+        internal List<Node>? stages;
         internal bool tuple = false;
         internal bool consarray = false;
         internal string? focus;
         internal bool keepSingletonArray = false;
-        internal Symbol? group;
-        internal Symbol? expr;
+        internal Node? group;
+        internal Node? expr;
         internal object? value;
         internal int position;
-        internal Symbol? nextFunction;
+        internal Node? nextFunction;
 
         // Infix attributes
-        public Symbol? lhs, rhs;
+        public Node? lhs, rhs;
 
-        internal List<Symbol>? predicate;
-        internal List<Symbol>? arguments;
-        internal Symbol? body;
+        internal List<Node>? predicate;
+        internal List<Node>? arguments;
+        internal Node? body;
 
         // Block
-        internal List<Symbol>? expressions;
+        internal List<Node>? expressions;
 
         // Ancestor attributes
         internal string? label;
         internal int? index_int;
         internal string? index_string;
         internal bool? _jsonata_lambda;
-        internal Symbol? ancestor;
+        internal Node? ancestor;
 
-        internal Symbol? slot;
+        internal Node? slot;
 
-        public List<Symbol>? seekingParent;
+        public List<Node>? seekingParent;
 
         // Procedure:
-        internal Symbol? procedure;
+        internal Node? procedure;
 
-        internal List<Symbol>? terms;
+        internal List<Node>? terms;
         // where rhs = list of Symbols
-        internal List<Symbol>? rhsTerms;
+        internal List<Node>? rhsTerms;
 
-        internal Symbol? expression; // ^
+        internal Node? expression; // ^
         internal bool descending; // ^
 
         // where rhs = list of Symbol pairs
         // TODO: convert to Tuple
-        internal List<Symbol[]>? lhsObject, rhsObject;
+        internal List<Node[]>? lhsObject, rhsObject;
 
         // Prefix attributes
-        internal Symbol? pattern, update, delete;
+        internal Node? pattern, update, delete;
 
         internal bool keepArray; // [
 
@@ -102,12 +102,12 @@ namespace Jsonata.Net.Native.New
 
         internal Signature? signature;
 
-        internal Symbol()
+        internal Node()
         {
             this.value = "";
         }
 
-        internal Symbol(string id, Token token)
+        internal Node(Token token)
         {
             this.value = token.value;
             this.type = token.type;
@@ -121,7 +121,7 @@ namespace Jsonata.Net.Native.New
 
         internal void Format(string? prefix, StringBuilder builder, int indent)
         {
-            static void FormatListIfExists(List<Symbol>? list, string name, StringBuilder builder, int indent)
+            static void FormatListIfExists(List<Node>? list, string name, StringBuilder builder, int indent)
             {
                 if (list == null)
                 {
@@ -133,7 +133,7 @@ namespace Jsonata.Net.Native.New
                     list[i].Format($"{name}[{i}]: ", builder, indent);
                 }
             }
-            static void FormatList2IfExists(List<Symbol[]>? list, string name, StringBuilder builder, int indent)
+            static void FormatList2IfExists(List<Node[]>? list, string name, StringBuilder builder, int indent)
             {
                 if (list == null)
                 {
@@ -255,19 +255,19 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class ConditionSymbol : Symbol
+    internal class ConditionNode : Node
     {
         // Ternary operator:
-        internal Symbol? condition;
-        internal Symbol? then;
-        internal Symbol? @else;
+        internal Node? condition;
+        internal Node? then;
+        internal Node? @else;
 
-        internal ConditionSymbol()
+        internal ConditionNode()
             :base() 
         { 
         }
 
-        internal ConditionSymbol(string id, Token token) : base(id, token)
+        internal ConditionNode(Token token) : base(token)
         {
         }
     }

@@ -14,8 +14,8 @@ namespace Jsonata.Net.Native.New
         private Tokenizer lexer = default!;
 
         //var parser = function (source, recover) {
-        internal SymbolFactoryBase current_symbol_factory { get; private set; } = default!;
-        internal Token current_token { get; private set; } = default!;
+        internal NodeFactoryBase currentNodeFactory { get; private set; } = default!;
+        internal Token currentToken { get; private set; } = default!;
 
         internal void advance() 
         { 
@@ -29,10 +29,10 @@ namespace Jsonata.Net.Native.New
 
         internal void advance(string? id, bool infix) 
         {
-            if (id != null && this.current_symbol_factory.id != id) 
+            if (id != null && this.currentNodeFactory.id != id) 
             {
                 String code;
-                if (this.current_symbol_factory.id == "(end)") 
+                if (this.currentNodeFactory.id == "(end)") 
                 {
                     // unexpected end of buffer
                     code = "S0203";
@@ -43,31 +43,31 @@ namespace Jsonata.Net.Native.New
                 }
                 throw new JException(
                     code,
-                    this.current_token.position,
+                    this.currentToken.position,
                     id,
-                    this.current_token.value
+                    this.currentToken.value
                 );
             }
             Token? next_token = lexer.next(infix);
-            SymbolFactoryBase factory;
+            NodeFactoryBase factory;
             if (next_token == null) 
             {
-                factory = Parser.s_symbolFactoryTable["(end)"];
-                this.current_symbol_factory = factory;
-                this.current_token = new Token(SymbolType._end, null, source.Length);
+                factory = Parser.s_nodeFactoryTable["(end)"];
+                this.currentNodeFactory = factory;
+                this.currentToken = new Token(SymbolType._end, null, source.Length);
                 return;
             }
-            this.current_token = next_token;
-            switch (this.current_token.type) 
+            this.currentToken = next_token;
+            switch (this.currentToken.type) 
             {
             case SymbolType.name:
             case SymbolType.variable:
-                factory = Parser.s_symbolFactoryTable["(name)"];
+                factory = Parser.s_nodeFactoryTable["(name)"];
                 break;
             case SymbolType.@operator:
-                if (!Parser.s_symbolFactoryTable.TryGetValue(this.current_token.value!.ToString()!, out SymbolFactoryBase? foundFactory))
+                if (!Parser.s_nodeFactoryTable.TryGetValue(this.currentToken.value!.ToString()!, out NodeFactoryBase? foundFactory))
                 {
-                    throw new JException("S0204", this.current_token.position, this.current_token.value);
+                    throw new JException("S0204", this.currentToken.position, this.currentToken.value);
                 }
                 else
                 {
@@ -77,30 +77,30 @@ namespace Jsonata.Net.Native.New
             case SymbolType.@string:
             case SymbolType.number:
             case SymbolType.value:
-                factory = Parser.s_symbolFactoryTable["(literal)"];
+                factory = Parser.s_nodeFactoryTable["(literal)"];
                 break;
             case SymbolType.regex:
-                factory = Parser.s_symbolFactoryTable["(regex)"];
+                factory = Parser.s_nodeFactoryTable["(regex)"];
                 break;
             default:
-                throw new JException("S0205", this.current_token.position, this.current_token.value);
+                throw new JException("S0205", this.currentToken.position, this.currentToken.value);
             }
 
-            this.current_symbol_factory = factory;
+            this.currentNodeFactory = factory;
         }
 
         // Pratt's algorithm
-        internal Symbol expression(int rbp) 
+        internal Node expression(int rbp) 
         {
-            Symbol left;
-            SymbolFactoryBase f = this.current_symbol_factory;
-            Token t = this.current_token;
+            Node left;
+            NodeFactoryBase f = this.currentNodeFactory;
+            Token t = this.currentToken;
             this.advance(null, true);
             left = f.nud(this, t);
-            while (rbp < this.current_symbol_factory.bp) //was LBP
+            while (rbp < this.currentNodeFactory.bp) //was LBP
             {
-                f = this.current_symbol_factory;
-                t = this.current_token;
+                f = this.currentNodeFactory;
+                t = this.currentToken;
                 advance(null, false);
                 left = f.led(left, this, t);
             }
@@ -112,12 +112,12 @@ namespace Jsonata.Net.Native.New
         // if they make a tail call.  If so, it is replaced by a thunk which will
         // be invoked by the trampoline loop during function application.
         // This enables tail-recursive functions to be written without growing the stack
-        private Symbol tailCallOptimize(Symbol expr) 
+        private Node tailCallOptimize(Node expr) 
         {
-            Symbol result;
+            Node result;
             if (expr.type == SymbolType.function && expr.predicate == null) 
             {
-                Symbol thunk = new Symbol(); 
+                Node thunk = new Node(); 
                 thunk.type = SymbolType.lambda; 
                 thunk.thunk = true; 
                 thunk.arguments = new(); 
@@ -127,7 +127,7 @@ namespace Jsonata.Net.Native.New
             } 
             else if (expr.type == SymbolType.condition) 
             {
-                ConditionSymbol conditionExpr = (ConditionSymbol)expr;
+                ConditionNode conditionExpr = (ConditionNode)expr;
                 // analyse both branches
                 conditionExpr.then = this.tailCallOptimize(conditionExpr.then!);
                 if (conditionExpr.@else != null) 
@@ -155,9 +155,9 @@ namespace Jsonata.Net.Native.New
 
         int ancestorLabel = 0;
         int ancestorIndex = 0;
-        List<Symbol> ancestry = new();
+        List<Node> ancestry = new();
 
-        private Symbol seekParent(Symbol node, Symbol slot) 
+        private Node seekParent(Node node, Node slot) 
         {
             switch (node.type) 
             {
@@ -208,7 +208,7 @@ namespace Jsonata.Net.Native.New
             return slot;
         }
 
-        private void pushAncestry(Symbol result, Symbol? value) 
+        private void pushAncestry(Node result, Node? value) 
         {
             if (value == null)
             {
@@ -216,7 +216,7 @@ namespace Jsonata.Net.Native.New
             }
             if (value.seekingParent != null || value.type == SymbolType.parent) 
             {
-                List<Symbol> slots = value.seekingParent ?? new();
+                List<Node> slots = value.seekingParent ?? new();
                 if (value.type == SymbolType.parent) 
                 {
                     slots.Add(value.slot!);
@@ -232,18 +232,18 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private void resolveAncestry(Symbol path) 
+        private void resolveAncestry(Node path) 
         {
             int index = path.steps!.Count - 1;
-            Symbol laststep = path.steps[index];
-            List<Symbol> slots = laststep.seekingParent ?? new();
+            Node laststep = path.steps[index];
+            List<Node> slots = laststep.seekingParent ?? new();
             if (laststep.type == SymbolType.parent) 
             {
                 slots.Add(laststep.slot!);
             }
             for (int i = 0; i < slots.Count; ++i) 
             {
-                Symbol slot = slots[i];
+                Node slot = slots[i];
                 index = path.steps.Count - 2;
                 while (slot.level > 0) 
                 {
@@ -257,7 +257,7 @@ namespace Jsonata.Net.Native.New
                         break;
                     }
                     // try previous step
-                    Symbol step = path.steps[index--];
+                    Node step = path.steps[index--];
                     // multiple contiguous steps that bind the focus should be skipped
                     while (index >= 0 && step.focus != null && path.steps[index].focus != null) 
                     {
@@ -274,9 +274,9 @@ namespace Jsonata.Net.Native.New
         // This includes flattening the parts of the AST representing location paths,
         // converting them to arrays of steps which in turn may contain arrays of predicates.
         // following this, nodes containing '.' and '[' should be eliminated from the AST.
-        private Symbol processAST(Symbol expr) 
+        private Node processAST(Node expr) 
         {
-            Symbol result = expr;
+            Node result = expr;
             switch (expr.type)
             {
             case SymbolType.binary:
@@ -284,14 +284,14 @@ namespace Jsonata.Net.Native.New
                 {
                 case ".":
                     {
-                        Symbol lstep = this.processAST(expr.lhs!);
+                        Node lstep = this.processAST(expr.lhs!);
                         if (lstep.type == SymbolType.path)
                         {
                             result = lstep;
                         }
                         else
                         {
-                            result = new Symbol();
+                            result = new Node();
                             result.type = SymbolType.path;
                             result.steps = new() { lstep! };
                         }
@@ -299,7 +299,7 @@ namespace Jsonata.Net.Native.New
                         {
                             result.seekingParent = new() { lstep.slot! };
                         }
-                        Symbol rest = this.processAST(expr.rhs!);
+                        Node rest = this.processAST(expr.rhs!);
                         if (rest.type == SymbolType.function &&
                             rest.procedure!.type == SymbolType.path &&
                             rest.procedure!.steps!.Count == 1 &&
@@ -308,7 +308,7 @@ namespace Jsonata.Net.Native.New
                         )
                         {
                             // next function in chain of functions - will override a thenable
-                            result.steps[result.steps.Count - 1].nextFunction = (Symbol)rest.procedure.steps[0].value!;
+                            result.steps[result.steps.Count - 1].nextFunction = (Node)rest.procedure.steps[0].value!;
                         }
                         if (rest.type == SymbolType.path)
                         {
@@ -324,7 +324,7 @@ namespace Jsonata.Net.Native.New
                             result.steps!.Add(rest);
                         }
                         // any steps within a path that are string literals, should be changed to 'name'
-                        foreach (Symbol step in result.steps)
+                        foreach (Node step in result.steps)
                         {
                             if (step.type == SymbolType.number || step.type == SymbolType.value)
                             {
@@ -343,13 +343,13 @@ namespace Jsonata.Net.Native.New
                             result.keepSingletonArray = true;
                         }
                         // if first step is a path constructor, flag it for special handling
-                        Symbol firststep = result.steps[0];
+                        Node firststep = result.steps[0];
                         if (firststep.type == SymbolType.unary && firststep.value!.Equals("["))
                         {
                             firststep.consarray = true;
                         }
                         // if the last step is an array constructor, flag it so it doesn't flatten
-                        Symbol laststep = result.steps[result.steps.Count - 1];
+                        Node laststep = result.steps[result.steps.Count - 1];
                         if (laststep.type == SymbolType.unary && laststep.value!.Equals("["))
                         {
                             laststep.consarray = true;
@@ -363,7 +363,7 @@ namespace Jsonata.Net.Native.New
                         // LHS is a step or a predicated step
                         // RHS is the predicate expr
                         result = this.processAST(expr.lhs!);
-                        Symbol step = result;
+                        Node step = result;
                         SymbolType type = SymbolType.predicate;
                         if (result.type == SymbolType.path)
                         {
@@ -392,10 +392,10 @@ namespace Jsonata.Net.Native.New
                             }
                         }
 
-                        Symbol predicate = this.processAST(expr.rhs!);
+                        Node predicate = this.processAST(expr.rhs!);
                         if (predicate.seekingParent != null)
                         {
-                            foreach (Symbol slot in predicate.seekingParent)
+                            foreach (Node slot in predicate.seekingParent)
                             {
                                 if (slot.level == 1) 
                                 {
@@ -407,7 +407,7 @@ namespace Jsonata.Net.Native.New
                             }
                             this.pushAncestry(step, predicate);
                         }
-                        Symbol s = new Symbol();
+                        Node s = new Node();
                         s.type = SymbolType.filter;
                         s.expr = predicate;
                         s.position = expr.position;
@@ -447,9 +447,9 @@ namespace Jsonata.Net.Native.New
                             throw new JException("S0210", expr.position);
                         }
                         // object constructor - process each pair
-                        result.group = new Symbol();
+                        result.group = new Node();
                         result.group.lhsObject = expr.rhsObject!
-                            .Select(pair => new Symbol[] { this.processAST(pair[0]), this.processAST(pair[1]) })
+                            .Select(pair => new Node[] { this.processAST(pair[0]), this.processAST(pair[1]) })
                             .ToList();
                         result.group.position = expr.position;
                     }
@@ -462,18 +462,18 @@ namespace Jsonata.Net.Native.New
                         result = this.processAST(expr.lhs!);
                         if (result.type != SymbolType.path)
                         {
-                            Symbol _res = new Symbol();
+                            Node _res = new Node();
                             _res.type = SymbolType.path;
                             _res.steps = new() { result };
                             result = _res;
                         }
-                        Symbol sortStep = new Symbol();
+                        Node sortStep = new Node();
                         sortStep.type = SymbolType.sort;
                         sortStep.position = expr.position;
                         sortStep.terms = expr.rhsTerms!.Select(terms => {
-                            Symbol expression = this.processAST(terms.expression!);
+                            Node expression = this.processAST(terms.expression!);
                             this.pushAncestry(sortStep, expression);
-                            Symbol res = new Symbol();
+                            Node res = new Node();
                             res.descending = terms.descending;
                             res.expression = expression;
                             return res;
@@ -484,7 +484,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 case ":=":
                     {
-                        result = new Symbol();
+                        result = new Node();
                         result.type = SymbolType.bind;
                         result.value = expr.value;
                         result.position = expr.position;
@@ -496,7 +496,7 @@ namespace Jsonata.Net.Native.New
                 case "@":
                     {
                         result = this.processAST(expr.lhs!);
-                        Symbol step = result;
+                        Node step = result;
                         if (result.type == SymbolType.path)
                         {
                             step = result.steps![result.steps.Count - 1];
@@ -523,14 +523,14 @@ namespace Jsonata.Net.Native.New
                 case "#":
                     {
                         result = processAST(expr.lhs!);
-                        Symbol step = result;
+                        Node step = result;
                         if (result.type == SymbolType.path)
                         {
                             step = result.steps![result.steps.Count - 1];
                         }
                         else
                         {
-                            Symbol _res = new Symbol();
+                            Node _res = new Node();
                             _res.type = SymbolType.path;
                             _res.steps = new() { result };
                             result = _res;
@@ -546,7 +546,7 @@ namespace Jsonata.Net.Native.New
                         }
                         else
                         {
-                            Symbol _res = new Symbol();
+                            Node _res = new Node();
                             _res.type = SymbolType.index;
                             _res.value = expr.rhs!.value;
                             _res.position = expr.position;
@@ -557,7 +557,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 case "~>":
                     {
-                        result = new Symbol();
+                        result = new Node();
                         result.type = SymbolType.apply;
                         result.value = expr.value;
                         result.position = expr.position;
@@ -568,7 +568,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 default:
                     {
-                        Symbol _result = new Symbol();
+                        Node _result = new Node();
                         _result.type = expr.type;
                         _result.value = expr.value;
                         _result.position = expr.position;
@@ -584,7 +584,7 @@ namespace Jsonata.Net.Native.New
 
             case SymbolType.unary:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = expr.type;
                     result.value = expr.value;
                     result.position = expr.position;
@@ -594,7 +594,7 @@ namespace Jsonata.Net.Native.New
                     {
                         // array constructor - process each item
                         result.expressions = expr.expressions!.Select(item => {
-                            Symbol value = this.processAST(item);
+                            Node value = this.processAST(item);
                             this.pushAncestry(result, value);
                             return value;
                         }).ToList();
@@ -604,11 +604,11 @@ namespace Jsonata.Net.Native.New
                         // object constructor - process each pair
                         //throw new Error("processAST {} unimpl");
                         result.lhsObject = expr.lhsObject!.Select(pair => {
-                            Symbol key = this.processAST(pair[0]);
+                            Node key = this.processAST(pair[0]);
                             this.pushAncestry(result, key);
-                            Symbol value = this.processAST(pair[1]);
+                            Node value = this.processAST(pair[1]);
                             this.pushAncestry(result, value);
-                            return new Symbol[] { key, value };
+                            return new Node[] { key, value };
                         }).ToList();
                     } else {
                         // all other unary expressions - just process the expression
@@ -641,13 +641,13 @@ namespace Jsonata.Net.Native.New
             case SymbolType.function:
             case SymbolType.@partial:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = expr.type;
                     result.name = expr.name;
                     result.value = expr.value;
                     result.position = expr.position;
                     result.arguments = expr.arguments!.Select(arg => {
-                        Symbol argAST = this.processAST(arg);
+                        Node argAST = this.processAST(arg);
                         this.pushAncestry(result, argAST);
                         return argAST;
                     }).ToList();
@@ -656,19 +656,19 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.lambda:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = expr.type;
                     result.arguments = expr.arguments;
                     result.signature = expr.signature;
                     result.position = expr.position;
-                    Symbol body = this.processAST(expr.body!);
+                    Node body = this.processAST(expr.body!);
                     result.body = this.tailCallOptimize(body);
                 }
                 break;
             case SymbolType.condition:
                 {
-                    ConditionSymbol exprCondition = (ConditionSymbol)expr;
-                    ConditionSymbol resultCondition = new ConditionSymbol();
+                    ConditionNode exprCondition = (ConditionNode)expr;
+                    ConditionNode resultCondition = new ConditionNode();
                     resultCondition.type = expr.type;
                     resultCondition.position = expr.position;
                     resultCondition.condition = this.processAST(exprCondition.condition!);
@@ -685,7 +685,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.transform:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = expr.type; result.position = expr.position;
                     result.pattern = this.processAST(expr.pattern!);
                     result.update = this.processAST(expr.update!);
@@ -697,11 +697,11 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.block:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = expr.type; result.position = expr.position;
                     // array of expressions - process each one
                     result.expressions = expr.expressions!.Select(item => {
-                        Symbol part = this.processAST(item);
+                        Node part = this.processAST(item);
                         this.pushAncestry(result, part);
                         if (part.consarray || (part.type == SymbolType.path && part.steps![0].consarray)) 
                         {
@@ -715,7 +715,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.name:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = SymbolType.path;
                     result.steps = new() { expr };
                     if (expr.keepArray)
@@ -726,9 +726,9 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.parent:
                 {
-                    result = new Symbol();
+                    result = new Node();
                     result.type = SymbolType.parent;
-                    result.slot = new Symbol();
+                    result.slot = new Node();
                     result.slot.label = "!" + this.ancestorLabel++;
                     result.slot.level = 1;
                     result.slot.index_int = this.ancestorIndex++;
@@ -787,20 +787,20 @@ namespace Jsonata.Net.Native.New
             return result;
         }
 
-        internal Symbol objectParser(Symbol? left) 
+        internal Node objectParser(Node? left) 
         {
-            Symbol res = new Symbol() { value = "{" };
-            List<Symbol[]> a = new ();
-            if (this.current_symbol_factory.id != "}") 
+            Node res = new Node() { value = "{" };
+            List<Node[]> a = new ();
+            if (this.currentNodeFactory.id != "}") 
             {
                 while (true)
                 {
-                    Symbol n = this.expression(0);
+                    Node n = this.expression(0);
                     this.advance(":");
-                    Symbol v = this.expression(0);
-                    Symbol[] pair = new Symbol[] { n, v };
+                    Node v = this.expression(0);
+                    Node[] pair = new Node[] { n, v };
                     a.Add( pair ); // holds an array of name/value expression pairs
-                    if (this.current_symbol_factory.id != ",") 
+                    if (this.currentNodeFactory.id != ",") 
                     {
                         break;
                     }
@@ -824,7 +824,7 @@ namespace Jsonata.Net.Native.New
             return res;
         }
 
-        internal Symbol parse(string jsonata) 
+        internal Node parse(string jsonata) 
         {
             this.source = jsonata;
 
@@ -832,10 +832,10 @@ namespace Jsonata.Net.Native.New
             this.lexer = new Tokenizer(source);
             this.advance();
             // parse the tokens
-            Symbol expr = this.expression(0);
-            if (this.current_symbol_factory.id != "(end)") 
+            Node expr = this.expression(0);
+            if (this.currentNodeFactory.id != "(end)") 
             {
-                throw new JException("S0201", this.current_token.position, this.current_token.value);
+                throw new JException("S0201", this.currentToken.position, this.currentToken.value);
             }
 
             expr = this.processAST(expr);
@@ -849,68 +849,68 @@ namespace Jsonata.Net.Native.New
             return expr;
         }
 
-        internal static Symbol Parse(string query)
+        internal static Node Parse(string query)
         {
             Parser parser = new Parser();
             return parser.parse(query);
         }
 
-        private static Dictionary<string, SymbolFactoryBase> s_symbolFactoryTable = CreateSymbolTable();
+        private static Dictionary<string, NodeFactoryBase> s_nodeFactoryTable = CreateNodeFactoryTable();
 
-        private static void register(Dictionary<string, SymbolFactoryBase> symbolFactoryTable, SymbolFactoryBase t)
+        private static void register(Dictionary<string, NodeFactoryBase> nodeFactoryTable, NodeFactoryBase t)
         {
-            if (symbolFactoryTable.TryGetValue(t.id, out SymbolFactoryBase? s))
+            if (nodeFactoryTable.TryGetValue(t.id, out NodeFactoryBase? s))
             {
                 throw new Exception("Handle combine?? " + t.id);
             }
             else
             {
-                symbolFactoryTable.Add(t.id, t);
+                nodeFactoryTable.Add(t.id, t);
             }
         }
 
-        private static Dictionary<string, SymbolFactoryBase> CreateSymbolTable() 
+        private static Dictionary<string, NodeFactoryBase> CreateNodeFactoryTable() 
         {
-            Dictionary<string, SymbolFactoryBase> symbolFactoryTable = new();
-            register(symbolFactoryTable, new TerminalFactory("(end)"));
-            register(symbolFactoryTable, new TerminalFactory("(name)"));
-            register(symbolFactoryTable, new TerminalFactory("(literal)"));
-            register(symbolFactoryTable, new TerminalFactory("(regex)"));
-            register(symbolFactoryTable, new DummySymbolFactory(":"));
-            register(symbolFactoryTable, new DummySymbolFactory(";"));
-            register(symbolFactoryTable, new DummySymbolFactory(","));
-            register(symbolFactoryTable, new DummySymbolFactory(")"));
-            register(symbolFactoryTable, new DummySymbolFactory("]"));
-            register(symbolFactoryTable, new DummySymbolFactory("}"));
-            register(symbolFactoryTable, new DummySymbolFactory("..")); // range operator
-            register(symbolFactoryTable, new InfixFactory(".")); // map operator
-            register(symbolFactoryTable, new InfixFactory("+")); // numeric addition
-            register(symbolFactoryTable, new InfixAndPrefixFactory("-")); // numeric subtraction // unary numeric negation
+            Dictionary<string, NodeFactoryBase> nodeFactoryTable = new();
+            register(nodeFactoryTable, new TerminalFactory("(end)"));
+            register(nodeFactoryTable, new TerminalFactory("(name)"));
+            register(nodeFactoryTable, new TerminalFactory("(literal)"));
+            register(nodeFactoryTable, new TerminalFactory("(regex)"));
+            register(nodeFactoryTable, new DummyNodeFactory(":"));
+            register(nodeFactoryTable, new DummyNodeFactory(";"));
+            register(nodeFactoryTable, new DummyNodeFactory(","));
+            register(nodeFactoryTable, new DummyNodeFactory(")"));
+            register(nodeFactoryTable, new DummyNodeFactory("]"));
+            register(nodeFactoryTable, new DummyNodeFactory("}"));
+            register(nodeFactoryTable, new DummyNodeFactory("..")); // range operator
+            register(nodeFactoryTable, new InfixFactory(".")); // map operator
+            register(nodeFactoryTable, new InfixFactory("+")); // numeric addition
+            register(nodeFactoryTable, new InfixAndPrefixFactory("-")); // numeric subtraction // unary numeric negation
 
-            register(symbolFactoryTable, new InfixWithTypedNudFactory("*", SymbolType.wildcard)); // field wildcard (single level) // numeric multiplication
-            register(symbolFactoryTable, new InfixFactory("/")); // numeric division
-            register(symbolFactoryTable, new InfixWithTypedNudFactory("%", SymbolType.parent)); // parent operator // numeric modulus
-            register(symbolFactoryTable, new InfixFactory("=")); // equality
-            register(symbolFactoryTable, new InfixFactory("<")); // less than
-            register(symbolFactoryTable, new InfixFactory(">")); // greater than
-            register(symbolFactoryTable, new InfixFactory("!=")); // not equal to
-            register(symbolFactoryTable, new InfixFactory("<=")); // less than or equal
-            register(symbolFactoryTable, new InfixFactory(">=")); // greater than or equal
-            register(symbolFactoryTable, new InfixFactory("&")); // string concatenation
+            register(nodeFactoryTable, new InfixWithTypedNudFactory("*", SymbolType.wildcard)); // field wildcard (single level) // numeric multiplication
+            register(nodeFactoryTable, new InfixFactory("/")); // numeric division
+            register(nodeFactoryTable, new InfixWithTypedNudFactory("%", SymbolType.parent)); // parent operator // numeric modulus
+            register(nodeFactoryTable, new InfixFactory("=")); // equality
+            register(nodeFactoryTable, new InfixFactory("<")); // less than
+            register(nodeFactoryTable, new InfixFactory(">")); // greater than
+            register(nodeFactoryTable, new InfixFactory("!=")); // not equal to
+            register(nodeFactoryTable, new InfixFactory("<=")); // less than or equal
+            register(nodeFactoryTable, new InfixFactory(">=")); // greater than or equal
+            register(nodeFactoryTable, new InfixFactory("&")); // string concatenation
 
-            register(symbolFactoryTable, new InfixWithNudFactory("and")); // allow as terminal // Boolean AND
-            register(symbolFactoryTable, new InfixWithNudFactory("or")); // allow as terminal // Boolean OR
-            register(symbolFactoryTable, new InfixWithNudFactory("in")); // allow as terminal // is member of array
+            register(nodeFactoryTable, new InfixWithNudFactory("and")); // allow as terminal // Boolean AND
+            register(nodeFactoryTable, new InfixWithNudFactory("or")); // allow as terminal // Boolean OR
+            register(nodeFactoryTable, new InfixWithNudFactory("in")); // allow as terminal // is member of array
             // merged Infix: register(new Terminal("and")); // the 'keywords' can also be used as terminals (field names)
             // merged Infix: register(new Terminal("or")); //
             // merged Infix: register(new Terminal("in")); //
             // merged Infix: register(new Prefix("-")); // unary numeric negation
-            register(symbolFactoryTable, new InfixFactory("~>")); // function application
+            register(nodeFactoryTable, new InfixFactory("~>")); // function application
 
             // coalescing operator
-            register(symbolFactoryTable, new InfixCoalescingFactory("??", Tokenizer.OPERATORS["??"]));
+            register(nodeFactoryTable, new InfixCoalescingFactory("??", Tokenizer.OPERATORS["??"]));
 
-            register(symbolFactoryTable, new InfixRErrorFactory("(error)", 10));
+            register(nodeFactoryTable, new InfixRErrorFactory("(error)", 10));
 
             // field wildcard (single level)
             // merged with Infix *
@@ -923,7 +923,7 @@ namespace Jsonata.Net.Native.New
 
             // descendant wildcard (multi-level)
 
-            register(symbolFactoryTable, new PrefixDescendantWindcardFactory("**"));
+            register(nodeFactoryTable, new PrefixDescendantWindcardFactory("**"));
 
             // parent operator
             // merged with Infix %
@@ -935,38 +935,38 @@ namespace Jsonata.Net.Native.New
             // });
 
             // function invocation
-            register(symbolFactoryTable, new InfixInvocationFactory("(", Tokenizer.OPERATORS["("]));
+            register(nodeFactoryTable, new InfixInvocationFactory("(", Tokenizer.OPERATORS["("]));
 
 
             // array constructor
 
             // merged: register(new Prefix("[") {        
-            register(symbolFactoryTable, new InfixArrayFactory("[", Tokenizer.OPERATORS["["]));
+            register(nodeFactoryTable, new InfixArrayFactory("[", Tokenizer.OPERATORS["["]));
 
             // order-by
-            register(symbolFactoryTable, new InfixOrderByFactory("^", Tokenizer.OPERATORS["^"]));
+            register(nodeFactoryTable, new InfixOrderByFactory("^", Tokenizer.OPERATORS["^"]));
 
-            register(symbolFactoryTable, new InfixBlockFactory("{", Tokenizer.OPERATORS["{"]));
+            register(nodeFactoryTable, new InfixBlockFactory("{", Tokenizer.OPERATORS["{"]));
 
             // bind variable
-            register(symbolFactoryTable, new InfixRVariableBindFactory(":=", Tokenizer.OPERATORS[":="]));
+            register(nodeFactoryTable, new InfixRVariableBindFactory(":=", Tokenizer.OPERATORS[":="]));
 
             // focus variable bind
-            register(symbolFactoryTable, new InfixFocusFactory("@", Tokenizer.OPERATORS["@"]));
+            register(nodeFactoryTable, new InfixFocusFactory("@", Tokenizer.OPERATORS["@"]));
 
             // index (position) variable bind
-            register(symbolFactoryTable, new InfixIndexFactory("#", Tokenizer.OPERATORS["#"]));
+            register(nodeFactoryTable, new InfixIndexFactory("#", Tokenizer.OPERATORS["#"]));
 
             // if/then/else ternary operator ?:
-            register(symbolFactoryTable, new InfixTernaryFactory("?", Tokenizer.OPERATORS["?"]));
+            register(nodeFactoryTable, new InfixTernaryFactory("?", Tokenizer.OPERATORS["?"]));
 
             // elvis/default operator
-            register(symbolFactoryTable, new InfixElvisFactory("?:", Tokenizer.OPERATORS["?:"]));
+            register(nodeFactoryTable, new InfixElvisFactory("?:", Tokenizer.OPERATORS["?:"]));
 
             // object transformer
-            register(symbolFactoryTable, new PrefixTransformerFactory("|"));
+            register(nodeFactoryTable, new PrefixTransformerFactory("|"));
 
-            return symbolFactoryTable;
+            return nodeFactoryTable;
         }
     }
 }

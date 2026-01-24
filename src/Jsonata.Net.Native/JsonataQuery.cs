@@ -7,14 +7,14 @@ namespace Jsonata.Net.Native
 {
     public sealed class JsonataQuery
     {
-        private readonly Symbol m_ast;
+        private readonly Node m_ast;
 
         public JsonataQuery(string queryText)
             : this(Parser.Parse(queryText))
         {
         }
 
-        public JsonataQuery(Symbol ast)
+        public JsonataQuery(Node ast)
         {
             this.m_ast = ast;
         }
@@ -36,7 +36,7 @@ namespace Jsonata.Net.Native
             return this.m_ast.ToString()!;
         }
 
-        public Symbol GetAst() 
+        public Node GetAst() 
         { 
             return this.m_ast; 
         }

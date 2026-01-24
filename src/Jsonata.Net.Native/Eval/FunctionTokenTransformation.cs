@@ -20,12 +20,12 @@ namespace Jsonata.Net.Native.Eval
     // this one is also registered as _jsonata_function
     internal sealed class FunctionTokenTransformation : FunctionToken
 	{
-		internal readonly Symbol pattern;
-		internal readonly Symbol update;
-		internal readonly Symbol? delete;
+		internal readonly New.Node pattern;
+		internal readonly New.Node update;
+		internal readonly New.Node? delete;
 		internal readonly EvaluationEnvironment environment;
 
-		public FunctionTokenTransformation(Symbol pattern, Symbol update, Symbol? delete, EvaluationEnvironment environment)
+		public FunctionTokenTransformation(New.Node pattern, New.Node update, New.Node? delete, EvaluationEnvironment environment)
 			: base("transform", 1, signature: new Signature("<(oa):o>"))
 		{
             this.pattern = pattern;
