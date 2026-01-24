@@ -34,12 +34,18 @@ namespace Jsonata.Net.Native.New
         descendant,
         error,
         index,
-        _end //added in dotnet to make proper handling
+
+        //added in dotnet to make proper handling
+        _end, 
+        _term,
+        _group,
+        _sort_term,
+        _slot
     }
 
     public class Node
     {
-        internal SymbolType type;
+        public SymbolType type;
         internal List<Node>? steps;
         internal List<Node>? stages;
         internal bool tuple = false;
@@ -102,14 +108,22 @@ namespace Jsonata.Net.Native.New
 
         internal Signature? signature;
 
-        internal Node()
+        internal Node(SymbolType type)
         {
+            this.type = type;
         }
 
         internal Node(Token token)
         {
-            this.value = token.value;
             this.type = token.type;
+            this.value = token.value;
+            this.position = token.position;
+        }
+
+        internal Node(Token token, SymbolType type)
+        {
+            this.type = type;
+            this.value = token.value;
             this.position = token.position;
         }
 
@@ -262,11 +276,13 @@ namespace Jsonata.Net.Native.New
         internal Node? @else;
 
         internal ConditionNode()
-            :base() 
-        { 
+            :base(SymbolType.condition)
+        {
+
         }
 
-        internal ConditionNode(Token token) : base(token)
+        internal ConditionNode(Token token)
+            :base(token, SymbolType.condition)
         {
         }
     }

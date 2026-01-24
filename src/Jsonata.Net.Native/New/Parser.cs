@@ -117,8 +117,7 @@ namespace Jsonata.Net.Native.New
             Node result;
             if (expr.type == SymbolType.function && expr.predicate == null) 
             {
-                Node thunk = new Node(); 
-                thunk.type = SymbolType.lambda; 
+                Node thunk = new Node(SymbolType.lambda); 
                 thunk.thunk = true; 
                 thunk.arguments = new(); 
                 thunk.position = expr.position;
@@ -291,8 +290,7 @@ namespace Jsonata.Net.Native.New
                         }
                         else
                         {
-                            result = new Node();
-                            result.type = SymbolType.path;
+                            result = new Node(SymbolType.path);
                             result.steps = new() { lstep! };
                         }
                         if (lstep.type == SymbolType.parent)
@@ -324,8 +322,9 @@ namespace Jsonata.Net.Native.New
                             result.steps!.Add(rest);
                         }
                         // any steps within a path that are string literals, should be changed to 'name'
-                        foreach (Node step in result.steps)
+                        for (int i = 0; i < result.steps.Count; ++i)
                         {
+                            Node step = result.steps[i];
                             if (step.type == SymbolType.number || step.type == SymbolType.value)
                             {
                                 // don't allow steps to be numbers or the values true/false/null
@@ -407,8 +406,7 @@ namespace Jsonata.Net.Native.New
                             }
                             this.pushAncestry(step, predicate);
                         }
-                        Node s = new Node();
-                        s.type = SymbolType.filter;
+                        Node s = new Node(SymbolType.filter);
                         s.expr = predicate;
                         s.position = expr.position;
 
@@ -447,7 +445,7 @@ namespace Jsonata.Net.Native.New
                             throw new JException("S0210", expr.position);
                         }
                         // object constructor - process each pair
-                        result.group = new Node();
+                        result.group = new Node(SymbolType._group);
                         result.group.lhsObject = expr.rhsObject!
                             .Select(pair => new Node[] { this.processAST(pair[0]), this.processAST(pair[1]) })
                             .ToList();
@@ -462,18 +460,16 @@ namespace Jsonata.Net.Native.New
                         result = this.processAST(expr.lhs!);
                         if (result.type != SymbolType.path)
                         {
-                            Node _res = new Node();
-                            _res.type = SymbolType.path;
+                            Node _res = new Node(SymbolType.path);
                             _res.steps = new() { result };
                             result = _res;
                         }
-                        Node sortStep = new Node();
-                        sortStep.type = SymbolType.sort;
+                        Node sortStep = new Node(SymbolType.sort);
                         sortStep.position = expr.position;
                         sortStep.terms = expr.rhsTerms!.Select(terms => {
                             Node expression = this.processAST(terms.expression!);
                             this.pushAncestry(sortStep, expression);
-                            Node res = new Node();
+                            Node res = new Node(SymbolType._sort_term);
                             res.descending = terms.descending;
                             res.expression = expression;
                             return res;
@@ -484,8 +480,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 case ":=":
                     {
-                        result = new Node();
-                        result.type = SymbolType.bind;
+                        result = new Node(SymbolType.bind);
                         result.value = expr.value;
                         result.position = expr.position;
                         result.lhs = this.processAST(expr.lhs!);
@@ -530,8 +525,7 @@ namespace Jsonata.Net.Native.New
                         }
                         else
                         {
-                            Node _res = new Node();
-                            _res.type = SymbolType.path;
+                            Node _res = new Node(SymbolType.path);
                             _res.steps = new() { result };
                             result = _res;
                             if (step.predicate != null)
@@ -546,8 +540,7 @@ namespace Jsonata.Net.Native.New
                         }
                         else
                         {
-                            Node _res = new Node();
-                            _res.type = SymbolType.index;
+                            Node _res = new Node(SymbolType.index);
                             _res.value = expr.rhs!.value;
                             _res.position = expr.position;
                             step.stages.Add(_res);
@@ -557,8 +550,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 case "~>":
                     {
-                        result = new Node();
-                        result.type = SymbolType.apply;
+                        result = new Node(SymbolType.apply);
                         result.value = expr.value;
                         result.position = expr.position;
                         result.lhs = processAST(expr.lhs!);
@@ -568,8 +560,7 @@ namespace Jsonata.Net.Native.New
                     break;
                 default:
                     {
-                        Node _result = new Node();
-                        _result.type = expr.type;
+                        Node _result = new Node(expr.type);
                         _result.value = expr.value;
                         _result.position = expr.position;
                         _result.lhs = this.processAST((expr).lhs!);
@@ -584,8 +575,7 @@ namespace Jsonata.Net.Native.New
 
             case SymbolType.unary:
                 {
-                    result = new Node();
-                    result.type = expr.type;
+                    result = new Node(expr.type);
                     result.value = expr.value;
                     result.position = expr.position;
                     // expr.value might be Character!
@@ -610,7 +600,9 @@ namespace Jsonata.Net.Native.New
                             this.pushAncestry(result, value);
                             return new Node[] { key, value };
                         }).ToList();
-                    } else {
+                    } 
+                    else 
+                    {
                         // all other unary expressions - just process the expression
                         result.expression = this.processAST(expr.expression!);
                         // if unary minus on a number, then pre-process
@@ -641,8 +633,7 @@ namespace Jsonata.Net.Native.New
             case SymbolType.function:
             case SymbolType.@partial:
                 {
-                    result = new Node();
-                    result.type = expr.type;
+                    result = new Node(expr.type);
                     result.name = expr.name;
                     result.value = expr.value;
                     result.position = expr.position;
@@ -656,8 +647,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.lambda:
                 {
-                    result = new Node();
-                    result.type = expr.type;
+                    result = new Node(expr.type);
                     result.arguments = expr.arguments;
                     result.signature = expr.signature;
                     result.position = expr.position;
@@ -669,7 +659,6 @@ namespace Jsonata.Net.Native.New
                 {
                     ConditionNode exprCondition = (ConditionNode)expr;
                     ConditionNode resultCondition = new ConditionNode();
-                    resultCondition.type = expr.type;
                     resultCondition.position = expr.position;
                     resultCondition.condition = this.processAST(exprCondition.condition!);
                     this.pushAncestry(resultCondition, resultCondition.condition);
@@ -685,8 +674,8 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.transform:
                 {
-                    result = new Node();
-                    result.type = expr.type; result.position = expr.position;
+                    result = new Node(expr.type);
+                    result.position = expr.position;
                     result.pattern = this.processAST(expr.pattern!);
                     result.update = this.processAST(expr.update!);
                     if (expr.delete != null)
@@ -697,8 +686,8 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.block:
                 {
-                    result = new Node();
-                    result.type = expr.type; result.position = expr.position;
+                    result = new Node(expr.type);
+                    result.position = expr.position;
                     // array of expressions - process each one
                     result.expressions = expr.expressions!.Select(item => {
                         Node part = this.processAST(item);
@@ -715,8 +704,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.name:
                 {
-                    result = new Node();
-                    result.type = SymbolType.path;
+                    result = new Node(SymbolType.path);
                     result.steps = new() { expr };
                     if (expr.keepArray)
                     {
@@ -726,9 +714,8 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.parent:
                 {
-                    result = new Node();
-                    result.type = SymbolType.parent;
-                    result.slot = new Node();
+                    result = new Node(SymbolType.parent);
+                    result.slot = new Node(SymbolType._slot);
                     result.slot.label = "!" + this.ancestorLabel++;
                     result.slot.level = 1;
                     result.slot.index_int = this.ancestorIndex++;
@@ -789,7 +776,7 @@ namespace Jsonata.Net.Native.New
 
         internal Node objectParser(Node? left) 
         {
-            Node res = new Node() { value = "{" };
+            Node res = new Node(left == null? SymbolType.unary : SymbolType.binary) { value = "{" };
             List<Node[]> a = new ();
             if (this.currentNodeFactory.id != "}") 
             {
@@ -812,14 +799,12 @@ namespace Jsonata.Net.Native.New
             {
                 // NUD - unary prefix form
                 res.lhsObject = a;
-                res.type = SymbolType.unary;
             } 
             else 
             {
                 // LED - binary infix form
                 res.lhs = left;
                 res.rhsObject = a;
-                res.type = SymbolType.binary;
             }
             return res;
         }
