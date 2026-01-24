@@ -39,7 +39,6 @@ namespace Jsonata.Net.Native.New
 
     public class Symbol
     {
-        internal string id;
         internal SymbolType type;
         internal List<Symbol>? steps;
         internal List<Symbol>? stages;
@@ -105,13 +104,11 @@ namespace Jsonata.Net.Native.New
 
         internal Symbol()
         {
-            this.id = "";
             this.value = "";
         }
 
         internal Symbol(string id, Token token)
         {
-            this.id = id;
             this.value = token.value;
             this.type = token.type;
             this.position = token.position;
@@ -119,7 +116,7 @@ namespace Jsonata.Net.Native.New
 
         public override string ToString()
         {
-            return $"{this.GetType().Name} {this.id} value={this.value}";
+            return $"{this.GetType().Name} {this.type} value={this.value}";
         }
 
         internal void Format(string? prefix, StringBuilder builder, int indent)
@@ -169,7 +166,6 @@ namespace Jsonata.Net.Native.New
             builder.Append(this.GetType().Name).Append(' ')
                 .Append(this.type.ToString()).Append(' ')
                 .Append("pos=").Append(this.position).Append(' ')
-                .Append("id=").Append(this.id).Append(' ')
                 ;
             if (this.value != null)
             {

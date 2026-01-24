@@ -317,7 +317,7 @@ namespace Jsonata.Net.Native.New
                         // partial function application
                         symbol.type = SymbolType.partial;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        symbol.arguments.Add(new Symbol() { id = "?", value = "?", type = SymbolType.@operator });
+                        symbol.arguments.Add(new Symbol() { value = "?", type = SymbolType.@operator });
                         parser.advance("?");
                     }
                     else

@@ -773,7 +773,7 @@ namespace Jsonata.Net.Native.New
             default:
                 {
                     string code = "S0206";
-                    if (expr.id == "(end)")
+                    if (expr.type == SymbolType._end)
                     {
                         code = "S0207";
                     }
@@ -789,7 +789,7 @@ namespace Jsonata.Net.Native.New
 
         internal Symbol objectParser(Symbol? left) 
         {
-            Symbol res = new Symbol() { id = "{", value = "{" };
+            Symbol res = new Symbol() { value = "{" };
             List<Symbol[]> a = new ();
             if (this.current_symbol_factory.id != "}") 
             {
