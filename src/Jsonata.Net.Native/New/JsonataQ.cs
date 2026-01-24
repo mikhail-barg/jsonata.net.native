@@ -71,7 +71,7 @@ namespace Jsonata.Net.Native.New
                 result = environment.Lookup(expr.slot!.label!);
                 break;
             case SymbolType.condition:
-                result = JsonataQ.evaluateCondition((InfixCondition)expr, input, environment);
+                result = JsonataQ.evaluateCondition((ConditionSymbol)expr, input, environment);
                 break;
             case SymbolType.block:
                 result = JsonataQ.evaluateBlock(expr, input, environment);
@@ -593,9 +593,8 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateBinary(Symbol _expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBinary(Symbol expr, JToken input, EvaluationEnvironment environment)
         {
-            Infix expr = (Infix)_expr;
             JToken result;
             JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
 
@@ -1437,7 +1436,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateCondition(InfixCondition expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateCondition(ConditionSymbol expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
             JToken condition = JsonataQ.evaluate(expr.condition!, input, environment);
