@@ -104,7 +104,6 @@ namespace Jsonata.Net.Native.New
 
         internal Node()
         {
-            this.value = "";
         }
 
         internal Node(Token token)
