@@ -76,12 +76,16 @@ namespace Jsonata.Net.Native.New
                 }
                 break;
             case SymbolType.@string:
+                factory = Parser.s_terminalFactoryString;
+                break;
             case SymbolType.number:
+                factory = Parser.s_terminalFactoryNumber;
+                break;
             case SymbolType.value:
-                factory = Parser.s_nodeFactoryTable["(literal)"];
+                factory = Parser.s_terminalFactoryValue;
                 break;
             case SymbolType.regex:
-                factory = Parser.s_nodeFactoryTable["(regex)"];
+                factory = Parser.s_terminalFactoryRegex;
                 break;
             default:
                 throw new JException("S0205", this.currentToken.position, this.currentToken.value);
@@ -828,6 +832,10 @@ namespace Jsonata.Net.Native.New
         internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
         internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryTyped(SymbolType.name);
         internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryTyped(SymbolType.variable);
+        internal static readonly NodeFactoryBase s_terminalFactoryNumber = new TerminalFactoryTyped(SymbolType.number);
+        internal static readonly NodeFactoryBase s_terminalFactoryString = new TerminalFactoryTyped(SymbolType.@string);
+        internal static readonly NodeFactoryBase s_terminalFactoryValue = new TerminalFactoryTyped(SymbolType.value);
+        internal static readonly NodeFactoryBase s_terminalFactoryRegex = new TerminalFactoryTyped(SymbolType.regex);
 
         private static void register(Dictionary<string, NodeFactoryBase> nodeFactoryTable, NodeFactoryBase t)
         {
@@ -851,8 +859,6 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new DummyNodeFactory("]"));
             register(nodeFactoryTable, new DummyNodeFactory("}"));
             register(nodeFactoryTable, new DummyNodeFactory("..")); // range operator
-            register(nodeFactoryTable, new TerminalFactory("(literal)"));
-            register(nodeFactoryTable, new TerminalFactory("(regex)"));
             register(nodeFactoryTable, new InfixFactory(".")); // map operator
             register(nodeFactoryTable, new InfixFactory("+")); // numeric addition
             register(nodeFactoryTable, new InfixAndPrefixFactory("-")); // numeric subtraction // unary numeric negation

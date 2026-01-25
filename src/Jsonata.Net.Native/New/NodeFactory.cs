@@ -571,40 +571,4 @@ namespace Jsonata.Net.Native.New
             return new Node(token, this.m_type);
         }
     }
-
-    internal sealed class TerminalFactory : NodeFactoryBase
-    {
-        public TerminalFactory(string id) : base(id, 0)
-        {
-        }
-
-        internal override Node nud(Parser parser, Token token)
-        {
-            switch (this.id)
-            {
-            case "(literal)":
-                switch (token.type)
-                {
-                case SymbolType.number:
-                    return new Node(token, SymbolType.number);
-                case SymbolType.@string:
-                    return new Node(token, SymbolType.@string);
-                case SymbolType.value:
-                    return new Node(token, SymbolType.value);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
-            case "(regex)":
-                switch (token.type)
-                {
-                case SymbolType.regex:
-                    return new Node(token, SymbolType.regex);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
-            default:
-                throw new Exception($"{this.id} -> {token.type.ToString()}");
-            }
-        }
-    }
 }
