@@ -32,7 +32,7 @@ namespace Jsonata.Net.Native.New
             if (id != null && this.currentNodeFactory.id != id) 
             {
                 String code;
-                if (this.currentNodeFactory.id == "(end)") 
+                if (this.currentNodeFactory == Parser.s_terminalFactoryEnd) 
                 {
                     // unexpected end of buffer
                     code = "S0203";
@@ -52,8 +52,7 @@ namespace Jsonata.Net.Native.New
             NodeFactoryBase factory;
             if (next_token == null) 
             {
-                factory = Parser.s_nodeFactoryTable["(end)"];
-                this.currentNodeFactory = factory;
+                this.currentNodeFactory = s_terminalFactoryEnd;
                 this.currentToken = new Token(SymbolType._end, null, source.Length);
                 return;
             }
@@ -801,7 +800,7 @@ namespace Jsonata.Net.Native.New
             this.advance();
             // parse the tokens
             Node expr = this.expression(0);
-            if (this.currentNodeFactory.id != "(end)") 
+            if (this.currentNodeFactory != Parser.s_terminalFactoryEnd) 
             {
                 throw new JException("S0201", this.currentToken.position, this.currentToken.value);
             }
@@ -823,7 +822,8 @@ namespace Jsonata.Net.Native.New
             return parser.parse(query);
         }
 
-        private static Dictionary<string, NodeFactoryBase> s_nodeFactoryTable = CreateNodeFactoryTable();
+        private static readonly Dictionary<string, NodeFactoryBase> s_nodeFactoryTable = CreateNodeFactoryTable();
+        internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryEnd();
 
         private static void register(Dictionary<string, NodeFactoryBase> nodeFactoryTable, NodeFactoryBase t)
         {
@@ -840,10 +840,6 @@ namespace Jsonata.Net.Native.New
         private static Dictionary<string, NodeFactoryBase> CreateNodeFactoryTable() 
         {
             Dictionary<string, NodeFactoryBase> nodeFactoryTable = new();
-            register(nodeFactoryTable, new TerminalFactory("(end)"));
-            register(nodeFactoryTable, new TerminalFactory("(name)"));
-            register(nodeFactoryTable, new TerminalFactory("(literal)"));
-            register(nodeFactoryTable, new TerminalFactory("(regex)"));
             register(nodeFactoryTable, new DummyNodeFactory(":"));
             register(nodeFactoryTable, new DummyNodeFactory(";"));
             register(nodeFactoryTable, new DummyNodeFactory(","));
@@ -851,6 +847,9 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new DummyNodeFactory("]"));
             register(nodeFactoryTable, new DummyNodeFactory("}"));
             register(nodeFactoryTable, new DummyNodeFactory("..")); // range operator
+            register(nodeFactoryTable, new TerminalFactory("(name)"));
+            register(nodeFactoryTable, new TerminalFactory("(literal)"));
+            register(nodeFactoryTable, new TerminalFactory("(regex)"));
             register(nodeFactoryTable, new InfixFactory(".")); // map operator
             register(nodeFactoryTable, new InfixFactory("+")); // numeric addition
             register(nodeFactoryTable, new InfixAndPrefixFactory("-")); // numeric subtraction // unary numeric negation

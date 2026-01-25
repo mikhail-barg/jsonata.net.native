@@ -38,60 +38,6 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal sealed class TerminalFactory : NodeFactoryBase
-    {
-        public TerminalFactory(string id) : base(id, 0)
-        {
-        }
-
-        internal override Node nud(Parser parser, Token token)
-        {
-            switch (this.id)
-            {
-            case "(name)":
-                switch (token.type)
-                {
-                case SymbolType.name:
-                    return new Node(token, SymbolType.name);
-                case SymbolType.variable:
-                    return new Node(token, SymbolType.variable);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
-            case "(literal)":
-                switch (token.type)
-                {
-                case SymbolType.number:
-                    return new Node(token, SymbolType.number);
-                case SymbolType.@string:
-                    return new Node(token, SymbolType.@string);
-                case SymbolType.value:
-                    return new Node(token, SymbolType.value);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
-            case "(end)":
-                switch (token.type)
-                {
-                case SymbolType._end:
-                    return new Node(token, SymbolType._end);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
-            case "(regex)":
-                switch (token.type)
-                {
-                case SymbolType.regex:
-                    return new Node(token, SymbolType.regex);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
-            default:
-                throw new Exception($"{this.id} -> {token.type.ToString()}");
-            }
-        }
-    }
-
     // match infix operators
     // <expression> <operator> <expression>
     // left associative
@@ -373,7 +319,7 @@ namespace Jsonata.Net.Native.New
                 {
                     int depth = 1;
                     String sig = "<";
-                    while (depth > 0 && parser.currentNodeFactory.id != "{" && parser.currentNodeFactory.id != "(end)")
+                    while (depth > 0 && parser.currentNodeFactory.id != "{" && parser.currentNodeFactory != Parser.s_terminalFactoryEnd)
                     {
                         parser.advance();
                         NodeFactoryBase tok = parser.currentNodeFactory;
@@ -604,6 +550,68 @@ namespace Jsonata.Net.Native.New
             symbol.lhs = left;
             symbol.rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
             return symbol;
+        }
+    }
+
+    internal sealed class TerminalFactoryEnd : NodeFactoryBase
+    {
+        public TerminalFactoryEnd() : base("(end)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType._end)
+            {
+                throw new Exception($"Should not happen: {token.type}");
+            }
+            return new Node(token, SymbolType._end);
+        }
+    }
+
+    internal sealed class TerminalFactory : NodeFactoryBase
+    {
+        public TerminalFactory(string id) : base(id, 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            switch (this.id)
+            {
+            case "(name)":
+                switch (token.type)
+                {
+                case SymbolType.name:
+                    return new Node(token, SymbolType.name);
+                case SymbolType.variable:
+                    return new Node(token, SymbolType.variable);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            case "(literal)":
+                switch (token.type)
+                {
+                case SymbolType.number:
+                    return new Node(token, SymbolType.number);
+                case SymbolType.@string:
+                    return new Node(token, SymbolType.@string);
+                case SymbolType.value:
+                    return new Node(token, SymbolType.value);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            case "(regex)":
+                switch (token.type)
+                {
+                case SymbolType.regex:
+                    return new Node(token, SymbolType.regex);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            default:
+                throw new Exception($"{this.id} -> {token.type.ToString()}");
+            }
         }
     }
 }
