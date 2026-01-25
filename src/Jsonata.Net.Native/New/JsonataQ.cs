@@ -98,7 +98,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateApplyExpression(expr, input, environment);
                 break;
             case SymbolType.transform:
-                result = JsonataQ.evaluateTransformExpression(expr, input, environment);
+                result = JsonataQ.evaluateTransformExpression((TransformNode)expr, input, environment);
                 break;
             default:
                 //no throws here in jsonata-js
@@ -1661,14 +1661,14 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} tranformer function
          */
-        private static JToken evaluateTransformExpression(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateTransformExpression(TransformNode expr, JToken input, EvaluationEnvironment environment)
         {
             // create a function to implement the transform definition
             // var transformer = async function (obj) { // signature <(oa):o>
             // ... 
             // }
             // return defineFunction(transformer, '<(oa):o>');
-            return new FunctionTokenTransformation(expr.pattern!, expr.update!, expr.delete, environment);
+            return new FunctionTokenTransformation(expr.pattern, expr.update, expr.delete, environment);
         }
 
         private static readonly Node s_chainAST = BuildChainAst();

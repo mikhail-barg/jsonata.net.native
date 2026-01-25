@@ -106,17 +106,22 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType.transform);
-            symbol.pattern = parser.expression(0);
+            Node pattern = parser.expression(0);
             parser.advance("|");
-            symbol.update = parser.expression(0);
+            Node update = parser.expression(0);
+            Node? delete;
             if (parser.currentNodeFactory.id == ",")
             {
                 parser.advance(",");
-                symbol.delete = parser.expression(0);
+                delete = parser.expression(0);
+            }
+            else
+            {
+                delete = null;
             }
             parser.advance("|");
-            return symbol;
+            TransformNode result = new TransformNode(token.position, pattern, update, delete);
+            return result;
         }
     }
 

@@ -94,9 +94,6 @@ namespace Jsonata.Net.Native.New
         // TODO: convert to Tuple
         internal List<Node[]>? lhsObject, rhsObject;
 
-        // Prefix attributes
-        internal Node? pattern, update, delete;
-
         internal bool keepArray; // [
 
 
@@ -262,14 +259,29 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class ConditionNode : Node
+    public sealed class TransformNode: Node
+    {
+        public readonly Node pattern;
+        public readonly Node update;
+        public readonly Node? delete;
+
+        public TransformNode(int position, Node pattern, Node update, Node? delete)
+            :base(SymbolType.transform, null, position)
+        {
+            this.pattern = pattern;
+            this.update = update;
+            this.delete = delete;
+        }
+    }
+
+    public sealed class ConditionNode: Node
     {
         // Ternary operator:
-        internal readonly Node condition;
-        internal readonly Node then;
-        internal readonly Node? @else;
+        public readonly Node condition;
+        public readonly Node then;
+        public readonly Node? @else;
 
-        internal ConditionNode(int position, Node condition, Node then, Node? @else)
+        public ConditionNode(int position, Node condition, Node then, Node? @else)
             :base(SymbolType.condition, value: null, position: position)
         {
             this.condition = condition;

@@ -675,13 +675,19 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.transform:
                 {
-                    result = new Node(SymbolType.transform, null, expr.position);
-                    result.pattern = this.processAST(expr.pattern!);
-                    result.update = this.processAST(expr.update!);
-                    if (expr.delete != null)
+                    TransformNode exprTransform = (TransformNode)expr;
+                    Node pattern = this.processAST(exprTransform.pattern!);
+                    Node update = this.processAST(exprTransform.update!);
+                    Node? delete;
+                    if (exprTransform.delete != null)
                     {
-                        result.delete = this.processAST(expr.delete);
+                        delete = this.processAST(exprTransform.delete);
                     }
+                    else
+                    {
+                        delete = null;
+                    }
+                    result = new TransformNode(expr.position, pattern, update, delete);
                 }
                 break;
             case SymbolType.block:
