@@ -45,7 +45,7 @@ namespace Jsonata.Net.Native.New
             switch (expr.type)
             {
             case SymbolType.path:
-                result = JsonataQ.evaluatePath(expr, input, environment);
+                result = JsonataQ.evaluatePath((PathNode)expr, input, environment);
                 break;
             case SymbolType.binary:
                 result = JsonataQ.evaluateBinary(expr, input, environment);
@@ -148,13 +148,13 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluatePath(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluatePath(PathNode expr, JToken input, EvaluationEnvironment environment)
         {
             JArray inputSequence;
             // expr is an array of steps
             // if the first step is a variable reference ($...), including root reference ($$),
             //   then the path is absolute rather than relative
-            if (input is JArray inputArray && expr.steps![0].type != SymbolType.variable)
+            if (input is JArray inputArray && expr.steps[0].type != SymbolType.variable)
             {
                 inputSequence = inputArray;
             }
@@ -170,7 +170,7 @@ namespace Jsonata.Net.Native.New
             JArray? tupleBindings = null;
 
             // evaluate each step in turn
-            for (int ii = 0; ii < expr.steps!.Count; ++ii)
+            for (int ii = 0; ii < expr.steps.Count; ++ii)
             {
                 Node step = expr.steps[ii];
 
@@ -1741,12 +1741,12 @@ namespace Jsonata.Net.Native.New
             JToken proc = JsonataQ.evaluate(expr.procedure!, input, environment);
  
             if (proc.Type == JTokenType.Undefined 
-                && expr.procedure!.type == SymbolType.path 
-                && environment.Lookup((string)(expr.procedure.steps![0].value!)).Type != JTokenType.Undefined
+                && expr.procedure!.type == SymbolType.path
+                && environment.Lookup((string)((PathNode)expr.procedure).steps[0].value!).Type != JTokenType.Undefined
             ) 
             {
                 // help the user out here if they simply forgot the leading $
-                throw new JException("T1005", expr.position, expr.procedure.steps[0].value);
+                throw new JException("T1005", expr.position, ((PathNode)expr.procedure).steps[0].value);
             }
 
             List<JToken> evaluatedArgs = new();
@@ -1771,7 +1771,7 @@ namespace Jsonata.Net.Native.New
             }
 
             // apply the procedure
-            object? procNameObj = expr.procedure!.type == SymbolType.path ? expr.procedure.steps![0].value : expr.procedure.value;
+            object? procNameObj = expr.procedure!.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value;
             string? procName;
             if (procNameObj is string procNameObjStr)
             {
@@ -1952,11 +1952,11 @@ namespace Jsonata.Net.Native.New
             JToken proc = JsonataQ.evaluate(expr.procedure!, input, environment);
             if (proc.Type == JTokenType.Undefined
                 && expr.procedure!.type == SymbolType.path
-                && environment.Lookup((string)(expr.procedure.steps![0].value!)).Type != JTokenType.Undefined
+                && environment.Lookup((string)((PathNode)expr.procedure).steps[0].value!).Type != JTokenType.Undefined
             )
             {
                 // help the user out here if they simply forgot the leading $
-                throw new JException("T1007", expr.position, expr.procedure.steps[0].value);
+                throw new JException("T1007", expr.position, ((PathNode)expr.procedure).steps[0].value);
             }
 
             JToken result;
@@ -1974,7 +1974,7 @@ namespace Jsonata.Net.Native.New
             }
             else
             {
-                throw new JException("T1008", expr.position, expr.procedure!.type == SymbolType.path ? expr.procedure.steps![0].value : expr.procedure.value);
+                throw new JException("T1008", expr.position, expr.procedure!.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value);
             }
             return result;
         }

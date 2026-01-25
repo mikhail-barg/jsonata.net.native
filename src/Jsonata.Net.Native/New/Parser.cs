@@ -199,14 +199,17 @@ namespace Jsonata.Net.Native.New
                 }
                 break;
             case SymbolType.path:
-                // last step in path
-                node.tuple = true;
-                int index = node.steps!.Count - 1;
-                slot = this.seekParent(node.steps[index--], slot);
-                while (slot.level > 0 && index >= 0) 
                 {
-                    // check previous steps
-                    slot = this.seekParent(node.steps[index--], slot);
+                    // last step in path
+                    PathNode pathNode = (PathNode)node;
+                    node.tuple = true;
+                    int index = pathNode.steps!.Count - 1;
+                    slot = this.seekParent(pathNode.steps[index--], slot);
+                    while (slot.level > 0 && index >= 0)
+                    {
+                        // check previous steps
+                        slot = this.seekParent(pathNode.steps[index--], slot);
+                    }
                 }
                 break;
             default:
@@ -240,9 +243,9 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private void resolveAncestry(Node path) 
+        private void resolveAncestry(PathNode path) 
         {
-            int index = path.steps!.Count - 1;
+            int index = path.steps.Count - 1;
             Node laststep = path.steps[index];
             List<Node> slots = laststep.seekingParent ?? new();
             if (laststep.type == SymbolType.parent) 
@@ -292,34 +295,35 @@ namespace Jsonata.Net.Native.New
                 {
                 case ".":
                     {
+                        PathNode resultPath;
                         Node lstep = this.processAST(expr.lhs!);
                         if (lstep.type == SymbolType.path)
                         {
-                            result = lstep;
+                            resultPath = (PathNode)lstep;
                         }
                         else
                         {
-                            result = new Node(SymbolType.path, null, -1);
-                            result.steps = new() { lstep! };
+                            resultPath = new PathNode(new() { lstep });
                         }
                         if (lstep.type == SymbolType.parent)
                         {
-                            result.seekingParent = new() { lstep.slot! };
+                            resultPath.seekingParent = new() { lstep.slot! };
                         }
                         Node rest = this.processAST(expr.rhs!);
                         if (rest.type == SymbolType.function &&
                             rest.procedure!.type == SymbolType.path &&
-                            rest.procedure!.steps!.Count == 1 &&
-                            rest.procedure!.steps[0].type == SymbolType.name &&
-                            result.steps![result.steps.Count - 1].type == SymbolType.function
+                            rest.procedure is PathNode procedurePath &&
+                            procedurePath.steps.Count == 1 &&
+                            procedurePath.steps[0].type == SymbolType.name &&
+                            resultPath.steps[^1].type == SymbolType.function
                         )
                         {
                             // next function in chain of functions - will override a thenable
-                            result.steps[result.steps.Count - 1].nextFunction = (Node)rest.procedure.steps[0].value!;
+                            resultPath.steps[^1].nextFunction = (Node)procedurePath.steps[0].value!;
                         }
                         if (rest.type == SymbolType.path)
                         {
-                            result.steps!.AddRange(rest.steps!);
+                            resultPath.steps.AddRange(((PathNode)rest).steps);
                         }
                         else
                         {
@@ -328,12 +332,12 @@ namespace Jsonata.Net.Native.New
                                 rest.stages = rest.predicate;
                                 rest.predicate = null;
                             }
-                            result.steps!.Add(rest);
+                            resultPath.steps.Add(rest);
                         }
                         // any steps within a path that are string literals, should be changed to 'name'
-                        for (int i = 0; i < result.steps.Count; ++i)
+                        for (int i = 0; i < resultPath.steps.Count; ++i)
                         {
-                            Node step = result.steps[i];
+                            Node step = resultPath.steps[i];
                             if (step.type == SymbolType.number || step.type == SymbolType.value)
                             {
                                 // don't allow steps to be numbers or the values true/false/null
@@ -342,28 +346,29 @@ namespace Jsonata.Net.Native.New
                             if (step.type == SymbolType.@string)
                             {
                                 //step.type = SymbolType.name;
-                                result.steps[i] = new Node(SymbolType.name, step.value, step.position);
+                                resultPath.steps[i] = new Node(SymbolType.name, step.value, step.position);
                             }
                         }
 
                         // any step that signals keeping a singleton array, should be flagged on the path
-                        if (result.steps.Any(step => step.keepArray))
+                        if (resultPath.steps.Any(step => step.keepArray))
                         {
-                            result.keepSingletonArray = true;
+                            resultPath.keepSingletonArray = true;
                         }
                         // if first step is a path constructor, flag it for special handling
-                        Node firststep = result.steps[0];
+                        Node firststep = resultPath.steps[0];
                         if (firststep.type == SymbolType.unary && firststep.value!.Equals("["))
                         {
                             firststep.consarray = true;
                         }
                         // if the last step is an array constructor, flag it so it doesn't flatten
-                        Node laststep = result.steps[result.steps.Count - 1];
+                        Node laststep = resultPath.steps[^1];
                         if (laststep.type == SymbolType.unary && laststep.value!.Equals("["))
                         {
                             laststep.consarray = true;
                         }
-                        this.resolveAncestry(result);
+                        this.resolveAncestry(resultPath);
+                        result = resultPath;
                     }
                     break;
                 case "[":
@@ -376,7 +381,7 @@ namespace Jsonata.Net.Native.New
                         SymbolType type = SymbolType.predicate;
                         if (result.type == SymbolType.path)
                         {
-                            step = result.steps![result.steps.Count - 1];
+                            step = ((PathNode)result).steps[^1];
                             type = SymbolType.stages;
                         }
                         if (step.group != null)
@@ -474,7 +479,7 @@ namespace Jsonata.Net.Native.New
                         Node step = result;
                         if (result.type == SymbolType.path)
                         {
-                            step = result.steps![result.steps.Count - 1];
+                            step = ((PathNode)result).steps[^1];
                         }
                         // throw error if there are any predicates defined at this point
                         // at this point the only type of stages can be predicates
@@ -498,16 +503,15 @@ namespace Jsonata.Net.Native.New
                 case "#":
                     {
                         result = processAST(expr.lhs!);
-                        Node step = result;
+                        Node step;
                         if (result.type == SymbolType.path)
                         {
-                            step = result.steps![result.steps.Count - 1];
+                            step = ((PathNode)result).steps[^1];
                         }
                         else
                         {
-                            Node _res = new Node(SymbolType.path, null, -1);
-                            _res.steps = new() { result };
-                            result = _res;
+                            step = result;
+                            result = new PathNode(new() { result });
                             if (step.predicate != null)
                             {
                                 step.stages = step.predicate;
@@ -552,24 +556,28 @@ namespace Jsonata.Net.Native.New
                     // LHS is the array to be ordered
                     // RHS defines the terms
                     OrderbyNode exprOrderby = (OrderbyNode)expr;
-                    result = this.processAST(exprOrderby.lhs);
-                    if (result.type != SymbolType.path)
+                    Node res = this.processAST(exprOrderby.lhs);
+                    PathNode resultPath;
+                    if (res.type == SymbolType.path)
                     {
-                        Node _res = new Node(SymbolType.path, null, -1);
-                        _res.steps = new() { result };
-                        result = _res;
+                        resultPath = (PathNode)res;
+                    }
+                    else
+                    {
+                        resultPath = new PathNode(new() { res });
                     }
                     Node sortStep = new Node(SymbolType.sort, null, expr.position);
                     sortStep.terms = exprOrderby.rhsTerms.Select(terms => {
                         Node expression = this.processAST(terms.expression!);
                         this.pushAncestry(sortStep, expression);
-                        Node res = new Node(SymbolType._sort_term, null, -1);
-                        res.descending = terms.descending;
-                        res.expression = expression;
-                        return res;
+                        Node res_ = new Node(SymbolType._sort_term, null, -1);
+                        res_.descending = terms.descending;
+                        res_.expression = expression;
+                        return res_;
                     }).ToList();
-                    result.steps!.Add(sortStep);
-                    this.resolveAncestry(result);
+                    resultPath.steps!.Add(sortStep);
+                    result = resultPath;
+                    this.resolveAncestry(resultPath);
                 }
                 break; // _tinary_sort
 
@@ -698,7 +706,7 @@ namespace Jsonata.Net.Native.New
                     result.expressions = expr.expressions!.Select(item => {
                         Node part = this.processAST(item);
                         this.pushAncestry(result, part);
-                        if (part.consarray || (part.type == SymbolType.path && part.steps![0].consarray)) 
+                        if (part.consarray || (part.type == SymbolType.path && ((PathNode)part).steps![0].consarray)) 
                         {
                             result.consarray = true;
                         }
@@ -710,8 +718,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.name:
                 {
-                    result = new Node(SymbolType.path, null, -1);
-                    result.steps = new() { expr };
+                    result = new PathNode(new() { expr });
                     if (expr.keepArray)
                     {
                         result.keepSingletonArray = true;

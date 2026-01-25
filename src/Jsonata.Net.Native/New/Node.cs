@@ -50,7 +50,6 @@ namespace Jsonata.Net.Native.New
         internal readonly object? value;
         internal readonly int position;
 
-        internal List<Node>? steps;
         internal List<Node>? stages;
         internal bool tuple = false;
         internal bool consarray = false;
@@ -226,7 +225,6 @@ namespace Jsonata.Net.Native.New
             {
                 this.body.Format("body: ", builder, indent + 1);
             }
-            FormatListIfExists(this.steps, "steps", builder, indent + 1);
             FormatListIfExists(this.stages, "stages", builder, indent + 1);
             FormatListIfExists(this.predicate, "predicate", builder, indent + 1);
             FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
@@ -236,18 +234,29 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    public sealed class PathNode: Node
+    {
+        public readonly List<Node> steps;
+
+        public PathNode(List<Node> steps)
+            :base(SymbolType.path, null, -1)
+        {
+            this.steps = steps;
+        }
+    }
+
     public sealed class OrderbyNode: Node
     {
         // LHS is the array to be ordered
         // RHS defines the terms
-        public readonly new Node lhs;
+        public readonly new Node lhs; //TODO: remove NEW specifier
         public readonly List<Node> rhsTerms;
 
         public OrderbyNode(int position, Node lhs, List<Node> rhsTerms)
             :base(SymbolType._binary_orderby, null, position)
         {
             this.rhsTerms = rhsTerms;
-            this.lhs = lhs; //TODO
+            this.lhs = lhs;
         }
     }
 
