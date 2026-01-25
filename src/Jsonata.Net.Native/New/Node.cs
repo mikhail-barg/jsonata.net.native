@@ -288,13 +288,5 @@ namespace Jsonata.Net.Native.New
             this.then = then;
             this.@else = @else;
         }
-
-        internal ConditionNode(Token token, Node condition, Node then, Node? @else)
-            :base(SymbolType.condition, value:token.value, position:token.position)
-        {
-            this.condition = condition;
-            this.then = then;
-            this.@else = @else;
-        }
     }
 }

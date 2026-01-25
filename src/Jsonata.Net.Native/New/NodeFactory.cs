@@ -469,7 +469,7 @@ namespace Jsonata.Net.Native.New
             Node p = new Node(SymbolType.variable, "exists", -1);
             c.procedure = p;
             Node @else = parser.expression(0);
-            ConditionNode result = new ConditionNode(token, condition:c, then: left, @else: @else);
+            ConditionNode result = new ConditionNode(token.position, condition:c, then: left, @else: @else);
             return result;
         }
     }
@@ -495,7 +495,7 @@ namespace Jsonata.Net.Native.New
             {
                 @else = null;
             }
-            ConditionNode result = new ConditionNode(token, condition: left, then: then, @else: @else);
+            ConditionNode result = new ConditionNode(token.position, condition: left, then: then, @else: @else);
             return result;
         }
     }
@@ -510,7 +510,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node @else = parser.expression(0);
-            ConditionNode result = new ConditionNode(token, condition: left, then: left, @else: @else);
+            ConditionNode result = new ConditionNode(token.position, condition: left, then: left, @else: @else);
             return result;
         }
     }
