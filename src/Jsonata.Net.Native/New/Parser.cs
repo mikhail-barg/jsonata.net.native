@@ -60,8 +60,10 @@ namespace Jsonata.Net.Native.New
             switch (this.currentToken.type) 
             {
             case SymbolType.name:
+                factory = Parser.s_terminalFactoryName;
+                break;
             case SymbolType.variable:
-                factory = Parser.s_nodeFactoryTable["(name)"];
+                factory = Parser.s_terminalFactoryVariable;
                 break;
             case SymbolType.@operator:
                 if (!Parser.s_nodeFactoryTable.TryGetValue(this.currentToken.value!.ToString()!, out NodeFactoryBase? foundFactory))
@@ -823,7 +825,9 @@ namespace Jsonata.Net.Native.New
         }
 
         private static readonly Dictionary<string, NodeFactoryBase> s_nodeFactoryTable = CreateNodeFactoryTable();
-        internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryEnd();
+        internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
+        internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryTyped(SymbolType.name);
+        internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryTyped(SymbolType.variable);
 
         private static void register(Dictionary<string, NodeFactoryBase> nodeFactoryTable, NodeFactoryBase t)
         {
@@ -847,7 +851,6 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new DummyNodeFactory("]"));
             register(nodeFactoryTable, new DummyNodeFactory("}"));
             register(nodeFactoryTable, new DummyNodeFactory("..")); // range operator
-            register(nodeFactoryTable, new TerminalFactory("(name)"));
             register(nodeFactoryTable, new TerminalFactory("(literal)"));
             register(nodeFactoryTable, new TerminalFactory("(regex)"));
             register(nodeFactoryTable, new InfixFactory(".")); // map operator

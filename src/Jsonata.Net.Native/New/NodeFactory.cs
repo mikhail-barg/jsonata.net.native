@@ -553,19 +553,22 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal sealed class TerminalFactoryEnd : NodeFactoryBase
+    internal sealed class TerminalFactoryTyped : NodeFactoryBase
     {
-        public TerminalFactoryEnd() : base("(end)", 0)
+        private readonly SymbolType m_type;
+
+        public TerminalFactoryTyped(SymbolType type) : base($"({type})", 0)
         {
+            this.m_type = type;
         }
 
         internal override Node nud(Parser parser, Token token)
         {
-            if (token.type != SymbolType._end)
+            if (token.type != this.m_type)
             {
-                throw new Exception($"Should not happen: {token.type}");
+                throw new Exception($"Should not happen: got {token.type}, expected {this.m_type}");
             }
-            return new Node(token, SymbolType._end);
+            return new Node(token, this.m_type);
         }
     }
 
@@ -579,16 +582,6 @@ namespace Jsonata.Net.Native.New
         {
             switch (this.id)
             {
-            case "(name)":
-                switch (token.type)
-                {
-                case SymbolType.name:
-                    return new Node(token, SymbolType.name);
-                case SymbolType.variable:
-                    return new Node(token, SymbolType.variable);
-                default:
-                    throw new Exception($"{this.id} -> {token.type.ToString()}");
-                }
             case "(literal)":
                 switch (token.type)
                 {
