@@ -291,12 +291,13 @@ namespace Jsonata.Net.Native.New
             switch (expr.type)
             {
             case SymbolType.binary:
-                switch (expr.value!.ToString())
+                BinaryNode exprBinary = (BinaryNode)expr;
+                switch (exprBinary.value!.ToString())
                 {
                 case ".":
                     {
                         PathNode resultPath;
-                        Node lstep = this.processAST(expr.lhs!);
+                        Node lstep = this.processAST(exprBinary.lhs);
                         if (lstep.type == SymbolType.path)
                         {
                             resultPath = (PathNode)lstep;
@@ -309,7 +310,7 @@ namespace Jsonata.Net.Native.New
                         {
                             resultPath.seekingParent = new() { lstep.slot! };
                         }
-                        Node rest = this.processAST(expr.rhs!);
+                        Node rest = this.processAST(exprBinary.rhs);
                         if (rest.type == SymbolType.function &&
                             rest.procedure!.type == SymbolType.path &&
                             rest.procedure is PathNode procedurePath &&
@@ -376,7 +377,7 @@ namespace Jsonata.Net.Native.New
                         // predicated step
                         // LHS is a step or a predicated step
                         // RHS is the predicate expr
-                        result = this.processAST(expr.lhs!);
+                        result = this.processAST(exprBinary.lhs);
                         Node step = result;
                         SymbolType type = SymbolType.predicate;
                         if (result.type == SymbolType.path)
@@ -406,7 +407,7 @@ namespace Jsonata.Net.Native.New
                             }
                         }
 
-                        Node predicate = this.processAST(expr.rhs!);
+                        Node predicate = this.processAST(exprBinary.rhs);
                         if (predicate.seekingParent != null)
                         {
                             foreach (Node slot in predicate.seekingParent)
@@ -444,38 +445,17 @@ namespace Jsonata.Net.Native.New
                         //step[type].push({type: 'filter', expr: predicate, position: expr.position});
                     }
                     break;
-                case "{":
-                    {
-                        // group-by
-                        // LHS is a step or a predicated step
-                        // RHS is the object constructor expr
-                        result = this.processAST(expr.lhs!);
-                        if (result == null)
-                        {
-                            throw new Exception("Should not happen?");
-                        }
-                        if (result.group != null)
-                        {
-                            throw new JException("S0210", expr.position);
-                        }
-                        // object constructor - process each pair
-                        result.group = new Node(SymbolType._group, null, expr.position);
-                        result.group.lhsObject = expr.rhsObject!
-                            .Select(pair => Tuple.Create(this.processAST(pair.Item1), this.processAST(pair.Item2)))
-                            .ToList();
-                    }
-                    break;
                 case ":=":
                     {
-                        result = new Node(SymbolType.bind, expr.value, expr.position);
-                        result.lhs = this.processAST(expr.lhs!);
-                        result.rhs = this.processAST(expr.rhs!);
-                        this.pushAncestry(result, result.rhs!);
+                        Node lhs = this.processAST(exprBinary.lhs);
+                        Node rhs = this.processAST(exprBinary.rhs);
+                        result = new BindNode(exprBinary.position, lhs, rhs);
+                        this.pushAncestry(result, rhs);
                     }
                     break;
                 case "@":
                     {
-                        result = this.processAST(expr.lhs!);
+                        result = this.processAST(exprBinary.lhs);
                         Node step = result;
                         if (result.type == SymbolType.path)
                         {
@@ -485,24 +465,24 @@ namespace Jsonata.Net.Native.New
                         // at this point the only type of stages can be predicates
                         if (step.stages != null || step.predicate != null)
                         {
-                            throw new JException("S0215", expr.position);
+                            throw new JException("S0215", exprBinary.position);
                         }
                         // also throw if this is applied after an 'order-by' clause
                         if (step.type == SymbolType.sort)
                         {
-                            throw new JException("S0216", expr.position);
+                            throw new JException("S0216", exprBinary.position);
                         }
-                        if (expr.keepArray)
+                        if (exprBinary.keepArray)
                         {
                             step.keepArray = true;
                         }
-                        step.focus = (string)expr.rhs!.value!;
+                        step.focus = (string)exprBinary.rhs.value!;
                         step.tuple = true;
                     }
                     break;
                 case "#":
                     {
-                        result = processAST(expr.lhs!);
+                        result = processAST(exprBinary.lhs);
                         Node step;
                         if (result.type == SymbolType.path)
                         {
@@ -520,11 +500,11 @@ namespace Jsonata.Net.Native.New
                         }
                         if (step.stages == null)
                         {
-                            step.index_string = (string)expr.rhs!.value!; // name of index variable = String
+                            step.index_string = (string)exprBinary.rhs.value!; // name of index variable = String
                         }
                         else
                         {
-                            Node _res = new Node(SymbolType.index, expr.rhs!.value, expr.position);
+                            Node _res = new Node(SymbolType.index, exprBinary.rhs.value, expr.position);
                             step.stages.Add(_res);
                         }
                         step.tuple = true;
@@ -532,24 +512,45 @@ namespace Jsonata.Net.Native.New
                     break;
                 case "~>":
                     {
-                        result = new Node(SymbolType.apply, expr.value, expr.position);
-                        result.lhs = processAST(expr.lhs!);
-                        result.rhs = processAST(expr.rhs!);
-                        result.keepArray = result.lhs.keepArray || result.rhs.keepArray;
+                        Node lhs = this.processAST(exprBinary.lhs);
+                        Node rhs = this.processAST(exprBinary.rhs);
+                        result = new ApplyNode(exprBinary.position, lhs, rhs);
+                        result.keepArray = lhs.keepArray || rhs.keepArray;
                     }
                     break;
                 default:
                     {
-                        Node _result = new Node(expr.type, expr.value, expr.position);
-                        _result.lhs = this.processAST((expr).lhs!);
-                        _result.rhs = this.processAST((expr).rhs!);
-                        this.pushAncestry(_result, _result.lhs);
-                        this.pushAncestry(_result, _result.rhs);
-                        result = _result;
+                        Node lhs = this.processAST(exprBinary.lhs);
+                        Node rhs = this.processAST(exprBinary.rhs);
+                        result = new BinaryNode((string)expr.value!, expr.position, lhs, rhs);
+                        this.pushAncestry(result, lhs);
+                        this.pushAncestry(result, rhs);
                     }
                     break;
                 }
                 break; // binary
+            case SymbolType._binary_groupby:
+                {
+                    // group-by
+                    // LHS is a step or a predicated step
+                    // RHS is the object constructor expr
+                    GroupByNode exprGroupby = (GroupByNode)expr;
+                    result = this.processAST(exprGroupby.lhs);
+                    if (result == null)
+                    {
+                        throw new Exception("Should not happen?");
+                    }
+                    if (result.group != null)
+                    {
+                        throw new JException("S0210", expr.position);
+                    }
+                    // object constructor - process each pair
+                    result.group = new Node(SymbolType._group, null, expr.position);
+                    result.group.lhsObject = exprGroupby.rhsObject
+                        .Select(pair => Tuple.Create(this.processAST(pair.Item1), this.processAST(pair.Item2)))
+                        .ToList();
+                }
+                break; // _binary_groupby
             case SymbolType._binary_orderby:
                 {
                     // order-by
@@ -764,13 +765,13 @@ namespace Jsonata.Net.Native.New
                     }
                 }
                 break;
-            case SymbolType.error:
-                result = expr;
-                if (expr.lhs != null) 
-                {
-                    result = this.processAST(expr.lhs);
-                }
-                break;
+            // case SymbolType.error:
+            //     result = expr;
+            //     if (expr.lhs != null) 
+            //     {
+            //         result = this.processAST(expr.lhs);
+            //     }
+            //     break;
             default:
                 {
                     string code = "S0206";

@@ -48,7 +48,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluatePath((PathNode)expr, input, environment);
                 break;
             case SymbolType.binary:
-                result = JsonataQ.evaluateBinary(expr, input, environment);
+                result = JsonataQ.evaluateBinary((BinaryNode)expr, input, environment);
                 break;
             case SymbolType.unary:
                 result = JsonataQ.evaluateUnary(expr, input, environment);
@@ -77,7 +77,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateBlock(expr, input, environment);
                 break;
             case SymbolType.bind:
-                result = JsonataQ.evaluateBindExpression(expr, input, environment);
+                result = JsonataQ.evaluateBindExpression((BindNode)expr, input, environment);
                 break;
             case SymbolType.regex:
                 result = JsonataQ.evaluateRegex(expr); //, input, environment);
@@ -95,7 +95,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluatePartialApplication(expr, input, environment);
                 break;
             case SymbolType.apply:
-                result = JsonataQ.evaluateApplyExpression(expr, input, environment);
+                result = JsonataQ.evaluateApplyExpression((ApplyNode)expr, input, environment);
                 break;
             case SymbolType.transform:
                 result = JsonataQ.evaluateTransformExpression((TransformNode)expr, input, environment);
@@ -593,26 +593,25 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateBinary(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBinary(BinaryNode expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
-            JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
+            JToken lhs = JsonataQ.evaluate(expr.lhs, input, environment);
 
-            if (expr.value is not string)
+            if (expr.value is not string op)
             {
                 throw new JException($"Bad operator", expr.position);
             }
-            string op = (string)expr.value;
 
             if (op == "and" || op == "or")
             {
                 //defer evaluation of RHS to allow short-circuiting
-                Func<JToken> evalrhs = () => JsonataQ.evaluate(expr.rhs!, input, environment);
+                Func<JToken> evalrhs = () => JsonataQ.evaluate(expr.rhs, input, environment);
 
                 return JsonataQ.evaluateBooleanExpression(lhs, evalrhs, op);
             }
 
-            JToken rhs = evaluate(expr.rhs!, input, environment); //evalrhs();
+            JToken rhs = evaluate(expr.rhs, input, environment); //evalrhs();
             switch (op)
             {
             case "+":
@@ -1420,12 +1419,12 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateBindExpression(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBindExpression(BindNode expr, JToken input, EvaluationEnvironment environment)
         {
             // The RHS is the expression to evaluate
             // The LHS is the name of the variable to bind to - should be a VARIABLE token (enforced by parser)
-            JToken value = JsonataQ.evaluate(expr.rhs!, input, environment);
-            environment.BindValue((string)expr.lhs!.value!, value);
+            JToken value = JsonataQ.evaluate(expr.rhs, input, environment);
+            environment.BindValue((string)expr.lhs.value!, value);
             return value;
         }
 
@@ -1686,9 +1685,9 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateApplyExpression(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateApplyExpression(ApplyNode expr, JToken input, EvaluationEnvironment environment)
         {
-            JToken lhs = JsonataQ.evaluate(expr.lhs!, input, environment);
+            JToken lhs = JsonataQ.evaluate(expr.lhs, input, environment);
 
             JToken result;
             if (expr.rhs!.type == SymbolType.function) 

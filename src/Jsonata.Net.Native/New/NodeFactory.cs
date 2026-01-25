@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Jsonata.Net.Native.New
 {
@@ -57,10 +56,9 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType.binary);
-            symbol.lhs = left;
-            symbol.rhs = parser.expression(bp);
-            return symbol;
+            Node rhs = parser.expression(bp);
+            Node result = new BinaryNode((string)token.value!, token.position, left, rhs);
+            return result;
         }
     }
 
@@ -224,10 +222,9 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node res = new Node(SymbolType.binary, "{", -1);
-            res.lhs = left;
-            res.rhsObject = this.parseObject(parser);
-            return res;
+            List<Tuple<Node, Node>> rhsObject = this.parseObject(parser);
+            Node result = new GroupByNode(-1, left, rhsObject);
+            return result;
         }
 
         private List<Tuple<Node, Node>> parseObject(Parser parser)
@@ -263,12 +260,11 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType.binary);
-            symbol.lhs = left;
-            symbol.rhs = parser.expression(Tokenizer.OPERATORS["@"]);
-            if (symbol.rhs.type != SymbolType.variable)
+            Node rhs = parser.expression(Tokenizer.OPERATORS["@"]);
+            Node symbol = new BinaryNode((string)token.value!, token.position, left, rhs);
+            if (rhs.type != SymbolType.variable)
             {
-                throw new JException("S0214", symbol.rhs.position, "@");
+                throw new JException("S0214", rhs.position, "@");
             }
             return symbol;
         }
@@ -283,12 +279,11 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType.binary);
-            symbol.lhs = left;
-            symbol.rhs = parser.expression(Tokenizer.OPERATORS["#"]);
-            if (symbol.rhs.type != SymbolType.variable)
+            Node rhs = parser.expression(Tokenizer.OPERATORS["#"]);
+            Node symbol = new BinaryNode((string)token.value!, token.position, left, rhs);
+            if (rhs.type != SymbolType.variable)
             {
-                throw new JException("S0214", symbol.rhs.position, "#");
+                throw new JException("S0214", rhs.position, "#");
             }
             return symbol;
         }
@@ -417,12 +412,11 @@ namespace Jsonata.Net.Native.New
                     if (parser.currentNodeFactory.id == "..")
                     {
                         // range operator
-                        Node range = new Node(SymbolType.binary, "..", -1);
-                        //TODO: position?
-                        //range.position = parser.current_symbol.position;
-                        range.lhs = item;
+                        Node lhs = item;
+                        int pos = parser.currentToken.position;
                         parser.advance("..");
-                        range.rhs = parser.expression(0);
+                        Node rhs = parser.expression(0);
+                        Node range = new BinaryNode("..", pos, lhs, rhs);
                         item = range;
                     }
                     a.Add(item);
@@ -447,7 +441,7 @@ namespace Jsonata.Net.Native.New
                 Node? step = left;
                 while (step != null && step.type == SymbolType.binary && step.value!.Equals("["))
                 {
-                    step = step.lhs;
+                    step = ((BinaryNode)step).lhs;
                 }
                 if (step == null)
                 {
@@ -459,9 +453,8 @@ namespace Jsonata.Net.Native.New
             }
             else
             {
-                Node symbol = new Node(token, SymbolType.binary);
-                symbol.lhs = left;
-                symbol.rhs = parser.expression(Tokenizer.OPERATORS["]"]);
+                Node rhs = parser.expression(Tokenizer.OPERATORS["]"]);
+                Node symbol = new BinaryNode((string)token.value!, token.position, left, rhs);
                 parser.advance("]", true);
                 return symbol;
             }
@@ -573,14 +566,13 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType.binary);
             if (left.type != SymbolType.variable)
             {
                 throw new JException("S0212", left.position, left.value);
             }
-            symbol.lhs = left;
-            symbol.rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
-            return symbol;
+            Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
+            Node result = new BinaryNode((string)token.value!, token.position, left, rhs);
+            return result;
         }
     }
 

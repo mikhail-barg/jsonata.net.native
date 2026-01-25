@@ -32,7 +32,7 @@ namespace Jsonata.Net.Native.New
         @partial,
         transform,
         descendant,
-        error,
+        //error,
         index,
 
         //added in dotnet to make proper handling
@@ -41,7 +41,8 @@ namespace Jsonata.Net.Native.New
         _group,
         _sort_term,
         _slot,
-        _binary_orderby    //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_orderby,    //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_groupby     //was a part of 'binary', gets optimized away during processAST() phase
     }
 
     public class Node
@@ -51,16 +52,13 @@ namespace Jsonata.Net.Native.New
         internal readonly int position;
 
         public bool tuple { get; internal set; } = false;
+        public bool consarray { get; internal set; } = false;
 
         internal List<Node>? stages;
-        internal bool consarray = false;
         internal string? focus;
         internal Node? group;
         internal Node? expr;
         internal Node? nextFunction;
-
-        // Infix attributes
-        public Node? lhs, rhs;
 
         internal List<Node>? predicate;
         internal List<Node>? arguments;
@@ -73,7 +71,6 @@ namespace Jsonata.Net.Native.New
         internal string? label;
         internal int? index_int;
         internal string? index_string;
-        internal bool? _jsonata_lambda;
         internal Node? ancestor;
 
         internal Node? slot;
@@ -89,7 +86,7 @@ namespace Jsonata.Net.Native.New
         internal Node? expression; // ^
         internal bool descending; // ^
 
-        internal List<Tuple<Node, Node>>? lhsObject, rhsObject;
+        internal List<Tuple<Node, Node>>? lhsObject;
 
         internal bool keepArray; // [
         internal int level;
@@ -162,10 +159,6 @@ namespace Jsonata.Net.Native.New
             {
                 builder.Append("consarray ");
             }
-            if (this._jsonata_lambda != null)
-            {
-                builder.Append("_jsonata_lambda=").Append(this._jsonata_lambda).Append(' ');
-            }
             if (this.focus != null)
             {
                 builder.Append("focus=").Append(this.focus).Append(' ');
@@ -190,15 +183,6 @@ namespace Jsonata.Net.Native.New
             if (this.ancestor != null)
             {
                 this.ancestor.Format("ancestor: ", builder, indent + 1);
-            }
-
-            if (this.lhs != null)
-            {
-                this.lhs.Format("lhs: ", builder, indent + 1);
-            }
-            if (this.rhs != null)
-            {
-                this.rhs.Format("rhs: ", builder, indent + 1);
             }
 
             if (this.slot != null)
@@ -230,6 +214,58 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    public sealed class ApplyNode : Node
+    {
+        public readonly Node lhs;
+        public readonly Node rhs;
+
+        public ApplyNode(int position, Node lhs, Node rhs)
+            : base(SymbolType.apply, null, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+    }
+
+    public sealed class BindNode : Node
+    {
+        public readonly Node lhs;
+        public readonly Node rhs;
+
+        public BindNode(int position, Node lhs, Node rhs)
+            : base(SymbolType.bind, null, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+    }
+
+    public sealed class GroupByNode: Node
+    {
+        public readonly Node lhs;
+        public readonly List<Tuple<Node, Node>> rhsObject;
+
+        public GroupByNode(int position, Node lhs, List<Tuple<Node, Node>> rhsObject)
+            : base(SymbolType._binary_groupby, null, position)
+        {
+            this.lhs = lhs;
+            this.rhsObject = rhsObject;
+        }
+    }
+
+    public sealed class BinaryNode: Node
+    {
+        public readonly Node lhs;
+        public readonly Node rhs;
+
+        public BinaryNode(string value, int position, Node lhs, Node rhs)
+            :base(SymbolType.binary, value, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+    }
+
     public sealed class PathNode: Node
     {
         public readonly List<Node> steps;
@@ -246,7 +282,7 @@ namespace Jsonata.Net.Native.New
     {
         // LHS is the array to be ordered
         // RHS defines the terms
-        public readonly new Node lhs; //TODO: remove NEW specifier
+        public readonly Node lhs;
         public readonly List<Node> rhsTerms;
 
         public OrderbyNode(int position, Node lhs, List<Node> rhsTerms)
