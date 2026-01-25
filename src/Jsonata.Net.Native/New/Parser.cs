@@ -545,10 +545,10 @@ namespace Jsonata.Net.Native.New
                         throw new JException("S0210", expr.position);
                     }
                     // object constructor - process each pair
-                    result.group = new Node(SymbolType._group, null, expr.position);
-                    result.group.lhsObject = exprGroupby.rhsObject
+                    List<Tuple<Node, Node>> lhsObject = exprGroupby.rhsObject
                         .Select(pair => Tuple.Create(this.processAST(pair.Item1), this.processAST(pair.Item2)))
                         .ToList();
+                    result.group = new GroupNode(expr.position, lhsObject);
                 }
                 break; // _binary_groupby
             case SymbolType._binary_orderby:
@@ -596,18 +596,6 @@ namespace Jsonata.Net.Native.New
                             return value;
                         }).ToList();
                     }
-                    else if (exprValue == "{")
-                    {
-                        // object constructor - process each pair
-                        //throw new Error("processAST {} unimpl");
-                        result.lhsObject = expr.lhsObject!.Select(pair => {
-                            Node key = this.processAST(pair.Item1);
-                            this.pushAncestry(result, key);
-                            Node value = this.processAST(pair.Item2);
-                            this.pushAncestry(result, value);
-                            return Tuple.Create(key, value);
-                        }).ToList();
-                    } 
                     else 
                     {
                         // all other unary expressions - just process the expression
@@ -635,7 +623,22 @@ namespace Jsonata.Net.Native.New
                     }
                 }
                 break; // unary
-
+            case SymbolType._unary_group:
+                {
+                    // object constructor - process each pair
+                    GroupNode exprGroup = (GroupNode)expr;
+                    for (int i = 0; i < exprGroup.lhsObject.Count; ++i)
+                    {
+                        Tuple<Node, Node> oldPair = exprGroup.lhsObject[i];
+                        Node key = this.processAST(oldPair.Item1);
+                        this.pushAncestry(result, key);
+                        Node value = this.processAST(oldPair.Item2);
+                        this.pushAncestry(result, value);
+                        Tuple<Node, Node> newPair = Tuple.Create(key, value);
+                        exprGroup.lhsObject[i] = newPair;
+                    }
+                }
+                break; //_unary_object
             case SymbolType.function:
             case SymbolType.@partial:
                 {

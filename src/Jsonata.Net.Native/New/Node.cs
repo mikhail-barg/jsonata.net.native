@@ -38,11 +38,11 @@ namespace Jsonata.Net.Native.New
         //added in dotnet to make proper handling
         _end, 
         _term,
-        _group,
         _sort_term,
         _slot,
         _binary_orderby,    //was a part of 'binary', gets optimized away during processAST() phase
-        _binary_groupby     //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_groupby,    //was a part of 'binary', gets optimized away during processAST() phase
+        _unary_group        //was a part of 'unary'
     }
 
     public class Node
@@ -56,7 +56,7 @@ namespace Jsonata.Net.Native.New
 
         internal List<Node>? stages;
         internal string? focus;
-        internal Node? group;
+        internal GroupNode? group;
         internal Node? expr;
         internal Node? nextFunction;
 
@@ -85,8 +85,6 @@ namespace Jsonata.Net.Native.New
 
         internal Node? expression; // ^
         internal bool descending; // ^
-
-        internal List<Tuple<Node, Node>>? lhsObject;
 
         internal bool keepArray; // [
         internal int level;
@@ -237,6 +235,17 @@ namespace Jsonata.Net.Native.New
         {
             this.lhs = lhs;
             this.rhs = rhs;
+        }
+    }
+
+    public sealed class GroupNode : Node
+    {
+        public readonly List<Tuple<Node, Node>> lhsObject;
+
+        public GroupNode(int position, List<Tuple<Node, Node>> lhsObject)
+            : base(SymbolType._unary_group, null, position)
+        {
+            this.lhsObject = lhsObject;
         }
     }
 

@@ -53,6 +53,10 @@ namespace Jsonata.Net.Native.New
             case SymbolType.unary:
                 result = JsonataQ.evaluateUnary(expr, input, environment);
                 break;
+            case SymbolType._unary_group:
+                // object constructor - apply grouping
+                result = JsonataQ.evaluateGroupExpression((GroupNode)expr, input, environment);
+                break;
             case SymbolType.name:
                 result = JsonataQ.evaluateName(expr, input, environment);
                 break;
@@ -703,12 +707,6 @@ namespace Jsonata.Net.Native.New
                     }
                     return result;
                 }
-            case "{":
-                // object constructor - apply grouping
-                {
-                    JToken result = JsonataQ.evaluateGroupExpression(expr, input, environment);
-                    return result;
-                }
 
             default:
                 throw new Exception("Should not happen? " + expr.value);
@@ -1246,7 +1244,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {{}} Evaluated input data
          */
-        private static JToken evaluateGroupExpression(Node expr, JToken _input, EvaluationEnvironment environment)
+        private static JToken evaluateGroupExpression(GroupNode expr, JToken _input, EvaluationEnvironment environment)
         {
             bool reduce = (_input is JsonataArray jsonataArrayInput) && jsonataArrayInput.tupleStream;
             // group the input sequence by "key" expression

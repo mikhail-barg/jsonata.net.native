@@ -215,15 +215,15 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node res = new Node(SymbolType.unary, "{", -1);
-            res.lhsObject = this.parseObject(parser);
-            return res;
+            List<Tuple<Node, Node>> lhsObject = this.parseObject(parser);
+            Node result = new GroupNode(token.position, lhsObject);
+            return result;
         }
 
         internal override Node led(Node left, Parser parser, Token token)
         {
             List<Tuple<Node, Node>> rhsObject = this.parseObject(parser);
-            Node result = new GroupByNode(-1, left, rhsObject);
+            Node result = new GroupByNode(token.position, left, rhsObject);
             return result;
         }
 
