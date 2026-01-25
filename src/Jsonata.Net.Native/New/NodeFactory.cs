@@ -203,7 +203,7 @@ namespace Jsonata.Net.Native.New
                 parser.advance(",");
             }
             parser.advance(")");
-            Node symbol = new Node(token, SymbolType.binary);
+            Node symbol = new Node(token, SymbolType._binary_sort);
             symbol.lhs = left;
             symbol.rhsTerms = terms;
             return symbol;

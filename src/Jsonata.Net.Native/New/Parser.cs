@@ -460,31 +460,6 @@ namespace Jsonata.Net.Native.New
                             .ToList();
                     }
                     break;
-                case "^":
-                    {
-                        // order-by
-                        // LHS is the array to be ordered
-                        // RHS defines the terms
-                        result = this.processAST(expr.lhs!);
-                        if (result.type != SymbolType.path)
-                        {
-                            Node _res = new Node(SymbolType.path, null, -1);
-                            _res.steps = new() { result };
-                            result = _res;
-                        }
-                        Node sortStep = new Node(SymbolType.sort, null, expr.position);
-                        sortStep.terms = expr.rhsTerms!.Select(terms => {
-                            Node expression = this.processAST(terms.expression!);
-                            this.pushAncestry(sortStep, expression);
-                            Node res = new Node(SymbolType._sort_term, null, -1);
-                            res.descending = terms.descending;
-                            res.expression = expression;
-                            return res;
-                        }).ToList();
-                        result.steps!.Add(sortStep);
-                        this.resolveAncestry(result);
-                    }
-                    break;
                 case ":=":
                     {
                         result = new Node(SymbolType.bind, expr.value, expr.position);
@@ -571,6 +546,31 @@ namespace Jsonata.Net.Native.New
                     break;
                 }
                 break; // binary
+            case SymbolType._binary_sort:
+                {
+                    // order-by
+                    // LHS is the array to be ordered
+                    // RHS defines the terms
+                    result = this.processAST(expr.lhs!);
+                    if (result.type != SymbolType.path)
+                    {
+                        Node _res = new Node(SymbolType.path, null, -1);
+                        _res.steps = new() { result };
+                        result = _res;
+                    }
+                    Node sortStep = new Node(SymbolType.sort, null, expr.position);
+                    sortStep.terms = expr.rhsTerms!.Select(terms => {
+                        Node expression = this.processAST(terms.expression!);
+                        this.pushAncestry(sortStep, expression);
+                        Node res = new Node(SymbolType._sort_term, null, -1);
+                        res.descending = terms.descending;
+                        res.expression = expression;
+                        return res;
+                    }).ToList();
+                    result.steps!.Add(sortStep);
+                    this.resolveAncestry(result);
+                }
+                break; // _tinary_sort
 
             case SymbolType.unary:
                 {

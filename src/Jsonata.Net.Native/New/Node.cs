@@ -40,7 +40,8 @@ namespace Jsonata.Net.Native.New
         _term,
         _group,
         _sort_term,
-        _slot
+        _slot,
+        _binary_sort    //was a part of 'binary'
     }
 
     public class Node
