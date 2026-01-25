@@ -76,18 +76,6 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal sealed class InfixWithNudFactory : InfixFactory
-    {
-        public InfixWithNudFactory(string id) : base(id, 0)
-        {
-        }
-
-        internal override Node nud(Parser parser, Token token)
-        {
-            return new Node(token);
-        }
-    }
-
     internal sealed class InfixWithTypedNudFactory : InfixFactory
     {
         private readonly SymbolType m_symbolType;

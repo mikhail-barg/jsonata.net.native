@@ -883,9 +883,9 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixFactory(">=")); // greater than or equal
             register(nodeFactoryTable, new InfixFactory("&")); // string concatenation
 
-            register(nodeFactoryTable, new InfixWithNudFactory("and")); // allow as terminal // Boolean AND
-            register(nodeFactoryTable, new InfixWithNudFactory("or")); // allow as terminal // Boolean OR
-            register(nodeFactoryTable, new InfixWithNudFactory("in")); // allow as terminal // is member of array
+            register(nodeFactoryTable, new InfixWithTypedNudFactory("and", SymbolType.@operator)); // allow as terminal // Boolean AND
+            register(nodeFactoryTable, new InfixWithTypedNudFactory("or", SymbolType.@operator)); // allow as terminal // Boolean OR
+            register(nodeFactoryTable, new InfixWithTypedNudFactory("in", SymbolType.@operator)); // allow as terminal // is member of array
             // merged Infix: register(new Terminal("and")); // the 'keywords' can also be used as terminals (field names)
             // merged Infix: register(new Terminal("or")); //
             // merged Infix: register(new Terminal("in")); //
