@@ -45,7 +45,7 @@ namespace Jsonata.Net.Native.New
 
     public class Node
     {
-        public SymbolType type;
+        public readonly SymbolType type;
         internal List<Node>? steps;
         internal List<Node>? stages;
         internal bool tuple = false;

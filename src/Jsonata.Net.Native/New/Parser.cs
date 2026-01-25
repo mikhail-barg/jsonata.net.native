@@ -332,7 +332,11 @@ namespace Jsonata.Net.Native.New
                             }
                             if (step.type == SymbolType.@string)
                             {
-                                step.type = SymbolType.name;
+                                //step.type = SymbolType.name;
+                                result.steps[i] = new Node(SymbolType.name) {
+                                    value = step.value,
+                                    position = step.position,
+                                };
                             }
                         }
 
@@ -736,8 +740,14 @@ namespace Jsonata.Net.Native.New
                     // the tokens 'and' and 'or' might have been used as a name rather than an operator
                     if (expr.value!.Equals("and") || expr.value.Equals("or") || expr.value.Equals("in"))
                     {
-                        expr.type = SymbolType.name;
-                        result = this.processAST(expr);
+                        //expr.type = SymbolType.name;
+                        //result = this.processAST(expr);
+
+                        Node newExpr = new Node(SymbolType.name) {
+                            value = expr.value,
+                            position = expr.position,
+                        };
+                        result = this.processAST(newExpr);
                     }
                     else if (expr.value.Equals("?"))
                     {
