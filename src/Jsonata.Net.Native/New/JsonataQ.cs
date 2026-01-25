@@ -1268,8 +1268,8 @@ namespace Jsonata.Net.Native.New
                 EvaluationEnvironment env = reduce ? JsonataQ.createFrameFromTuple(environment, (JObject)item) : environment;
                 for (int pairIndex = 0; pairIndex < expr.lhsObject!.Count; ++pairIndex) 
                 {
-                    Node[] pair = expr.lhsObject[pairIndex];
-                    JToken key = JsonataQ.evaluate(pair[0], reduce ? ((JObject)item).Properties["@"] : item, env);
+                    Tuple<Node, Node> pair = expr.lhsObject[pairIndex];
+                    JToken key = JsonataQ.evaluate(pair.Item1, reduce ? ((JObject)item).Properties["@"] : item, env);
                     // key has to be a string
                     switch (key.Type)
                     {
@@ -1320,7 +1320,7 @@ namespace Jsonata.Net.Native.New
                 }
                 //env.isParallelCall = idx > 0;
                 //return [key,  evaluate(expr.lhs[entry.exprIndex][1], context, env)];
-                JToken res = JsonataQ.evaluate(expr.lhsObject![entry.exprIndex][1], context, env);
+                JToken res = JsonataQ.evaluate(expr.lhsObject![entry.exprIndex].Item2, context, env);
                 if (res.Type != JTokenType.Undefined)
                 {
                     result.Set(groupProperty.Key, res);

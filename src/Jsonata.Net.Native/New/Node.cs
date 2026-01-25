@@ -92,18 +92,15 @@ namespace Jsonata.Net.Native.New
 
         // where rhs = list of Symbol pairs
         // TODO: convert to Tuple
-        internal List<Node[]>? lhsObject, rhsObject;
+        internal List<Tuple<Node, Node>>? lhsObject, rhsObject;
 
         internal bool keepArray; // [
-
-
         internal int level;
+
         internal bool thunk;
 
         // Procedure:
         internal string? name;
-
-
         internal Signature? signature;
 
         internal Node(SymbolType type, object? value, int position)
@@ -135,21 +132,6 @@ namespace Jsonata.Net.Native.New
                 for (int i = 0; i < list.Count; ++i)
                 {
                     list[i].Format($"{name}[{i}]: ", builder, indent);
-                }
-            }
-            static void FormatList2IfExists(List<Node[]>? list, string name, StringBuilder builder, int indent)
-            {
-                if (list == null)
-                {
-                    return;
-                }
-
-                for (int i = 0; i < list.Count; ++i)
-                {
-                    for (int j = 0; j < list[i].Length; ++j)
-                    {
-                        list[i][j].Format($"{name}[{i}][{j}]: ", builder, indent);
-                    }
                 }
             }
 
@@ -254,8 +236,6 @@ namespace Jsonata.Net.Native.New
             FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
             FormatListIfExists(this.terms, "terms", builder, indent + 1);
             FormatListIfExists(this.rhsTerms, "rhsTerms", builder, indent + 1);
-            FormatList2IfExists(this.lhsObject, "lhsObject", builder, indent + 1);
-            FormatList2IfExists(this.rhsObject, "rhsObject", builder, indent + 1);
         }
     }
 

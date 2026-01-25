@@ -456,7 +456,7 @@ namespace Jsonata.Net.Native.New
                         // object constructor - process each pair
                         result.group = new Node(SymbolType._group, null, expr.position);
                         result.group.lhsObject = expr.rhsObject!
-                            .Select(pair => new Node[] { this.processAST(pair[0]), this.processAST(pair[1]) })
+                            .Select(pair => Tuple.Create(this.processAST(pair.Item1), this.processAST(pair.Item2)))
                             .ToList();
                     }
                     break;
@@ -591,11 +591,11 @@ namespace Jsonata.Net.Native.New
                         // object constructor - process each pair
                         //throw new Error("processAST {} unimpl");
                         result.lhsObject = expr.lhsObject!.Select(pair => {
-                            Node key = this.processAST(pair[0]);
+                            Node key = this.processAST(pair.Item1);
                             this.pushAncestry(result, key);
-                            Node value = this.processAST(pair[1]);
+                            Node value = this.processAST(pair.Item2);
                             this.pushAncestry(result, value);
-                            return new Node[] { key, value };
+                            return Tuple.Create(key, value);
                         }).ToList();
                     } 
                     else 
@@ -785,7 +785,7 @@ namespace Jsonata.Net.Native.New
         internal Node objectParser(Node? left) 
         {
             Node res = new Node(left == null? SymbolType.unary : SymbolType.binary, "{", -1);
-            List<Node[]> a = new ();
+            List<Tuple<Node, Node>> a = new ();
             if (this.currentNodeFactory.id != "}") 
             {
                 while (true)
@@ -793,8 +793,8 @@ namespace Jsonata.Net.Native.New
                     Node n = this.expression(0);
                     this.advance(":");
                     Node v = this.expression(0);
-                    Node[] pair = new Node[] { n, v };
-                    a.Add( pair ); // holds an array of name/value expression pairs
+                    Tuple<Node, Node> pair = Tuple.Create(n, v);
+                    a.Add(pair); // holds an array of name/value expression pairs
                     if (this.currentNodeFactory.id != ",") 
                     {
                         break;
