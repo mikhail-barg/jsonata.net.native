@@ -574,7 +574,7 @@ namespace Jsonata.Net.Native.New
 
             case SymbolType.unary:
                 {
-                    result = new Node(expr.type, expr.value, expr.position);
+                    result = new Node(SymbolType.unary, expr.value, expr.position);
                     // expr.value might be Character!
                     string exprValue = expr.value!.ToString()!;
                     if (exprValue == "[")
@@ -641,7 +641,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.lambda:
                 {
-                    result = new Node(expr.type, null, expr.position);
+                    result = new Node(SymbolType.lambda, null, expr.position);
                     result.arguments = expr.arguments;
                     result.signature = expr.signature;
                     Node body = this.processAST(expr.body!);
@@ -675,7 +675,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.transform:
                 {
-                    result = new Node(expr.type, null, expr.position);
+                    result = new Node(SymbolType.transform, null, expr.position);
                     result.pattern = this.processAST(expr.pattern!);
                     result.update = this.processAST(expr.update!);
                     if (expr.delete != null)
@@ -686,7 +686,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.block:
                 {
-                    result = new Node(expr.type, null, expr.position);
+                    result = new Node(SymbolType.block, null, expr.position);
                     // array of expressions - process each one
                     result.expressions = expr.expressions!.Select(item => {
                         Node part = this.processAST(item);
