@@ -225,7 +225,7 @@ namespace Jsonata.Net.Native.New
             List<Node> terms = new();
             while (true)
             {
-                Node term = new Node(SymbolType._term);
+                Node term = new Node(SymbolType._term, null, -1);
                 term.descending = false;
 
                 if (parser.currentNodeFactory.id == "<")
@@ -338,7 +338,7 @@ namespace Jsonata.Net.Native.New
                         // partial function application
                         type = SymbolType.partial;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        arguments.Add(new Node(SymbolType.@operator) { value = "?" });
+                        arguments.Add(new Node(SymbolType.@operator, value: "?", -1));
                         parser.advance("?");
                     }
                     else
@@ -440,8 +440,7 @@ namespace Jsonata.Net.Native.New
                     if (parser.currentNodeFactory.id == "..")
                     {
                         // range operator
-                        Node range = new Node(SymbolType.binary);
-                        range.value = "..";
+                        Node range = new Node(SymbolType.binary, "..", -1);
                         //TODO: position?
                         //range.position = parser.current_symbol.position;
                         range.lhs = item;
@@ -515,13 +514,11 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             ConditionNode symbol = new ConditionNode(token);
-            Node c = new Node(SymbolType.function);
+            Node c = new Node(SymbolType.function, "(", -1);
             symbol.condition = c;
-            c.value = "(";
             c.arguments = new List<Node>() { left };
-            Node p = new Node(SymbolType.variable);
+            Node p = new Node(SymbolType.variable, "exists", -1);
             c.procedure = p;
-            p.value = "exists";
             symbol.then = left;
             symbol.@else = parser.expression(0);
             return symbol;

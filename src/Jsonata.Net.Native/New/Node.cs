@@ -46,6 +46,9 @@ namespace Jsonata.Net.Native.New
     public class Node
     {
         public readonly SymbolType type;
+        internal readonly object? value;
+        internal readonly int position;
+
         internal List<Node>? steps;
         internal List<Node>? stages;
         internal bool tuple = false;
@@ -54,8 +57,6 @@ namespace Jsonata.Net.Native.New
         internal bool keepSingletonArray = false;
         internal Node? group;
         internal Node? expr;
-        internal object? value;
-        internal int position;
         internal Node? nextFunction;
 
         // Infix attributes
@@ -108,9 +109,11 @@ namespace Jsonata.Net.Native.New
 
         internal Signature? signature;
 
-        internal Node(SymbolType type)
+        internal Node(SymbolType type, object? value, int position)
         {
             this.type = type;
+            this.value = value;
+            this.position = position;
         }
 
         internal Node(Token token, SymbolType type)
@@ -268,8 +271,8 @@ namespace Jsonata.Net.Native.New
         internal Node? then;
         internal Node? @else;
 
-        internal ConditionNode()
-            :base(SymbolType.condition)
+        internal ConditionNode(int position)
+            :base(SymbolType.condition, value: null, position: position)
         {
 
         }
