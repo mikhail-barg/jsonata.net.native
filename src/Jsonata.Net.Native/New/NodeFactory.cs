@@ -459,15 +459,13 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            ConditionNode symbol = new ConditionNode(token);
             Node c = new Node(SymbolType.function, "(", -1);
-            symbol.condition = c;
             c.arguments = new List<Node>() { left };
             Node p = new Node(SymbolType.variable, "exists", -1);
             c.procedure = p;
-            symbol.then = left;
-            symbol.@else = parser.expression(0);
-            return symbol;
+            Node @else = parser.expression(0);
+            ConditionNode result = new ConditionNode(token, condition:c, then: left, @else: @else);
+            return result;
         }
     }
 
@@ -480,16 +478,20 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            ConditionNode symbol = new ConditionNode(token);
-            symbol.condition = left;
-            symbol.then = parser.expression(0);
+            Node then = parser.expression(0);
+            Node? @else;
             if (parser.currentNodeFactory.id == ":")
             {
                 // else condition
                 parser.advance(":");
-                symbol.@else = parser.expression(0);
+                @else = parser.expression(0);
             }
-            return symbol;
+            else
+            {
+                @else = null;
+            }
+            ConditionNode result = new ConditionNode(token, condition: left, then: then, @else: @else);
+            return result;
         }
     }
 
@@ -502,11 +504,9 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            ConditionNode symbol = new ConditionNode(token);
-            symbol.condition = left;
-            symbol.then = left;
-            symbol.@else = parser.expression(0);
-            return symbol;
+            Node @else = parser.expression(0);
+            ConditionNode result = new ConditionNode(token, condition: left, then: left, @else: @else);
+            return result;
         }
     }
 

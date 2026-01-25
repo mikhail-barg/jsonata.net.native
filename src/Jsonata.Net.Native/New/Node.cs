@@ -117,10 +117,8 @@ namespace Jsonata.Net.Native.New
         }
 
         internal Node(Token token, SymbolType type)
+            :this(type, token.value, token.position)
         {
-            this.type = type;
-            this.value = token.value;
-            this.position = token.position;
         }
 
         public override string ToString()
@@ -267,19 +265,24 @@ namespace Jsonata.Net.Native.New
     internal class ConditionNode : Node
     {
         // Ternary operator:
-        internal Node? condition;
-        internal Node? then;
-        internal Node? @else;
+        internal readonly Node condition;
+        internal readonly Node then;
+        internal readonly Node? @else;
 
-        internal ConditionNode(int position)
+        internal ConditionNode(int position, Node condition, Node then, Node? @else)
             :base(SymbolType.condition, value: null, position: position)
         {
-
+            this.condition = condition;
+            this.then = then;
+            this.@else = @else;
         }
 
-        internal ConditionNode(Token token)
-            :base(token, SymbolType.condition)
+        internal ConditionNode(Token token, Node condition, Node then, Node? @else)
+            :base(SymbolType.condition, value:token.value, position:token.position)
         {
+            this.condition = condition;
+            this.then = then;
+            this.@else = @else;
         }
     }
 }

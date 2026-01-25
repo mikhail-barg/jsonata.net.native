@@ -1439,10 +1439,10 @@ namespace Jsonata.Net.Native.New
         private static JToken evaluateCondition(ConditionNode expr, JToken input, EvaluationEnvironment environment)
         {
             JToken result;
-            JToken condition = JsonataQ.evaluate(expr.condition!, input, environment);
+            JToken condition = JsonataQ.evaluate(expr.condition, input, environment);
             if (Eval.Helpers.Booleanize(condition))
             {
-                result = JsonataQ.evaluate(expr.then!, input, environment);
+                result = JsonataQ.evaluate(expr.then, input, environment);
             }
             else if (expr.@else != null)
             {

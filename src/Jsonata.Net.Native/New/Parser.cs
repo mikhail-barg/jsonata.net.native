@@ -132,12 +132,17 @@ namespace Jsonata.Net.Native.New
             {
                 ConditionNode conditionExpr = (ConditionNode)expr;
                 // analyse both branches
-                conditionExpr.then = this.tailCallOptimize(conditionExpr.then!);
-                if (conditionExpr.@else != null) 
+                Node then = this.tailCallOptimize(conditionExpr.then);
+                Node? @else;
+                if (conditionExpr.@else != null)
                 {
-                    conditionExpr.@else = this.tailCallOptimize(conditionExpr.@else);
+                    @else = this.tailCallOptimize(conditionExpr.@else);
                 }
-                result = expr;
+                else
+                {
+                    @else = null;
+                }
+                result = new ConditionNode(conditionExpr.position, conditionExpr.condition, then, @else);
             } 
             else if (expr.type == SymbolType.block) 
             {
@@ -646,14 +651,23 @@ namespace Jsonata.Net.Native.New
             case SymbolType.condition:
                 {
                     ConditionNode exprCondition = (ConditionNode)expr;
-                    ConditionNode resultCondition = new ConditionNode(expr.position);
-                    resultCondition.condition = this.processAST(exprCondition.condition!);
-                    this.pushAncestry(resultCondition, resultCondition.condition);
-                    resultCondition.then = this.processAST(exprCondition.then!);
-                    this.pushAncestry(resultCondition, resultCondition.then);
+
+                    Node condition = this.processAST(exprCondition.condition);
+                    Node then = this.processAST(exprCondition.then);
+                    Node? @else;
                     if (exprCondition.@else != null)
                     {
-                        resultCondition.@else = this.processAST(exprCondition.@else);
+                        @else = this.processAST(exprCondition.@else);
+                    }
+                    else
+                    {
+                        @else = null;
+                    }
+                    ConditionNode resultCondition = new ConditionNode(expr.position, condition, then, @else);
+                    this.pushAncestry(resultCondition, resultCondition.condition);
+                    this.pushAncestry(resultCondition, resultCondition.then);
+                    if (resultCondition.@else != null)
+                    {
                         this.pushAncestry(resultCondition, resultCondition.@else);
                     }
                     result = resultCondition;
