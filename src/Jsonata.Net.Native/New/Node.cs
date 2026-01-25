@@ -90,8 +90,6 @@ namespace Jsonata.Net.Native.New
         internal Node? expression; // ^
         internal bool descending; // ^
 
-        // where rhs = list of Symbol pairs
-        // TODO: convert to Tuple
         internal List<Tuple<Node, Node>>? lhsObject, rhsObject;
 
         internal bool keepArray; // [

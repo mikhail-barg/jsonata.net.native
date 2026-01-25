@@ -219,12 +219,40 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            return parser.objectParser(null);
+            Node res = new Node(SymbolType.unary, "{", -1);
+            res.lhsObject = this.parseObject(parser);
+            return res;
         }
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            return parser.objectParser(left);
+            Node res = new Node(SymbolType.binary, "{", -1);
+            res.lhs = left;
+            res.rhsObject = this.parseObject(parser);
+            return res;
+        }
+
+        private List<Tuple<Node, Node>> parseObject(Parser parser)
+        {
+            List<Tuple<Node, Node>> a = new();
+            if (parser.currentNodeFactory.id != "}")
+            {
+                while (true)
+                {
+                    Node n = parser.expression(0);
+                    parser.advance(":");
+                    Node v = parser.expression(0);
+                    Tuple<Node, Node> pair = Tuple.Create(n, v);
+                    a.Add(pair); // holds an array of name/value expression pairs
+                    if (parser.currentNodeFactory.id != ",")
+                    {
+                        break;
+                    }
+                    parser.advance(",");
+                }
+            }
+            parser.advance("}", true);
+            return a;
         }
     }
 

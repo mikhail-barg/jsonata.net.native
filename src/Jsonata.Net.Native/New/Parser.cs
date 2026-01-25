@@ -782,41 +782,6 @@ namespace Jsonata.Net.Native.New
             return result;
         }
 
-        internal Node objectParser(Node? left) 
-        {
-            Node res = new Node(left == null? SymbolType.unary : SymbolType.binary, "{", -1);
-            List<Tuple<Node, Node>> a = new ();
-            if (this.currentNodeFactory.id != "}") 
-            {
-                while (true)
-                {
-                    Node n = this.expression(0);
-                    this.advance(":");
-                    Node v = this.expression(0);
-                    Tuple<Node, Node> pair = Tuple.Create(n, v);
-                    a.Add(pair); // holds an array of name/value expression pairs
-                    if (this.currentNodeFactory.id != ",") 
-                    {
-                        break;
-                    }
-                    this.advance(",");
-                }
-            }
-            this.advance("}", true);
-            if (left == null) 
-            {
-                // NUD - unary prefix form
-                res.lhsObject = a;
-            } 
-            else 
-            {
-                // LED - binary infix form
-                res.lhs = left;
-                res.rhsObject = a;
-            }
-            return res;
-        }
-
         internal Node parse(string jsonata) 
         {
             this.source = jsonata;
