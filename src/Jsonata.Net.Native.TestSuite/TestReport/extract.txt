@@ -189,8 +189,8 @@ errors.case008;Passed
 errors.case009;Passed
 errors.case010;Passed
 errors.case011;Passed
-errors.case012;Skipped
-errors.case013;Skipped
+errors.case012;Passed
+errors.case013;Passed
 errors.case014;Passed
 errors.case015;Passed
 errors.case016;Passed

@@ -1769,18 +1769,26 @@ namespace Jsonata.Net.Native.New
                     evaluatedArgs.Add(arg);
                 }
             }
-            
+
             // apply the procedure
-            string procName = expr.procedure!.type == SymbolType.path ? (string)expr.procedure.steps![0].value! : (string)expr.procedure.value!;
-
-            try 
+            object? procNameObj = expr.procedure!.type == SymbolType.path ? expr.procedure.steps![0].value : expr.procedure.value;
+            string? procName;
+            if (procNameObj is string procNameObjStr)
             {
-                //if (typeof proc === 'object')
-                //{
-                //    proc.token = procName;
-                //    proc.position = expr.position;
-                //}
+                procName = procNameObjStr;
+            }
+            else if (procNameObj != null)
+            {
+                //This probably may only happen if proc is not FunctionToken, see below
+                procName = procNameObj.ToString();
+            }
+            else
+            {
+                procName = null;
+            }
 
+            try
+            {
                 if (proc is not FunctionToken procFunction)
                 {
                     throw new JException("T1006", expr.position, procName);
@@ -1788,10 +1796,10 @@ namespace Jsonata.Net.Native.New
 
                 JToken result = JsonataQ.apply(procFunction, evaluatedArgs, input, environment);
                 return result;
-            } 
-            catch (JException jex) 
+            }
+            catch (JException jex)
             {
-                throw new JException(jex, jex.error, jex.location >= 0? jex.location : expr.position, jex.getCurrent() ?? procName, jex.getExpected());
+                throw new JException(jex, jex.error, jex.location >= 0 ? jex.location : expr.position, jex.getCurrent() ?? procName, jex.getExpected());
             } 
         }
 
