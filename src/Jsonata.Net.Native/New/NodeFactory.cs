@@ -46,7 +46,49 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            return new Node(token);
+            switch (this.id)
+            {
+            case "(name)":
+                switch (token.type)
+                {
+                case SymbolType.name:
+                    return new Node(token, SymbolType.name);
+                case SymbolType.variable:
+                    return new Node(token, SymbolType.variable);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            case "(literal)":
+                switch (token.type)
+                {
+                case SymbolType.number:
+                    return new Node(token, SymbolType.number);
+                case SymbolType.@string:
+                    return new Node(token, SymbolType.@string);
+                case SymbolType.value:
+                    return new Node(token, SymbolType.value);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            case "(end)":
+                switch (token.type)
+                {
+                case SymbolType._end:
+                    return new Node(token, SymbolType._end);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            case "(regex)":
+                switch (token.type)
+                {
+                case SymbolType.regex:
+                    return new Node(token, SymbolType.regex);
+                default:
+                    throw new Exception($"{this.id} -> {token.type.ToString()}");
+                }
+            default:
+                throw new Exception($"{this.id} -> {token.type.ToString()}");
+            }
         }
     }
 

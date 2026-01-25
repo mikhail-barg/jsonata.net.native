@@ -113,13 +113,6 @@ namespace Jsonata.Net.Native.New
             this.type = type;
         }
 
-        internal Node(Token token)
-        {
-            this.type = token.type;
-            this.value = token.value;
-            this.position = token.position;
-        }
-
         internal Node(Token token, SymbolType type)
         {
             this.type = type;
