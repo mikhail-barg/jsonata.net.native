@@ -546,12 +546,13 @@ namespace Jsonata.Net.Native.New
                     break;
                 }
                 break; // binary
-            case SymbolType._binary_sort:
+            case SymbolType._binary_orderby:
                 {
                     // order-by
                     // LHS is the array to be ordered
                     // RHS defines the terms
-                    result = this.processAST(expr.lhs!);
+                    OrderbyNode exprOrderby = (OrderbyNode)expr;
+                    result = this.processAST(exprOrderby.lhs);
                     if (result.type != SymbolType.path)
                     {
                         Node _res = new Node(SymbolType.path, null, -1);
@@ -559,7 +560,7 @@ namespace Jsonata.Net.Native.New
                         result = _res;
                     }
                     Node sortStep = new Node(SymbolType.sort, null, expr.position);
-                    sortStep.terms = expr.rhsTerms!.Select(terms => {
+                    sortStep.terms = exprOrderby.rhsTerms.Select(terms => {
                         Node expression = this.processAST(terms.expression!);
                         this.pushAncestry(sortStep, expression);
                         Node res = new Node(SymbolType._sort_term, null, -1);

@@ -41,7 +41,7 @@ namespace Jsonata.Net.Native.New
         _group,
         _sort_term,
         _slot,
-        _binary_sort    //was a part of 'binary'
+        _binary_orderby    //was a part of 'binary', gets optimized away during processAST() phase
     }
 
     public class Node
@@ -85,8 +85,7 @@ namespace Jsonata.Net.Native.New
         internal Node? procedure;
 
         internal List<Node>? terms;
-        // where rhs = list of Symbols
-        internal List<Node>? rhsTerms;
+
 
         internal Node? expression; // ^
         internal bool descending; // ^
@@ -234,7 +233,21 @@ namespace Jsonata.Net.Native.New
             FormatListIfExists(this.expressions, "expressions", builder, indent + 1);
             FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
             FormatListIfExists(this.terms, "terms", builder, indent + 1);
-            FormatListIfExists(this.rhsTerms, "rhsTerms", builder, indent + 1);
+        }
+    }
+
+    public sealed class OrderbyNode: Node
+    {
+        // LHS is the array to be ordered
+        // RHS defines the terms
+        public readonly new Node lhs;
+        public readonly List<Node> rhsTerms;
+
+        public OrderbyNode(int position, Node lhs, List<Node> rhsTerms)
+            :base(SymbolType._binary_orderby, null, position)
+        {
+            this.rhsTerms = rhsTerms;
+            this.lhs = lhs; //TODO
         }
     }
 
