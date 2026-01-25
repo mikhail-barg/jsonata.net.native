@@ -76,9 +76,6 @@ namespace Jsonata.Net.Native.New
         internal List<Node>? arguments;
         internal Node? body;
 
-        // Block
-        internal List<Node>? expressions;
-
         // Procedure:
         internal Node? procedure;
 
@@ -208,9 +205,30 @@ namespace Jsonata.Net.Native.New
             FormatListIfExists(this.stages, "stages", builder, indent + 1);
             FormatListIfExists(this.predicate, "predicate", builder, indent + 1);
             FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
-            FormatListIfExists(this.expressions, "expressions", builder, indent + 1);
             FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
             FormatListIfExists(this.terms, "terms", builder, indent + 1);
+        }
+    }
+
+    public sealed class BlockNode: Node
+    {
+        public readonly List<Node> expressions;
+
+        public BlockNode(int position, List<Node> expressions)
+            : base(SymbolType.block, null, position)
+        {
+            this.expressions = expressions;
+        }
+    }
+
+    public sealed class ArrayNode : Node
+    {
+        public readonly List<Node> expressions;
+
+        public ArrayNode(int position, List<Node> expressions)
+            : base(SymbolType._unary_array, null, position)
+        {
+            this.expressions = expressions;
         }
     }
 

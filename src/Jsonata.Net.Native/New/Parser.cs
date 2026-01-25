@@ -147,12 +147,13 @@ namespace Jsonata.Net.Native.New
             else if (expr.type == SymbolType.block) 
             {
                 // only the last expression in the block
-                int length = expr.expressions!.Count;
+                BlockNode blockExpr = (BlockNode)expr;
+                int length = blockExpr.expressions.Count;
                 if (length > 0) 
                 {
-                    expr.expressions[length - 1] = this.tailCallOptimize(expr.expressions[length - 1]);
+                    blockExpr.expressions[^1] = this.tailCallOptimize(blockExpr.expressions[^1]);
                 }
-                result = expr;
+                result = blockExpr;
             } 
             else 
             {
@@ -192,10 +193,13 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.block:
                 // look in last expression in the block
-                if (node.expressions!.Count > 0) 
                 {
-                    node.tuple = true;
-                    slot = this.seekParent(node.expressions[node.expressions.Count - 1], slot);
+                    BlockNode exprBlock = (BlockNode)node;
+                    if (exprBlock.expressions.Count > 0)
+                    {
+                        exprBlock.tuple = true;
+                        slot = this.seekParent(exprBlock.expressions[^1], slot);
+                    }
                 }
                 break;
             case SymbolType.path:
@@ -203,7 +207,7 @@ namespace Jsonata.Net.Native.New
                     // last step in path
                     PathNode pathNode = (PathNode)node;
                     node.tuple = true;
-                    int index = pathNode.steps!.Count - 1;
+                    int index = pathNode.steps.Count - 1;
                     slot = this.seekParent(pathNode.steps[index--], slot);
                     while (slot.level > 0 && index >= 0)
                     {
@@ -585,13 +589,16 @@ namespace Jsonata.Net.Native.New
 
             case SymbolType._unary_array:
                 {
-                    result = new Node(SymbolType._unary_array, expr.value, expr.position);
                     // array constructor - process each item
-                    result.expressions = expr.expressions!.Select(item => {
+                    ArrayNode exprArray = (ArrayNode)expr;
+                    for (int i = 0; i < exprArray.expressions.Count; ++i)
+                    {
+                        Node item = exprArray.expressions[i];
                         Node value = this.processAST(item);
-                        this.pushAncestry(result, value);
-                        return value;
-                    }).ToList();
+                        this.pushAncestry(exprArray, value);
+                        exprArray.expressions[i] = value;
+                    }
+                    result = exprArray;
                 }
                 break; // _unary_array
             case SymbolType._unary_minus:
@@ -702,17 +709,19 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.block:
                 {
-                    result = new Node(SymbolType.block, null, expr.position);
-                    // array of expressions - process each one
-                    result.expressions = expr.expressions!.Select(item => {
+                    BlockNode exprBlock = (BlockNode)expr;
+                    for (int i = 0; i < exprBlock.expressions.Count; ++i)
+                    {
+                        Node item = exprBlock.expressions[i];
                         Node part = this.processAST(item);
-                        this.pushAncestry(result, part);
-                        if (part.consarray || (part.type == SymbolType.path && ((PathNode)part).steps![0].consarray)) 
+                        this.pushAncestry(exprBlock, part);
+                        if (part.consarray || (part.type == SymbolType.path && ((PathNode)part).steps[0].consarray))
                         {
-                            result.consarray = true;
+                            exprBlock.consarray = true;
                         }
-                        return part;
-                    }).ToList();
+                        exprBlock.expressions[i] = part;
+                    }
+                    result = exprBlock;
                     // TODO scan the array of expressions to see if any of them assign variables
                     // if so, need to mark the block as one that needs to create a new frame
                 }

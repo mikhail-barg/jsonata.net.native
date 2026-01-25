@@ -363,9 +363,8 @@ namespace Jsonata.Net.Native.New
                 parser.advance(";");
             }
             parser.advance(")", true);
-            Node symbol = new Node(token, SymbolType.block);
-            symbol.expressions = expressions;
-            return symbol;
+            BlockNode result = new BlockNode(token.position, expressions);
+            return result;
         }
     }
 
@@ -402,9 +401,8 @@ namespace Jsonata.Net.Native.New
                 }
             }
             parser.advance("]", true);
-            Node symbol = new Node(token, SymbolType._unary_array);
-            symbol.expressions = a;
-            return symbol;
+            Node result = new ArrayNode(token.position, a);
+            return result;
         }
 
         internal override Node led(Node left, Parser parser, Token token)

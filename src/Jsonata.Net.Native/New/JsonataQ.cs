@@ -54,7 +54,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateUnaryMinus(expr, input, environment);
                 break;
             case SymbolType._unary_array:
-                result = JsonataQ.evaluateUnaryArray(expr, input, environment);
+                result = JsonataQ.evaluateUnaryArray((ArrayNode)expr, input, environment);
                 break;
             case SymbolType._unary_group:
                 // object constructor - apply grouping
@@ -81,7 +81,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateCondition((ConditionNode)expr, input, environment);
                 break;
             case SymbolType.block:
-                result = JsonataQ.evaluateBlock(expr, input, environment);
+                result = JsonataQ.evaluateBlock((BlockNode)expr, input, environment);
                 break;
             case SymbolType.bind:
                 result = JsonataQ.evaluateBindExpression((BindNode)expr, input, environment);
@@ -677,18 +677,17 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-
-        private static JToken evaluateUnaryArray(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateUnaryArray(ArrayNode expr, JToken input, EvaluationEnvironment environment)
         {
-
             // array constructor - evaluate each item
             JArray result = new JArray();
-            foreach (Node item in expr.expressions!)
+            foreach (Node item in expr.expressions)
             {
                 JToken value = JsonataQ.evaluate(item, input, environment);
                 if (value.Type != JTokenType.Undefined)
                 {
-                    if ("[".Equals(item.value))
+                    //if ("[".Equals(item.value))
+                    if (item.type == SymbolType._unary_array)
                     {
                         result.Add(value);
                     }
@@ -1457,7 +1456,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateBlock(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBlock(BlockNode expr, JToken input, EvaluationEnvironment environment)
         {
 
             // create a new frame to limit the scope of variable assignments
@@ -1466,7 +1465,7 @@ namespace Jsonata.Net.Native.New
             // invoke each expression in turn
             // only return the result of the last one
             JToken result = JsonataQ.UNDEFINED;
-            foreach (Node ex in expr.expressions!)
+            foreach (Node ex in expr.expressions)
             {
                 result = JsonataQ.evaluate(ex, input, frame);
             }
