@@ -358,13 +358,13 @@ namespace Jsonata.Net.Native.New
                         }
                         // if first step is a path constructor, flag it for special handling
                         Node firststep = resultPath.steps[0];
-                        if (firststep.type == SymbolType.unary && firststep.value!.Equals("["))
+                        if (firststep.type == SymbolType._unary_array)
                         {
                             firststep.consarray = true;
                         }
                         // if the last step is an array constructor, flag it so it doesn't flatten
                         Node laststep = resultPath.steps[^1];
-                        if (laststep.type == SymbolType.unary && laststep.value!.Equals("["))
+                        if (laststep.type == SymbolType._unary_array)
                         {
                             laststep.consarray = true;
                         }
@@ -415,7 +415,8 @@ namespace Jsonata.Net.Native.New
                                 if (slot.level == 1) 
                                 {
                                     this.seekParent(step, slot);
-                                } else 
+                                } 
+                                else 
                                 {
                                     --slot.level;
                                 }
@@ -582,47 +583,43 @@ namespace Jsonata.Net.Native.New
                 }
                 break; // _tinary_sort
 
-            case SymbolType.unary:
+            case SymbolType._unary_array:
                 {
-                    result = new Node(SymbolType.unary, expr.value, expr.position);
-                    // expr.value might be Character!
-                    string exprValue = expr.value!.ToString()!;
-                    if (exprValue == "[")
+                    result = new Node(SymbolType._unary_array, expr.value, expr.position);
+                    // array constructor - process each item
+                    result.expressions = expr.expressions!.Select(item => {
+                        Node value = this.processAST(item);
+                        this.pushAncestry(result, value);
+                        return value;
+                    }).ToList();
+                }
+                break; // _unary_array
+            case SymbolType._unary_minus:
+                {
+                    result = new Node(SymbolType._unary_minus, expr.value, expr.position);
+                    result.expression = this.processAST(expr.expression!);
+                    // if unary minus on a number, then pre-process
+                    if (result.expression.type == SymbolType.number)
                     {
-                        // array constructor - process each item
-                        result.expressions = expr.expressions!.Select(item => {
-                            Node value = this.processAST(item);
-                            this.pushAncestry(result, value);
-                            return value;
-                        }).ToList();
-                    }
-                    else 
-                    {
-                        // all other unary expressions - just process the expression
-                        result.expression = this.processAST(expr.expression!);
-                        // if unary minus on a number, then pre-process
-                        if (exprValue == "-" && result.expression.type == SymbolType.number)
+                        if (result.expression.value is long longValue)
                         {
-                            if (result.expression.value is long longValue)
-                            {
-                                result = new Node(SymbolType.number, -longValue, result.expression.position);
-                            }
-                            else if (result.expression.value is double doubleValue)
-                            {
-                                result = new Node(SymbolType.number, -doubleValue, result.expression.position);
-                            }
-                            else 
-                            {
-                                throw new Exception("Should not happen");
-                            }
+                            result = new Node(SymbolType.number, -longValue, result.expression.position);
+                        }
+                        else if (result.expression.value is double doubleValue)
+                        {
+                            result = new Node(SymbolType.number, -doubleValue, result.expression.position);
                         }
                         else
                         {
-                            this.pushAncestry(result, result.expression);
+                            throw new Exception("Should not happen");
                         }
                     }
+                    else
+                    {
+                        this.pushAncestry(result, result.expression);
+                    }
                 }
-                break; // unary
+                break; // _unary_minus
             case SymbolType._unary_group:
                 {
                     // object constructor - process each pair
@@ -856,7 +853,7 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new DummyNodeFactory("..")); // range operator
             register(nodeFactoryTable, new InfixFactory(".")); // map operator
             register(nodeFactoryTable, new InfixFactory("+")); // numeric addition
-            register(nodeFactoryTable, new InfixAndPrefixFactory("-")); // numeric subtraction // unary numeric negation
+            register(nodeFactoryTable, new InfixAndPrefixMinusFactory("-")); // numeric subtraction // unary numeric negation
 
             register(nodeFactoryTable, new InfixWithTypedNudFactory("*", SymbolType.wildcard)); // field wildcard (single level) // numeric multiplication
             register(nodeFactoryTable, new InfixFactory("/")); // numeric division
@@ -881,7 +878,7 @@ namespace Jsonata.Net.Native.New
             // coalescing operator
             register(nodeFactoryTable, new InfixCoalescingFactory("??", Tokenizer.OPERATORS["??"]));
 
-            register(nodeFactoryTable, new InfixRErrorFactory("(error)", 10));
+            //register(nodeFactoryTable, new InfixRErrorFactory("(error)", 10));
 
             // field wildcard (single level)
             // merged with Infix *

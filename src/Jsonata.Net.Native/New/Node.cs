@@ -17,7 +17,7 @@ namespace Jsonata.Net.Native.New
         number,
         name,
         value,
-        unary,
+        //unary, //see _unary_* instead
         function,
         lambda,
         condition,
@@ -42,7 +42,9 @@ namespace Jsonata.Net.Native.New
         _slot,
         _binary_orderby,    //was a part of 'binary', gets optimized away during processAST() phase
         _binary_groupby,    //was a part of 'binary', gets optimized away during processAST() phase
-        _unary_group        //was a part of 'unary'
+        _unary_group,       //was a part of 'unary'
+        _unary_minus,       //was a part of 'unary'
+        _unary_array,       //was a part of 'unary'
     }
 
     public class Node
@@ -53,10 +55,20 @@ namespace Jsonata.Net.Native.New
 
         public bool tuple { get; internal set; } = false;
         public bool consarray { get; internal set; } = false;
+        public GroupNode? group { get; set; }
+
+
+        // Ancestor attributes
+        internal string? label;
+        internal int? index_int;
+        internal string? index_string;
+        internal Node? ancestor;
+        internal Node? slot;
+        public List<Node>? seekingParent;
+
 
         internal List<Node>? stages;
         internal string? focus;
-        internal GroupNode? group;
         internal Node? expr;
         internal Node? nextFunction;
 
@@ -66,16 +78,6 @@ namespace Jsonata.Net.Native.New
 
         // Block
         internal List<Node>? expressions;
-
-        // Ancestor attributes
-        internal string? label;
-        internal int? index_int;
-        internal string? index_string;
-        internal Node? ancestor;
-
-        internal Node? slot;
-
-        public List<Node>? seekingParent;
 
         // Procedure:
         internal Node? procedure;

@@ -50,8 +50,11 @@ namespace Jsonata.Net.Native.New
             case SymbolType.binary:
                 result = JsonataQ.evaluateBinary((BinaryNode)expr, input, environment);
                 break;
-            case SymbolType.unary:
-                result = JsonataQ.evaluateUnary(expr, input, environment);
+            case SymbolType._unary_minus:
+                result = JsonataQ.evaluateUnaryMinus(expr, input, environment);
+                break;
+            case SymbolType._unary_array:
+                result = JsonataQ.evaluateUnaryArray(expr, input, environment);
                 break;
             case SymbolType._unary_group:
                 // object constructor - apply grouping
@@ -658,59 +661,54 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateUnary(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateUnaryMinus(Node expr, JToken input, EvaluationEnvironment environment)
         {
-            switch (expr.value)
+            JToken result = JsonataQ.evaluate(expr.expression!, input, environment);
+            switch (result.Type)
             {
-            case "-":
-                { 
-                    JToken result = JsonataQ.evaluate(expr.expression!, input, environment);
-                    switch (result.Type)
-                    {
-                    case JTokenType.Undefined:
-                        return JsonataQ.UNDEFINED;
-                    case JTokenType.Integer:
-                        return new JValue(-(long)result);
-                    case JTokenType.Float:
-                        return new JValue(-(double)result);
-                    default:
-                        throw new JException("D1002", expr.position, expr.value, result);
-                    }
-                }
-            case "[":
-                {
-                    // array constructor - evaluate each item
-                    JArray result = new JArray();
-                    foreach (Node item in expr.expressions!)
-                    {
-                        JToken value = JsonataQ.evaluate(item, input, environment);
-                        if (value.Type != JTokenType.Undefined)
-                        {
-                            if ("[".Equals(item.value))
-                            {
-                                result.Add(value);
-                            }
-                            else
-                            {
-                                result = (JArray)BuiltinFunctions.append(result, value);
-                            }
-                        }
-                    }
-                    if (expr.consarray)
-                    {
-                        if (result is not JsonataArray jsonataArray)
-                        {
-                            jsonataArray = new JsonataArray(result.ChildrenTokens);
-                            result = jsonataArray;
-                        }
-                        jsonataArray.cons = true;
-                    }
-                    return result;
-                }
-
+            case JTokenType.Undefined:
+                return JsonataQ.UNDEFINED;
+            case JTokenType.Integer:
+                return new JValue(-(long)result);
+            case JTokenType.Float:
+                return new JValue(-(double)result);
             default:
-                throw new Exception("Should not happen? " + expr.value);
+                throw new JException("D1002", expr.position, expr.value, result);
             }
+        }
+
+
+        private static JToken evaluateUnaryArray(Node expr, JToken input, EvaluationEnvironment environment)
+        {
+
+            // array constructor - evaluate each item
+            JArray result = new JArray();
+            foreach (Node item in expr.expressions!)
+            {
+                JToken value = JsonataQ.evaluate(item, input, environment);
+                if (value.Type != JTokenType.Undefined)
+                {
+                    if ("[".Equals(item.value))
+                    {
+                        result.Add(value);
+                    }
+                    else
+                    {
+                        result = (JArray)BuiltinFunctions.append(result, value);
+                    }
+                }
+            }
+            if (expr.consarray)
+            {
+                if (result is not JsonataArray jsonataArray)
+                {
+                    jsonataArray = new JsonataArray(result.ChildrenTokens);
+                    result = jsonataArray;
+                }
+                jsonataArray.cons = true;
+            }
+            return result;
+
         }
 
         /**

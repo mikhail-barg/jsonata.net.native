@@ -78,24 +78,7 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    // match prefix operators
-    // <operator> <expression>
-    internal class PrefixFactory : NodeFactoryBase
-    {
-        internal PrefixFactory(string id)
-            : base(id)
-        {
-        }
-
-        internal override Node nud(Parser parser, Token token)
-        {
-            Node symbol = new Node(token, SymbolType.unary);
-            symbol.expression = parser.expression(70);
-            return symbol;
-        }
-    }
-
-    internal class PrefixTransformerFactory : PrefixFactory
+    internal class PrefixTransformerFactory : NodeFactoryBase
     {
         internal PrefixTransformerFactory(string id)
             : base(id)
@@ -123,7 +106,7 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class PrefixDescendantWindcardFactory : PrefixFactory
+    internal class PrefixDescendantWindcardFactory : NodeFactoryBase
     {
         internal PrefixDescendantWindcardFactory(string id) : base(id)
         {
@@ -136,28 +119,19 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal sealed class InfixAndPrefixFactory : InfixFactory
+    internal sealed class InfixAndPrefixMinusFactory : InfixFactory
     {
-        internal PrefixFactory prefix;
-
-        internal InfixAndPrefixFactory(string id)
-            : this(id, 0)
+        internal InfixAndPrefixMinusFactory(string id)
+            : base(id, 0)
         {
 
-        }
-
-        internal InfixAndPrefixFactory(string id, int bp)
-            : base(id, bp)
-        {
-            this.prefix = new PrefixFactory(id);
         }
 
         internal override Node nud(Parser parser, Token token)
         {
-            return this.prefix.nud(parser, token);
-            // expression(70);
-            // type="unary";
-            // return this;
+            Node symbol = new Node(token, SymbolType._unary_minus);
+            symbol.expression = parser.expression(70);
+            return symbol;
         }
     }
 
@@ -428,7 +402,7 @@ namespace Jsonata.Net.Native.New
                 }
             }
             parser.advance("]", true);
-            Node symbol = new Node(token, SymbolType.unary);
+            Node symbol = new Node(token, SymbolType._unary_array);
             symbol.expressions = a;
             return symbol;
         }
@@ -542,19 +516,6 @@ namespace Jsonata.Net.Native.New
         internal InfixRFactory(string id, int bp)
             : base(id, bp)
         {
-        }
-    }
-
-    //TODO: WTF??
-    internal class InfixRErrorFactory : InfixRFactory
-    {
-        internal InfixRErrorFactory(string id, int bp) : base(id, bp)
-        {
-        }
-
-        internal override Node led(Node left, Parser parser, Token token)
-        {
-            throw new NotSupportedException("TODO", null);
         }
     }
 
