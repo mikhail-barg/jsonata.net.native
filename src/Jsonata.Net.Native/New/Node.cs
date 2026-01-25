@@ -50,11 +50,11 @@ namespace Jsonata.Net.Native.New
         internal readonly object? value;
         internal readonly int position;
 
+        public bool tuple { get; internal set; } = false;
+
         internal List<Node>? stages;
-        internal bool tuple = false;
         internal bool consarray = false;
         internal string? focus;
-        internal bool keepSingletonArray = false;
         internal Node? group;
         internal Node? expr;
         internal Node? nextFunction;
@@ -162,10 +162,6 @@ namespace Jsonata.Net.Native.New
             {
                 builder.Append("consarray ");
             }
-            if (this.keepSingletonArray)
-            {
-                builder.Append("keepSingletonArray ");
-            }
             if (this._jsonata_lambda != null)
             {
                 builder.Append("_jsonata_lambda=").Append(this._jsonata_lambda).Append(' ');
@@ -237,6 +233,7 @@ namespace Jsonata.Net.Native.New
     public sealed class PathNode: Node
     {
         public readonly List<Node> steps;
+        public bool keepSingletonArray { get; internal set; } = false;
 
         public PathNode(List<Node> steps)
             :base(SymbolType.path, null, -1)

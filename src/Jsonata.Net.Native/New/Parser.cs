@@ -718,11 +718,9 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.name:
                 {
-                    result = new PathNode(new() { expr });
-                    if (expr.keepArray)
-                    {
-                        result.keepSingletonArray = true;
-                    }
+                    result = new PathNode(new() { expr }) {
+                        keepSingletonArray = expr.keepArray
+                    };
                 }
                 break;
             case SymbolType.parent:
