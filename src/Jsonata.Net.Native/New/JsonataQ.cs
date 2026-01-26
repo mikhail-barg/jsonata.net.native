@@ -115,9 +115,9 @@ namespace Jsonata.Net.Native.New
 
             if (expr.predicate != null)
             {
-                foreach (Node element in expr.predicate)
+                foreach (FilterNode element in expr.predicate)
                 {
-                    result = JsonataQ.evaluateFilter(element.expr!, result, environment);
+                    result = JsonataQ.evaluateFilter(element.expr, result, environment);
                 }
             }
 
@@ -306,9 +306,9 @@ namespace Jsonata.Net.Native.New
                 JToken res = JsonataQ.evaluate(expr, child, environment);
                 if (expr.stages != null)
                 {
-                    foreach (Node stage in expr.stages)
+                    foreach (FilterNode stage in expr.stages)
                     {
-                        res = JsonataQ.evaluateFilter(stage.expr!, res, environment);
+                        res = JsonataQ.evaluateFilter(stage.expr, res, environment);
                     }
                 }
                 if (res.Type != JTokenType.Undefined)
@@ -348,7 +348,7 @@ namespace Jsonata.Net.Native.New
             return resultSequence;
         }
 
-        private static JArray evaluateStages(List<Node> stages, JArray input, EvaluationEnvironment environment)
+        private static JArray evaluateStages(List<StageNode> stages, JArray input, EvaluationEnvironment environment)
         {
             JArray result = input;
             foreach (Node stage in stages) 
@@ -356,15 +356,23 @@ namespace Jsonata.Net.Native.New
                 switch(stage.type) 
                 {
                 case SymbolType.filter:
-                    result = JsonataQ.evaluateFilter(stage.expr!, result, environment);
-                    break;
-                case SymbolType.index:
-                    for (int ee = 0; ee < result.Count; ++ee)
                     {
-                        JObject tuple = (JObject)result.ChildrenTokens[ee];
-                        tuple.Set((string)stage.value!, new JValue(ee));
+                        FilterNode filter = (FilterNode)stage;
+                        result = JsonataQ.evaluateFilter(filter.expr, result, environment);
                     }
                     break;
+                case SymbolType.index:
+                    {
+                        IndexNode index = (IndexNode)stage;
+                        for (int ee = 0; ee < result.Count; ++ee)
+                        {
+                            JObject tuple = (JObject)result.ChildrenTokens[ee];
+                            tuple.Set(index.indexValue, new JValue(ee));
+                        }
+                    }
+                    break;
+                default:
+                    throw new Exception($"Should not happen? {stage.type}");
                 }
             }
             return result;

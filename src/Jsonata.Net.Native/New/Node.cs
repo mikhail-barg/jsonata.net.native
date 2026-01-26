@@ -64,13 +64,12 @@ namespace Jsonata.Net.Native.New
         internal Node? slot;
         public List<Node>? seekingParent;
 
+        internal List<StageNode>? stages;
+        internal List<FilterNode>? predicate;
 
-        internal List<Node>? stages;
         internal string? focus;
-        internal Node? expr;
         internal Node? nextFunction;
 
-        internal List<Node>? predicate;
         internal List<Node>? arguments;
         internal Node? body;
 
@@ -188,10 +187,6 @@ namespace Jsonata.Net.Native.New
             {
                 this.group.Format("group: ", builder, indent + 1);
             }
-            if (this.expr != null)
-            {
-                this.expr.Format("expr: ", builder, indent + 1);
-            }
             if (this.nextFunction != null)
             {
                 this.nextFunction.Format("nextFunction: ", builder, indent + 1);
@@ -200,11 +195,39 @@ namespace Jsonata.Net.Native.New
             {
                 this.body.Format("body: ", builder, indent + 1);
             }
-            FormatListIfExists(this.stages, "stages", builder, indent + 1);
-            FormatListIfExists(this.predicate, "predicate", builder, indent + 1);
             FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
             FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
             FormatListIfExists(this.terms, "terms", builder, indent + 1);
+        }
+    }
+
+    public abstract class StageNode : Node
+    {
+        internal StageNode(SymbolType type, object? value, int position) 
+            : base(type, value, position)
+        {
+        }
+    }
+
+    public sealed class FilterNode: StageNode
+    {
+        public readonly Node expr;
+
+        public FilterNode(int position, Node expr)
+            :base(SymbolType.filter, null, position)
+        {
+            this.expr = expr;
+        }
+    }
+
+    public sealed class IndexNode : StageNode
+    {
+        public readonly string indexValue;
+
+        public IndexNode(int position, string indexValue)
+            : base(SymbolType.index, null, position)
+        {
+            this.indexValue = indexValue;
         }
     }
 

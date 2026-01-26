@@ -334,7 +334,7 @@ namespace Jsonata.Net.Native.New
                         {
                             if (rest.predicate != null)
                             {
-                                rest.stages = rest.predicate;
+                                rest.stages = rest.predicate.OfType<StageNode>().ToList();
                                 rest.predicate = null;
                             }
                             resultPath.steps.Add(rest);
@@ -387,11 +387,11 @@ namespace Jsonata.Net.Native.New
                         if (result.type == SymbolType.path)
                         {
                             step = ((PathNode)result).steps[^1];
-                            typeIsStages = true;  // stages
+                            typeIsStages = true;  // type = 'stages'
                         }
                         else
                         {
-                            typeIsStages = false; // predicate
+                            typeIsStages = false; // type = 'predicate'
                         }
                         if (step.group != null)
                         {
@@ -414,11 +414,10 @@ namespace Jsonata.Net.Native.New
                             }
                             this.pushAncestry(step, predicate);
                         }
-                        Node s = new Node(SymbolType.filter, null, expr.position);
-                        s.expr = predicate;
+                        FilterNode filter = new FilterNode(expr.position, predicate);
 
                         // if (typeof step[type] === 'undefined') {
-                        // step[type] = [];
+                        //    step[type] = [];
                         // }
                         //step[type].push({type: 'filter', expr: predicate, position: expr.position});
                         if (typeIsStages)
@@ -427,7 +426,7 @@ namespace Jsonata.Net.Native.New
                             {
                                 step.stages = new();
                             }
-                            step.stages.Add(s);
+                            step.stages.Add(filter);
                         }
                         else
                         {
@@ -435,7 +434,7 @@ namespace Jsonata.Net.Native.New
                             {
                                 step.predicate = new();
                             }
-                            step.predicate.Add(s);
+                            step.predicate.Add(filter);
                         }
                         
                     }
@@ -486,10 +485,10 @@ namespace Jsonata.Net.Native.New
                         else
                         {
                             step = result;
-                            result = new PathNode(new() { result });
+                            result = new PathNode(new() { step });
                             if (step.predicate != null)
                             {
-                                step.stages = step.predicate;
+                                step.stages = step.predicate.OfType<StageNode>().ToList();
                                 step.predicate = null;
                             }
                         }
@@ -499,7 +498,7 @@ namespace Jsonata.Net.Native.New
                         }
                         else
                         {
-                            Node _res = new Node(SymbolType.index, exprBinary.rhs.value, expr.position);
+                            IndexNode _res = new IndexNode(expr.position, (string)exprBinary.rhs.value!);
                             step.stages.Add(_res);
                         }
                         step.tuple = true;
