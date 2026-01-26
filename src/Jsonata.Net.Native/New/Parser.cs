@@ -417,15 +417,6 @@ namespace Jsonata.Net.Native.New
                         Node s = new Node(SymbolType.filter, null, expr.position);
                         s.expr = predicate;
 
-                        // FIXED:
-                        // this logic is required in Java to fix
-                        // for example test: flattening case 045
-                        // otherwise we lose the keepArray flag
-                        if (expr.keepArray)
-                        {
-                            step.keepArray = true;
-                        }
-
                         // if (typeof step[type] === 'undefined') {
                         // step[type] = [];
                         // }
