@@ -24,8 +24,6 @@ namespace Jsonata.Net.Native.New
         block,
         wildcard,
         parent,
-        predicate,
-        stages,
         filter,
         bind,
         apply,

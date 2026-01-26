@@ -383,32 +383,19 @@ namespace Jsonata.Net.Native.New
                         // RHS is the predicate expr
                         result = this.processAST(exprBinary.lhs);
                         Node step = result;
-                        SymbolType type = SymbolType.predicate;
+                        bool typeIsStages;      //if false -> type is 'predicate'
                         if (result.type == SymbolType.path)
                         {
                             step = ((PathNode)result).steps[^1];
-                            type = SymbolType.stages;
+                            typeIsStages = true;  // stages
+                        }
+                        else
+                        {
+                            typeIsStages = false; // predicate
                         }
                         if (step.group != null)
                         {
                             throw new JException("S0209", expr.position);
-                        }
-                        // if (typeof step[type] === 'undefined') {
-                        //     step[type] = [];
-                        // }
-                        if (type == SymbolType.stages)
-                        {
-                            if (step.stages == null)
-                            {
-                                step.stages = new();
-                            }
-                        }
-                        else
-                        {
-                            if (step.predicate == null)
-                            {
-                                step.predicate = new();
-                            }
                         }
 
                         Node predicate = this.processAST(exprBinary.rhs);
@@ -439,15 +426,27 @@ namespace Jsonata.Net.Native.New
                             step.keepArray = true;
                         }
 
-                        if (type == SymbolType.stages)
+                        // if (typeof step[type] === 'undefined') {
+                        // step[type] = [];
+                        // }
+                        //step[type].push({type: 'filter', expr: predicate, position: expr.position});
+                        if (typeIsStages)
                         {
-                            step.stages!.Add(s);
+                            if (step.stages == null)
+                            {
+                                step.stages = new();
+                            }
+                            step.stages.Add(s);
                         }
                         else
                         {
-                            step.predicate!.Add(s);
+                            if (step.predicate == null)
+                            {
+                                step.predicate = new();
+                            }
+                            step.predicate.Add(s);
                         }
-                        //step[type].push({type: 'filter', expr: predicate, position: expr.position});
+                        
                     }
                     break;
                 case ":=":
