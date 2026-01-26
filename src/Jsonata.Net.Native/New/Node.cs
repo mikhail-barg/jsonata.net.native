@@ -35,7 +35,6 @@ namespace Jsonata.Net.Native.New
 
         //added in dotnet to make proper handling
         _end, 
-        _term,
         _sort_term,
         _slot,
         _binary_orderby,    //was a part of 'binary', gets optimized away during processAST() phase
@@ -70,9 +69,6 @@ namespace Jsonata.Net.Native.New
         internal string? focus;
 
 
-
-        internal Node? expression; // ^
-        internal bool descending; // ^
 
         internal bool keepArray; // [
         internal int level;
@@ -190,11 +186,35 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    public sealed class UnaryMinusNode: Node
+    {
+        public readonly Node expression;
+
+        public UnaryMinusNode(int position, Node expression)
+            : base(SymbolType._unary_minus, null, position)
+        {
+            this.expression = expression;
+        }
+    }
+
+    public sealed class SortTermNode: Node
+    {
+        public readonly Node expression;
+        public readonly bool descending;
+
+        public SortTermNode(int position, Node expression, bool descending)
+            :base(SymbolType._sort_term, null, position)
+        {
+            this.expression = expression;
+            this.descending = descending;
+        }
+    }
+
     public sealed class SortNode: Node
     {
-        public readonly List<Node> terms;
+        public readonly List<SortTermNode> terms;
 
-        public SortNode(int position, List<Node> terms)
+        public SortNode(int position, List<SortTermNode> terms)
             :base(SymbolType.sort, null, position) 
         { 
             this.terms = terms;
@@ -333,9 +353,9 @@ namespace Jsonata.Net.Native.New
         // LHS is the array to be ordered
         // RHS defines the terms
         public readonly Node lhs;
-        public readonly List<Node> rhsTerms;
+        public readonly List<SortTermNode> rhsTerms;
 
-        public OrderbyNode(int position, Node lhs, List<Node> rhsTerms)
+        public OrderbyNode(int position, Node lhs, List<SortTermNode> rhsTerms)
             :base(SymbolType._binary_orderby, null, position)
         {
             this.rhsTerms = rhsTerms;

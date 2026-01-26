@@ -564,13 +564,11 @@ namespace Jsonata.Net.Native.New
                         resultPath = new PathNode(new() { res });
                     }
                     SortNode sortStep = new SortNode(expr.position, terms: new() );
-                    foreach (Node term in exprOrderby.rhsTerms)
+                    foreach (SortTermNode term in exprOrderby.rhsTerms)
                     {
                         Node expression = this.processAST(term.expression!);
                         this.pushAncestry(sortStep, expression);
-                        Node newTerm = new Node(SymbolType._sort_term, null, -1);
-                        newTerm.descending = term.descending;
-                        newTerm.expression = expression;
+                        SortTermNode newTerm = new SortTermNode(term.position, expression, term.descending);
                         sortStep.terms.Add(newTerm);
                     }
                     resultPath.steps.Add(sortStep);
@@ -595,27 +593,29 @@ namespace Jsonata.Net.Native.New
                 break; // _unary_array
             case SymbolType._unary_minus:
                 {
-                    result = new Node(SymbolType._unary_minus, expr.value, expr.position);
-                    result.expression = this.processAST(expr.expression!);
+                    UnaryMinusNode exprMinus = (UnaryMinusNode)expr;
+                    Node expression = this.processAST(exprMinus.expression);
+                    
                     // if unary minus on a number, then pre-process
-                    if (result.expression.type == SymbolType.number)
+                    if (expression.type == SymbolType.number)
                     {
-                        if (result.expression.value is long longValue)
+                        if (expression.value is long longValue)
                         {
-                            result = new Node(SymbolType.number, -longValue, result.expression.position);
+                            result = new Node(SymbolType.number, -longValue, expression.position);
                         }
-                        else if (result.expression.value is double doubleValue)
+                        else if (expression.value is double doubleValue)
                         {
-                            result = new Node(SymbolType.number, -doubleValue, result.expression.position);
+                            result = new Node(SymbolType.number, -doubleValue, expression.position);
                         }
                         else
                         {
-                            throw new Exception("Should not happen");
+                            throw new Exception($"Should not happen {expression.value?.GetType().Name}");
                         }
                     }
                     else
                     {
-                        this.pushAncestry(result, result.expression);
+                        result = new UnaryMinusNode(expr.position, expression);
+                        this.pushAncestry(result, expression);
                     }
                 }
                 break; // _unary_minus

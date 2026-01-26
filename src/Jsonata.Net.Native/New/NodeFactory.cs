@@ -129,9 +129,9 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType._unary_minus);
-            symbol.expression = parser.expression(70);
-            return symbol;
+            Node expression = parser.expression(70);
+            Node result = new UnaryMinusNode(token.position, expression);
+            return result;
         }
     }
 
@@ -145,11 +145,10 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             parser.advance("(");
-            List<Node> terms = new();
+            List<SortTermNode> terms = new();
             while (true)
             {
-                Node term = new Node(SymbolType._term, null, -1);
-                term.descending = false;
+                bool descending = false;
 
                 if (parser.currentNodeFactory.id == "<")
                 {
@@ -159,14 +158,15 @@ namespace Jsonata.Net.Native.New
                 else if (parser.currentNodeFactory.id == ">")
                 {
                     // descending sort
-                    term.descending = true;
+                    descending = true;
                     parser.advance(">");
                 }
                 else
                 {
                     //unspecified - default to ascending
                 }
-                term.expression = parser.expression(0);
+                Node expression = parser.expression(0);
+                SortTermNode term = new SortTermNode(token.position, expression, descending);
                 terms.Add(term);
                 if (parser.currentNodeFactory.id != ",")
                 {

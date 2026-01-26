@@ -51,7 +51,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateBinary((BinaryNode)expr, input, environment);
                 break;
             case SymbolType._unary_minus:
-                result = JsonataQ.evaluateUnaryMinus(expr, input, environment);
+                result = JsonataQ.evaluateUnaryMinus((UnaryMinusNode)expr, input, environment);
                 break;
             case SymbolType._unary_array:
                 result = JsonataQ.evaluateUnaryArray((ArrayNode)expr, input, environment);
@@ -669,9 +669,9 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateUnaryMinus(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateUnaryMinus(UnaryMinusNode expr, JToken input, EvaluationEnvironment environment)
         {
-            JToken result = JsonataQ.evaluate(expr.expression!, input, environment);
+            JToken result = JsonataQ.evaluate(expr.expression, input, environment);
             switch (result.Type)
             {
             case JTokenType.Undefined:
@@ -1538,7 +1538,7 @@ namespace Jsonata.Net.Native.New
                 int comp = 0;
                 for (int index = 0; comp == 0 && index < expr.terms.Count; ++index) 
                 {
-                    Node term = expr.terms[index];
+                    SortTermNode term = expr.terms[index];
                     //evaluate the sort term in the context of a
                     JToken context = a;
                     EvaluationEnvironment env = environment;
@@ -1548,7 +1548,7 @@ namespace Jsonata.Net.Native.New
                         context = aObj.Properties["@"];
                         env = JsonataQ.createFrameFromTuple(environment, aObj);
                     }
-                    JToken aa = JsonataQ.evaluate(term.expression!, context, env);
+                    JToken aa = JsonataQ.evaluate(term.expression, context, env);
 
                     //evaluate the sort term in the context of b
                     context = b;
@@ -1559,7 +1559,7 @@ namespace Jsonata.Net.Native.New
                         context = bObj.Properties["@"];
                         env = JsonataQ.createFrameFromTuple(environment, bObj);
                     }
-                    JToken bb = JsonataQ.evaluate(term.expression!, context, env);
+                    JToken bb = JsonataQ.evaluate(term.expression, context, env);
  
                     // type checks
                     // undefined should be last in sort order
