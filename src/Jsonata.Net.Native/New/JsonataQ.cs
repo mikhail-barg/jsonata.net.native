@@ -290,7 +290,7 @@ namespace Jsonata.Net.Native.New
         {
             if (expr.type == SymbolType.sort)
             {
-                JArray sortResult = JsonataQ.evaluateSortExpression(expr, input, environment);
+                JArray sortResult = JsonataQ.evaluateSortExpression((SortNode)expr, input, environment);
                 if (expr.stages != null)
                 {
                     sortResult = JsonataQ.evaluateStages(expr.stages, sortResult, environment);
@@ -403,11 +403,11 @@ namespace Jsonata.Net.Native.New
             {
                 if (tupleBindings != null) 
                 {
-                    result = JsonataQ.evaluateSortExpression(expr, tupleBindings, environment);
+                    result = JsonataQ.evaluateSortExpression((SortNode)expr, tupleBindings, environment);
                 } 
                 else 
                 {
-                    JArray sorted = JsonataQ.evaluateSortExpression(expr, input, environment);
+                    JArray sorted = JsonataQ.evaluateSortExpression((SortNode)expr, input, environment);
                     result = JsonataArray.CreateSequence();
                     ((JsonataArray)result).tupleStream = true;
                     for (int ss = 0; ss < sorted.Count; ++ss) 
@@ -1522,7 +1522,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Ordered sequence
          */
-        private static JArray evaluateSortExpression(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JArray evaluateSortExpression(SortNode expr, JToken input, EvaluationEnvironment environment)
         {
             // evaluate the lhs, then sort the results in order according to rhs expression
             JArray lhs = (JArray)input;
@@ -1536,7 +1536,7 @@ namespace Jsonata.Net.Native.New
             { 
                 // expr.terms is an array of order-by in priority order
                 int comp = 0;
-                for (int index = 0; comp == 0 && index < expr.terms!.Count; ++index) 
+                for (int index = 0; comp == 0 && index < expr.terms.Count; ++index) 
                 {
                     Node term = expr.terms[index];
                     //evaluate the sort term in the context of a

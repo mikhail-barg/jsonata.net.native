@@ -69,13 +69,6 @@ namespace Jsonata.Net.Native.New
 
         internal string? focus;
 
-        internal List<Node>? arguments;
-        internal Node? body;
-
-        // Procedure:
-        internal Node? procedure;
-
-        internal List<Node>? terms;
 
 
         internal Node? expression; // ^
@@ -84,11 +77,13 @@ namespace Jsonata.Net.Native.New
         internal bool keepArray; // [
         internal int level;
 
-        internal bool thunk;
-
         // Procedure:
+        internal Node? procedure;
+        internal List<Node>? arguments;
+        internal Node? body;
         internal string? name;
         internal Signature? signature;
+        internal bool thunk;
 
         internal Node(SymbolType type, object? value, int position)
         {
@@ -192,7 +187,17 @@ namespace Jsonata.Net.Native.New
             }
             FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
             FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
-            FormatListIfExists(this.terms, "terms", builder, indent + 1);
+        }
+    }
+
+    public sealed class SortNode: Node
+    {
+        public readonly List<Node> terms;
+
+        public SortNode(int position, List<Node> terms)
+            :base(SymbolType.sort, null, position) 
+        { 
+            this.terms = terms;
         }
     }
 

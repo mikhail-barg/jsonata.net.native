@@ -563,16 +563,17 @@ namespace Jsonata.Net.Native.New
                     {
                         resultPath = new PathNode(new() { res });
                     }
-                    Node sortStep = new Node(SymbolType.sort, null, expr.position);
-                    sortStep.terms = exprOrderby.rhsTerms.Select(terms => {
-                        Node expression = this.processAST(terms.expression!);
+                    SortNode sortStep = new SortNode(expr.position, terms: new() );
+                    foreach (Node term in exprOrderby.rhsTerms)
+                    {
+                        Node expression = this.processAST(term.expression!);
                         this.pushAncestry(sortStep, expression);
-                        Node res_ = new Node(SymbolType._sort_term, null, -1);
-                        res_.descending = terms.descending;
-                        res_.expression = expression;
-                        return res_;
-                    }).ToList();
-                    resultPath.steps!.Add(sortStep);
+                        Node newTerm = new Node(SymbolType._sort_term, null, -1);
+                        newTerm.descending = term.descending;
+                        newTerm.expression = expression;
+                        sortStep.terms.Add(newTerm);
+                    }
+                    resultPath.steps.Add(sortStep);
                     result = resultPath;
                     this.resolveAncestry(resultPath);
                 }
