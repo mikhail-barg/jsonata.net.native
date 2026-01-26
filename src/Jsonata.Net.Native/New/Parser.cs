@@ -315,6 +315,7 @@ namespace Jsonata.Net.Native.New
                             resultPath.seekingParent = new() { lstep.slot! };
                         }
                         Node rest = this.processAST(exprBinary.rhs);
+                        /* see https://github.com/jsonata-js/jsonata/issues/769
                         if (rest.type == SymbolType.function &&
                             rest.procedure!.type == SymbolType.path &&
                             rest.procedure is PathNode procedurePath &&
@@ -326,6 +327,7 @@ namespace Jsonata.Net.Native.New
                             // next function in chain of functions - will override a thenable
                             resultPath.steps[^1].nextFunction = (Node)procedurePath.steps[0].value!;
                         }
+                        */
                         if (rest.type == SymbolType.path)
                         {
                             resultPath.steps.AddRange(((PathNode)rest).steps);

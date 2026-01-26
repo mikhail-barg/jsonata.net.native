@@ -68,7 +68,6 @@ namespace Jsonata.Net.Native.New
         internal List<FilterNode>? predicate;
 
         internal string? focus;
-        internal Node? nextFunction;
 
         internal List<Node>? arguments;
         internal Node? body;
@@ -186,10 +185,6 @@ namespace Jsonata.Net.Native.New
             if (this.group != null)
             {
                 this.group.Format("group: ", builder, indent + 1);
-            }
-            if (this.nextFunction != null)
-            {
-                this.nextFunction.Format("nextFunction: ", builder, indent + 1);
             }
             if (this.body != null)
             {
