@@ -166,7 +166,7 @@ namespace Jsonata.Net.Native.New
         int ancestorIndex = 0;
         List<Node> ancestry = new();
 
-        private Node seekParent(Node node, Node slot) 
+        private SlotNode seekParent(Node node, SlotNode slot) 
         {
             switch (node.type) 
             {
@@ -182,7 +182,7 @@ namespace Jsonata.Net.Native.New
                     else 
                     {
                         // reuse the existing label
-                        this.ancestry[slot.index_int!.Value].slot!.label = node.ancestor.label;
+                        this.ancestry[slot.index_int].slot!.label = node.ancestor.label;
                         node.ancestor = slot;
                     }
                     node.tuple = true;
@@ -231,7 +231,7 @@ namespace Jsonata.Net.Native.New
             }
             if (value.seekingParent != null || value.type == SymbolType.parent) 
             {
-                List<Node> slots = value.seekingParent ?? new();
+                List<SlotNode> slots = value.seekingParent ?? new();
                 if (value.type == SymbolType.parent) 
                 {
                     slots.Add(value.slot!);
@@ -251,14 +251,14 @@ namespace Jsonata.Net.Native.New
         {
             int index = path.steps.Count - 1;
             Node laststep = path.steps[index];
-            List<Node> slots = laststep.seekingParent ?? new();
+            List<SlotNode> slots = laststep.seekingParent ?? new();
             if (laststep.type == SymbolType.parent) 
             {
                 slots.Add(laststep.slot!);
             }
             for (int i = 0; i < slots.Count; ++i) 
             {
-                Node slot = slots[i];
+                SlotNode slot = slots[i];
                 index = path.steps.Count - 2;
                 while (slot.level > 0) 
                 {
@@ -403,7 +403,7 @@ namespace Jsonata.Net.Native.New
                         Node predicate = this.processAST(exprBinary.rhs);
                         if (predicate.seekingParent != null)
                         {
-                            foreach (Node slot in predicate.seekingParent)
+                            foreach (SlotNode slot in predicate.seekingParent)
                             {
                                 if (slot.level == 1) 
                                 {
@@ -728,10 +728,7 @@ namespace Jsonata.Net.Native.New
             case SymbolType.parent:
                 {
                     result = new Node(SymbolType.parent, null, -1);
-                    result.slot = new Node(SymbolType._slot, null, -1);
-                    result.slot.label = "!" + this.ancestorLabel++;
-                    result.slot.level = 1;
-                    result.slot.index_int = this.ancestorIndex++;
+                    result.slot = new SlotNode(label: "!" + this.ancestorLabel++, index_int: this.ancestorIndex++, level: 1);
                     this.ancestry.Add(result);
                 }
                 break;

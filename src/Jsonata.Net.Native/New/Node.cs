@@ -56,12 +56,10 @@ namespace Jsonata.Net.Native.New
 
 
         // Ancestor attributes
-        internal string? label;
-        internal int? index_int;
         internal string? index_string;
-        internal Node? ancestor;
-        internal Node? slot;
-        public List<Node>? seekingParent;
+        internal SlotNode? ancestor;
+        internal SlotNode? slot;
+        public List<SlotNode>? seekingParent;
 
         internal List<StageNode>? stages;
         internal List<FilterNode>? predicate;
@@ -71,7 +69,6 @@ namespace Jsonata.Net.Native.New
 
 
         internal bool keepArray; // [
-        internal int level;
 
         // Procedure:
         internal Node? procedure;
@@ -147,14 +144,6 @@ namespace Jsonata.Net.Native.New
             {
                 builder.Append("focus=").Append(this.focus).Append(' ');
             }
-            if (this.label != null)
-            {
-                builder.Append("label=").Append(this.label).Append(' ');
-            }
-            if (this.index_int != null)
-            {
-                builder.Append("index(int)=").Append(this.index_int).Append(' ');
-            }
             if (this.index_string != null)
             {
                 builder.Append("index(str)=").Append(this.index_string).Append(' ');
@@ -182,7 +171,22 @@ namespace Jsonata.Net.Native.New
                 this.body.Format("body: ", builder, indent + 1);
             }
             FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
-            FormatListIfExists(this.seekingParent, "seekingParent", builder, indent + 1);
+        }
+    }
+
+    public sealed class SlotNode: Node
+    {
+        public string label;
+        public int level;
+        public readonly int index_int;
+
+
+        public SlotNode(string label, int index_int, int level)
+            : base(SymbolType._slot, null, -1)
+        {
+            this.label = label;
+            this.index_int = index_int;
+            this.level = level;
         }
     }
 

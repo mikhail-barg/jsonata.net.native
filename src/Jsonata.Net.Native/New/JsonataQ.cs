@@ -75,7 +75,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateDescendants(expr, input); //, environment);
                 break;
             case SymbolType.parent:
-                result = environment.Lookup(expr.slot!.label!);
+                result = environment.Lookup(expr.slot!.label);
                 break;
             case SymbolType.condition:
                 result = JsonataQ.evaluateCondition((ConditionNode)expr, input, environment);
@@ -481,7 +481,7 @@ namespace Jsonata.Net.Native.New
                             }
                             if (expr.ancestor != null) 
                             {
-                                tuple.Set(expr.ancestor.label!, binding.Properties["@"]);
+                                tuple.Set(expr.ancestor.label, binding.Properties["@"]);
                             }
                         }
                         result.Add(tuple);
