@@ -1463,7 +1463,7 @@ simple-array-selectors.case018;Passed
 simple-array-selectors.case019;Passed
 simple-array-selectors.case020;Passed
 simple-array-selectors.case021;Passed
-simple-array-selectors.case022;Skipped
+simple-array-selectors.case022;Passed
 sorting.case000;Passed
 sorting.case001;Passed
 sorting.case002;Passed

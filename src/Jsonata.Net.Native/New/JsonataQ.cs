@@ -525,7 +525,15 @@ namespace Jsonata.Net.Native.New
             }
             if (predicate.type == SymbolType.number) 
             {
-                int index = (int)(long)predicate.value!;  // round it down - was Math.floor //TODO: add Math.Floor if not int
+                int index;
+                if (predicate.value is double doubleValue)
+                {
+                    index = (int)Math.Floor(doubleValue); // round it down 
+                }
+                else
+                {
+                    index = (int)(long)predicate.value!;
+                }
                 if (index < 0) 
                 {
                     // count in from end of array
