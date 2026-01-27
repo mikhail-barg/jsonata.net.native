@@ -273,8 +273,6 @@ namespace Jsonata.Net.Native.New
         {
             SymbolType type = SymbolType.function;
             List<Node> arguments = new();
-            Signature? signature = null;
-            Node? body = null;
             if (parser.currentNodeFactory.id != ")")
             {
                 while (true)
@@ -313,7 +311,8 @@ namespace Jsonata.Net.Native.New
                     }
                     //index++;
                 }
-                type = SymbolType.lambda;
+                // type = SymbolType.lambda;
+                Signature? signature = null;
                 // is the next token a '<' - if so, parse the function signature
                 if (parser.currentNodeFactory.id == "<")
                 {
@@ -338,16 +337,18 @@ namespace Jsonata.Net.Native.New
                 }
                 // parse the function body
                 parser.advance("{");
-                body = parser.expression(0);
+                Node body = parser.expression(0);
                 parser.advance("}");
+
+                Node result = new LambdaNode(token.position, arguments: arguments, signature: signature, body: body, thunk: false);
+                return result;
             }
-            Node symbol = new Node(token, type);
-            // left is is what we are trying to invoke
-            symbol.procedure = left;
-            symbol.arguments = arguments;
-            symbol.signature = signature;
-            symbol.body = body;
-            return symbol;
+            else
+            {
+                // left is is what we are trying to invoke
+                Node result = new FunctionalNode(type, token.position, procedure: left, arguments: arguments);
+                return result;
+            }
         }
 
         internal override Node nud(Parser parser, Token token)
@@ -455,12 +456,10 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node c = new Node(SymbolType.function, "(", -1);
-            c.arguments = new List<Node>() { left };
-            Node p = new Node(SymbolType.variable, "exists", -1);
-            c.procedure = p;
+            Node procedure = new Node(SymbolType.variable, "exists", -1); //"(", 
+            FunctionalNode condition = new FunctionalNode(SymbolType.function, -1, procedure: procedure, arguments: new() { left });
             Node @else = parser.expression(0);
-            ConditionNode result = new ConditionNode(token.position, condition:c, then: left, @else: @else);
+            ConditionNode result = new ConditionNode(token.position, condition: condition, then: left, @else: @else);
             return result;
         }
     }

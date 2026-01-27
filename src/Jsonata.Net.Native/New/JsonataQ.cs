@@ -90,16 +90,16 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateRegex(expr); //, input, environment);
                 break;
             case SymbolType.function:
-                result = JsonataQ.evaluateFunction(expr, input, environment, null);
+                result = JsonataQ.evaluateFunction((FunctionalNode)expr, input, environment, null);
                 break;
             case SymbolType.variable:
                 result = JsonataQ.evaluateVariable(expr, input, environment);
                 break;
             case SymbolType.lambda:
-                result = JsonataQ.evaluateLambda(expr, input, environment);
+                result = JsonataQ.evaluateLambda((LambdaNode)expr, input, environment);
                 break;
             case SymbolType.partial:
-                result = JsonataQ.evaluatePartialApplication(expr, input, environment);
+                result = JsonataQ.evaluatePartialApplication((FunctionalNode)expr, input, environment);
                 break;
             case SymbolType.apply:
                 result = JsonataQ.evaluateApplyExpression((ApplyNode)expr, input, environment);
@@ -1693,10 +1693,10 @@ namespace Jsonata.Net.Native.New
             JToken lhs = JsonataQ.evaluate(expr.lhs, input, environment);
 
             JToken result;
-            if (expr.rhs!.type == SymbolType.function) 
+            if (expr.rhs.type == SymbolType.function) 
             {
                 // this is a function _invocation_; invoke it with lhs expression as the first argument
-                result = JsonataQ.evaluateFunction(expr.rhs, input, environment, lhs);
+                result = JsonataQ.evaluateFunction((FunctionalNode)expr.rhs, input, environment, lhs);
             } 
             else 
             {
@@ -1734,16 +1734,16 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateFunction(Node expr, JToken input, EvaluationEnvironment environment, JToken? applytoContext)
+        private static JToken evaluateFunction(FunctionalNode expr, JToken input, EvaluationEnvironment environment, JToken? applytoContext)
         {
             // create the procedure
-            // can"t assume that expr.procedure is a lambda type directly
+            // can't assume that expr.procedure is a lambda type directly
             // could be an expression that evaluates to a Object (e.g. variable reference, parens expr etc.
             // evaluate it generically first, then check that it is a function.  Throw error if not.
-            JToken proc = JsonataQ.evaluate(expr.procedure!, input, environment);
+            JToken proc = JsonataQ.evaluate(expr.procedure, input, environment);
  
             if (proc.Type == JTokenType.Undefined 
-                && expr.procedure!.type == SymbolType.path
+                && expr.procedure.type == SymbolType.path
                 && environment.Lookup((string)((PathNode)expr.procedure).steps[0].value!).Type != JTokenType.Undefined
             ) 
             {
@@ -1773,7 +1773,7 @@ namespace Jsonata.Net.Native.New
             }
 
             // apply the procedure
-            object? procNameObj = expr.procedure!.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value;
+            object? procNameObj = expr.procedure.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value;
             string? procName;
             if (procNameObj is string procNameObjStr)
             {
@@ -1827,8 +1827,9 @@ namespace Jsonata.Net.Native.New
                 // trampoline loop - this gets invoked as a result of tail-call optimization
                 // the Object returned a tail-call thunk
                 // unpack it, evaluate its arguments, and apply the tail call
-                JToken next = JsonataQ.evaluate(lambda.body.procedure!, lambda.input, lambda.environment);
-                if (lambda.body.procedure!.type == SymbolType.variable)
+                FunctionalNode body = (FunctionalNode)lambda.body;
+                JToken next = JsonataQ.evaluate(body.procedure, lambda.input, lambda.environment);
+                if (body.procedure.type == SymbolType.variable)
                 {
                     //TODO:???
                     //next.token = result.body.procedure.value;
@@ -1836,7 +1837,7 @@ namespace Jsonata.Net.Native.New
                 //next.position = result.body.procedure.position;
 
                 List<JToken> evaluatedArgs = new ();
-                foreach (Node argSymbol in lambda.body.arguments!) 
+                foreach (Node argSymbol in body.arguments) 
                 {
                     JToken arg = JsonataQ.evaluate(argSymbol, lambda.input, lambda.environment);
                     evaluatedArgs.Add(arg);
@@ -1904,7 +1905,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {{lambda: boolean, input: *, environment: *, arguments: *, body: *}} Evaluated input data
         */
-        private static JToken evaluateLambda(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateLambda(LambdaNode expr, JToken input, EvaluationEnvironment environment)
         {
             /*
             // make a function (closure)
@@ -1934,12 +1935,12 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluatePartialApplication(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluatePartialApplication(FunctionalNode expr, JToken input, EvaluationEnvironment environment)
         {
             // partially apply a function
             // evaluate the arguments
             List<JToken?> evaluatedArgsOrPlaceholders = new ();
-            foreach (Node arg in expr.arguments!) 
+            foreach (Node arg in expr.arguments) 
             {
                 if (arg.type == SymbolType.@operator && (string)arg.value! == "?") 
                 {
@@ -1951,9 +1952,9 @@ namespace Jsonata.Net.Native.New
                 }
             }
             // lookup the procedure
-            JToken proc = JsonataQ.evaluate(expr.procedure!, input, environment);
+            JToken proc = JsonataQ.evaluate(expr.procedure, input, environment);
             if (proc.Type == JTokenType.Undefined
-                && expr.procedure!.type == SymbolType.path
+                && expr.procedure.type == SymbolType.path
                 && environment.Lookup((string)((PathNode)expr.procedure).steps[0].value!).Type != JTokenType.Undefined
             )
             {
@@ -1976,7 +1977,7 @@ namespace Jsonata.Net.Native.New
             }
             else
             {
-                throw new JException("T1008", expr.position, expr.procedure!.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value);
+                throw new JException("T1008", expr.position, expr.procedure.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value);
             }
             return result;
         }

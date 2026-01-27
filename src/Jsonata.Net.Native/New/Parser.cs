@@ -122,10 +122,7 @@ namespace Jsonata.Net.Native.New
             Node result;
             if (expr.type == SymbolType.function && expr.predicate == null) 
             {
-                Node thunk = new Node(SymbolType.lambda, null, expr.position); 
-                thunk.thunk = true; 
-                thunk.arguments = new(); 
-                thunk.body = expr;
+                Node thunk = new LambdaNode(expr.position, arguments: new(), signature: null, body: expr, thunk: true);
                 result = thunk;
             } 
             else if (expr.type == SymbolType.condition) 
@@ -636,25 +633,30 @@ namespace Jsonata.Net.Native.New
                 }
                 break; //_unary_object
             case SymbolType.function:
-            case SymbolType.@partial:
+            case SymbolType.partial:
                 {
-                    result = new Node(expr.type, expr.value, expr.position);
-                    result.name = expr.name;
-                    result.arguments = expr.arguments!.Select(arg => {
+                    FunctionalNode functionalExpr = (FunctionalNode)expr;
+                    Node procedure = processAST(functionalExpr.procedure);
+                    List<Node> arguments = new();
+                    result = new FunctionalNode(expr.type, expr.position, procedure: procedure, arguments: arguments);
+                    foreach (Node arg in functionalExpr.arguments)
+                    { 
                         Node argAST = this.processAST(arg);
                         this.pushAncestry(result, argAST);
-                        return argAST;
-                    }).ToList();
-                    result.procedure = processAST(expr.procedure!);
+                        arguments.Add(argAST);
+                    }
                 }
                 break;
             case SymbolType.lambda:
                 {
-                    result = new Node(SymbolType.lambda, null, expr.position);
-                    result.arguments = expr.arguments;
-                    result.signature = expr.signature;
-                    Node body = this.processAST(expr.body!);
-                    result.body = this.tailCallOptimize(body);
+                    LambdaNode lambdaExpr = (LambdaNode)expr;
+                    Node body = this.processAST(lambdaExpr.body);
+                    body = this.tailCallOptimize(body);
+                    if (lambdaExpr.thunk)
+                    {
+                        throw new Exception("IF this may happen then why not pass `lambdaExpr.thunk` as a `result.thunk`?");
+                    }
+                    result = new LambdaNode(expr.position, arguments: lambdaExpr.arguments, signature: lambdaExpr.signature, body: body, thunk: false);
                 }
                 break;
             case SymbolType.condition:

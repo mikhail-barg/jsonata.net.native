@@ -27,7 +27,7 @@ namespace Jsonata.Net.Native.New
         filter,
         bind,
         apply,
-        @partial,
+        partial,
         transform,
         descendant,
         //error,
@@ -52,31 +52,19 @@ namespace Jsonata.Net.Native.New
 
         public bool tuple { get; internal set; } = false;
         public bool consarray { get; internal set; } = false;
+        internal bool keepArray;
         public GroupNode? group { get; set; }
 
-
         // Ancestor attributes
-        internal string? index_string;
         internal SlotNode? ancestor;
         internal SlotNode? slot;
-        public List<SlotNode>? seekingParent;
+        internal List<SlotNode>? seekingParent;
+
+        internal string? index_string;
+        internal string? focus;
 
         internal List<StageNode>? stages;
         internal List<FilterNode>? predicate;
-
-        internal string? focus;
-
-
-
-        internal bool keepArray; // [
-
-        // Procedure:
-        internal Node? procedure;
-        internal List<Node>? arguments;
-        internal Node? body;
-        internal string? name;
-        internal Signature? signature;
-        internal bool thunk;
 
         internal Node(SymbolType type, object? value, int position)
         {
@@ -97,19 +85,6 @@ namespace Jsonata.Net.Native.New
 
         internal void Format(string? prefix, StringBuilder builder, int indent)
         {
-            static void FormatListIfExists(List<Node>? list, string name, StringBuilder builder, int indent)
-            {
-                if (list == null)
-                {
-                    return;
-                }
-
-                for (int i = 0; i < list.Count; ++i)
-                {
-                    list[i].Format($"{name}[{i}]: ", builder, indent);
-                }
-            }
-
             if (prefix != null)
             {
                 builder.Append('\n');
@@ -166,11 +141,44 @@ namespace Jsonata.Net.Native.New
             {
                 this.group.Format("group: ", builder, indent + 1);
             }
-            if (this.body != null)
+        }
+    }
+
+    public sealed class LambdaNode : Node
+    {
+        public readonly List<Node> arguments;
+        public readonly Signature? signature;
+        public readonly Node body;
+        public readonly bool thunk;
+
+        public LambdaNode(int position, List<Node> arguments, Signature? signature, Node body, bool thunk)
+            :base(SymbolType.lambda, null, position)
+        {
+            this.arguments = arguments;
+            this.signature = signature;
+            this.body = body;
+            this.thunk = thunk;
+        }
+    }
+
+    public sealed class FunctionalNode: Node
+    {
+        public readonly Node procedure;
+        public readonly List<Node> arguments;
+
+        public FunctionalNode(SymbolType type, int position, Node procedure, List<Node> arguments)
+            :base(type, null, position)
+        {
+            switch (type)
             {
-                this.body.Format("body: ", builder, indent + 1);
+            case SymbolType.function:
+            case SymbolType.partial:
+                break;
+            default:
+                throw new Exception($"Unexpected function type {type}");
             }
-            FormatListIfExists(this.arguments, "arguments", builder, indent + 1);
+            this.procedure = procedure;
+            this.arguments = arguments;
         }
     }
 

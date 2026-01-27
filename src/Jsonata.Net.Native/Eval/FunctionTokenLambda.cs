@@ -17,8 +17,8 @@ namespace Jsonata.Net.Native.Eval
         internal readonly bool thunk;
 
         //see jsonata.js evaluateLambda 
-        internal FunctionTokenLambda(Node expr, JToken input, EvaluationEnvironment environment)
-            :this(input: input, environment: environment, arguments: expr.arguments!, signature: expr.signature, body: expr.body!, thunk: expr.thunk)
+        internal FunctionTokenLambda(LambdaNode expr, JToken input, EvaluationEnvironment environment)
+            :this(input: input, environment: environment, arguments: expr.arguments, signature: expr.signature, body: expr.body!, thunk: expr.thunk)
         {
         }
 
