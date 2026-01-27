@@ -344,7 +344,7 @@ namespace Jsonata.Net.Native.New
                 if (Int64.TryParse(match.Groups[0].Value, out long longValue))
                 {
                     position += match.Groups[0].Value.Length;
-                    return create(SymbolType.number, longValue);
+                    return create(SymbolType._number_int, longValue);
                 }
                 else if (Double.TryParse(match.Groups[0].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double doubleValue))
                 {
@@ -357,14 +357,14 @@ namespace Jsonata.Net.Native.New
                             longValue = (long)doubleValue;
                             if (longValue == doubleValue)
                             {
-                                return create(SymbolType.number, longValue);
+                                return create(SymbolType._number_int, longValue);
                             }
                         }
                         catch (Exception)
                         {
                             //failed to cast double to long, it's ok
                         }
-                        return create(SymbolType.number, doubleValue);
+                        return create(SymbolType._number_double, doubleValue);
                     }
                     else
                     {

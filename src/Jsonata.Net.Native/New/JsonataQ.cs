@@ -64,9 +64,14 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateName(expr, input, environment);
                 break;
             case SymbolType.@string:
-            case SymbolType.number:
             case SymbolType.value:
                 result = JsonataQ.evaluateLiteral(expr); //, input, environment);
+                break;
+            case SymbolType._number_int:
+                result = JsonataQ.evaluateLiteralInt((NumberIntNode)expr); //, input, environment);
+                break;
+            case SymbolType._number_double:
+                result = JsonataQ.evaluateLiteralDouble((NumberDoubleNode)expr); //, input, environment);
                 break;
             case SymbolType.wildcard:
                 result = JsonataQ.evaluateWildcard(expr, input); //, environment);
@@ -523,16 +528,18 @@ namespace Jsonata.Net.Native.New
                 inputArray = JsonataArray.CreateSequence(input);
                 input = inputArray;
             }
-            if (predicate.type == SymbolType.number) 
+            if (predicate.type == SymbolType._number_int || predicate.type == SymbolType._number_double) 
             {
                 int index;
-                if (predicate.value is double doubleValue)
+                if (predicate.type == SymbolType._number_double)
                 {
+                    double doubleValue = ((NumberDoubleNode)predicate).value;
                     index = (int)Math.Floor(doubleValue); // round it down 
                 }
                 else
                 {
-                    index = (int)(long)predicate.value!;
+                    long longValue = ((NumberIntNode)predicate).value;
+                    index = (int)longValue;
                 }
                 if (index < 0) 
                 {
@@ -741,6 +748,16 @@ namespace Jsonata.Net.Native.New
                 throw new Exception("Should not happen");
             }
             return BuiltinFunctions.lookup(input, strValue);
+        }
+
+        private static JToken evaluateLiteralInt(NumberIntNode expr)
+        {
+            return JValue.FromObject(expr.value);
+        }
+
+        private static JToken evaluateLiteralDouble(NumberDoubleNode expr)
+        {
+            return JValue.FromObject(expr.value);
         }
 
         /**

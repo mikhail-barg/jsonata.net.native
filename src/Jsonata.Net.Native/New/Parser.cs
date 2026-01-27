@@ -78,8 +78,11 @@ namespace Jsonata.Net.Native.New
             case SymbolType.@string:
                 factory = Parser.s_terminalFactoryString;
                 break;
-            case SymbolType.number:
-                factory = Parser.s_terminalFactoryNumber;
+            case SymbolType._number_double:
+                factory = Parser.s_terminalFactoryNumberDouble;
+                break;
+            case SymbolType._number_int:
+                factory = Parser.s_terminalFactoryNumberInt;
                 break;
             case SymbolType.value:
                 factory = Parser.s_terminalFactoryValue;
@@ -342,10 +345,10 @@ namespace Jsonata.Net.Native.New
                         for (int i = 0; i < resultPath.steps.Count; ++i)
                         {
                             Node step = resultPath.steps[i];
-                            if (step.type == SymbolType.number || step.type == SymbolType.value)
+                            if (step.type == SymbolType._number_double || step.type == SymbolType._number_int || step.type == SymbolType.value)
                             {
                                 // don't allow steps to be numbers or the values true/false/null
-                                throw new JException("S0213", step.position, step.value);
+                                throw new JException("S0213", step.position, null /*step.value*/);
                             }
                             if (step.type == SymbolType.@string)
                             {
@@ -592,22 +595,15 @@ namespace Jsonata.Net.Native.New
                 {
                     UnaryMinusNode exprMinus = (UnaryMinusNode)expr;
                     Node expression = this.processAST(exprMinus.expression);
-                    
+
                     // if unary minus on a number, then pre-process
-                    if (expression.type == SymbolType.number)
+                    if (expression.type == SymbolType._number_double)
                     {
-                        if (expression.value is long longValue)
-                        {
-                            result = new Node(SymbolType.number, -longValue, expression.position);
-                        }
-                        else if (expression.value is double doubleValue)
-                        {
-                            result = new Node(SymbolType.number, -doubleValue, expression.position);
-                        }
-                        else
-                        {
-                            throw new Exception($"Should not happen {expression.value?.GetType().Name}");
-                        }
+                        result = new NumberDoubleNode(expression.position, -((NumberDoubleNode)expression).value);
+                    }
+                    else if (expression.type == SymbolType._number_int)
+                    {
+                        result = new NumberIntNode(expression.position, -((NumberIntNode)expression).value);
                     }
                     else
                     {
@@ -735,7 +731,8 @@ namespace Jsonata.Net.Native.New
                 }
                 break;
             case SymbolType.@string:
-            case SymbolType.number:
+            case SymbolType._number_double:
+            case SymbolType._number_int:
             case SymbolType.value:
             case SymbolType.wildcard:
             case SymbolType.descendant:
@@ -824,7 +821,8 @@ namespace Jsonata.Net.Native.New
         internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
         internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryTyped(SymbolType.name);
         internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryTyped(SymbolType.variable);
-        internal static readonly NodeFactoryBase s_terminalFactoryNumber = new TerminalFactoryTyped(SymbolType.number);
+        internal static readonly NodeFactoryBase s_terminalFactoryNumberDouble = new TerminalFactoryNumberDouble();
+        internal static readonly NodeFactoryBase s_terminalFactoryNumberInt = new TerminalFactoryNumberInt();
         internal static readonly NodeFactoryBase s_terminalFactoryString = new TerminalFactoryTyped(SymbolType.@string);
         internal static readonly NodeFactoryBase s_terminalFactoryValue = new TerminalFactoryTyped(SymbolType.value);
         internal static readonly NodeFactoryBase s_terminalFactoryRegex = new TerminalFactoryTyped(SymbolType.regex);

@@ -14,7 +14,7 @@ namespace Jsonata.Net.Native.New
         @operator,
         regex,
         @string,
-        number,
+        //number, //see _number_* instead
         name,
         value,
         //unary, //see _unary_* instead
@@ -42,6 +42,8 @@ namespace Jsonata.Net.Native.New
         _unary_group,       //was a part of 'unary'
         _unary_minus,       //was a part of 'unary'
         _unary_array,       //was a part of 'unary'
+        _number_int,        //was a part of number
+        _number_double,     //was a part of number
     }
 
     public class Node
@@ -82,68 +84,29 @@ namespace Jsonata.Net.Native.New
         {
             return $"{this.GetType().Name} {this.type} value={this.value}";
         }
+    }
 
-        internal void Format(string? prefix, StringBuilder builder, int indent)
+    public sealed class NumberIntNode : Node
+    {
+        public new readonly long value;
+
+        public NumberIntNode(int position, long value)
+            :base(SymbolType._number_int, null, position)
         {
-            if (prefix != null)
-            {
-                builder.Append('\n');
-            }
-
-            for (int i = 0; i < indent; ++i)
-            {
-                builder.Append('\t');
-            }
-
-            if (prefix != null)
-            {
-                builder.Append(prefix);
-            }
-            builder.Append(this.GetType().Name).Append(' ')
-                .Append(this.type.ToString()).Append(' ')
-                .Append("pos=").Append(this.position).Append(' ')
-                ;
-            if (this.value != null)
-            {
-                builder.Append("value=").Append(this.value).Append(' ');
-            }
-            if (this.tuple)
-            {
-                builder.Append("tuple ");
-            }
-            if (this.consarray)
-            {
-                builder.Append("consarray ");
-            }
-            if (this.focus != null)
-            {
-                builder.Append("focus=").Append(this.focus).Append(' ');
-            }
-            if (this.index_string != null)
-            {
-                builder.Append("index(str)=").Append(this.index_string).Append(' ');
-            }
-            if (this.keepArray)
-            {
-                builder.Append("keepArray=").Append(this.keepArray).Append(' ');
-            }
-
-            if (this.ancestor != null)
-            {
-                this.ancestor.Format("ancestor: ", builder, indent + 1);
-            }
-
-            if (this.slot != null)
-            {
-                this.slot.Format("slot: ", builder, indent + 1);
-            }
-            if (this.group != null)
-            {
-                this.group.Format("group: ", builder, indent + 1);
-            }
+            this.value = value;
         }
     }
 
+    public sealed class NumberDoubleNode : Node
+    {
+        public new readonly double value;
+
+        public NumberDoubleNode(int position, double value)
+            : base(SymbolType._number_double, null, position)
+        {
+            this.value = value;
+        }
+    }
     public sealed class LambdaNode : Node
     {
         public readonly List<Node> arguments;

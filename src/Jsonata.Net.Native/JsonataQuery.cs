@@ -19,13 +19,6 @@ namespace Jsonata.Net.Native
             this.m_ast = ast;
         }
 
-        public string FormatAst()
-        {
-            StringBuilder builder = new StringBuilder();
-            this.m_ast.Format(null, builder, 0);
-            return builder.ToString();
-        }
-
         public JToken Eval(JToken data, EvaluationEnvironment environment)
         {
             return JsonataQ.evaluateMain(this.m_ast, data, environment);

@@ -534,6 +534,38 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    internal sealed class TerminalFactoryNumberInt : NodeFactoryBase
+    {
+        public TerminalFactoryNumberInt() : base($"(int)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType._number_int)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._number_int}");
+            }
+            return new NumberIntNode(token.position, (long)token.value!);
+        }
+    }
+
+    internal sealed class TerminalFactoryNumberDouble : NodeFactoryBase
+    {
+        public TerminalFactoryNumberDouble() : base($"(double)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType._number_double)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._number_double}");
+            }
+            return new NumberDoubleNode(token.position, (double)token.value!);
+        }
+    }
+
     internal sealed class TerminalFactoryTyped : NodeFactoryBase
     {
         private readonly SymbolType m_type;
