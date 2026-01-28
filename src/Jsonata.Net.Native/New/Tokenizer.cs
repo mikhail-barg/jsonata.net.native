@@ -420,11 +420,11 @@ namespace Jsonata.Net.Native.New
                         case "and":
                             return create(SymbolType.@operator, _name);
                         case "true":
-                            return create(SymbolType.value, true);
+                            return create(SymbolType._value_bool, true);
                         case "false":
-                            return create(SymbolType.value, false);
+                            return create(SymbolType._value_bool, false);
                         case "null":
-                            return create(SymbolType.value, null);
+                            return create(SymbolType._value_null, null);
                         default:
                             if (this.position == this.length && _name == "") 
                             {

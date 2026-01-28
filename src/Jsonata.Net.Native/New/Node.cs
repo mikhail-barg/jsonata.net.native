@@ -16,7 +16,7 @@ namespace Jsonata.Net.Native.New
         @string,
         //number, //see _number_* instead
         name,
-        value,
+        //value, // see _value_* instead
         //unary, //see _unary_* instead
         function,
         lambda,
@@ -42,8 +42,10 @@ namespace Jsonata.Net.Native.New
         _unary_group,       //was a part of 'unary'
         _unary_minus,       //was a part of 'unary'
         _unary_array,       //was a part of 'unary'
-        _number_int,        //was a part of number
-        _number_double,     //was a part of number
+        _number_int,        //was a part of 'number'
+        _number_double,     //was a part of 'number'
+        _value_bool,        //was a part of 'value
+        _value_null,        //was a part of 'value
     }
 
     public class Node
@@ -83,6 +85,36 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.type} value={this.value}";
+        }
+    }
+
+    public sealed class StringNode : Node
+    {
+        public new readonly string value;
+
+        public StringNode(int position, string value)
+            : base(SymbolType.@string, null, position)
+        {
+            this.value = value;
+        }
+    }
+
+    public sealed class ValueNullNode : Node
+    {
+        public ValueNullNode(int position)
+            : base(SymbolType._value_null, null, position)
+        {
+        }
+    }
+
+    public sealed class ValueBoolNode : Node
+    {
+        public new readonly bool value;
+
+        public ValueBoolNode(int position, bool value)
+            : base(SymbolType._value_bool, null, position)
+        {
+            this.value = value;
         }
     }
 

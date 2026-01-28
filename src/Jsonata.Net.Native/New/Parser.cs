@@ -84,8 +84,11 @@ namespace Jsonata.Net.Native.New
             case SymbolType._number_int:
                 factory = Parser.s_terminalFactoryNumberInt;
                 break;
-            case SymbolType.value:
-                factory = Parser.s_terminalFactoryValue;
+            case SymbolType._value_bool:
+                factory = Parser.s_terminalFactoryValueBool;
+                break;
+            case SymbolType._value_null:
+                factory = Parser.s_terminalFactoryValueNull;
                 break;
             case SymbolType.regex:
                 factory = Parser.s_terminalFactoryRegex;
@@ -345,7 +348,11 @@ namespace Jsonata.Net.Native.New
                         for (int i = 0; i < resultPath.steps.Count; ++i)
                         {
                             Node step = resultPath.steps[i];
-                            if (step.type == SymbolType._number_double || step.type == SymbolType._number_int || step.type == SymbolType.value)
+                            if (step.type == SymbolType._number_double 
+                                || step.type == SymbolType._number_int 
+                                || step.type == SymbolType._value_bool
+                                || step.type == SymbolType._value_null
+                            )
                             {
                                 // don't allow steps to be numbers or the values true/false/null
                                 throw new JException("S0213", step.position, null /*step.value*/);
@@ -353,7 +360,7 @@ namespace Jsonata.Net.Native.New
                             if (step.type == SymbolType.@string)
                             {
                                 //step.type = SymbolType.name;
-                                resultPath.steps[i] = new Node(SymbolType.name, step.value, step.position);
+                                resultPath.steps[i] = new Node(SymbolType.name, ((StringNode)step).value, step.position);
                             }
                         }
 
@@ -733,7 +740,8 @@ namespace Jsonata.Net.Native.New
             case SymbolType.@string:
             case SymbolType._number_double:
             case SymbolType._number_int:
-            case SymbolType.value:
+            case SymbolType._value_bool:
+            case SymbolType._value_null:
             case SymbolType.wildcard:
             case SymbolType.descendant:
             case SymbolType.variable:
@@ -823,8 +831,9 @@ namespace Jsonata.Net.Native.New
         internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryTyped(SymbolType.variable);
         internal static readonly NodeFactoryBase s_terminalFactoryNumberDouble = new TerminalFactoryNumberDouble();
         internal static readonly NodeFactoryBase s_terminalFactoryNumberInt = new TerminalFactoryNumberInt();
-        internal static readonly NodeFactoryBase s_terminalFactoryString = new TerminalFactoryTyped(SymbolType.@string);
-        internal static readonly NodeFactoryBase s_terminalFactoryValue = new TerminalFactoryTyped(SymbolType.value);
+        internal static readonly NodeFactoryBase s_terminalFactoryString = new TerminalFactoryString();
+        internal static readonly NodeFactoryBase s_terminalFactoryValueBool = new TerminalFactoryValueBool();
+        internal static readonly NodeFactoryBase s_terminalFactoryValueNull = new TerminalFactoryValueNull();
         internal static readonly NodeFactoryBase s_terminalFactoryRegex = new TerminalFactoryTyped(SymbolType.regex);
 
         private static void register(Dictionary<string, NodeFactoryBase> nodeFactoryTable, NodeFactoryBase t)

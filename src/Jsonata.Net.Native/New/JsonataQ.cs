@@ -64,8 +64,13 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateName(expr, input, environment);
                 break;
             case SymbolType.@string:
-            case SymbolType.value:
-                result = JsonataQ.evaluateLiteral(expr); //, input, environment);
+                result = JsonataQ.evaluateStringLiteral((StringNode)expr); //, input, environment);
+                break;
+            case SymbolType._value_bool:
+                result = JsonataQ.evaluateBoolLiteral((ValueBoolNode)expr); //, input, environment);
+                break;
+            case SymbolType._value_null:
+                result = JsonataQ.evaluateNullLiteral((ValueNullNode)expr); //, input, environment);
                 break;
             case SymbolType._number_int:
                 result = JsonataQ.evaluateLiteralInt((NumberIntNode)expr); //, input, environment);
@@ -752,22 +757,27 @@ namespace Jsonata.Net.Native.New
 
         private static JToken evaluateLiteralInt(NumberIntNode expr)
         {
-            return JValue.FromObject(expr.value);
+            return new JValue(expr.value);
         }
 
         private static JToken evaluateLiteralDouble(NumberDoubleNode expr)
         {
-            return JValue.FromObject(expr.value);
+            return new JValue(expr.value);
         }
 
-        /**
-         * Evaluate literal against input data
-         * @param {Object} expr - JSONata expression
-         * @returns {*} Evaluated input data
-         */
-        private static JToken evaluateLiteral(Node expr)
+        private static JToken evaluateStringLiteral(StringNode expr)
         {
-            return JValue.FromObject(expr.value);
+            return new JValue(expr.value);
+        }
+
+        private static JToken evaluateBoolLiteral(ValueBoolNode expr)
+        {
+            return new JValue(expr.value);
+        }
+
+        private static JToken evaluateNullLiteral(ValueNullNode expr)
+        {
+            return JValue.CreateNull();
         }
 
         /**

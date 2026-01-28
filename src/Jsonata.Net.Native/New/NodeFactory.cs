@@ -566,6 +566,54 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    internal sealed class TerminalFactoryString : NodeFactoryBase
+    {
+        public TerminalFactoryString() : base($"(string)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType.@string)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.@string}");
+            }
+            return new StringNode(token.position, (string)token.value!);
+        }
+    }
+
+    internal sealed class TerminalFactoryValueBool : NodeFactoryBase
+    {
+        public TerminalFactoryValueBool() : base($"(bool)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType._value_bool)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._value_bool}");
+            }
+            return new ValueBoolNode(token.position, (bool)token.value!);
+        }
+    }
+
+    internal sealed class TerminalFactoryValueNull : NodeFactoryBase
+    {
+        public TerminalFactoryValueNull() : base($"(null)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType._value_null)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._value_null}");
+            }
+            return new ValueNullNode(token.position);
+        }
+    }
+
     internal sealed class TerminalFactoryTyped : NodeFactoryBase
     {
         private readonly SymbolType m_type;
