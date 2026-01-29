@@ -43,13 +43,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixFactory : NodeFactoryBase
     {
         internal InfixFactory(string id)
-            : this(id, 0)
-        {
-
-        }
-
-        internal InfixFactory(string id, int bp)
-            : base(id, bp != 0 ? bp : (id != "" ? Tokenizer.OPERATORS[id] : 0))
+            : base(id, Tokenizer.OPERATORS[id])
         {
 
         }
@@ -66,7 +60,8 @@ namespace Jsonata.Net.Native.New
     {
         private readonly SymbolType m_symbolType;
 
-        public InfixWithTypedNudFactory(string id, SymbolType symbolType) : base(id, 0)
+        public InfixWithTypedNudFactory(string id, SymbolType symbolType)
+            : base(id)
         {
             this.m_symbolType = symbolType;
         }
@@ -122,7 +117,7 @@ namespace Jsonata.Net.Native.New
     internal sealed class InfixAndPrefixMinusFactory : InfixFactory
     {
         internal InfixAndPrefixMinusFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
 
         }
@@ -138,7 +133,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixOrderByFactory : InfixFactory
     {
         internal InfixOrderByFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -183,7 +178,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixBlockFactory : InfixFactory
     {
         internal InfixBlockFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -228,7 +223,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixFocusFactory : InfixFactory
     {
         internal InfixFocusFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -247,7 +242,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixIndexFactory : InfixFactory
     {
         internal InfixIndexFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -266,7 +261,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixInvocationFactory : InfixFactory
     {
         internal InfixInvocationFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -373,7 +368,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixArrayFactory : InfixFactory
     {
         internal InfixArrayFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -439,7 +434,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixCoalescingFactory : InfixFactory
     {
         internal InfixCoalescingFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -456,7 +451,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixTernaryFactory : InfixFactory
     {
         internal InfixTernaryFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -482,7 +477,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixElvisFactory : InfixFactory
     {
         internal InfixElvisFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
@@ -497,7 +492,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixVariableBindFactory : InfixFactory
     {
         internal InfixVariableBindFactory(string id)
-            : base(id, 0)
+            : base(id)
         {
         }
 
