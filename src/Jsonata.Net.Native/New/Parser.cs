@@ -924,13 +924,13 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixBlockFactory("{", Tokenizer.OPERATORS["{"]));
 
             // bind variable
-            register(nodeFactoryTable, new InfixRVariableBindFactory(":=", Tokenizer.OPERATORS[":="]));
+            register(nodeFactoryTable, new InfixVariableBindFactory(":="));
 
             // focus variable bind
-            register(nodeFactoryTable, new InfixFocusFactory("@", Tokenizer.OPERATORS["@"]));
+            register(nodeFactoryTable, new InfixFocusFactory("@"));
 
             // index (position) variable bind
-            register(nodeFactoryTable, new InfixIndexFactory("#", Tokenizer.OPERATORS["#"]));
+            register(nodeFactoryTable, new InfixIndexFactory("#"));
 
             // if/then/else ternary operator ?:
             register(nodeFactoryTable, new InfixTernaryFactory("?"));

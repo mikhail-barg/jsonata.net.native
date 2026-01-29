@@ -227,8 +227,8 @@ namespace Jsonata.Net.Native.New
 
     internal class InfixFocusFactory : InfixFactory
     {
-        internal InfixFocusFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixFocusFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -246,8 +246,8 @@ namespace Jsonata.Net.Native.New
 
     internal class InfixIndexFactory : InfixFactory
     {
-        internal InfixIndexFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixIndexFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -492,20 +492,10 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    // match infix operators
-    // <expression> <operator> <expression>
-    // right associative
-    internal abstract class InfixRFactory : NodeFactoryBase
+    internal class InfixVariableBindFactory : InfixFactory
     {
-        internal InfixRFactory(string id, int bp)
-            : base(id, bp)
-        {
-        }
-    }
-
-    internal class InfixRVariableBindFactory : InfixRFactory
-    {
-        internal InfixRVariableBindFactory(string id, int bp) : base(id, bp)
+        internal InfixVariableBindFactory(string id)
+            : base(id, 0)
         {
         }
 
