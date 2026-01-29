@@ -910,18 +910,18 @@ namespace Jsonata.Net.Native.New
             // });
 
             // function invocation
-            register(nodeFactoryTable, new InfixInvocationFactory("(", Tokenizer.OPERATORS["("]));
+            register(nodeFactoryTable, new InfixInvocationFactory("("));
 
 
             // array constructor
 
             // merged: register(new Prefix("[") {        
-            register(nodeFactoryTable, new InfixArrayFactory("[", Tokenizer.OPERATORS["["]));
+            register(nodeFactoryTable, new InfixArrayFactory("["));
 
             // order-by
-            register(nodeFactoryTable, new InfixOrderByFactory("^", Tokenizer.OPERATORS["^"]));
+            register(nodeFactoryTable, new InfixOrderByFactory("^"));
 
-            register(nodeFactoryTable, new InfixBlockFactory("{", Tokenizer.OPERATORS["{"]));
+            register(nodeFactoryTable, new InfixBlockFactory("{"));
 
             // bind variable
             register(nodeFactoryTable, new InfixVariableBindFactory(":="));

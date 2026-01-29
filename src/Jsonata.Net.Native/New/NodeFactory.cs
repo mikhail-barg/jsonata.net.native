@@ -137,8 +137,8 @@ namespace Jsonata.Net.Native.New
 
     internal class InfixOrderByFactory : InfixFactory
     {
-        internal InfixOrderByFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixOrderByFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -182,8 +182,8 @@ namespace Jsonata.Net.Native.New
 
     internal class InfixBlockFactory : InfixFactory
     {
-        internal InfixBlockFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixBlockFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -265,7 +265,8 @@ namespace Jsonata.Net.Native.New
 
     internal class InfixInvocationFactory : InfixFactory
     {
-        internal InfixInvocationFactory(string id, int bp) : base(id, bp)
+        internal InfixInvocationFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -371,7 +372,8 @@ namespace Jsonata.Net.Native.New
 
     internal class InfixArrayFactory : InfixFactory
     {
-        internal InfixArrayFactory(string id, int bp) : base(id, bp)
+        internal InfixArrayFactory(string id)
+            : base(id, 0)
         {
         }
 
