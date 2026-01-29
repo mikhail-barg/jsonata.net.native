@@ -883,7 +883,7 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixFactory("~>")); // function application
 
             // coalescing operator
-            register(nodeFactoryTable, new InfixCoalescingFactory("??", Tokenizer.OPERATORS["??"]));
+            register(nodeFactoryTable, new InfixCoalescingFactory("??"));
 
             //register(nodeFactoryTable, new InfixRErrorFactory("(error)", 10));
 
@@ -933,10 +933,10 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixIndexFactory("#", Tokenizer.OPERATORS["#"]));
 
             // if/then/else ternary operator ?:
-            register(nodeFactoryTable, new InfixTernaryFactory("?", Tokenizer.OPERATORS["?"]));
+            register(nodeFactoryTable, new InfixTernaryFactory("?"));
 
             // elvis/default operator
-            register(nodeFactoryTable, new InfixElvisFactory("?:", Tokenizer.OPERATORS["?:"]));
+            register(nodeFactoryTable, new InfixElvisFactory("?:"));
 
             // object transformer
             register(nodeFactoryTable, new PrefixTransformerFactory("|"));

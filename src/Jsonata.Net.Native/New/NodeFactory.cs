@@ -43,7 +43,7 @@ namespace Jsonata.Net.Native.New
     internal class InfixFactory : NodeFactoryBase
     {
         internal InfixFactory(string id)
-                    : this(id, 0)
+            : this(id, 0)
         {
 
         }
@@ -434,23 +434,10 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal abstract class InfixConditionFactory : InfixFactory
+    internal class InfixCoalescingFactory : InfixFactory
     {
-        internal InfixConditionFactory(string id, int bp)
-            : base(id, bp)
-        {
-        }
-
-        internal override Node led(Node left, Parser parser, Token token)
-        {
-            throw new Exception("Should not happen");
-        }
-    }
-
-    internal class InfixCoalescingFactory : InfixConditionFactory
-    {
-        internal InfixCoalescingFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixCoalescingFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -464,10 +451,10 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixTernaryFactory : InfixConditionFactory
+    internal class InfixTernaryFactory : InfixFactory
     {
-        internal InfixTernaryFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixTernaryFactory(string id)
+            : base(id, 0)
         {
         }
 
@@ -490,10 +477,10 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixElvisFactory : InfixConditionFactory
+    internal class InfixElvisFactory : InfixFactory
     {
-        internal InfixElvisFactory(string id, int bp)
-            : base(id, bp)
+        internal InfixElvisFactory(string id)
+            : base(id, 0)
         {
         }
 

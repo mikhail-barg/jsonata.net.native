@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -46,6 +47,48 @@ namespace Jsonata.Net.Native.New
         _number_double,     //was a part of 'number'
         _value_bool,        //was a part of 'value
         _value_null,        //was a part of 'value
+    }
+
+    public enum OperatorType
+    {
+        range,      // double-dot .. range operator
+        assignment, // := assignment
+        ne,         // !=
+        ge,         // >=
+        le,         // <=
+        descendant, // **  descendant wildcard
+        chain,      // ~>  chain function
+        elvis,      // ?: default / elvis operator
+        coalescing, // ?? coalescing operator
+        dot,            // .
+        bracket_square_open,    // [
+        bracket_square_close,   // ]
+        bracket_curly_open,     // {
+        bracket_curly_close,    // }
+        bracket_round_open,     // (
+        bracket_round_close,    // )
+        comma,                  // ,
+        context_var_bind,       // @
+        positional_var_bind,    // #
+        semicolon,              // ;
+        colon,                  // :
+        question,               // ?
+        plus,                   // +
+        minus,                  // -
+        mul,                    // *
+        div,                    // /
+        mod,                    // %
+        transform,              // |
+        eq,                     // =
+        lt,                     // <
+        gt,                     // >
+        sort,                   // ^
+        and,    // and
+        or,     // or
+        @in,    // in
+        concat, // &
+        excl,   // !    - not sure what it does
+        tilda,  // ~    - not sure what it does
     }
 
     public class Node
