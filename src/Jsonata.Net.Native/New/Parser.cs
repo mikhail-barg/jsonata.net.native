@@ -448,71 +448,6 @@ namespace Jsonata.Net.Native.New
                         
                     }
                     break;
-                case ":=":
-                    {
-                        Node lhs = this.processAST(exprBinary.lhs);
-                        Node rhs = this.processAST(exprBinary.rhs);
-                        result = new BindNode(exprBinary.position, lhs, rhs);
-                        this.pushAncestry(result, rhs);
-                    }
-                    break;
-                case "@":
-                    {
-                        result = this.processAST(exprBinary.lhs);
-                        Node step = result;
-                        if (result.type == SymbolType.path)
-                        {
-                            step = ((PathNode)result).steps[^1];
-                        }
-                        // throw error if there are any predicates defined at this point
-                        // at this point the only type of stages can be predicates
-                        if (step.stages != null || step.predicate != null)
-                        {
-                            throw new JException("S0215", exprBinary.position);
-                        }
-                        // also throw if this is applied after an 'order-by' clause
-                        if (step.type == SymbolType.sort)
-                        {
-                            throw new JException("S0216", exprBinary.position);
-                        }
-                        if (exprBinary.keepArray)
-                        {
-                            step.keepArray = true;
-                        }
-                        step.focus = (string)exprBinary.rhs.value!;
-                        step.tuple = true;
-                    }
-                    break;
-                case "#":
-                    {
-                        result = processAST(exprBinary.lhs);
-                        Node step;
-                        if (result.type == SymbolType.path)
-                        {
-                            step = ((PathNode)result).steps[^1];
-                        }
-                        else
-                        {
-                            step = result;
-                            result = new PathNode(new() { step });
-                            if (step.predicate != null)
-                            {
-                                step.stages = step.predicate.OfType<StageNode>().ToList();
-                                step.predicate = null;
-                            }
-                        }
-                        if (step.stages == null)
-                        {
-                            step.index_string = (string)exprBinary.rhs.value!; // name of index variable = String
-                        }
-                        else
-                        {
-                            IndexNode _res = new IndexNode(expr.position, (string)exprBinary.rhs.value!);
-                            step.stages.Add(_res);
-                        }
-                        step.tuple = true;
-                    }
-                    break;
                 case "~>":
                     {
                         Node lhs = this.processAST(exprBinary.lhs);
@@ -532,6 +467,78 @@ namespace Jsonata.Net.Native.New
                     break;
                 }
                 break; // binary
+            case SymbolType._binary_bind_assign:
+                {
+                    BindAssignVarNode exprBind = (BindAssignVarNode)expr;
+                    Node lhs = this.processAST(exprBind.lhs);
+                    Node rhs = this.processAST(exprBind.rhs);
+                    if (lhs.type != SymbolType.variable)
+                    {
+                        throw new Exception("Should not happen, because exprBind.lhs was variable!");
+                    }
+                    result = new BindNode(exprBind.position, (VariableNode)lhs, rhs);
+                    this.pushAncestry(result, rhs);
+                }
+                break;
+            case SymbolType._binary_bind_context:
+                {
+                    BindContextVarNode exprBind = (BindContextVarNode)expr;
+                    result = this.processAST(exprBind.lhs);
+                    Node step = result;
+                    if (result.type == SymbolType.path)
+                    {
+                        step = ((PathNode)result).steps[^1];
+                    }
+                    // throw error if there are any predicates defined at this point
+                    // at this point the only type of stages can be predicates
+                    if (step.stages != null || step.predicate != null)
+                    {
+                        throw new JException("S0215", exprBind.position);
+                    }
+                    // also throw if this is applied after an 'order-by' clause
+                    if (step.type == SymbolType.sort)
+                    {
+                        throw new JException("S0216", exprBind.position);
+                    }
+                    if (exprBind.keepArray)
+                    {
+                        step.keepArray = true;
+                    }
+                    step.focus = exprBind.rhs.value;
+                    step.tuple = true;
+                }
+                break;
+            case SymbolType._binary_bind_positional:
+                {
+                    BindPositionalVarNode exprBind = (BindPositionalVarNode)expr;
+                    result = processAST(exprBind.lhs);
+                    Node step;
+                    if (result.type == SymbolType.path)
+                    {
+                        step = ((PathNode)result).steps[^1];
+                    }
+                    else
+                    {
+                        step = result;
+                        result = new PathNode(new() { step });
+                        if (step.predicate != null)
+                        {
+                            step.stages = step.predicate.OfType<StageNode>().ToList();
+                            step.predicate = null;
+                        }
+                    }
+                    if (step.stages == null)
+                    {
+                        step.index_string = exprBind.rhs.value;
+                    }
+                    else
+                    {
+                        IndexNode _res = new IndexNode(expr.position, exprBind.rhs.value);
+                        step.stages.Add(_res);
+                    }
+                    step.tuple = true;
+                }
+                break;
             case SymbolType._binary_groupby:
                 {
                     // group-by
@@ -830,7 +837,7 @@ namespace Jsonata.Net.Native.New
         private static readonly Dictionary<string, NodeFactoryBase> s_binaryFactoryTable = CreateNodeFactoryTable();
         internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
         internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryTyped(SymbolType.name);
-        internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryTyped(SymbolType.variable);
+        internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryVariable();
         internal static readonly NodeFactoryBase s_terminalFactoryNumberDouble = new TerminalFactoryNumberDouble();
         internal static readonly NodeFactoryBase s_terminalFactoryNumberInt = new TerminalFactoryNumberInt();
         internal static readonly NodeFactoryBase s_terminalFactoryString = new TerminalFactoryString();
@@ -926,13 +933,13 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixBlockFactory("{"));
 
             // bind variable
-            register(nodeFactoryTable, new InfixVariableBindFactory(":="));
+            register(nodeFactoryTable, new InfixBindAssignVarFactory(":="));
 
             // focus variable bind
-            register(nodeFactoryTable, new InfixFocusFactory("@"));
+            register(nodeFactoryTable, new InfixBindContextVarFactory("@"));
 
             // index (position) variable bind
-            register(nodeFactoryTable, new InfixIndexFactory("#"));
+            register(nodeFactoryTable, new InfixBindPositionalVarFactory("#"));
 
             // if/then/else ternary operator ?:
             register(nodeFactoryTable, new InfixTernaryFactory("?"));

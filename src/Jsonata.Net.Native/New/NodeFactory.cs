@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Jsonata.Net.Native.Eval;
 
 namespace Jsonata.Net.Native.New
 {
@@ -237,9 +238,9 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixFocusFactory : InfixFactory
+    internal class InfixBindContextVarFactory : InfixFactory
     {
-        internal InfixFocusFactory(string id)
+        internal InfixBindContextVarFactory(string id)
             : base(id)
         {
         }
@@ -247,18 +248,18 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node rhs = parser.expression(Tokenizer.OPERATORS["@"]);
-            Node symbol = new BinaryNode((string)token.value!, token.position, left, rhs);
             if (rhs.type != SymbolType.variable)
             {
                 throw new JException("S0214", rhs.position, "@");
             }
-            return symbol;
+            Node result = new BindContextVarNode(token.position, left, (VariableNode)rhs);
+            return result;
         }
     }
 
-    internal class InfixIndexFactory : InfixFactory
+    internal class InfixBindPositionalVarFactory : InfixFactory
     {
-        internal InfixIndexFactory(string id)
+        internal InfixBindPositionalVarFactory(string id)
             : base(id)
         {
         }
@@ -266,12 +267,12 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node rhs = parser.expression(Tokenizer.OPERATORS["#"]);
-            Node symbol = new BinaryNode((string)token.value!, token.position, left, rhs);
             if (rhs.type != SymbolType.variable)
             {
                 throw new JException("S0214", rhs.position, "#");
             }
-            return symbol;
+            Node result = new BindPositionalVarNode(token.position, left, (VariableNode)rhs);
+            return result;
         }
     }
 
@@ -314,15 +315,14 @@ namespace Jsonata.Net.Native.New
             if (left.type == SymbolType.name && (left.value!.Equals("function") || left.value!.Equals("\u03BB")))
             {
                 // all of the args must be VARIABLE tokens
-                //int index = 0;
+                List<VariableNode> argVariables = new(arguments.Count);
                 foreach (Node arg in arguments)
                 {
-                    //this.arguments.forEach(function (arg, index) {
                     if (arg.type != SymbolType.variable)
                     {
                         throw new JException("S0208", arg.position, arg.value);
                     }
-                    //index++;
+                    argVariables.Add((VariableNode)arg);
                 }
                 // type = SymbolType.lambda;
                 Signature? signature = null;
@@ -353,7 +353,7 @@ namespace Jsonata.Net.Native.New
                 Node body = parser.expression(0);
                 parser.advance("}");
 
-                Node result = new LambdaNode(token.position, arguments: arguments, signature: signature, body: body, thunk: false);
+                Node result = new LambdaNode(token.position, arguments: argVariables, signature: signature, body: body, thunk: false);
                 return result;
             }
             else
@@ -457,7 +457,7 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node procedure = new Node(SymbolType.variable, "exists", -1); //"(", 
+            Node procedure = new VariableNode(-1, nameof(BuiltinFunctions.exists));     //TODO: probably should be 'name'??
             FunctionalNode condition = new FunctionalNode(SymbolType.function, -1, procedure: procedure, arguments: new() { left });
             Node @else = parser.expression(0);
             ConditionNode result = new ConditionNode(token.position, condition: condition, then: left, @else: @else);
@@ -506,9 +506,9 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal class InfixVariableBindFactory : InfixFactory
+    internal class InfixBindAssignVarFactory : InfixFactory
     {
-        internal InfixVariableBindFactory(string id)
+        internal InfixBindAssignVarFactory(string id)
             : base(id)
         {
         }
@@ -520,7 +520,7 @@ namespace Jsonata.Net.Native.New
                 throw new JException("S0212", left.position, left.value);
             }
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
-            Node result = new BinaryNode((string)token.value!, token.position, left, rhs);
+            Node result = new BindAssignVarNode(token.position, (VariableNode)left, rhs);
             return result;
         }
     }
@@ -604,6 +604,23 @@ namespace Jsonata.Net.Native.New
             return new ValueNullNode(token.position);
         }
     }
+
+    internal sealed class TerminalFactoryVariable : NodeFactoryBase
+    {
+        public TerminalFactoryVariable() : base($"(var)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType.variable)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.variable}");
+            }
+            return new VariableNode(token.position, (string)token.value!);
+        }
+    }
+
 
     internal sealed class TerminalFactoryTyped : NodeFactoryBase
     {

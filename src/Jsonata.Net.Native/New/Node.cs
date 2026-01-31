@@ -38,8 +38,11 @@ namespace Jsonata.Net.Native.New
         _end, 
         _sort_term,
         _slot,
-        _binary_orderby,    //was a part of 'binary', gets optimized away during processAST() phase
-        _binary_groupby,    //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_orderby,            //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_groupby,            //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_bind_context,       //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_bind_positional,    //was a part of 'binary', gets optimized away during processAST() phase
+        _binary_bind_assign,        //was a part of 'binary', gets optimized away during processAST() phase //TODO: converge with 'bind'
         _unary_group,       //was a part of 'unary'
         _unary_minus,       //was a part of 'unary'
         _unary_array,       //was a part of 'unary'
@@ -51,7 +54,7 @@ namespace Jsonata.Net.Native.New
 
     public enum OperatorType
     {
-        partial,    // "?" - partial function arg. TODO: why at all it's an operator??
+        partial,    // "?" - partial function arg. TODO: why at all it's an operator?? let's make it specific type!
         and,
         or,
         @in
@@ -94,6 +97,56 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.type} value={this.value}";
+        }
+    }
+
+    public sealed class BindAssignVarNode : Node
+    {
+        public readonly VariableNode lhs;
+        public readonly Node rhs;
+
+        public BindAssignVarNode(int position, VariableNode lhs, Node rhs)
+            : base(SymbolType._binary_bind_assign, null, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+    }
+
+    public sealed class BindPositionalVarNode : Node
+    {
+        public readonly Node lhs;
+        public readonly VariableNode rhs;
+
+        public BindPositionalVarNode(int position, Node lhs, VariableNode rhs)
+            : base(SymbolType._binary_bind_positional, null, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+    }
+
+    public sealed class BindContextVarNode : Node
+    {
+        public readonly Node lhs;
+        public readonly VariableNode rhs;
+
+        public BindContextVarNode(int position, Node lhs, VariableNode rhs)
+            : base(SymbolType._binary_bind_context, null, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
+        }
+    }
+
+    public sealed class VariableNode : Node
+    {
+        public new readonly string value;
+
+        public VariableNode(int position, string value)
+            : base(SymbolType.variable, null, position)
+        {
+            this.value = value;
         }
     }
 
@@ -161,12 +214,12 @@ namespace Jsonata.Net.Native.New
     }
     public sealed class LambdaNode : Node
     {
-        public readonly List<Node> arguments;
+        public readonly List<VariableNode> arguments;
         public readonly Signature? signature;
         public readonly Node body;
         public readonly bool thunk;
 
-        public LambdaNode(int position, List<Node> arguments, Signature? signature, Node body, bool thunk)
+        public LambdaNode(int position, List<VariableNode> arguments, Signature? signature, Node body, bool thunk)
             :base(SymbolType.lambda, null, position)
         {
             this.arguments = arguments;
@@ -315,10 +368,10 @@ namespace Jsonata.Net.Native.New
 
     public sealed class BindNode : Node
     {
-        public readonly Node lhs;
+        public readonly VariableNode lhs;
         public readonly Node rhs;
 
-        public BindNode(int position, Node lhs, Node rhs)
+        public BindNode(int position, VariableNode lhs, Node rhs)
             : base(SymbolType.bind, null, position)
         {
             this.lhs = lhs;

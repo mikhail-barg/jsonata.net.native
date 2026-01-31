@@ -103,7 +103,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateFunction((FunctionalNode)expr, input, environment, null);
                 break;
             case SymbolType.variable:
-                result = JsonataQ.evaluateVariable(expr, input, environment);
+                result = JsonataQ.evaluateVariable((VariableNode)expr, input, environment);
                 break;
             case SymbolType.lambda:
                 result = JsonataQ.evaluateLambda((LambdaNode)expr, input, environment);
@@ -1462,7 +1462,7 @@ namespace Jsonata.Net.Native.New
             // The RHS is the expression to evaluate
             // The LHS is the name of the variable to bind to - should be a VARIABLE token (enforced by parser)
             JToken value = JsonataQ.evaluate(expr.rhs, input, environment);
-            environment.BindValue((string)expr.lhs.value!, value);
+            environment.BindValue(expr.lhs.value, value);
             return value;
         }
 
@@ -1533,19 +1533,19 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateVariable(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateVariable(VariableNode expr, JToken input, EvaluationEnvironment environment)
         {
             // lookup the variable value in the environment
             JToken result;
             // if the variable name is empty string, then it refers to context value
-            if (expr.value is string strValue && strValue == "")
+            if (expr.value == "")
             {
                 // Empty string == "$" !
                 result = ((input is JsonataArray arrayInput) && arrayInput.outerWrapper) ? arrayInput.ChildrenTokens[0] : input;
             }
             else
             {
-                result = environment.Lookup((string)expr.value!);
+                result = environment.Lookup(expr.value);
             }
             return result;
         }
@@ -1864,12 +1864,12 @@ namespace Jsonata.Net.Native.New
                 // unpack it, evaluate its arguments, and apply the tail call
                 FunctionalNode body = (FunctionalNode)lambda.body;
                 JToken next = JsonataQ.evaluate(body.procedure, lambda.input, lambda.environment);
-                if (body.procedure.type == SymbolType.variable)
-                {
-                    //TODO:???
-                    //next.token = result.body.procedure.value;
-                }
-                //next.position = result.body.procedure.position;
+                // TODO:???
+                // if (body.procedure.type == SymbolType.variable)
+                // {
+                //     //next.token = result.body.procedure.value;
+                // }
+                // //next.position = result.body.procedure.position;
 
                 List<JToken> evaluatedArgs = new ();
                 foreach (Node argSymbol in body.arguments) 
@@ -2028,9 +2028,9 @@ namespace Jsonata.Net.Native.New
             EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
             for (int index = 0; index < proc.arguments.Count; ++index)
             {
-                Node param = proc.arguments[index];
+                VariableNode param = proc.arguments[index];
                 JToken argValue = index < args.Count? args[index] : JsonataQ.UNDEFINED;
-                env.BindValue((string)param.value!, argValue);
+                env.BindValue(param.value, argValue);
             }
             JToken result;
             /* TODO?
@@ -2058,10 +2058,10 @@ namespace Jsonata.Net.Native.New
         {
             // create a closure, bind the supplied parameters and return a function that takes the remaining (?) parameters
             EvaluationEnvironment env = EvaluationEnvironment.CreateNestedEnvironment(proc.environment);
-            List<Node> unboundArgs = new();
+            List<VariableNode> unboundArgs = new();
             for (int index = 0; index < proc.arguments.Count; ++ index)
             {
-                Node param = proc.arguments[index];
+                VariableNode param = proc.arguments[index];
                 JToken? arg = argsOrPlaceholders[index];
                 if (arg == null)
                 {
@@ -2069,7 +2069,7 @@ namespace Jsonata.Net.Native.New
                 }
                 else
                 {
-                    env.BindValue((string)param.value!, arg);
+                    env.BindValue(param.value, arg);
                 }
             }
 
