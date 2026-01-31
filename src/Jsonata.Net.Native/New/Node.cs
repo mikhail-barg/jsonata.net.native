@@ -51,44 +51,10 @@ namespace Jsonata.Net.Native.New
 
     public enum OperatorType
     {
-        range,      // double-dot .. range operator
-        assignment, // := assignment
-        ne,         // !=
-        ge,         // >=
-        le,         // <=
-        descendant, // **  descendant wildcard
-        chain,      // ~>  chain function
-        elvis,      // ?: default / elvis operator
-        coalescing, // ?? coalescing operator
-        dot,            // .
-        bracket_square_open,    // [
-        bracket_square_close,   // ]
-        bracket_curly_open,     // {
-        bracket_curly_close,    // }
-        bracket_round_open,     // (
-        bracket_round_close,    // )
-        comma,                  // ,
-        context_var_bind,       // @
-        positional_var_bind,    // #
-        semicolon,              // ;
-        colon,                  // :
-        question,               // ?
-        plus,                   // +
-        minus,                  // -
-        mul,                    // *
-        div,                    // /
-        mod,                    // %
-        transform,              // |
-        eq,                     // =
-        lt,                     // <
-        gt,                     // >
-        sort,                   // ^
-        and,    // and
-        or,     // or
-        @in,    // in
-        concat, // &
-        excl,   // !    - not sure what it does
-        tilda,  // ~    - not sure what it does
+        partial,    // "?" - partial function arg. TODO: why at all it's an operator??
+        and,
+        or,
+        @in
     }
 
     public class Node
@@ -128,6 +94,17 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.type} value={this.value}";
+        }
+    }
+
+    public sealed class OperatorNode : Node
+    {
+        public new readonly OperatorType value;
+
+        public OperatorNode(int position, OperatorType value)
+            : base(SymbolType.@operator, null, position)
+        {
+            this.value = value;
         }
     }
 

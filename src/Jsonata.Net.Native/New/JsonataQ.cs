@@ -1977,7 +1977,7 @@ namespace Jsonata.Net.Native.New
             List<JToken?> evaluatedArgsOrPlaceholders = new ();
             foreach (Node arg in expr.arguments) 
             {
-                if (arg.type == SymbolType.@operator && (string)arg.value! == "?") 
+                if (arg.type == SymbolType.@operator && ((OperatorNode)arg).value == OperatorType.partial) 
                 {
                     evaluatedArgsOrPlaceholders.Add(null);
                 } 

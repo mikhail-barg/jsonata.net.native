@@ -73,6 +73,23 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    internal sealed class InfixWithOperatorPrefixFactory : InfixFactory
+    {
+        private readonly OperatorType m_operatorType;
+
+        public InfixWithOperatorPrefixFactory(string id, OperatorType operatorType)
+            : base(id)
+        {
+            this.m_operatorType = operatorType;
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            Node result = new OperatorNode(token.position, this.m_operatorType);
+            return result;
+        }
+    }
+
     internal class PrefixTransformerFactory : NodeFactoryBase
     {
         internal PrefixTransformerFactory(string id)
@@ -278,7 +295,7 @@ namespace Jsonata.Net.Native.New
                         // partial function application
                         type = SymbolType.partial;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        arguments.Add(new Node(SymbolType.@operator, value: "?", -1));
+                        arguments.Add(new OperatorNode(-1, OperatorType.partial));
                         parser.advance("?");
                     }
                     else

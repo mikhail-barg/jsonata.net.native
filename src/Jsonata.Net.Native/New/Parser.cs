@@ -66,7 +66,7 @@ namespace Jsonata.Net.Native.New
                 factory = Parser.s_terminalFactoryVariable;
                 break;
             case SymbolType.@operator:
-                if (!Parser.s_nodeFactoryTable.TryGetValue(this.currentToken.value!.ToString()!, out NodeFactoryBase? foundFactory))
+                if (!Parser.s_binaryFactoryTable.TryGetValue(this.currentToken.value!.ToString()!, out NodeFactoryBase? foundFactory))
                 {
                     throw new JException("S0204", this.currentToken.position, this.currentToken.value);
                 }
@@ -750,22 +750,24 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.@operator:
                 {
+                    OperatorNode exprOperator = (OperatorNode)expr;
                     // the tokens 'and' and 'or' might have been used as a name rather than an operator
-                    if (expr.value!.Equals("and") || expr.value.Equals("or") || expr.value.Equals("in"))
+                    switch (exprOperator.value)
                     {
-                        //expr.type = SymbolType.name;
-                        //result = this.processAST(expr);
-
-                        Node newExpr = new Node(SymbolType.name, expr.value, expr.position);
-                        result = this.processAST(newExpr);
-                    }
-                    else if (expr.value.Equals("?"))
-                    {
+                    case OperatorType.and:
+                        result = this.processAST(new Node(SymbolType.name, "and", expr.position));
+                        break;
+                    case OperatorType.or:
+                        result = this.processAST(new Node(SymbolType.name, "or", expr.position));
+                        break;
+                    case OperatorType.@in:
+                        result = this.processAST(new Node(SymbolType.name, "in", expr.position));
+                        break;
+                    case OperatorType.partial:
                         // partial application
                         result = expr;
-                    }
-                    else
-                    {
+                        break;
+                    default:
                         throw new JException("S0201", expr.position, expr.value);
                     }
                 }
@@ -825,7 +827,7 @@ namespace Jsonata.Net.Native.New
             return parser.parse(query);
         }
 
-        private static readonly Dictionary<string, NodeFactoryBase> s_nodeFactoryTable = CreateNodeFactoryTable();
+        private static readonly Dictionary<string, NodeFactoryBase> s_binaryFactoryTable = CreateNodeFactoryTable();
         internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
         internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryTyped(SymbolType.name);
         internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryTyped(SymbolType.variable);
@@ -873,9 +875,9 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixFactory(">=")); // greater than or equal
             register(nodeFactoryTable, new InfixFactory("&")); // string concatenation
 
-            register(nodeFactoryTable, new InfixWithTypedNudFactory("and", SymbolType.@operator)); // allow as terminal // Boolean AND
-            register(nodeFactoryTable, new InfixWithTypedNudFactory("or", SymbolType.@operator)); // allow as terminal // Boolean OR
-            register(nodeFactoryTable, new InfixWithTypedNudFactory("in", SymbolType.@operator)); // allow as terminal // is member of array
+            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("and", OperatorType.and)); // allow as terminal // Boolean AND
+            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("or", OperatorType.or)); // allow as terminal // Boolean OR
+            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("in", OperatorType.@in)); // allow as terminal // is member of array
             // merged Infix: register(new Terminal("and")); // the 'keywords' can also be used as terminals (field names)
             // merged Infix: register(new Terminal("or")); //
             // merged Infix: register(new Terminal("in")); //
