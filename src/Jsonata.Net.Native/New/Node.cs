@@ -45,6 +45,7 @@ namespace Jsonata.Net.Native.New
         _binary_bind_positional,    //was a part of 'binary', gets optimized away during processAST() phase
         _binary_bind_assign,        //was a part of 'binary', gets optimized away during processAST() phase //TODO: converge with 'bind'?
         _binary_path_node,          //was a part of 'binary', gets optimized away during processAST() phase //TODO: converge with 'path'?
+        _binary_filter_node,        //was a part of 'binary', gets optimized away during processAST() phase 
         _unary_group,       //was a part of 'unary'
         _unary_minus,       //was a part of 'unary'
         _unary_array,       //was a part of 'unary'
@@ -97,6 +98,19 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.type}";
+        }
+    }
+
+    public sealed class BinaryFilterNode : Node
+    {
+        public readonly Node lhs;
+        public readonly Node rhs;
+
+        public BinaryFilterNode(int position, Node lhs, Node rhs)
+            : base(SymbolType._binary_filter_node, position)
+        {
+            this.lhs = lhs;
+            this.rhs = rhs;
         }
     }
 

@@ -368,73 +368,74 @@ namespace Jsonata.Net.Native.New
                     this.resolveAncestry(resultPath);
                     result = resultPath;
                 }
-                break;
+                break; //_binary_path_node
+            case SymbolType._binary_filter_node:
+                {
+                    BinaryFilterNode exprBinaryFilter = (BinaryFilterNode)expr;
+                    // predicated step
+                    // LHS is a step or a predicated step
+                    // RHS is the predicate expr
+                    result = this.processAST(exprBinaryFilter.lhs);
+                    Node step = result;
+                    bool typeIsStages;      //if false -> type is 'predicate'
+                    if (result.type == SymbolType.path)
+                    {
+                        step = ((PathNode)result).steps[^1];
+                        typeIsStages = true;  // type = 'stages'
+                    }
+                    else
+                    {
+                        typeIsStages = false; // type = 'predicate'
+                    }
+                    if (step.group != null)
+                    {
+                        throw new JException("S0209", expr.position);
+                    }
+
+                    Node predicate = this.processAST(exprBinaryFilter.rhs);
+                    if (predicate.seekingParent != null)
+                    {
+                        foreach (SlotNode slot in predicate.seekingParent)
+                        {
+                            if (slot.level == 1)
+                            {
+                                this.seekParent(step, slot);
+                            }
+                            else
+                            {
+                                --slot.level;
+                            }
+                        }
+                        this.pushAncestry(step, predicate);
+                    }
+                    FilterNode filter = new FilterNode(expr.position, predicate);
+
+                    // if (typeof step[type] === 'undefined') {
+                    //    step[type] = [];
+                    // }
+                    //step[type].push({type: 'filter', expr: predicate, position: expr.position});
+                    if (typeIsStages)
+                    {
+                        if (step.stages == null)
+                        {
+                            step.stages = new();
+                        }
+                        step.stages.Add(filter);
+                    }
+                    else
+                    {
+                        if (step.predicate == null)
+                        {
+                            step.predicate = new();
+                        }
+                        step.predicate.Add(filter);
+                    }
+                }
+                break; //_binary_filter_node
             case SymbolType.binary:
                 BinaryNode exprBinary = (BinaryNode)expr;
                 switch (exprBinary.value)
                 {
-                case "[":
-                    {
-                        // predicated step
-                        // LHS is a step or a predicated step
-                        // RHS is the predicate expr
-                        result = this.processAST(exprBinary.lhs);
-                        Node step = result;
-                        bool typeIsStages;      //if false -> type is 'predicate'
-                        if (result.type == SymbolType.path)
-                        {
-                            step = ((PathNode)result).steps[^1];
-                            typeIsStages = true;  // type = 'stages'
-                        }
-                        else
-                        {
-                            typeIsStages = false; // type = 'predicate'
-                        }
-                        if (step.group != null)
-                        {
-                            throw new JException("S0209", expr.position);
-                        }
-
-                        Node predicate = this.processAST(exprBinary.rhs);
-                        if (predicate.seekingParent != null)
-                        {
-                            foreach (SlotNode slot in predicate.seekingParent)
-                            {
-                                if (slot.level == 1) 
-                                {
-                                    this.seekParent(step, slot);
-                                } 
-                                else 
-                                {
-                                    --slot.level;
-                                }
-                            }
-                            this.pushAncestry(step, predicate);
-                        }
-                        FilterNode filter = new FilterNode(expr.position, predicate);
-
-                        // if (typeof step[type] === 'undefined') {
-                        //    step[type] = [];
-                        // }
-                        //step[type].push({type: 'filter', expr: predicate, position: expr.position});
-                        if (typeIsStages)
-                        {
-                            if (step.stages == null)
-                            {
-                                step.stages = new();
-                            }
-                            step.stages.Add(filter);
-                        }
-                        else
-                        {
-                            if (step.predicate == null)
-                            {
-                                step.predicate = new();
-                            }
-                            step.predicate.Add(filter);
-                        }
-                    }
-                    break;
                 case "~>":
                     {
                         Node lhs = this.processAST(exprBinary.lhs);

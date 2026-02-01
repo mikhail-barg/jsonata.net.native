@@ -429,7 +429,7 @@ namespace Jsonata.Net.Native.New
             {
                 // empty predicate means maintain singleton arrays in the output
                 Node? step = left;
-                while (step is BinaryNode binaryStep && binaryStep.value.Equals("["))
+                while (step is BinaryFilterNode binaryStep)
                 {
                     step = binaryStep.lhs;
                 }
@@ -444,7 +444,7 @@ namespace Jsonata.Net.Native.New
             else
             {
                 Node rhs = parser.expression(Tokenizer.OPERATORS["]"]);
-                Node symbol = new BinaryNode((string)token.value!, token.position, left, rhs);
+                Node symbol = new BinaryFilterNode(token.position, left, rhs);
                 parser.advance("]", true);
                 return symbol;
             }
