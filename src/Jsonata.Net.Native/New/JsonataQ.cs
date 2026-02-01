@@ -61,7 +61,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateGroupExpression((GroupNode)expr, input, environment);
                 break;
             case SymbolType.name:
-                result = JsonataQ.evaluateName(expr, input, environment);
+                result = JsonataQ.evaluateName((NameNode)expr, input, environment);
                 break;
             case SymbolType.@string:
                 result = JsonataQ.evaluateStringLiteral((StringNode)expr); //, input, environment);
@@ -97,7 +97,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateBindExpression((BindNode)expr, input, environment);
                 break;
             case SymbolType.regex:
-                result = JsonataQ.evaluateRegex(expr); //, input, environment);
+                result = JsonataQ.evaluateRegex((RegexNode)expr); //, input, environment);
                 break;
             case SymbolType.function:
                 result = JsonataQ.evaluateFunction((FunctionalNode)expr, input, environment, null);
@@ -296,7 +296,7 @@ namespace Jsonata.Net.Native.New
         * @param {boolean} lastStep - flag the last step in a path
         * @returns {*} Evaluated input data
         */
-        private static JArray evaluateStep(Node expr, JToken input, EvaluationEnvironment environment, bool lastStep)
+        private static JArray evaluateStep(Node expr, JArray input, EvaluationEnvironment environment, bool lastStep)
         {
             if (expr.type == SymbolType.sort)
             {
@@ -310,8 +310,7 @@ namespace Jsonata.Net.Native.New
 
             JArray result = JsonataArray.CreateSequence();
 
-            JArray arrayInput = (JArray)input;
-            foreach (JToken child in arrayInput.ChildrenTokens)
+            foreach (JToken child in input.ChildrenTokens)
             {
                 JToken res = JsonataQ.evaluate(expr, child, environment);
                 if (expr.stages != null)
@@ -701,7 +700,7 @@ namespace Jsonata.Net.Native.New
             case JTokenType.Float:
                 return new JValue(-(double)result);
             default:
-                throw new JException("D1002", expr.position, expr.value, result);
+                throw new JException("D1002", expr.position, null, result);
             }
         }
 
@@ -745,14 +744,10 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateName(Node expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateName(NameNode expr, JToken input, EvaluationEnvironment environment)
         {
             // lookup the "name" item in the input
-            if (expr.value is not string strValue)
-            {
-                throw new Exception("Should not happen");
-            }
-            return BuiltinFunctions.lookup(input, strValue);
+            return BuiltinFunctions.lookup(input, expr.value);
         }
 
         private static JToken evaluateLiteralInt(NumberIntNode expr)
@@ -1520,9 +1515,9 @@ namespace Jsonata.Net.Native.New
          * @param {Object} expr - expression containing regex
          * @returns {Function} Higher order Object representing prepared regex
          */
-        private static JToken evaluateRegex(Node expr)
+        private static JToken evaluateRegex(RegexNode expr)
         {
-            Regex re = (Regex)expr.value!;
+            Regex re = expr.regex;
             return new FunctionTokenRegex(re);
         }
 
@@ -1557,11 +1552,9 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Ordered sequence
          */
-        private static JArray evaluateSortExpression(SortNode expr, JToken input, EvaluationEnvironment environment)
+        private static JArray evaluateSortExpression(SortNode expr, JArray input, EvaluationEnvironment environment)
         {
             // evaluate the lhs, then sort the results in order according to rhs expression
-            JArray lhs = (JArray)input;
-
             bool isTupleSort = (input is JsonataArray jsonataInput) && jsonataInput.tupleStream;
 
             // sort the lhs array
@@ -1687,7 +1680,7 @@ namespace Jsonata.Net.Native.New
             //{
             //    return JsonataQ.UNDEFINED;
             //}
-            JArray result = BuiltinFunctions.sort_internal(lhs, comparator);
+            JArray result = BuiltinFunctions.sort_internal(input, comparator);
             return result;        
         }
 
@@ -1779,11 +1772,13 @@ namespace Jsonata.Net.Native.New
  
             if (proc.Type == JTokenType.Undefined 
                 && expr.procedure.type == SymbolType.path
-                && environment.Lookup((string)((PathNode)expr.procedure).steps[0].value!).Type != JTokenType.Undefined
+                && expr.procedure is PathNode exprPath
+                && exprPath.steps[0] is NodeWithStrValue valueStep
+                && environment.Lookup(valueStep.value).Type != JTokenType.Undefined
             ) 
             {
                 // help the user out here if they simply forgot the leading $
-                throw new JException("T1005", expr.position, ((PathNode)expr.procedure).steps[0].value);
+                throw new JException("T1005", expr.position, valueStep.value);
             }
 
             List<JToken> evaluatedArgs = new();
@@ -1807,7 +1802,7 @@ namespace Jsonata.Net.Native.New
                 }
             }
 
-            // apply the procedure
+            /*
             object? procNameObj = expr.procedure.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value;
             string? procName;
             if (procNameObj is string procNameObjStr)
@@ -1823,12 +1818,14 @@ namespace Jsonata.Net.Native.New
             {
                 procName = null;
             }
+            */
 
+            // apply the procedure
             try
             {
                 if (proc is not FunctionToken procFunction)
                 {
-                    throw new JException("T1006", expr.position, procName);
+                    throw new JException("T1006", expr.position/*, procName*/); //TODO: proc name
                 }
 
                 JToken result = JsonataQ.apply(procFunction, evaluatedArgs, input, environment);
@@ -1836,7 +1833,7 @@ namespace Jsonata.Net.Native.New
             }
             catch (JException jex)
             {
-                throw new JException(jex, jex.error, jex.location >= 0 ? jex.location : expr.position, jex.getCurrent() ?? procName, jex.getExpected());
+                throw new JException(jex, jex.error, jex.location >= 0 ? jex.location : expr.position, jex.getCurrent() /*?? procName*/, jex.getExpected()); //TODO: proc name
             } 
         }
 
@@ -1990,11 +1987,13 @@ namespace Jsonata.Net.Native.New
             JToken proc = JsonataQ.evaluate(expr.procedure, input, environment);
             if (proc.Type == JTokenType.Undefined
                 && expr.procedure.type == SymbolType.path
-                && environment.Lookup((string)((PathNode)expr.procedure).steps[0].value!).Type != JTokenType.Undefined
+                && expr.procedure is PathNode exprPath
+                && exprPath.steps[0] is NodeWithStrValue valueStep
+                && environment.Lookup(valueStep.value).Type != JTokenType.Undefined
             )
             {
                 // help the user out here if they simply forgot the leading $
-                throw new JException("T1007", expr.position, ((PathNode)expr.procedure).steps[0].value);
+                throw new JException("T1007", expr.position, valueStep.value);
             }
 
             JToken result;
@@ -2012,7 +2011,8 @@ namespace Jsonata.Net.Native.New
             }
             else
             {
-                throw new JException("T1008", expr.position, expr.procedure.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value);
+                //procName = expr.procedure.type == SymbolType.path ? ((PathNode)expr.procedure).steps[0].value : expr.procedure.value
+                throw new JException("T1008", expr.position/*, procName*/); //TODO: procName
             }
             return result;
         }

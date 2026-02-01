@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Jsonata.Net.Native.Eval;
 
 namespace Jsonata.Net.Native.New
@@ -312,7 +313,10 @@ namespace Jsonata.Net.Native.New
             }
             parser.advance(")", true);
             // if the name of the function is 'function' or λ, then this is function definition (lambda function)
-            if (left.type == SymbolType.name && (left.value!.Equals("function") || left.value!.Equals("\u03BB")))
+            if (left.type == SymbolType.name
+                && left is NameNode leftNameNode 
+                && (leftNameNode.value == "function" || leftNameNode.value == "\u03BB")
+            )
             {
                 // all of the args must be VARIABLE tokens
                 List<VariableNode> argVariables = new(arguments.Count);
@@ -320,7 +324,7 @@ namespace Jsonata.Net.Native.New
                 {
                     if (arg.type != SymbolType.variable)
                     {
-                        throw new JException("S0208", arg.position, arg.value);
+                        throw new JException("S0208", arg.position/*, arg.value*/); //TODO: value
                     }
                     argVariables.Add((VariableNode)arg);
                 }
@@ -426,9 +430,9 @@ namespace Jsonata.Net.Native.New
             {
                 // empty predicate means maintain singleton arrays in the output
                 Node? step = left;
-                while (step != null && step.type == SymbolType.binary && step.value!.Equals("["))
+                while (step is BinaryNode binaryStep && binaryStep.value.Equals("["))
                 {
-                    step = ((BinaryNode)step).lhs;
+                    step = binaryStep.lhs;
                 }
                 if (step == null)
                 {
@@ -517,7 +521,7 @@ namespace Jsonata.Net.Native.New
         {
             if (left.type != SymbolType.variable)
             {
-                throw new JException("S0212", left.position, left.value);
+                throw new JException("S0212", left.position/*, left.value*/); //TODO: value
             }
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
             Node result = new BindAssignVarNode(token.position, (VariableNode)left, rhs);
@@ -621,7 +625,37 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    internal sealed class TerminalFactoryName : NodeFactoryBase
+    {
+        public TerminalFactoryName() : base($"(name)", 0)
+        {
+        }
 
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType.name)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.name}");
+            }
+            return new NameNode(token.position, (string)token.value!);
+        }
+    }
+
+    internal sealed class TerminalFactoryRegex : NodeFactoryBase
+    {
+        public TerminalFactoryRegex() : base($"(regex)", 0)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            if (token.type != SymbolType.regex)
+            {
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.regex}");
+            }
+            return new RegexNode(token.position, (Regex)token.value!);
+        }
+    }
     internal sealed class TerminalFactoryTyped : NodeFactoryBase
     {
         private readonly SymbolType m_type;

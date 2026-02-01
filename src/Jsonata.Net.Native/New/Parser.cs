@@ -360,7 +360,7 @@ namespace Jsonata.Net.Native.New
                             if (step.type == SymbolType.@string)
                             {
                                 //step.type = SymbolType.name;
-                                resultPath.steps[i] = new Node(SymbolType.name, ((StringNode)step).value, step.position);
+                                resultPath.steps[i] = new NameNode(step.position, ((StringNode)step).value);
                             }
                         }
 
@@ -460,7 +460,7 @@ namespace Jsonata.Net.Native.New
                     {
                         Node lhs = this.processAST(exprBinary.lhs);
                         Node rhs = this.processAST(exprBinary.rhs);
-                        result = new BinaryNode((string)expr.value!, expr.position, lhs, rhs);
+                        result = new BinaryNode(((BinaryNode)expr).value, expr.position, lhs, rhs); //TODO: binary node
                         this.pushAncestry(result, lhs);
                         this.pushAncestry(result, rhs);
                     }
@@ -732,14 +732,14 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.name:
                 {
-                    result = new PathNode(new() { expr }) {
+                    result = new PathNode(new() { (NameNode)expr }) {
                         keepSingletonArray = expr.keepArray
                     };
                 }
                 break;
             case SymbolType.parent:
                 {
-                    result = new Node(SymbolType.parent, null, -1);
+                    result = new Node(SymbolType.parent, -1);
                     result.slot = new SlotNode(label: "!" + this.ancestorLabel++, index_int: this.ancestorIndex++, level: 1);
                     this.ancestry.Add(result);
                 }
@@ -762,20 +762,20 @@ namespace Jsonata.Net.Native.New
                     switch (exprOperator.value)
                     {
                     case OperatorType.and:
-                        result = this.processAST(new Node(SymbolType.name, "and", expr.position));
+                        result = this.processAST(new NameNode(expr.position, "and"));
                         break;
                     case OperatorType.or:
-                        result = this.processAST(new Node(SymbolType.name, "or", expr.position));
+                        result = this.processAST(new NameNode(expr.position, "or"));
                         break;
                     case OperatorType.@in:
-                        result = this.processAST(new Node(SymbolType.name, "in", expr.position));
+                        result = this.processAST(new NameNode(expr.position, "in"));
                         break;
                     case OperatorType.partial:
                         // partial application
                         result = expr;
                         break;
                     default:
-                        throw new JException("S0201", expr.position, expr.value);
+                        throw new JException("S0201", expr.position/*, expr.value*/); //TODO: value
                     }
                 }
                 break;
@@ -793,7 +793,7 @@ namespace Jsonata.Net.Native.New
                     {
                         code = "S0207";
                     }
-                    throw new JException(code, expr.position, expr.value);
+                    throw new JException(code, expr.position/*, expr.value*/); //TODO: value
                 }
             }
             if (expr.keepArray) 
@@ -836,14 +836,14 @@ namespace Jsonata.Net.Native.New
 
         private static readonly Dictionary<string, NodeFactoryBase> s_binaryFactoryTable = CreateNodeFactoryTable();
         internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
-        internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryTyped(SymbolType.name);
+        internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryName();
         internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryVariable();
         internal static readonly NodeFactoryBase s_terminalFactoryNumberDouble = new TerminalFactoryNumberDouble();
         internal static readonly NodeFactoryBase s_terminalFactoryNumberInt = new TerminalFactoryNumberInt();
         internal static readonly NodeFactoryBase s_terminalFactoryString = new TerminalFactoryString();
         internal static readonly NodeFactoryBase s_terminalFactoryValueBool = new TerminalFactoryValueBool();
         internal static readonly NodeFactoryBase s_terminalFactoryValueNull = new TerminalFactoryValueNull();
-        internal static readonly NodeFactoryBase s_terminalFactoryRegex = new TerminalFactoryTyped(SymbolType.regex);
+        internal static readonly NodeFactoryBase s_terminalFactoryRegex = new TerminalFactoryRegex();
 
         private static void register(Dictionary<string, NodeFactoryBase> nodeFactoryTable, NodeFactoryBase t)
         {

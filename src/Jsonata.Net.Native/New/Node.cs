@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Jsonata.Net.Native.New
 {
@@ -63,7 +64,6 @@ namespace Jsonata.Net.Native.New
     public class Node
     {
         public readonly SymbolType type;
-        internal readonly object? value;
         internal readonly int position;
 
         public bool tuple { get; internal set; } = false;
@@ -82,21 +82,39 @@ namespace Jsonata.Net.Native.New
         internal List<StageNode>? stages;
         internal List<FilterNode>? predicate;
 
-        internal Node(SymbolType type, object? value, int position)
+        internal Node(SymbolType type, int position)
         {
             this.type = type;
-            this.value = value;
             this.position = position;
         }
 
         internal Node(Token token, SymbolType type)
-            :this(type, token.value, token.position)
+            :this(type, token.position)
         {
         }
 
         public override string ToString()
         {
-            return $"{this.GetType().Name} {this.type} value={this.value}";
+            return $"{this.GetType().Name} {this.type}";
+        }
+    }
+
+    public sealed class RegexNode : Node
+    {
+        public readonly Regex regex;
+
+        public RegexNode(int position, Regex regex)
+            : base(SymbolType.regex, position)
+        {
+            this.regex = regex;
+        }
+    }
+
+    public sealed class NameNode : NodeWithStrValue
+    {
+        public NameNode(int position, string value)
+            : base(SymbolType.name, position, value)
+        {
         }
     }
 
@@ -106,7 +124,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node rhs;
 
         public BindAssignVarNode(int position, VariableNode lhs, Node rhs)
-            : base(SymbolType._binary_bind_assign, null, position)
+            : base(SymbolType._binary_bind_assign, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
@@ -119,7 +137,7 @@ namespace Jsonata.Net.Native.New
         public readonly VariableNode rhs;
 
         public BindPositionalVarNode(int position, Node lhs, VariableNode rhs)
-            : base(SymbolType._binary_bind_positional, null, position)
+            : base(SymbolType._binary_bind_positional, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
@@ -132,30 +150,27 @@ namespace Jsonata.Net.Native.New
         public readonly VariableNode rhs;
 
         public BindContextVarNode(int position, Node lhs, VariableNode rhs)
-            : base(SymbolType._binary_bind_context, null, position)
+            : base(SymbolType._binary_bind_context, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
         }
     }
 
-    public sealed class VariableNode : Node
+    public sealed class VariableNode : NodeWithStrValue
     {
-        public new readonly string value;
-
         public VariableNode(int position, string value)
-            : base(SymbolType.variable, null, position)
+            : base(SymbolType.variable, position, value)
         {
-            this.value = value;
         }
     }
 
     public sealed class OperatorNode : Node
     {
-        public new readonly OperatorType value;
+        public readonly OperatorType value;
 
         public OperatorNode(int position, OperatorType value)
-            : base(SymbolType.@operator, null, position)
+            : base(SymbolType.@operator, position)
         {
             this.value = value;
         }
@@ -163,10 +178,10 @@ namespace Jsonata.Net.Native.New
 
     public sealed class StringNode : Node
     {
-        public new readonly string value;
+        public readonly string value;
 
         public StringNode(int position, string value)
-            : base(SymbolType.@string, null, position)
+            : base(SymbolType.@string, position)
         {
             this.value = value;
         }
@@ -175,17 +190,17 @@ namespace Jsonata.Net.Native.New
     public sealed class ValueNullNode : Node
     {
         public ValueNullNode(int position)
-            : base(SymbolType._value_null, null, position)
+            : base(SymbolType._value_null, position)
         {
         }
     }
 
     public sealed class ValueBoolNode : Node
     {
-        public new readonly bool value;
+        public readonly bool value;
 
         public ValueBoolNode(int position, bool value)
-            : base(SymbolType._value_bool, null, position)
+            : base(SymbolType._value_bool, position)
         {
             this.value = value;
         }
@@ -193,10 +208,10 @@ namespace Jsonata.Net.Native.New
 
     public sealed class NumberIntNode : Node
     {
-        public new readonly long value;
+        public readonly long value;
 
         public NumberIntNode(int position, long value)
-            :base(SymbolType._number_int, null, position)
+            :base(SymbolType._number_int, position)
         {
             this.value = value;
         }
@@ -204,10 +219,10 @@ namespace Jsonata.Net.Native.New
 
     public sealed class NumberDoubleNode : Node
     {
-        public new readonly double value;
+        public readonly double value;
 
         public NumberDoubleNode(int position, double value)
-            : base(SymbolType._number_double, null, position)
+            : base(SymbolType._number_double, position)
         {
             this.value = value;
         }
@@ -220,7 +235,7 @@ namespace Jsonata.Net.Native.New
         public readonly bool thunk;
 
         public LambdaNode(int position, List<VariableNode> arguments, Signature? signature, Node body, bool thunk)
-            :base(SymbolType.lambda, null, position)
+            :base(SymbolType.lambda, position)
         {
             this.arguments = arguments;
             this.signature = signature;
@@ -235,7 +250,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<Node> arguments;
 
         public FunctionalNode(SymbolType type, int position, Node procedure, List<Node> arguments)
-            :base(type, null, position)
+            :base(type, position)
         {
             switch (type)
             {
@@ -258,7 +273,7 @@ namespace Jsonata.Net.Native.New
 
 
         public SlotNode(string label, int index_int, int level)
-            : base(SymbolType._slot, null, -1)
+            : base(SymbolType._slot, -1)
         {
             this.label = label;
             this.index_int = index_int;
@@ -271,7 +286,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node expression;
 
         public UnaryMinusNode(int position, Node expression)
-            : base(SymbolType._unary_minus, null, position)
+            : base(SymbolType._unary_minus, position)
         {
             this.expression = expression;
         }
@@ -283,7 +298,7 @@ namespace Jsonata.Net.Native.New
         public readonly bool descending;
 
         public SortTermNode(int position, Node expression, bool descending)
-            :base(SymbolType._sort_term, null, position)
+            :base(SymbolType._sort_term, position)
         {
             this.expression = expression;
             this.descending = descending;
@@ -295,7 +310,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<SortTermNode> terms;
 
         public SortNode(int position, List<SortTermNode> terms)
-            :base(SymbolType.sort, null, position) 
+            :base(SymbolType.sort, position) 
         { 
             this.terms = terms;
         }
@@ -303,8 +318,8 @@ namespace Jsonata.Net.Native.New
 
     public abstract class StageNode : Node
     {
-        internal StageNode(SymbolType type, object? value, int position) 
-            : base(type, value, position)
+        internal StageNode(SymbolType type, int position) 
+            : base(type, position)
         {
         }
     }
@@ -314,7 +329,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node expr;
 
         public FilterNode(int position, Node expr)
-            :base(SymbolType.filter, null, position)
+            :base(SymbolType.filter, position)
         {
             this.expr = expr;
         }
@@ -325,7 +340,7 @@ namespace Jsonata.Net.Native.New
         public readonly string indexValue;
 
         public IndexNode(int position, string indexValue)
-            : base(SymbolType.index, null, position)
+            : base(SymbolType.index, position)
         {
             this.indexValue = indexValue;
         }
@@ -336,7 +351,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<Node> expressions;
 
         public BlockNode(int position, List<Node> expressions)
-            : base(SymbolType.block, null, position)
+            : base(SymbolType.block, position)
         {
             this.expressions = expressions;
         }
@@ -347,7 +362,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<Node> expressions;
 
         public ArrayNode(int position, List<Node> expressions)
-            : base(SymbolType._unary_array, null, position)
+            : base(SymbolType._unary_array, position)
         {
             this.expressions = expressions;
         }
@@ -359,7 +374,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node rhs;
 
         public ApplyNode(int position, Node lhs, Node rhs)
-            : base(SymbolType.apply, null, position)
+            : base(SymbolType.apply, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
@@ -372,7 +387,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node rhs;
 
         public BindNode(int position, VariableNode lhs, Node rhs)
-            : base(SymbolType.bind, null, position)
+            : base(SymbolType.bind, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
@@ -384,7 +399,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<Tuple<Node, Node>> lhsObject;
 
         public GroupNode(int position, List<Tuple<Node, Node>> lhsObject)
-            : base(SymbolType._unary_group, null, position)
+            : base(SymbolType._unary_group, position)
         {
             this.lhsObject = lhsObject;
         }
@@ -396,7 +411,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<Tuple<Node, Node>> rhsObject;
 
         public GroupByNode(int position, Node lhs, List<Tuple<Node, Node>> rhsObject)
-            : base(SymbolType._binary_groupby, null, position)
+            : base(SymbolType._binary_groupby, position)
         {
             this.lhs = lhs;
             this.rhsObject = rhsObject;
@@ -407,12 +422,25 @@ namespace Jsonata.Net.Native.New
     {
         public readonly Node lhs;
         public readonly Node rhs;
+        public readonly string value; //TODO:!
 
         public BinaryNode(string value, int position, Node lhs, Node rhs)
-            :base(SymbolType.binary, value, position)
+            :base(SymbolType.binary, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
+            this.value = value;
+        }
+    }
+
+    public abstract class NodeWithStrValue: Node
+    {
+        public readonly string value;
+
+        public NodeWithStrValue(SymbolType type, int position, string value)
+            :base(type, position)
+        {
+            this.value = value;
         }
     }
 
@@ -422,7 +450,7 @@ namespace Jsonata.Net.Native.New
         public bool keepSingletonArray { get; internal set; } = false;
 
         public PathNode(List<Node> steps)
-            :base(SymbolType.path, null, -1)
+            :base(SymbolType.path, -1)
         {
             this.steps = steps;
         }
@@ -436,7 +464,7 @@ namespace Jsonata.Net.Native.New
         public readonly List<SortTermNode> rhsTerms;
 
         public OrderbyNode(int position, Node lhs, List<SortTermNode> rhsTerms)
-            :base(SymbolType._binary_orderby, null, position)
+            :base(SymbolType._binary_orderby, position)
         {
             this.rhsTerms = rhsTerms;
             this.lhs = lhs;
@@ -450,7 +478,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node? delete;
 
         public TransformNode(int position, Node pattern, Node update, Node? delete)
-            :base(SymbolType.transform, null, position)
+            :base(SymbolType.transform, position)
         {
             this.pattern = pattern;
             this.update = update;
@@ -466,7 +494,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node? @else;
 
         public ConditionNode(int position, Node condition, Node then, Node? @else)
-            :base(SymbolType.condition, value: null, position: position)
+            :base(SymbolType.condition, position: position)
         {
             this.condition = condition;
             this.then = then;
