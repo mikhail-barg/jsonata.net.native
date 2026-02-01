@@ -432,27 +432,23 @@ namespace Jsonata.Net.Native.New
                     }
                 }
                 break; //_binary_filter_node
-            case SymbolType.binary:
-                BinaryNode exprBinary = (BinaryNode)expr;
-                switch (exprBinary.value)
+            case SymbolType.apply: // was part of binary
                 {
-                case "~>":
-                    {
-                        Node lhs = this.processAST(exprBinary.lhs);
-                        Node rhs = this.processAST(exprBinary.rhs);
-                        result = new ApplyNode(exprBinary.position, lhs, rhs);
-                        result.keepArray = lhs.keepArray || rhs.keepArray;
-                    }
-                    break;
-                default:
-                    {
-                        Node lhs = this.processAST(exprBinary.lhs);
-                        Node rhs = this.processAST(exprBinary.rhs);
-                        result = new BinaryNode(((BinaryNode)expr).value, expr.position, lhs, rhs); //TODO: binary node
-                        this.pushAncestry(result, lhs);
-                        this.pushAncestry(result, rhs);
-                    }
-                    break;
+                    ApplyNode exprApply = (ApplyNode)expr;
+                    Node lhs = this.processAST(exprApply.lhs);
+                    Node rhs = this.processAST(exprApply.rhs);
+                    result = new ApplyNode(exprApply.position, lhs, rhs);
+                    result.keepArray = lhs.keepArray || rhs.keepArray;
+                }
+                break; // apply
+            case SymbolType.binary:
+                {
+                    BinaryNode exprBinary = (BinaryNode)expr;
+                    Node lhs = this.processAST(exprBinary.lhs);
+                    Node rhs = this.processAST(exprBinary.rhs);
+                    result = new BinaryNode(((BinaryNode)expr).value, expr.position, lhs, rhs); //TODO: binary node
+                    this.pushAncestry(result, lhs);
+                    this.pushAncestry(result, rhs);
                 }
                 break; // binary
             case SymbolType._binary_bind_assign:
@@ -876,7 +872,7 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("and", OperatorType.and)); // allow as terminal // Boolean AND
             register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("or", OperatorType.or)); // allow as terminal // Boolean OR
             register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("in", OperatorType.@in)); // allow as terminal // is member of array
-            register(nodeFactoryTable, new InfixFactory("~>")); // function application
+            register(nodeFactoryTable, new InfixApplyFactory("~>")); // function application
             register(nodeFactoryTable, new InfixCoalescingFactory("??"));   // coalescing operator
             register(nodeFactoryTable, new PrefixDescendantWindcardFactory("**")); // descendant wildcard (multi-level)
             register(nodeFactoryTable, new InfixInvocationFactory("(")); // function invocation
