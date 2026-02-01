@@ -716,22 +716,19 @@ namespace Jsonata.Net.Native.New
             return new RegexNode(token.position, (Regex)token.value!);
         }
     }
-    internal sealed class TerminalFactoryTyped : NodeFactoryBase
+    internal sealed class TerminalFactoryEnd : NodeFactoryBase
     {
-        private readonly SymbolType m_type;
-
-        public TerminalFactoryTyped(SymbolType type) : base($"({type})", 0)
+        public TerminalFactoryEnd() : base($"(end)", 0)
         {
-            this.m_type = type;
         }
 
         internal override Node nud(Parser parser, Token token)
         {
-            if (token.type != this.m_type)
+            if (token.type != SymbolType._end)
             {
-                throw new Exception($"Should not happen: got {token.type}, expected {this.m_type}");
+                throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._end}");
             }
-            return new Node(token, this.m_type);
+            return new EndNode(token.position);
         }
     }
 }

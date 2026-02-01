@@ -822,7 +822,7 @@ namespace Jsonata.Net.Native.New
         }
 
         private static readonly Dictionary<string, NodeFactoryBase> s_binaryFactoryTable = CreateNodeFactoryTable();
-        internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryTyped(SymbolType._end);
+        internal static readonly NodeFactoryBase s_terminalFactoryEnd = new TerminalFactoryEnd();
         internal static readonly NodeFactoryBase s_terminalFactoryName = new TerminalFactoryName();
         internal static readonly NodeFactoryBase s_terminalFactoryVariable = new TerminalFactoryVariable();
         internal static readonly NodeFactoryBase s_terminalFactoryNumberDouble = new TerminalFactoryNumberDouble();

@@ -104,20 +104,23 @@ namespace Jsonata.Net.Native.New
         internal List<StageNode>? stages;
         internal List<FilterNode>? predicate;
 
-        internal Node(SymbolType type, int position)
+        protected Node(SymbolType type, int position)
         {
             this.type = type;
             this.position = position;
         }
 
-        internal Node(Token token, SymbolType type)
-            :this(type, token.position)
-        {
-        }
-
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.type}";
+        }
+    }
+
+    public sealed class EndNode : Node
+    {
+        public EndNode(int position)
+            : base(SymbolType._end, position)
+        {
         }
     }
 
