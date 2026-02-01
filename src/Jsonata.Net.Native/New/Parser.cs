@@ -185,7 +185,7 @@ namespace Jsonata.Net.Native.New
                     else 
                     {
                         // reuse the existing label
-                        this.ancestry[slot.index_int].slot.label = node.ancestor.label;
+                        this.ancestry[slot.ancestorIndex].slot.label = node.ancestor.label;
                         node.ancestor = slot;
                     }
                     node.tuple = true;
@@ -513,7 +513,7 @@ namespace Jsonata.Net.Native.New
                     }
                     if (step.stages == null)
                     {
-                        step.index_string = exprBind.rhs.value;
+                        step.index = exprBind.rhs.value;
                     }
                     else
                     {
@@ -723,7 +723,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType._parent: //this one is parsed from Parser
                 {
-                    SlotNode slot = new SlotNode(label: "!" + this.ancestorLabel++, index_int: this.ancestorIndex++, level: 1);
+                    SlotNode slot = new SlotNode(label: "!" + this.ancestorLabel++, ancestorIndex: this.ancestorIndex++, level: 1);
                     ParentWithSlotNode slottedResult = new ParentWithSlotNode(expr.position, slot);
                     this.ancestry.Add(slottedResult);
                     result = slottedResult;

@@ -87,22 +87,20 @@ namespace Jsonata.Net.Native.New
     public class Node
     {
         public readonly SymbolType type;
-        internal readonly int position;
+        public readonly int position;
 
         public bool tuple { get; internal set; } = false;
         public bool consarray { get; internal set; } = false;
-        internal bool keepArray;
-        public GroupNode? group { get; set; }
+        public bool keepArray { get; internal set; }
+        public GroupNode? group { get; internal set; }
+        public List<StageNode>? stages { get; internal set; }
+        public List<FilterNode>? predicate { get; internal set; }
 
         // Ancestor attributes
         internal SlotNode? ancestor;
         internal List<SlotNode>? seekingParent;
-
-        internal string? index_string;
-        internal string? focus;
-
-        internal List<StageNode>? stages;
-        internal List<FilterNode>? predicate;
+        internal string? index; // positional binding
+        internal string? focus; // contextual binding
 
         protected Node(SymbolType type, int position)
         {
@@ -354,14 +352,13 @@ namespace Jsonata.Net.Native.New
     {
         public string label;
         public int level;
-        public readonly int index_int;
+        public readonly int ancestorIndex;
 
-
-        public SlotNode(string label, int index_int, int level)
+        public SlotNode(string label, int ancestorIndex, int level)
             : base(SymbolType._slot, -1)
         {
             this.label = label;
-            this.index_int = index_int;
+            this.ancestorIndex = ancestorIndex;
             this.level = level;
         }
     }

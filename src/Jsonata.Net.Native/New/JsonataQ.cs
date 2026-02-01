@@ -423,7 +423,7 @@ namespace Jsonata.Net.Native.New
                     {
                         JObject tuple = new JObject();
                         tuple.Add("@", sorted.ChildrenTokens[ss]);
-                        tuple.Add(expr.index_string!, new JValue(ss));
+                        tuple.Add(expr.index!, new JValue(ss));
                         result.Add(tuple);
                     }
                 }
@@ -484,9 +484,9 @@ namespace Jsonata.Net.Native.New
                             {
                                 tuple.Set("@", res.ChildrenTokens[bb]);
                             }
-                            if (expr.index_string != null)
+                            if (expr.index != null)
                             {
-                                tuple.Set(expr.index_string, new JValue(bb));
+                                tuple.Set(expr.index, new JValue(bb));
                             }
                             if (expr.ancestor != null) 
                             {
