@@ -156,7 +156,8 @@ namespace Jsonata.Net.Native.New
 
     internal class PrefixDescendantWindcardFactory : NodeFactoryBase
     {
-        internal PrefixDescendantWindcardFactory(string id) : base(id)
+        internal PrefixDescendantWindcardFactory(string id) 
+            : base(id)
         {
         }
 
