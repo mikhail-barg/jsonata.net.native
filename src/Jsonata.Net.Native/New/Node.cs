@@ -99,6 +99,14 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    public sealed class DescendantNode : Node
+    {
+        public DescendantNode(int position)
+            : base(SymbolType.descendant, position)
+        {
+        }
+    }
+
     public sealed class ParentNode : Node
     {
         public ParentNode(int position)

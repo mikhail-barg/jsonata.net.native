@@ -82,7 +82,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateWildcard((WildcardNode)expr, input); //, environment);
                 break;
             case SymbolType.descendant:
-                result = JsonataQ.evaluateDescendants(expr, input); //, environment);
+                result = JsonataQ.evaluateDescendants((DescendantNode)expr, input); //, environment);
                 break;
             case SymbolType.parent:
                 result = environment.Lookup(((ParentWithSlotNode)expr).slot.label);
@@ -858,7 +858,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} input - Input data to evaluate against
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateDescendants(Node expr, JToken input)
+        private static JToken evaluateDescendants(DescendantNode expr, JToken input)
         {
             JToken result;
             if (input.Type != JTokenType.Undefined)

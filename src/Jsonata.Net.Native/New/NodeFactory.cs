@@ -111,8 +111,8 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node symbol = new Node(token, SymbolType.descendant);
-            return symbol;
+            Node result = new DescendantNode(token.position);
+            return result;
         }
     }
 
