@@ -58,23 +58,6 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    internal sealed class InfixWithTypedNudFactory : InfixFactory
-    {
-        private readonly SymbolType m_symbolType;
-
-        public InfixWithTypedNudFactory(string id, SymbolType symbolType)
-            : base(id)
-        {
-            this.m_symbolType = symbolType;
-        }
-
-        internal override Node nud(Parser parser, Token token)
-        {
-            Node symbol = new Node(token, this.m_symbolType);
-            return symbol;
-        }
-    }
-
     internal sealed class InfixWithOperatorPrefixFactory : InfixFactory
     {
         private readonly OperatorType m_operatorType;
@@ -526,6 +509,32 @@ namespace Jsonata.Net.Native.New
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
             Node result = new BindAssignVarNode(token.position, (VariableNode)left, rhs);
             return result;
+        }
+    }
+
+    internal sealed class InfixWildcardFactory : InfixFactory
+    {
+        public InfixWildcardFactory(string id)
+            : base(id)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            return new WildcardNode(token.position);
+        }
+    }
+
+    internal sealed class InfixParentFactory : InfixFactory
+    {
+        public InfixParentFactory(string id)
+            : base(id)
+        {
+        }
+
+        internal override Node nud(Parser parser, Token token)
+        {
+            return new ParentNode(token.position);
         }
     }
 

@@ -167,7 +167,7 @@ namespace Jsonata.Net.Native.New
 
         int ancestorLabel = 0;
         int ancestorIndex = 0;
-        List<Node> ancestry = new();
+        List<ParentWithSlotNode> ancestry = new();
 
         private SlotNode seekParent(Node node, SlotNode slot) 
         {
@@ -185,7 +185,7 @@ namespace Jsonata.Net.Native.New
                     else 
                     {
                         // reuse the existing label
-                        this.ancestry[slot.index_int].slot!.label = node.ancestor.label;
+                        this.ancestry[slot.index_int].slot.label = node.ancestor.label;
                         node.ancestor = slot;
                     }
                     node.tuple = true;
@@ -237,7 +237,7 @@ namespace Jsonata.Net.Native.New
                 List<SlotNode> slots = value.seekingParent ?? new();
                 if (value.type == SymbolType.parent) 
                 {
-                    slots.Add(value.slot!);
+                    slots.Add(((ParentWithSlotNode)value).slot);
                 }
                 if (result.seekingParent == null) 
                 {
@@ -257,7 +257,7 @@ namespace Jsonata.Net.Native.New
             List<SlotNode> slots = laststep.seekingParent ?? new();
             if (laststep.type == SymbolType.parent) 
             {
-                slots.Add(laststep.slot!);
+                slots.Add(((ParentWithSlotNode)laststep).slot);
             }
             for (int i = 0; i < slots.Count; ++i) 
             {
@@ -315,7 +315,7 @@ namespace Jsonata.Net.Native.New
                         }
                         if (lstep.type == SymbolType.parent)
                         {
-                            resultPath.seekingParent = new() { lstep.slot! };
+                            resultPath.seekingParent = new() { ((ParentWithSlotNode)lstep).slot };
                         }
                         Node rest = this.processAST(exprBinary.rhs);
                         /* see https://github.com/jsonata-js/jsonata/issues/769
@@ -737,13 +737,16 @@ namespace Jsonata.Net.Native.New
                     };
                 }
                 break;
-            case SymbolType.parent:
+            case SymbolType._parent: //this one is parsed from Parser
                 {
-                    result = new Node(SymbolType.parent, -1);
-                    result.slot = new SlotNode(label: "!" + this.ancestorLabel++, index_int: this.ancestorIndex++, level: 1);
-                    this.ancestry.Add(result);
+                    SlotNode slot = new SlotNode(label: "!" + this.ancestorLabel++, index_int: this.ancestorIndex++, level: 1);
+                    ParentWithSlotNode slottedResult = new ParentWithSlotNode(expr.position, slot);
+                    this.ancestry.Add(slottedResult);
+                    result = slottedResult;
                 }
                 break;
+            case SymbolType.parent:
+                throw new Exception("Should not happen!");  //if does happen, then probably repeat the stuff above
             case SymbolType.@string:
             case SymbolType._number_double:
             case SymbolType._number_int:
@@ -871,9 +874,9 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixFactory("+")); // numeric addition
             register(nodeFactoryTable, new InfixAndPrefixMinusFactory("-")); // numeric subtraction // unary numeric negation
 
-            register(nodeFactoryTable, new InfixWithTypedNudFactory("*", SymbolType.wildcard)); // field wildcard (single level) // numeric multiplication
+            register(nodeFactoryTable, new InfixWildcardFactory("*")); // field wildcard (single level) // numeric multiplication
             register(nodeFactoryTable, new InfixFactory("/")); // numeric division
-            register(nodeFactoryTable, new InfixWithTypedNudFactory("%", SymbolType.parent)); // parent operator // numeric modulus
+            register(nodeFactoryTable, new InfixParentFactory("%")); // parent operator // numeric modulus
             register(nodeFactoryTable, new InfixFactory("=")); // equality
             register(nodeFactoryTable, new InfixFactory("<")); // less than
             register(nodeFactoryTable, new InfixFactory(">")); // greater than
@@ -885,71 +888,19 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("and", OperatorType.and)); // allow as terminal // Boolean AND
             register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("or", OperatorType.or)); // allow as terminal // Boolean OR
             register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("in", OperatorType.@in)); // allow as terminal // is member of array
-            // merged Infix: register(new Terminal("and")); // the 'keywords' can also be used as terminals (field names)
-            // merged Infix: register(new Terminal("or")); //
-            // merged Infix: register(new Terminal("in")); //
-            // merged Infix: register(new Prefix("-")); // unary numeric negation
             register(nodeFactoryTable, new InfixFactory("~>")); // function application
-
-            // coalescing operator
-            register(nodeFactoryTable, new InfixCoalescingFactory("??"));
-
-            //register(nodeFactoryTable, new InfixRErrorFactory("(error)", 10));
-
-            // field wildcard (single level)
-            // merged with Infix *
-            // register(new Prefix("*") {
-            //     @Override Symbol nud() {
-            //         type = "wildcard";
-            //         return this;
-            //     }
-            // });
-
-            // descendant wildcard (multi-level)
-
-            register(nodeFactoryTable, new PrefixDescendantWindcardFactory("**"));
-
-            // parent operator
-            // merged with Infix %
-            // register(new Prefix("%") {
-            //     @Override Symbol nud() {
-            //         type = "parent";
-            //         return this;
-            //     }
-            // });
-
-            // function invocation
-            register(nodeFactoryTable, new InfixInvocationFactory("("));
-
-
-            // array constructor
-
-            // merged: register(new Prefix("[") {        
-            register(nodeFactoryTable, new InfixArrayFactory("["));
-
-            // order-by
-            register(nodeFactoryTable, new InfixOrderByFactory("^"));
-
+            register(nodeFactoryTable, new InfixCoalescingFactory("??"));   // coalescing operator
+            register(nodeFactoryTable, new PrefixDescendantWindcardFactory("**")); // descendant wildcard (multi-level)
+            register(nodeFactoryTable, new InfixInvocationFactory("(")); // function invocation
+            register(nodeFactoryTable, new InfixArrayFactory("[")); // array constructor // merged: register(new Prefix("[") {        
+            register(nodeFactoryTable, new InfixOrderByFactory("^")); // order-by
             register(nodeFactoryTable, new InfixBlockFactory("{"));
-
-            // bind variable
-            register(nodeFactoryTable, new InfixBindAssignVarFactory(":="));
-
-            // focus variable bind
-            register(nodeFactoryTable, new InfixBindContextVarFactory("@"));
-
-            // index (position) variable bind
-            register(nodeFactoryTable, new InfixBindPositionalVarFactory("#"));
-
-            // if/then/else ternary operator ?:
-            register(nodeFactoryTable, new InfixTernaryFactory("?"));
-
-            // elvis/default operator
-            register(nodeFactoryTable, new InfixElvisFactory("?:"));
-
-            // object transformer
-            register(nodeFactoryTable, new PrefixTransformerFactory("|"));
-
+            register(nodeFactoryTable, new InfixBindAssignVarFactory(":=")); // bind variable
+            register(nodeFactoryTable, new InfixBindContextVarFactory("@")); // focus variable bind
+            register(nodeFactoryTable, new InfixBindPositionalVarFactory("#")); // index (position) variable bind
+            register(nodeFactoryTable, new InfixTernaryFactory("?")); // if/then/else ternary operator ?:
+            register(nodeFactoryTable, new InfixElvisFactory("?:")); // elvis/default operator
+            register(nodeFactoryTable, new PrefixTransformerFactory("|")); // object transformer
             return nodeFactoryTable;
         }
     }

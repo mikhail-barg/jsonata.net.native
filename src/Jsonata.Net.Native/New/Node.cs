@@ -25,7 +25,7 @@ namespace Jsonata.Net.Native.New
         condition,
         block,
         wildcard,
-        parent,
+        parent, //also see _parent
         filter,
         bind,
         apply,
@@ -51,6 +51,7 @@ namespace Jsonata.Net.Native.New
         _number_double,     //was a part of 'number'
         _value_bool,        //was a part of 'value
         _value_null,        //was a part of 'value
+        _parent,            // gets converted to 'parent' during processAST() phase
     }
 
     public enum OperatorType
@@ -73,7 +74,6 @@ namespace Jsonata.Net.Native.New
 
         // Ancestor attributes
         internal SlotNode? ancestor;
-        internal SlotNode? slot;
         internal List<SlotNode>? seekingParent;
 
         internal string? index_string;
@@ -96,6 +96,32 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return $"{this.GetType().Name} {this.type}";
+        }
+    }
+
+    public sealed class ParentNode : Node
+    {
+        public ParentNode(int position)
+            : base(SymbolType._parent, position)
+        {
+        }
+    }
+
+    public sealed class ParentWithSlotNode : Node
+    {
+        public readonly SlotNode slot;
+        public ParentWithSlotNode(int position, SlotNode slot)
+            : base(SymbolType.parent, position)
+        {
+            this.slot = slot;
+        }
+    }
+
+    public sealed class WildcardNode: Node
+    {
+        public WildcardNode(int position)
+            : base(SymbolType.wildcard, position)
+        {
         }
     }
 

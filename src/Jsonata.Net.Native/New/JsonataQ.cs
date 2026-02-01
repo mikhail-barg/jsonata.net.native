@@ -79,13 +79,13 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateLiteralDouble((NumberDoubleNode)expr); //, input, environment);
                 break;
             case SymbolType.wildcard:
-                result = JsonataQ.evaluateWildcard(expr, input); //, environment);
+                result = JsonataQ.evaluateWildcard((WildcardNode)expr, input); //, environment);
                 break;
             case SymbolType.descendant:
                 result = JsonataQ.evaluateDescendants(expr, input); //, environment);
                 break;
             case SymbolType.parent:
-                result = environment.Lookup(expr.slot!.label);
+                result = environment.Lookup(((ParentWithSlotNode)expr).slot.label);
                 break;
             case SymbolType.condition:
                 result = JsonataQ.evaluateCondition((ConditionNode)expr, input, environment);
@@ -781,7 +781,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} input - Input data to evaluate against
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluateWildcard(Node expr, JToken input)
+        private static JToken evaluateWildcard(WildcardNode expr, JToken input)
         {
             JsonataArray results = JsonataArray.CreateSequence();
             if ((input is JsonataArray arrayInput) && arrayInput.outerWrapper && arrayInput.Count > 0)
