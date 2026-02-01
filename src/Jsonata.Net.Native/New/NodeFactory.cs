@@ -53,7 +53,26 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node rhs = parser.expression(bp);
-            Node result = new BinaryNode((string)token.value!, token.position, left, rhs);
+            BinaryOperatorType value = (string)token.value! switch {
+                "and" => BinaryOperatorType.and,
+                "or" => BinaryOperatorType.or,
+                "+" => BinaryOperatorType.add,
+                "-" => BinaryOperatorType.sub,
+                "*" => BinaryOperatorType.mul,
+                "/" => BinaryOperatorType.div,
+                "%" => BinaryOperatorType.mod,
+                "=" => BinaryOperatorType.eq,
+                "!=" => BinaryOperatorType.ne,
+                "<" => BinaryOperatorType.lt,
+                "<=" => BinaryOperatorType.le,
+                ">" => BinaryOperatorType.gt,
+                ">=" => BinaryOperatorType.ge,
+                "&" => BinaryOperatorType.concat,
+                ".." => BinaryOperatorType.range,
+                "in" => BinaryOperatorType.@in,
+                _ => throw new Exception("Unexpected binary operator: " + (string)token.value!)
+            };
+            Node result = new BinaryNode(token.position, value, left, rhs);
             return result;
         }
     }
@@ -92,9 +111,9 @@ namespace Jsonata.Net.Native.New
 
     internal sealed class InfixWithOperatorPrefixFactory : InfixFactory
     {
-        private readonly OperatorType m_operatorType;
+        private readonly SpecialOperatorType m_operatorType;
 
-        public InfixWithOperatorPrefixFactory(string id, OperatorType operatorType)
+        public InfixWithOperatorPrefixFactory(string id, SpecialOperatorType operatorType)
             : base(id)
         {
             this.m_operatorType = operatorType;
@@ -312,7 +331,7 @@ namespace Jsonata.Net.Native.New
                         // partial function application
                         type = SymbolType.partial;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        arguments.Add(new OperatorNode(-1, OperatorType.partial));
+                        arguments.Add(new OperatorNode(-1, SpecialOperatorType.partial));
                         parser.advance("?");
                     }
                     else
@@ -423,7 +442,7 @@ namespace Jsonata.Net.Native.New
                         int pos = parser.currentToken.position;
                         parser.advance("..");
                         Node rhs = parser.expression(0);
-                        Node range = new BinaryNode("..", pos, lhs, rhs);
+                        Node range = new BinaryNode(pos, BinaryOperatorType.range, lhs, rhs);
                         item = range;
                     }
                     a.Add(item);

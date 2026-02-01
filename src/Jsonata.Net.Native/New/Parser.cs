@@ -446,7 +446,7 @@ namespace Jsonata.Net.Native.New
                     BinaryNode exprBinary = (BinaryNode)expr;
                     Node lhs = this.processAST(exprBinary.lhs);
                     Node rhs = this.processAST(exprBinary.rhs);
-                    result = new BinaryNode(((BinaryNode)expr).value, expr.position, lhs, rhs); //TODO: binary node
+                    result = new BinaryNode(expr.position, exprBinary.value, lhs, rhs);
                     this.pushAncestry(result, lhs);
                     this.pushAncestry(result, rhs);
                 }
@@ -748,16 +748,16 @@ namespace Jsonata.Net.Native.New
                     // the tokens 'and' and 'or' might have been used as a name rather than an operator
                     switch (exprOperator.value)
                     {
-                    case OperatorType.and:
+                    case SpecialOperatorType.and:
                         result = this.processAST(new NameNode(expr.position, "and"));
                         break;
-                    case OperatorType.or:
+                    case SpecialOperatorType.or:
                         result = this.processAST(new NameNode(expr.position, "or"));
                         break;
-                    case OperatorType.@in:
+                    case SpecialOperatorType.@in:
                         result = this.processAST(new NameNode(expr.position, "in"));
                         break;
-                    case OperatorType.partial:
+                    case SpecialOperatorType.partial:
                         // partial application
                         result = expr;
                         break;
@@ -869,9 +869,9 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new InfixFactory(">=")); // greater than or equal
             register(nodeFactoryTable, new InfixFactory("&")); // string concatenation
 
-            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("and", OperatorType.and)); // allow as terminal // Boolean AND
-            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("or", OperatorType.or)); // allow as terminal // Boolean OR
-            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("in", OperatorType.@in)); // allow as terminal // is member of array
+            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("and", SpecialOperatorType.and)); // allow as terminal // Boolean AND
+            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("or", SpecialOperatorType.or)); // allow as terminal // Boolean OR
+            register(nodeFactoryTable, new InfixWithOperatorPrefixFactory("in", SpecialOperatorType.@in)); // allow as terminal // is member of array
             register(nodeFactoryTable, new InfixApplyFactory("~>")); // function application
             register(nodeFactoryTable, new InfixCoalescingFactory("??"));   // coalescing operator
             register(nodeFactoryTable, new PrefixDescendantWindcardFactory("**")); // descendant wildcard (multi-level)

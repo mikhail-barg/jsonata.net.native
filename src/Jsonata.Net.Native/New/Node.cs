@@ -56,7 +56,27 @@ namespace Jsonata.Net.Native.New
         _parent,            // gets converted to 'parent' during processAST() phase
     }
 
-    public enum OperatorType
+    public enum BinaryOperatorType
+    {
+        and,    // and
+        or,     // or
+        add,    // +
+        sub,    // -
+        mul,    // *
+        div,    // /
+        mod,    // %
+        eq,     // =
+        ne,     // !=
+        lt,     // <
+        le,     // <=
+        gt,     // >
+        ge,     // >=
+        concat, // &
+        range,  // ..
+        @in,    // in
+    }
+
+    public enum SpecialOperatorType
     {
         partial,    // "?" - partial function arg. TODO: why at all it's an operator?? let's make it specific type!
         and,
@@ -229,9 +249,9 @@ namespace Jsonata.Net.Native.New
 
     public sealed class OperatorNode : Node
     {
-        public readonly OperatorType value;
+        public readonly SpecialOperatorType value;
 
-        public OperatorNode(int position, OperatorType value)
+        public OperatorNode(int position, SpecialOperatorType value)
             : base(SymbolType.@operator, position)
         {
             this.value = value;
@@ -484,9 +504,9 @@ namespace Jsonata.Net.Native.New
     {
         public readonly Node lhs;
         public readonly Node rhs;
-        public readonly string value; //TODO:!
+        public readonly BinaryOperatorType value;
 
-        public BinaryNode(string value, int position, Node lhs, Node rhs)
+        public BinaryNode(int position, BinaryOperatorType value, Node lhs, Node rhs)
             :base(SymbolType.binary, position)
         {
             this.lhs = lhs;

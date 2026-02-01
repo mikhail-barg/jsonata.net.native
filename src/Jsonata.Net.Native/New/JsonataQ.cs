@@ -632,9 +632,9 @@ namespace Jsonata.Net.Native.New
             JToken result;
             JToken lhs = JsonataQ.evaluate(expr.lhs, input, environment);
 
-            string op = expr.value;
+            BinaryOperatorType op = expr.value;
 
-            if (op == "and" || op == "or")
+            if (op == BinaryOperatorType.and || op == BinaryOperatorType.or)
             {
                 //defer evaluation of RHS to allow short-circuiting
                 Func<JToken> evalrhs = () => JsonataQ.evaluate(expr.rhs, input, environment);
@@ -645,30 +645,30 @@ namespace Jsonata.Net.Native.New
             JToken rhs = evaluate(expr.rhs, input, environment); //evalrhs();
             switch (op)
             {
-            case "+":
-            case "-":
-            case "*":
-            case "/":
-            case "%":
+            case BinaryOperatorType.add:
+            case BinaryOperatorType.sub:
+            case BinaryOperatorType.mul:
+            case BinaryOperatorType.div:
+            case BinaryOperatorType.mod:
                 result = JsonataQ.evaluateNumericExpression(lhs, rhs, op);
                 break;
-            case "=":
-            case "!=":
+            case BinaryOperatorType.eq:
+            case BinaryOperatorType.ne:
                 result = JsonataQ.evaluateEqualityExpression(lhs, rhs, op);
                 break;
-            case "<":
-            case "<=":
-            case ">":
-            case ">=":
+            case BinaryOperatorType.lt:
+            case BinaryOperatorType.le:
+            case BinaryOperatorType.gt:
+            case BinaryOperatorType.ge:
                 result = JsonataQ.evaluateComparisonExpression(lhs, rhs, op);
                 break;
-            case "&":
+            case BinaryOperatorType.concat:
                 result = JsonataQ.evaluateStringConcat(lhs, rhs);
                 break;
-            case "..":
+            case BinaryOperatorType.range:
                 result = JsonataQ.evaluateRangeExpression(lhs, rhs);
                 break;
-            case "in":
+            case BinaryOperatorType.@in:
                 result = JsonataQ.evaluateIncludesExpression(lhs, rhs);
                 break;
             default:
@@ -915,7 +915,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        private static JToken evaluateNumericExpression(JToken lhs, JToken rhs, string op)
+        private static JToken evaluateNumericExpression(JToken lhs, JToken rhs, BinaryOperatorType op)
         {
             if (lhs.Type != JTokenType.Undefined && !Helpers.IsNumeric(lhs))
             {
@@ -938,7 +938,7 @@ namespace Jsonata.Net.Native.New
             }
             else if (lhs.Type == JTokenType.Integer && rhs.Type == JTokenType.Integer)
             {
-                if (op == "/")
+                if (op == BinaryOperatorType.div)
                 {
                     //divide is still in double
                     return evalDoubleOperator((long)lhs, (long)rhs, op);
@@ -970,22 +970,22 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private static JToken evalIntOperator(long lhs, long rhs, string op)
+        private static JToken evalIntOperator(long lhs, long rhs, BinaryOperatorType op)
         {
             long resultLong = op switch {
-                "+" => lhs + rhs,
-                "-" => lhs - rhs,
-                "*" => lhs * rhs,
-                "/" => lhs / rhs,
-                "%" => lhs % rhs,
+                BinaryOperatorType.add => lhs + rhs,
+                BinaryOperatorType.sub => lhs - rhs,
+                BinaryOperatorType.mul => lhs * rhs,
+                BinaryOperatorType.div => lhs / rhs,
+                BinaryOperatorType.mod => lhs % rhs,
                 _ => throw new ArgumentException($"Unexpected operator '{op}'")
             };
             decimal resultDecimal = op switch {
-                "+" => (decimal)lhs + (decimal)rhs,
-                "-" => (decimal)lhs - (decimal)rhs,
-                "*" => (decimal)lhs * (decimal)rhs,
-                "/" => (decimal)lhs / (decimal)rhs,
-                "%" => (decimal)lhs % (decimal)rhs,
+                BinaryOperatorType.add => (decimal)lhs + (decimal)rhs,
+                BinaryOperatorType.sub => (decimal)lhs - (decimal)rhs,
+                BinaryOperatorType.mul => (decimal)lhs * (decimal)rhs,
+                BinaryOperatorType.div => (decimal)lhs / (decimal)rhs,
+                BinaryOperatorType.mod => (decimal)lhs % (decimal)rhs,
                 _ => throw new ArgumentException($"Unexpected operator '{op}'")
             };
 
@@ -1000,14 +1000,14 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private static JToken evalDoubleOperator(double lhs, double rhs, string op)
+        private static JToken evalDoubleOperator(double lhs, double rhs, BinaryOperatorType op)
         {
             double result = op switch {
-                "+" => lhs + rhs,
-                "-" => lhs - rhs,
-                "*" => lhs * rhs,
-                "/" => lhs / rhs,
-                "%" => lhs % rhs,
+                BinaryOperatorType.add => lhs + rhs,
+                BinaryOperatorType.sub => lhs - rhs,
+                BinaryOperatorType.mul => lhs * rhs,
+                BinaryOperatorType.div => lhs / rhs,
+                BinaryOperatorType.mod => lhs % rhs,
                 _ => throw new ArgumentException($"Unexpected operator '{op}'")
             };
             long longResult = (long)result;
@@ -1029,7 +1029,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        private static JToken evaluateEqualityExpression(JToken lhs, JToken rhs, string op)
+        private static JToken evaluateEqualityExpression(JToken lhs, JToken rhs, BinaryOperatorType op)
         {
             if (lhs.Type == JTokenType.Undefined || rhs.Type == JTokenType.Undefined)
             {
@@ -1040,10 +1040,10 @@ namespace Jsonata.Net.Native.New
             bool result;
             switch (op) 
             {
-            case "=":
+            case BinaryOperatorType.eq:
                 result = JToken.DeepEquals(lhs, rhs);
                 break;
-            case "!=":
+            case BinaryOperatorType.ne:
                 result = !JToken.DeepEquals(lhs, rhs);
                 break;
             default:
@@ -1059,7 +1059,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        private static JToken evaluateComparisonExpression(JToken lhs, JToken rhs, string op)
+        private static JToken evaluateComparisonExpression(JToken lhs, JToken rhs, BinaryOperatorType op)
         {
             bool lcomparable = JsonataQ.isComparable(lhs);
             bool rcomparable = JsonataQ.isComparable(rhs);
@@ -1123,51 +1123,51 @@ namespace Jsonata.Net.Native.New
                 || token.Type == JTokenType.Undefined;
         }
 
-        private static JToken compareDoubles(string op, double lhs, double rhs)
+        private static JToken compareDoubles(BinaryOperatorType op, double lhs, double rhs)
         {
             switch (op)
             {
-            case "<":
+            case BinaryOperatorType.lt:
                 return new JValue(lhs < rhs);
-            case "<=":
+            case BinaryOperatorType.le:
                 return new JValue(lhs <= rhs);
-            case ">":
+            case BinaryOperatorType.gt:
                 return new JValue(lhs > rhs);
-            case ">=":
+            case BinaryOperatorType.ge:
                 return new JValue(lhs >= rhs);
             default:
                 throw new Exception("Should not happen");
             }
         }
 
-        private static JToken compareInts(string op, long lhs, long rhs)
+        private static JToken compareInts(BinaryOperatorType op, long lhs, long rhs)
         {
             switch (op)
             {
-            case "<":
+            case BinaryOperatorType.lt:
                 return new JValue(lhs < rhs);
-            case "<=":
+            case BinaryOperatorType.le:
                 return new JValue(lhs <= rhs);
-            case ">":
+            case BinaryOperatorType.gt:
                 return new JValue(lhs > rhs);
-            case ">=":
+            case BinaryOperatorType.ge:
                 return new JValue(lhs >= rhs);
             default:
                 throw new Exception("Should not happen");
             }
         }
 
-        private static JToken compareStrings(string op, string lhs, string rhs)
+        private static JToken compareStrings(BinaryOperatorType op, string lhs, string rhs)
         {
             switch (op)
             {
-            case "<":
+            case BinaryOperatorType.lt:
                 return new JValue(String.CompareOrdinal(lhs, rhs) < 0);
-            case "<=":
+            case BinaryOperatorType.le:
                 return new JValue(String.CompareOrdinal(lhs, rhs) <= 0);
-            case ">":
+            case BinaryOperatorType.gt:
                 return new JValue(String.CompareOrdinal(lhs, rhs) > 0);
-            case ">=":
+            case BinaryOperatorType.ge:
                 return new JValue(String.CompareOrdinal(lhs, rhs) >= 0);
             default:
                 throw new Exception("Should not happen");
@@ -1197,7 +1197,7 @@ namespace Jsonata.Net.Native.New
 
             foreach (JToken rhsItem in rhsArray.ChildrenTokens)
             {
-                JValue res = (JValue)JsonataQ.evaluateEqualityExpression(lhs, rhsItem, "=");
+                JValue res = (JValue)JsonataQ.evaluateEqualityExpression(lhs, rhsItem, BinaryOperatorType.eq);
                 if (res.Type == JTokenType.Boolean && (bool)res)
                 {
                     return res;
@@ -1214,16 +1214,16 @@ namespace Jsonata.Net.Native.New
          * @param {Object} op - opcode
          * @returns {*} Result
          */
-        private static JToken evaluateBooleanExpression(JToken lhs, Func<JToken> evalrhs, string op)
+        private static JToken evaluateBooleanExpression(JToken lhs, Func<JToken> evalrhs, BinaryOperatorType op)
         {
             bool lBool = Eval.Helpers.Booleanize(lhs);
             bool result;
             switch (op)
             {
-            case "and":
+            case BinaryOperatorType.and:
                 result = lBool && Eval.Helpers.Booleanize(evalrhs.Invoke());
                 break;
-            case "or":
+            case BinaryOperatorType.or:
                 result = lBool || Eval.Helpers.Booleanize(evalrhs.Invoke());
                 break;
             default:
@@ -1971,7 +1971,7 @@ namespace Jsonata.Net.Native.New
             List<JToken?> evaluatedArgsOrPlaceholders = new ();
             foreach (Node arg in expr.arguments) 
             {
-                if (arg.type == SymbolType.@operator && ((OperatorNode)arg).value == OperatorType.partial) 
+                if (arg.type == SymbolType.@operator && ((OperatorNode)arg).value == SpecialOperatorType.partial) 
                 {
                     evaluatedArgsOrPlaceholders.Add(null);
                 } 
