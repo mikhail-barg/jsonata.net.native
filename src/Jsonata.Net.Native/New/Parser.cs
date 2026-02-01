@@ -297,94 +297,82 @@ namespace Jsonata.Net.Native.New
             Node result = expr;
             switch (expr.type)
             {
-            case SymbolType.binary:
-                BinaryNode exprBinary = (BinaryNode)expr;
-                switch (exprBinary.value!.ToString())
+            case SymbolType._binary_path_node:
                 {
-                case ".":
+                    BinaryPathNode exprBinaryPath = (BinaryPathNode)expr;
+                    PathNode resultPath;
+                    Node lstep = this.processAST(exprBinaryPath.lhs);
+                    if (lstep.type == SymbolType.path)
                     {
-                        PathNode resultPath;
-                        Node lstep = this.processAST(exprBinary.lhs);
-                        if (lstep.type == SymbolType.path)
+                        resultPath = (PathNode)lstep;
+                    }
+                    else
+                    {
+                        resultPath = new PathNode(new() { lstep });
+                    }
+                    if (lstep.type == SymbolType.parent)
+                    {
+                        resultPath.seekingParent = new() { ((ParentWithSlotNode)lstep).slot };
+                    }
+                    Node rest = this.processAST(exprBinaryPath.rhs);
+                    if (rest.type == SymbolType.path)
+                    {
+                        resultPath.steps.AddRange(((PathNode)rest).steps);
+                    }
+                    else
+                    {
+                        if (rest.predicate != null)
                         {
-                            resultPath = (PathNode)lstep;
+                            rest.stages = rest.predicate.OfType<StageNode>().ToList();
+                            rest.predicate = null;
                         }
-                        else
-                        {
-                            resultPath = new PathNode(new() { lstep });
-                        }
-                        if (lstep.type == SymbolType.parent)
-                        {
-                            resultPath.seekingParent = new() { ((ParentWithSlotNode)lstep).slot };
-                        }
-                        Node rest = this.processAST(exprBinary.rhs);
-                        /* see https://github.com/jsonata-js/jsonata/issues/769
-                        if (rest.type == SymbolType.function &&
-                            rest.procedure!.type == SymbolType.path &&
-                            rest.procedure is PathNode procedurePath &&
-                            procedurePath.steps.Count == 1 &&
-                            procedurePath.steps[0].type == SymbolType.name &&
-                            resultPath.steps[^1].type == SymbolType.function
+                        resultPath.steps.Add(rest);
+                    }
+                    // any steps within a path that are string literals, should be changed to 'name'
+                    for (int i = 0; i < resultPath.steps.Count; ++i)
+                    {
+                        Node step = resultPath.steps[i];
+                        if (step.type == SymbolType._number_double
+                            || step.type == SymbolType._number_int
+                            || step.type == SymbolType._value_bool
+                            || step.type == SymbolType._value_null
                         )
                         {
-                            // next function in chain of functions - will override a thenable
-                            resultPath.steps[^1].nextFunction = (Node)procedurePath.steps[0].value!;
+                            // don't allow steps to be numbers or the values true/false/null
+                            throw new JException("S0213", step.position, null /*step.value*/);
                         }
-                        */
-                        if (rest.type == SymbolType.path)
+                        if (step.type == SymbolType.@string)
                         {
-                            resultPath.steps.AddRange(((PathNode)rest).steps);
+                            //step.type = SymbolType.name;
+                            resultPath.steps[i] = new NameNode(step.position, ((StringNode)step).value);
                         }
-                        else
-                        {
-                            if (rest.predicate != null)
-                            {
-                                rest.stages = rest.predicate.OfType<StageNode>().ToList();
-                                rest.predicate = null;
-                            }
-                            resultPath.steps.Add(rest);
-                        }
-                        // any steps within a path that are string literals, should be changed to 'name'
-                        for (int i = 0; i < resultPath.steps.Count; ++i)
-                        {
-                            Node step = resultPath.steps[i];
-                            if (step.type == SymbolType._number_double 
-                                || step.type == SymbolType._number_int 
-                                || step.type == SymbolType._value_bool
-                                || step.type == SymbolType._value_null
-                            )
-                            {
-                                // don't allow steps to be numbers or the values true/false/null
-                                throw new JException("S0213", step.position, null /*step.value*/);
-                            }
-                            if (step.type == SymbolType.@string)
-                            {
-                                //step.type = SymbolType.name;
-                                resultPath.steps[i] = new NameNode(step.position, ((StringNode)step).value);
-                            }
-                        }
-
-                        // any step that signals keeping a singleton array, should be flagged on the path
-                        if (resultPath.steps.Any(step => step.keepArray))
-                        {
-                            resultPath.keepSingletonArray = true;
-                        }
-                        // if first step is a path constructor, flag it for special handling
-                        Node firststep = resultPath.steps[0];
-                        if (firststep.type == SymbolType._unary_array)
-                        {
-                            firststep.consarray = true;
-                        }
-                        // if the last step is an array constructor, flag it so it doesn't flatten
-                        Node laststep = resultPath.steps[^1];
-                        if (laststep.type == SymbolType._unary_array)
-                        {
-                            laststep.consarray = true;
-                        }
-                        this.resolveAncestry(resultPath);
-                        result = resultPath;
                     }
-                    break;
+
+                    // any step that signals keeping a singleton array, should be flagged on the path
+                    if (resultPath.steps.Any(step => step.keepArray))
+                    {
+                        resultPath.keepSingletonArray = true;
+                    }
+                    // if first step is a path constructor, flag it for special handling
+                    Node firststep = resultPath.steps[0];
+                    if (firststep.type == SymbolType._unary_array)
+                    {
+                        firststep.consarray = true;
+                    }
+                    // if the last step is an array constructor, flag it so it doesn't flatten
+                    Node laststep = resultPath.steps[^1];
+                    if (laststep.type == SymbolType._unary_array)
+                    {
+                        laststep.consarray = true;
+                    }
+                    this.resolveAncestry(resultPath);
+                    result = resultPath;
+                }
+                break;
+            case SymbolType.binary:
+                BinaryNode exprBinary = (BinaryNode)expr;
+                switch (exprBinary.value)
+                {
                 case "[":
                     {
                         // predicated step
@@ -445,7 +433,6 @@ namespace Jsonata.Net.Native.New
                             }
                             step.predicate.Add(filter);
                         }
-                        
                     }
                     break;
                 case "~>":
@@ -870,7 +857,7 @@ namespace Jsonata.Net.Native.New
             register(nodeFactoryTable, new DummyNodeFactory("]"));
             register(nodeFactoryTable, new DummyNodeFactory("}"));
             register(nodeFactoryTable, new DummyNodeFactory("..")); // range operator
-            register(nodeFactoryTable, new InfixFactory(".")); // map operator
+            register(nodeFactoryTable, new InfixMapFactory(".")); // map operator
             register(nodeFactoryTable, new InfixFactory("+")); // numeric addition
             register(nodeFactoryTable, new InfixAndPrefixMinusFactory("-")); // numeric subtraction // unary numeric negation
 

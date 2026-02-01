@@ -58,6 +58,22 @@ namespace Jsonata.Net.Native.New
         }
     }
 
+    internal class InfixMapFactory : InfixFactory
+    {
+        internal InfixMapFactory(string id)
+            : base(id)
+        {
+
+        }
+
+        internal override Node led(Node left, Parser parser, Token token)
+        {
+            Node rhs = parser.expression(bp);
+            Node result = new BinaryPathNode(token.position, left, rhs);
+            return result;
+        }
+    }
+
     internal sealed class InfixWithOperatorPrefixFactory : InfixFactory
     {
         private readonly OperatorType m_operatorType;

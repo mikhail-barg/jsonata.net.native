@@ -632,10 +632,7 @@ namespace Jsonata.Net.Native.New
             JToken result;
             JToken lhs = JsonataQ.evaluate(expr.lhs, input, environment);
 
-            if (expr.value is not string op)
-            {
-                throw new JException($"Bad operator", expr.position);
-            }
+            string op = expr.value;
 
             if (op == "and" || op == "or")
             {
