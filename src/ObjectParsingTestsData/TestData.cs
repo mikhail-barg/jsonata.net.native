@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -30,6 +31,7 @@ namespace ObjectParsingTestsData
             yield return new TestData("dict", new Dictionary<string, object?>() { { "a", 0 }, { "b", "c"} }, "{\"a\":0,\"b\":\"c\"}");
             yield return new TestData("obj", new { a = 0, b = "c" }, "{\"a\":0,\"b\":\"c\"}");
             yield return new TestData("nested", new { a = 0, b = new { c = new int[] { 1 } } }, "{\"a\":0,\"b\":{\"c\":[1]}}");
+            yield return new TestData("date-time", new { dt = new DateTime(2024, 1, 2, 3, 4, 5, DateTimeKind.Utc) }, "{\"dt\":\"2024-01-02T03:04:05Z\"}");
         }
 
         public static List<TestCaseData> GetTestCasesNunit()
