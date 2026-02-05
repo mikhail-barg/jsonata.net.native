@@ -20,15 +20,18 @@ namespace Jsonata.Net.Native.Json
         public readonly JTokenType Type;
 
         private JToken? m_parent = null;
+
         internal JToken? parent
         {
             get => this.m_parent;
-            set 
+            set
             {
                 if (this == EvalProcessor.UNDEFINED && value != null)
                 {
-                    throw new InvalidOperationException($"Attempt to set parent on {nameof(EvalProcessor)}.{nameof(EvalProcessor.UNDEFINED)}");
+                    throw new InvalidOperationException(
+                        $"Attempt to set parent on {nameof(EvalProcessor)}.{nameof(EvalProcessor.UNDEFINED)}");
                 }
+
                 this.m_parent = value;
             }
         }
@@ -44,6 +47,7 @@ namespace Jsonata.Net.Native.Json
             {
                 return value;
             }
+
             throw new Exception("Token is not a JValue");
         }
 
@@ -54,6 +58,7 @@ namespace Jsonata.Net.Native.Json
             {
                 throw new Exception("Cannot convert to int");
             }
+
             return Convert.ToInt32(v.Value, CultureInfo.InvariantCulture);
         }
 
@@ -64,6 +69,7 @@ namespace Jsonata.Net.Native.Json
             {
                 throw new Exception("Cannot convert to long");
             }
+
             return Convert.ToInt64(v.Value, CultureInfo.InvariantCulture);
         }
 
@@ -167,42 +173,48 @@ namespace Jsonata.Net.Native.Json
         {
             switch (sourceObj)
             {
-            case null:
-                return JValue.CreateNull();
-            case bool value:
-                return new JValue(value);
-            case string value:
-                return new JValue(value);
-            case char value:
-                return new JValue(value);
-            case int value:
-                return new JValue(value);
-            case uint value:
-                return new JValue(value);
-            case long value:
-                return new JValue(value);
-            case ulong value:
-                return new JValue((decimal)value);  //won't fit in (s)long
-            case byte value:
-                return new JValue(value);
-            case sbyte value:
-                return new JValue(value);
-            case short value:
-                return new JValue(value);
-            case ushort value:
-                return new JValue(value);
-            case float value:
-                return new JValue(value);
-            case double value:
-                return new JValue(value);
-            case decimal value:
-                return new JValue(value);
-            case System.Collections.IDictionary dictionary:
-                return FromDictionary(dictionary);
-            case System.Collections.ICollection list:
-                return FromCollection(list);
-            default:
-                return FromObj(sourceObj);
+                case null:
+                    return JValue.CreateNull();
+                case bool value:
+                    return new JValue(value);
+                case string value:
+                    return new JValue(value);
+                case char value:
+                    return new JValue(value);
+                case int value:
+                    return new JValue(value);
+                case uint value:
+                    return new JValue(value);
+                case long value:
+                    return new JValue(value);
+                case ulong value:
+                    return new JValue((decimal)value); //won't fit in (s)long
+                case byte value:
+                    return new JValue(value);
+                case sbyte value:
+                    return new JValue(value);
+                case short value:
+                    return new JValue(value);
+                case ushort value:
+                    return new JValue(value);
+                case float value:
+                    return new JValue(value);
+                case double value:
+                    return new JValue(value);
+                case decimal value:
+                    return new JValue(value);
+                case DateTimeOffset value:
+                    return new JValue(value);
+                case DateTime value:
+                    return new JValue(value);
+                case TimeSpan value:
+                    return new JValue(value);
+                case System.Collections.IDictionary dictionary:
+                    return FromDictionary(dictionary);
+                case System.Collections.ICollection list:
+                    return FromCollection(list);
+                default:
+                    return FromObj(sourceObj);
             }
         }
 
@@ -213,6 +225,7 @@ namespace Jsonata.Net.Native.Json
             {
                 result.Add(pi.Name, JToken.FromObject(pi.GetValue(sourceObj)));
             }
+
             return result;
         }
 
@@ -223,6 +236,7 @@ namespace Jsonata.Net.Native.Json
             {
                 array.Add(JToken.FromObject(item));
             }
+
             return array;
         }
 
@@ -233,6 +247,7 @@ namespace Jsonata.Net.Native.Json
             {
                 result.Add(entry.Key.ToString()!, JToken.FromObject(entry.Value));
             }
+
             return result;
         }
 
@@ -304,6 +319,7 @@ namespace Jsonata.Net.Native.Json
                 {
                     return null;
                 }
+
                 return (string)this;
             }
             else if (type == typeof(int))
@@ -321,6 +337,7 @@ namespace Jsonata.Net.Native.Json
                     //explicit support, because casts are strict for a reason
                     return (float)(long)this;
                 }
+
                 return (float)this;
             }
             else if (type == typeof(double))
@@ -330,6 +347,7 @@ namespace Jsonata.Net.Native.Json
                     //explicit support, because casts are strict for a reason
                     return (double)(long)this;
                 }
+
                 return (double)this;
             }
             else if (type == typeof(decimal))
@@ -339,6 +357,7 @@ namespace Jsonata.Net.Native.Json
                     //explicit support, because casts are strict for a reason
                     return (decimal)(long)this;
                 }
+
                 return (decimal)this;
             }
             else if (type == typeof(bool))
@@ -360,7 +379,7 @@ namespace Jsonata.Net.Native.Json
                     return result;
                 }
             }
-            
+
             else if (typeof(IDictionary).IsAssignableFrom(type))
             {
                 if (type.GenericTypeArguments.Length != 2 || type.GenericTypeArguments[0] != typeof(string))
@@ -373,9 +392,10 @@ namespace Jsonata.Net.Native.Json
 
                 if (!type.IsAssignableFrom(resultType))
                 {
-                    throw new ArgumentException($"Cannot convert to dict of type {type.Name}: not assignable from Dictionary");
+                    throw new ArgumentException(
+                        $"Cannot convert to dict of type {type.Name}: not assignable from Dictionary");
                 }
-                
+
                 if (this.Type == JTokenType.Null)
                 {
                     return null;
@@ -401,7 +421,8 @@ namespace Jsonata.Net.Native.Json
 
                 if (!type.IsAssignableFrom(resultType))
                 {
-                    throw new ArgumentException($"Cannot convert to list of type {type.Name}: not assignable from List");
+                    throw new ArgumentException(
+                        $"Cannot convert to list of type {type.Name}: not assignable from List");
                 }
 
                 if (this.Type == JTokenType.Null)
@@ -425,6 +446,7 @@ namespace Jsonata.Net.Native.Json
                 {
                     throw new ArgumentException($"Failed to parse '{value}' to enum {type.Name}");
                 }
+
                 return result;
 #else
                 try
@@ -442,22 +464,25 @@ namespace Jsonata.Net.Native.Json
             {
                 switch (this.Type)
                 {
-                case JTokenType.Object:
-                    return this.ConvertToDictionary(typeof(Dictionary<,>).MakeGenericType(typeof(string), typeof(object)), typeof(object), settings);
-                case JTokenType.Array:
-                    return this.ConvertToList(typeof(List<>).MakeGenericType(typeof(object)), typeof(object), settings);
-                case JTokenType.Integer:
-                    return (long)this;
-                case JTokenType.Float:
-                    return (double)this;
-                case JTokenType.String:
-                    return (string)this;
-                case JTokenType.Boolean:
-                    return (bool)this;
-                case JTokenType.Null:
-                    return null;
-                default:
-                    throw new ArgumentException($"Cannot convert {this.Type} to object");
+                    case JTokenType.Object:
+                        return this.ConvertToDictionary(
+                            typeof(Dictionary<,>).MakeGenericType(typeof(string), typeof(object)), typeof(object),
+                            settings);
+                    case JTokenType.Array:
+                        return this.ConvertToList(typeof(List<>).MakeGenericType(typeof(object)), typeof(object),
+                            settings);
+                    case JTokenType.Integer:
+                        return (long)this;
+                    case JTokenType.Float:
+                        return (double)this;
+                    case JTokenType.String:
+                        return (string)this;
+                    case JTokenType.Boolean:
+                        return (bool)this;
+                    case JTokenType.Null:
+                        return null;
+                    default:
+                        throw new ArgumentException($"Cannot convert {this.Type} to object");
                 }
             }
             else if (type.IsClass)
@@ -475,10 +500,12 @@ namespace Jsonata.Net.Native.Json
                     }
                     catch (Exception ex)
                     {
-                        throw new ArgumentException($"Failed to create instance of class {type.Name}: {ex.Message}", ex);
+                        throw new ArgumentException($"Failed to create instance of class {type.Name}: {ex.Message}",
+                            ex);
                     }
 
-                    Dictionary<string, PropertyInfo> resultProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    Dictionary<string, PropertyInfo> resultProperties = type
+                        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                         .ToDictionary(pi => pi.Name);
 
                     JObject thisObj = (JObject)this;
@@ -491,8 +518,10 @@ namespace Jsonata.Net.Native.Json
                             {
                                 continue;
                             }
+
                             throw new ArgumentException($"Missing value for '{resultProperty.Key}'");
                         }
+
                         object? value;
                         try
                         {
@@ -500,7 +529,8 @@ namespace Jsonata.Net.Native.Json
                         }
                         catch (Exception ex)
                         {
-                            throw new ArgumentException($"Failed to convert value for '{resultProperty.Key}': {ex.Message}", ex);
+                            throw new ArgumentException(
+                                $"Failed to convert value for '{resultProperty.Key}': {ex.Message}", ex);
                         }
 
                         try
@@ -509,13 +539,15 @@ namespace Jsonata.Net.Native.Json
                         }
                         catch (Exception ex)
                         {
-                            throw new ArgumentException($"Failed to set value for '{resultProperty.Key}': {ex.Message}", ex);
+                            throw new ArgumentException($"Failed to set value for '{resultProperty.Key}': {ex.Message}",
+                                ex);
                         }
                     }
 
                     if (!settings.AllowUndecaredProperties && thisObj.Keys.Except(resultProperties.Keys).Any())
                     {
-                        throw new ArgumentException($"Specified unknown properties: {String.Join(",", thisObj.Keys.Except(resultProperties.Keys))}");
+                        throw new ArgumentException(
+                            $"Specified unknown properties: {String.Join(",", thisObj.Keys.Except(resultProperties.Keys))}");
                     }
 
                     return result;
@@ -539,17 +571,20 @@ namespace Jsonata.Net.Native.Json
                 object? value = element.ToObject(valueType, settings);
                 result.Add(value);
             }
+
             return result;
         }
 
         private object ConvertToDictionary(Type dictionaryType, Type valueType, ToObjectSettings settings)
         {
-            System.Collections.IDictionary result = (System.Collections.IDictionary)Activator.CreateInstance(dictionaryType)!;
+            System.Collections.IDictionary result =
+                (System.Collections.IDictionary)Activator.CreateInstance(dictionaryType)!;
             foreach (KeyValuePair<string, JToken> property in ((JObject)this).Properties)
             {
                 object? value = property.Value.ToObject(valueType, settings);
                 result.Add(property.Key, value);
             }
+
             return result;
         }
 
@@ -561,30 +596,30 @@ namespace Jsonata.Net.Native.Json
             {
                 switch (c)
                 {
-                case '\b':
-                    target.Append(@"\b");
-                    break;
-                case '\f':
-                    target.Append(@"\f");
-                    break;
-                case '\n':
-                    target.Append(@"\n");
-                    break;
-                case '\r':
-                    target.Append(@"\r");
-                    break;
-                case '\t':
-                    target.Append(@"\t");
-                    break;
-                case '"':
-                    target.Append("\\\"");
-                    break;
-                case '\\':
-                    target.Append(@"\\");
-                    break;
-                default:
-                    target.Append(c);
-                    break;
+                    case '\b':
+                        target.Append(@"\b");
+                        break;
+                    case '\f':
+                        target.Append(@"\f");
+                        break;
+                    case '\n':
+                        target.Append(@"\n");
+                        break;
+                    case '\r':
+                        target.Append(@"\r");
+                        break;
+                    case '\t':
+                        target.Append(@"\t");
+                        break;
+                    case '"':
+                        target.Append("\\\"");
+                        break;
+                    case '\\':
+                        target.Append(@"\\");
+                        break;
+                    default:
+                        target.Append(c);
+                        break;
                 }
             }
         }

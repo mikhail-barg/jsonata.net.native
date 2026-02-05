@@ -31,7 +31,14 @@ namespace ObjectParsingTestsData
             yield return new TestData("dict", new Dictionary<string, object?>() { { "a", 0 }, { "b", "c"} }, "{\"a\":0,\"b\":\"c\"}");
             yield return new TestData("obj", new { a = 0, b = "c" }, "{\"a\":0,\"b\":\"c\"}");
             yield return new TestData("nested", new { a = 0, b = new { c = new int[] { 1 } } }, "{\"a\":0,\"b\":{\"c\":[1]}}");
-            yield return new TestData("date-time", new { dt = new DateTime(2024, 1, 2, 3, 4, 5, DateTimeKind.Utc) }, "{\"dt\":\"2024-01-02T03:04:05Z\"}");
+            yield return new TestData("date-time", new { dt = new DateTime(2024, 1, 2, 3, 4, 5) }, "{\"dt\":\"2024-01-02T03:04:05.0000000\"}");
+            yield return new TestData("date-time-utc", new { dt = new DateTime(2024, 1, 2, 3, 4, 5, DateTimeKind.Utc) }, "{\"dt\":\"2024-01-02T03:04:05.0000000Z\"}");
+            yield return new TestData("date-time-offset", new { dt = new DateTimeOffset(2024, 1, 2, 3, 4, 5, TimeSpan.FromHours(2)) }, "{\"dt\":\"2024-01-02T03:04:05.0000000+02:00\"}");
+            yield return new TestData("timespan", new { ts = TimeSpan.FromHours(1) }, "{\"ts\":\"01:00:00\"}");
+            yield return new TestData("timespan-negative", new { ts = TimeSpan.FromHours(-1) }, "{\"ts\":\"-01:00:00\"}");
+            yield return new TestData("timespan-milliseconds", new { ts = TimeSpan.FromMilliseconds(1234) }, "{\"ts\":\"00:00:01.2340000\"}");
+            yield return new TestData("timespan-zero", new { ts = TimeSpan.Zero }, "{\"ts\":\"00:00:00\"}");
+            yield return new TestData("timespan-days", new { ts = TimeSpan.FromDays(1).Add(TimeSpan.FromHours(22)) }, "{\"ts\":\"1.22:00:00\"}");
         }
 
         public static List<TestCaseData> GetTestCasesNunit()
