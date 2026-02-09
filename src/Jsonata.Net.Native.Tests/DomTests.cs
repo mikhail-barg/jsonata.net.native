@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using Jsonata.Net.Native.Dom;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Jsonata.Net.Native.New;
 using NUnit.Framework;
 
 namespace Jsonata.Net.Native.Tests
@@ -21,9 +18,11 @@ namespace Jsonata.Net.Native.Tests
         [Test] 
         public void TestSimple_1()
         {
+            string expectedQuery = "$x := $count($foo) > 0";
+            JsonataQuery query = new JsonataQuery(expectedQuery);
+            Console.WriteLine(query.GetAst().PrintAst());
             throw new NotImplementedException();
             /*
-            string expectedQuery = "$x := $count($foo) > 0";
             Node node = new AssignmentNode(
                 "x",
                 new ComparisonOperatorNode(
@@ -35,7 +34,7 @@ namespace Jsonata.Net.Native.Tests
                     new NumberIntNode(0)
                 )
             );
-            JsonataQuery query = new JsonataQuery(node);
+            JsonataQuery query = new JsonataQuery.FromAst(node);
             string result = query.Eval("{}");
             Assert.AreEqual("false", result);
             CheckStructure(expectedQuery, node);

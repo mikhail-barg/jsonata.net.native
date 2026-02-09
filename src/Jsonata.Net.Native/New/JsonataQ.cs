@@ -1702,7 +1702,7 @@ namespace Jsonata.Net.Native.New
 
         private static Node BuildChainAst()
         { 
-            Node chainAST = new Parser().parse("function($f, $g) { function($x){ $g($f($x)) } }");
+            Node chainAST = Parser.Parse("function($f, $g) { function($x){ $g($f($x)) } }");
             return chainAST;
         }
 

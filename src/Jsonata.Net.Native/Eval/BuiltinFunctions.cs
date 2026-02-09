@@ -587,17 +587,15 @@ namespace Jsonata.Net.Native.Eval
             }
 
 
-            Node ast;
+            JsonataQuery query;
             try
             {
-                ast = Parser.Parse(expr);
+                query = new JsonataQuery(expr);
             }
             catch (Exception ex)
             {
                 throw new JsonataException("D3120", "Caused by " + ex.Message);
             }
-
-            JsonataQuery query = new JsonataQuery(ast);
 
             try
             {

@@ -8,7 +8,7 @@ using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.New
 {
-    public sealed class Signature
+    public sealed class Signature:IEquatable<Signature>
     {
         private sealed class Param
         {
@@ -142,6 +142,8 @@ namespace Jsonata.Net.Native.New
             this.m_regex = regex;
             this.m_params = @params;
         }
+
+        
 
         private static int FindClosingBracket(string str, int start, char openSymbol, char closeSymbol)
         {
@@ -388,6 +390,15 @@ namespace Jsonata.Net.Native.New
         public override string ToString()
         {
             return this.m_signature;
+        }
+
+        public bool Equals(Signature? other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+            return this.m_signature == other.m_signature;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -84,7 +83,7 @@ namespace Jsonata.Net.Native.New
         @in
     }
 
-    public class Node
+    public abstract class Node: IEquatable<Node>
     {
         public readonly SymbolType type;
         public readonly int position;
@@ -112,6 +111,137 @@ namespace Jsonata.Net.Native.New
         {
             return $"{this.GetType().Name} {this.type}";
         }
+
+        //used for DOM comparison only
+
+        protected static bool IsNullMatches(object? a, object? b)
+        {
+            return (a == null) == (b == null);
+        }
+
+        public bool Equals(Node? other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            if (other.GetType() != this.GetType())
+            {
+                return false;
+            }
+
+            if (other.type != this.type
+                || other.tuple != this.tuple
+                || other.consarray != this.consarray
+                || other.keepArray != this.keepArray
+            )
+            {
+                return false;
+            }
+
+            if (!IsNullMatches(this.group, other.group))
+            {
+                return false;
+            }
+            if (this.group != null && other.group != null
+                && !this.group.Equals(other.group)
+            )
+            {
+                return false;
+            }
+
+            if (!IsNullMatches(this.stages, other.stages))
+            {
+                return false;
+            }
+
+            if (this.stages != null && other.stages != null
+                && !Enumerable.SequenceEqual(this.stages, other.stages) //uses Equals
+            )
+            {
+                return false;
+            }
+
+            if (!IsNullMatches(this.predicate, other.predicate))
+            {
+                return false;
+            }
+
+            if (this.predicate != null && other.predicate != null
+                && !Enumerable.SequenceEqual(this.predicate, other.predicate) //uses Equals
+            )
+            {
+                return false;
+            }
+
+            // TODO: should check ancestor attributes??
+
+            return this.EqualsSpecific(other);
+        }
+
+        protected abstract bool EqualsSpecific(Node other);
+
+        public string PrintAst()
+        {
+            StringBuilder sb = new StringBuilder();
+            this.PrintAstInternal(sb, 0);
+            return sb.ToString();
+        }
+
+        protected internal void PrintAstInternal(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent);
+            sb.Append(this.GetType().Name).Append("(").Append(this.type.ToString()).Append(")");
+            this.PrintAstSpecific(sb);
+            if (this.tuple)
+            {
+                sb.Append(", tuple");
+            }
+            if (this.consarray)
+            {
+                sb.Append(", consarray");
+            }
+            if (this.keepArray)
+            {
+                sb.Append(", keepArray");
+            }
+            sb.Append('\n');
+            this.PrintAstChildren(sb, indent + 1);
+            if (this.group != null)
+            {
+                this.PrintIndent(sb, indent + 1).Append("group:\n");
+                this.group.PrintAstInternal(sb, indent + 2);
+            }
+            if (this.stages != null)
+            {
+                this.PrintIndent(sb, indent + 1).Append("stages[").Append(this.stages.Count).Append("]\n");
+                foreach (StageNode stage in this.stages)
+                {
+                    stage.PrintAstInternal(sb, indent + 2);
+                }
+            }
+            if (this.predicate != null)
+            {
+                this.PrintIndent(sb, indent + 1).Append("predicate[").Append(this.predicate.Count).Append("]\n");
+                foreach (FilterNode stage in this.predicate)
+                {
+                    stage.PrintAstInternal(sb, indent + 2);
+                }
+            }
+        }
+
+        protected StringBuilder PrintIndent(StringBuilder sb, int indent)
+        {
+            for (int i = 0; i < indent; ++i)
+            {
+                sb.Append('\t');
+            }
+            return sb;
+        }
+
+        protected abstract void PrintAstSpecific(StringBuilder sb);
+        protected abstract void PrintAstChildren(StringBuilder sb, int indent);
     }
 
     public sealed class EndNode : Node
@@ -119,6 +249,21 @@ namespace Jsonata.Net.Native.New
         public EndNode(int position)
             : base(SymbolType._end, position)
         {
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -133,6 +278,33 @@ namespace Jsonata.Net.Native.New
             this.lhs = lhs;
             this.rhs = rhs;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BinaryFilterNode otherBinary = (BinaryFilterNode)other;
+            if (!this.lhs.Equals(otherBinary.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBinary.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public sealed class BinaryPathNode : Node
@@ -146,6 +318,33 @@ namespace Jsonata.Net.Native.New
             this.lhs = lhs;
             this.rhs = rhs;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BinaryPathNode otherBinary = (BinaryPathNode)other;
+            if (!this.lhs.Equals(otherBinary.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBinary.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public sealed class DescendantNode : Node
@@ -154,6 +353,21 @@ namespace Jsonata.Net.Native.New
             : base(SymbolType.descendant, position)
         {
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class ParentNode : Node
@@ -161,6 +375,21 @@ namespace Jsonata.Net.Native.New
         public ParentNode(int position)
             : base(SymbolType._parent, position)
         {
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
         }
     }
 
@@ -172,6 +401,23 @@ namespace Jsonata.Net.Native.New
         {
             this.slot = slot;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ParentWithSlotNode otherParent = (ParentWithSlotNode)other;
+            return this.slot.Equals(otherParent.slot);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("slot\n");
+            this.slot.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public sealed class WildcardNode: Node
@@ -179,6 +425,21 @@ namespace Jsonata.Net.Native.New
         public WildcardNode(int position)
             : base(SymbolType.wildcard, position)
         {
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
         }
     }
 
@@ -191,12 +452,36 @@ namespace Jsonata.Net.Native.New
         {
             this.regex = regex;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            RegexNode otherRegex = (RegexNode)other;
+            return this.regex.ToString().Equals(otherRegex.regex.ToString());
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.regex.ToString()).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class NameNode : NodeWithStrValue
     {
         public NameNode(int position, string value)
             : base(SymbolType.name, position, value)
+        {
+        }
+    }
+
+    public sealed class VariableNode : NodeWithStrValue
+    {
+        public VariableNode(int position, string value)
+            : base(SymbolType.variable, position, value)
         {
         }
     }
@@ -212,6 +497,33 @@ namespace Jsonata.Net.Native.New
             this.lhs = lhs;
             this.rhs = rhs;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BindAssignVarNode otherBind = (BindAssignVarNode)other;
+            if (!this.lhs.Equals(otherBind.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBind.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public sealed class BindPositionalVarNode : Node
@@ -224,6 +536,33 @@ namespace Jsonata.Net.Native.New
         {
             this.lhs = lhs;
             this.rhs = rhs;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BindPositionalVarNode otherBind = (BindPositionalVarNode)other;
+            if (!this.lhs.Equals(otherBind.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBind.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
         }
     }
 
@@ -238,13 +577,32 @@ namespace Jsonata.Net.Native.New
             this.lhs = lhs;
             this.rhs = rhs;
         }
-    }
 
-    public sealed class VariableNode : NodeWithStrValue
-    {
-        public VariableNode(int position, string value)
-            : base(SymbolType.variable, position, value)
+        protected override bool EqualsSpecific(Node other)
         {
+            BindContextVarNode otherBind = (BindContextVarNode)other;
+            if (!this.lhs.Equals(otherBind.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBind.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
         }
     }
 
@@ -257,6 +615,22 @@ namespace Jsonata.Net.Native.New
         {
             this.value = value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            OperatorNode otherOperator = (OperatorNode)other;
+            return this.value.ToString().Equals(otherOperator.value.ToString());
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.value.ToString()).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class StringNode : Node
@@ -268,6 +642,22 @@ namespace Jsonata.Net.Native.New
         {
             this.value = value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            StringNode otherString = (StringNode)other;
+            return this.value.ToString().Equals(otherString.value.ToString());
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.value).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class ValueNullNode : Node
@@ -275,6 +665,21 @@ namespace Jsonata.Net.Native.New
         public ValueNullNode(int position)
             : base(SymbolType._value_null, position)
         {
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            return true;
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
         }
     }
 
@@ -287,6 +692,22 @@ namespace Jsonata.Net.Native.New
         {
             this.value = value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ValueBoolNode otherBool = (ValueBoolNode)other;
+            return this.value.ToString().Equals(otherBool.value.ToString());
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.value).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class NumberIntNode : Node
@@ -298,6 +719,22 @@ namespace Jsonata.Net.Native.New
         {
             this.value = value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            NumberIntNode otherInt = (NumberIntNode)other;
+            return this.value.ToString().Equals(otherInt.value.ToString());
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.value).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class NumberDoubleNode : Node
@@ -308,6 +745,22 @@ namespace Jsonata.Net.Native.New
             : base(SymbolType._number_double, position)
         {
             this.value = value;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            NumberDoubleNode otherDouble = (NumberDoubleNode)other;
+            return this.value.ToString().Equals(otherDouble.value.ToString());
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.value).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
         }
     }
     public sealed class LambdaNode : Node
@@ -324,6 +777,59 @@ namespace Jsonata.Net.Native.New
             this.signature = signature;
             this.body = body;
             this.thunk = thunk;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            LambdaNode otherLambda = (LambdaNode)other;
+            if (this.thunk != otherLambda.thunk)
+            {
+                return false;
+            }
+            if (!this.body.Equals(otherLambda.body))
+            {
+                return false;
+            }
+            if (!IsNullMatches(this.signature, otherLambda.signature))
+            {
+                return false;
+            }
+            if (this.signature != null && otherLambda.signature != null
+                && !this.signature.Equals(otherLambda.signature)
+            )
+            {
+                return false;
+            }
+
+            if (!Enumerable.SequenceEqual(this.arguments, otherLambda.arguments))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            if (this.signature != null)
+            {
+                sb.Append(" ").Append(this.signature);
+            }
+            if (this.thunk)
+            {
+                sb.Append(", thunk");
+            }
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("args[").Append(this.arguments.Count).Append("]:\n");
+            foreach (VariableNode arg in this.arguments)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
+            this.PrintIndent(sb, indent).Append("body:\n");
+            this.body.PrintAstInternal(sb, indent + 1);
         }
     }
 
@@ -346,6 +852,37 @@ namespace Jsonata.Net.Native.New
             this.procedure = procedure;
             this.arguments = arguments;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            FunctionalNode otherFunctional = (FunctionalNode)other;
+            if (!this.procedure.Equals(otherFunctional.procedure))
+            {
+                return false;
+            }
+            if (!Enumerable.SequenceEqual(this.arguments, otherFunctional.arguments))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("args[").Append(this.arguments.Count).Append("]:\n");
+            foreach (VariableNode arg in this.arguments)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
+            this.PrintIndent(sb, indent).Append("procedure:\n");
+            this.procedure.PrintAstInternal(sb, indent + 1);
+        }
+
     }
 
     public sealed class SlotNode: Node
@@ -361,6 +898,25 @@ namespace Jsonata.Net.Native.New
             this.ancestorIndex = ancestorIndex;
             this.level = level;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            SlotNode otherSlot = (SlotNode)other;
+            return (this.label == otherSlot.label
+                && this.level == otherSlot.level
+                && this.ancestorIndex == otherSlot.ancestorIndex
+            );
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.label).Append("`, ").Append(this.level).Append(" ").Append(this.index);
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
     }
 
     public sealed class UnaryMinusNode: Node
@@ -371,6 +927,22 @@ namespace Jsonata.Net.Native.New
             : base(SymbolType._unary_minus, position)
         {
             this.expression = expression;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            UnaryMinusNode otherMinus = (UnaryMinusNode)other;
+            return this.expression.Equals(otherMinus.expression);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.expression.PrintAstInternal(sb, indent);
         }
     }
 
@@ -385,6 +957,31 @@ namespace Jsonata.Net.Native.New
             this.expression = expression;
             this.descending = descending;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            SortTermNode otherTerm = (SortTermNode)other;
+
+            return this.descending == otherTerm.descending
+                && this.expression.Equals(otherTerm.expression);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            if (!this.descending)
+            {
+                sb.Append(" asc");
+            }
+            else
+            {
+                sb.Append(" desc");
+            }
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.expression.PrintAstInternal(sb, indent);
+        }
     }
 
     public sealed class SortNode: Node
@@ -395,6 +992,26 @@ namespace Jsonata.Net.Native.New
             :base(SymbolType.sort, position) 
         { 
             this.terms = terms;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            SortNode otherSort = (SortNode)other;
+            return Enumerable.SequenceEqual(this.terms, otherSort.terms);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("terms[").Append(this.terms.Count).Append("]:\n");
+            foreach (SortTermNode arg in this.terms)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 
@@ -415,6 +1032,22 @@ namespace Jsonata.Net.Native.New
         {
             this.expr = expr;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            FilterNode otherFilt = (FilterNode)other;
+            return this.expr.Equals(otherFilt.expr);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.expr.PrintAstInternal(sb, indent);
+        }
     }
 
     public sealed class IndexNode : StageNode
@@ -425,6 +1058,22 @@ namespace Jsonata.Net.Native.New
             : base(SymbolType.index, position)
         {
             this.indexValue = indexValue;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            IndexNode otherIndex = (IndexNode)other;
+            return this.indexValue == otherIndex.indexValue;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.indexValue).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
         }
     }
 
@@ -437,6 +1086,26 @@ namespace Jsonata.Net.Native.New
         {
             this.expressions = expressions;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BlockNode otherBlock = (BlockNode)other;
+            return Enumerable.SequenceEqual(this.expressions, otherBlock.expressions);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("expressions[").Append(this.expressions.Count).Append("]:\n");
+            foreach (Node arg in this.expressions)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
+        }
     }
 
     public sealed class ArrayNode : Node
@@ -447,6 +1116,26 @@ namespace Jsonata.Net.Native.New
             : base(SymbolType._unary_array, position)
         {
             this.expressions = expressions;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ArrayNode otherArray = (ArrayNode)other;
+            return Enumerable.SequenceEqual(this.expressions, otherArray.expressions);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("expressions[").Append(this.expressions.Count).Append("]:\n");
+            foreach (Node arg in this.expressions)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 
@@ -461,6 +1150,33 @@ namespace Jsonata.Net.Native.New
             this.lhs = lhs;
             this.rhs = rhs;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ApplyNode otherApply = (ApplyNode)other;
+            if (!this.lhs.Equals(otherApply.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherApply.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public sealed class BindNode : Node
@@ -474,6 +1190,33 @@ namespace Jsonata.Net.Native.New
             this.lhs = lhs;
             this.rhs = rhs;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BindNode otherBind = (BindNode)other;
+            if (!this.lhs.Equals(otherBind.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBind.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public sealed class GroupNode : Node
@@ -484,6 +1227,29 @@ namespace Jsonata.Net.Native.New
             : base(SymbolType._unary_group, position)
         {
             this.lhsObject = lhsObject;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            GroupNode otherGroup = (GroupNode)other;
+            return Enumerable.SequenceEqual(this.lhsObject, otherGroup.lhsObject);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhsObject[").Append(this.lhsObject.Count).Append("*2]:\n");
+            for (int i = 0; i < this.lhsObject.Count; ++i)
+            {
+                this.PrintIndent(sb, indent + 1).Append(i).Append(":\n");
+                Tuple<Node, Node> arg = this.lhsObject[i];
+                arg.Item1.PrintAstInternal(sb, indent + 1);
+                arg.Item2.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 
@@ -497,6 +1263,32 @@ namespace Jsonata.Net.Native.New
         {
             this.lhs = lhs;
             this.rhsObject = rhsObject;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            GroupByNode otherGroup = (GroupByNode)other;
+            return this.lhs.Equals(otherGroup.lhs) 
+                && Enumerable.SequenceEqual(this.rhsObject, otherGroup.rhsObject);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs:\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhsObject[").Append(this.rhsObject.Count).Append("*2]:\n");
+            for (int i = 0; i < this.rhsObject.Count; ++i)
+            {
+                this.PrintIndent(sb, indent + 1).Append(i).Append(":\n");
+                Tuple<Node, Node> arg = this.rhsObject[i];
+                arg.Item1.PrintAstInternal(sb, indent + 1);
+                arg.Item2.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 
@@ -513,6 +1305,37 @@ namespace Jsonata.Net.Native.New
             this.rhs = rhs;
             this.value = value;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            BinaryNode otherBinary = (BinaryNode)other;
+            if (this.value != otherBinary.value)
+            {
+                return false;
+            }
+            if (!this.lhs.Equals(otherBinary.lhs))
+            {
+                return false;
+            }
+            if (!this.rhs.Equals(otherBinary.rhs))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" ").Append(this.value.ToString());
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhs\n");
+            this.rhs.PrintAstInternal(sb, indent + 1);
+        }
     }
 
     public abstract class NodeWithStrValue: Node
@@ -523,6 +1346,22 @@ namespace Jsonata.Net.Native.New
             :base(type, position)
         {
             this.value = value;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            NodeWithStrValue otherWithValue = (NodeWithStrValue)other;
+            return this.value.Equals(otherWithValue.value);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `").Append(this.value).Append("`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
         }
     }
 
@@ -535,6 +1374,30 @@ namespace Jsonata.Net.Native.New
             :base(SymbolType.path, -1)
         {
             this.steps = steps;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            PathNode otherPath = (PathNode)other;
+            return this.keepSingletonArray == otherPath.keepSingletonArray
+                && Enumerable.SequenceEqual(this.steps, otherPath.steps);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            if (this.keepSingletonArray)
+            {
+                sb.Append(", keepSingletonArray");
+            }
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("steps[").Append(this.steps.Count).Append("]:\n");
+            foreach (Node arg in this.steps)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 
@@ -551,6 +1414,29 @@ namespace Jsonata.Net.Native.New
             this.rhsTerms = rhsTerms;
             this.lhs = lhs;
         }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            OrderbyNode orderbyNode = (OrderbyNode)other;
+            return this.lhs.Equals(orderbyNode.lhs)
+                && Enumerable.SequenceEqual(this.rhsTerms, orderbyNode.rhsTerms);
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("lhs:\n");
+            this.lhs.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("rhsTerms[").Append(this.rhsTerms.Count).Append("]:\n");
+            foreach (Node arg in this.rhsTerms)
+            {
+                arg.PrintAstInternal(sb, indent + 1);
+            }
+        }
     }
 
     public sealed class TransformNode: Node
@@ -565,6 +1451,47 @@ namespace Jsonata.Net.Native.New
             this.pattern = pattern;
             this.update = update;
             this.delete = delete;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            TransformNode otherTransform = (TransformNode)other;
+            if (!this.pattern.Equals(otherTransform.pattern))
+            {
+                return false;
+            }
+            if (!this.update.Equals(otherTransform.update))
+            {
+                return false;
+            }
+            if (!IsNullMatches(this.delete, otherTransform.delete))
+            {
+                return false;
+            }
+            if (this.delete != null && otherTransform.delete != null
+                && !this.delete.Equals(otherTransform.delete))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("pattern:\n");
+            this.pattern.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("update:\n");
+            this.update.PrintAstInternal(sb, indent + 1);
+            if (this.delete != null)
+            {
+                this.PrintIndent(sb, indent).Append("delete:\n");
+                this.delete.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 
@@ -581,6 +1508,47 @@ namespace Jsonata.Net.Native.New
             this.condition = condition;
             this.then = then;
             this.@else = @else;
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            ConditionNode otherCondition = (ConditionNode)other;
+            if (!this.condition.Equals(otherCondition.condition))
+            {
+                return false;
+            }
+            if (!this.then.Equals(otherCondition.then))
+            {
+                return false;
+            }
+            if (!IsNullMatches(this.@else, otherCondition.@else))
+            {
+                return false;
+            }
+            if (this.@else != null && otherCondition.@else != null
+                && !this.@else.Equals(otherCondition.@else))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            //nothing to do
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            this.PrintIndent(sb, indent).Append("condition:\n");
+            this.condition.PrintAstInternal(sb, indent + 1);
+            this.PrintIndent(sb, indent).Append("then:\n");
+            this.then.PrintAstInternal(sb, indent + 1);
+            if (this.@else != null)
+            {
+                this.PrintIndent(sb, indent).Append("else:\n");
+                this.@else.PrintAstInternal(sb, indent + 1);
+            }
         }
     }
 }

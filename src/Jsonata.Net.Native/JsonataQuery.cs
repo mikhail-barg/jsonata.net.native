@@ -9,12 +9,18 @@ namespace Jsonata.Net.Native
     {
         private readonly Node m_ast;
 
+        public static JsonataQuery FromAst(Node ast)
+        {
+            Node optimized = Optimizer.OptimizeAst(ast);
+            return new JsonataQuery(optimized);
+        }
+
         public JsonataQuery(string queryText)
             : this(Parser.Parse(queryText))
         {
         }
 
-        public JsonataQuery(Node ast)
+        private JsonataQuery(Node ast)
         {
             this.m_ast = ast;
         }
