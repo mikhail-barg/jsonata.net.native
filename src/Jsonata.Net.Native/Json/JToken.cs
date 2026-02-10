@@ -375,7 +375,7 @@ namespace Jsonata.Net.Native.Json
                 {
                     throw new ArgumentException($"Cannot convert to dict of type {type.Name}: not assignable from Dictionary");
                 }
-
+                
                 if (this.Type == JTokenType.Null)
                 {
                     return null;
