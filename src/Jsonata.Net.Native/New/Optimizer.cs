@@ -26,7 +26,7 @@ namespace Jsonata.Net.Native.New
 
         int ancestorLabel = 0;
         int ancestorIndex = 0;
-        List<ParentWithSlotNode> ancestry = new();
+        List<ParentOptimizedNode> ancestry = new();
 
         private SlotNode seekParent(Node node, SlotNode slot)
         {
@@ -67,7 +67,7 @@ namespace Jsonata.Net.Native.New
             case SymbolType.path:
                 {
                     // last step in path
-                    PathNode pathNode = (PathNode)node;
+                    PathRuntimeNode pathNode = (PathRuntimeNode)node;
                     node.tuple = true;
                     int index = pathNode.steps.Count - 1;
                     slot = this.seekParent(pathNode.steps[index--], slot);
@@ -96,7 +96,7 @@ namespace Jsonata.Net.Native.New
                 List<SlotNode> slots = value.seekingParent ?? new();
                 if (value.type == SymbolType.parent)
                 {
-                    slots.Add(((ParentWithSlotNode)value).slot);
+                    slots.Add(((ParentOptimizedNode)value).slot);
                 }
                 if (result.seekingParent == null)
                 {
@@ -109,14 +109,14 @@ namespace Jsonata.Net.Native.New
             }
         }
 
-        private void resolveAncestry(PathNode path)
+        private void resolveAncestry(PathRuntimeNode path)
         {
             int index = path.steps.Count - 1;
             Node laststep = path.steps[index];
             List<SlotNode> slots = laststep.seekingParent ?? new();
             if (laststep.type == SymbolType.parent)
             {
-                slots.Add(((ParentWithSlotNode)laststep).slot);
+                slots.Add(((ParentOptimizedNode)laststep).slot);
             }
             for (int i = 0; i < slots.Count; ++i)
             {
@@ -158,25 +158,25 @@ namespace Jsonata.Net.Native.New
             {
             case SymbolType._binary_path_node:
                 {
-                    BinaryPathNode exprBinaryPath = (BinaryPathNode)expr;
-                    PathNode resultPath;
+                    PathConstructionNode exprBinaryPath = (PathConstructionNode)expr;
+                    PathRuntimeNode resultPath;
                     Node lstep = this.processAST(exprBinaryPath.lhs);
                     if (lstep.type == SymbolType.path)
                     {
-                        resultPath = (PathNode)lstep;
+                        resultPath = (PathRuntimeNode)lstep;
                     }
                     else
                     {
-                        resultPath = new PathNode(new() { lstep });
+                        resultPath = new PathRuntimeNode(new() { lstep });
                     }
                     if (lstep.type == SymbolType.parent)
                     {
-                        resultPath.seekingParent = new() { ((ParentWithSlotNode)lstep).slot };
+                        resultPath.seekingParent = new() { ((ParentOptimizedNode)lstep).slot };
                     }
                     Node rest = this.processAST(exprBinaryPath.rhs);
                     if (rest.type == SymbolType.path)
                     {
-                        resultPath.steps.AddRange(((PathNode)rest).steps);
+                        resultPath.steps.AddRange(((PathRuntimeNode)rest).steps);
                     }
                     else
                     {
@@ -230,7 +230,7 @@ namespace Jsonata.Net.Native.New
                 break; //_binary_path_node
             case SymbolType._binary_filter_node:
                 {
-                    BinaryFilterNode exprBinaryFilter = (BinaryFilterNode)expr;
+                    FilterConstructionNode exprBinaryFilter = (FilterConstructionNode)expr;
                     // predicated step
                     // LHS is a step or a predicated step
                     // RHS is the predicate expr
@@ -239,7 +239,7 @@ namespace Jsonata.Net.Native.New
                     bool typeIsStages;      //if false -> type is 'predicate'
                     if (result.type == SymbolType.path)
                     {
-                        step = ((PathNode)result).steps[^1];
+                        step = ((PathRuntimeNode)result).steps[^1];
                         typeIsStages = true;  // type = 'stages'
                     }
                     else
@@ -312,25 +312,25 @@ namespace Jsonata.Net.Native.New
                 break; // binary
             case SymbolType._binary_bind_assign:
                 {
-                    BindAssignVarNode exprBind = (BindAssignVarNode)expr;
+                    BindAssignVarConstructionNode exprBind = (BindAssignVarConstructionNode)expr;
                     Node lhs = this.processAST(exprBind.lhs);
                     Node rhs = this.processAST(exprBind.rhs);
                     if (lhs.type != SymbolType.variable)
                     {
                         throw new Exception("Should not happen, because exprBind.lhs was variable!");
                     }
-                    result = new BindNode(exprBind.position, (VariableNode)lhs, rhs);
+                    result = new BindRuntimeNode(exprBind.position, (VariableNode)lhs, rhs);
                     this.pushAncestry(result, rhs);
                 }
                 break;
             case SymbolType._binary_bind_context:
                 {
-                    BindContextVarNode exprBind = (BindContextVarNode)expr;
+                    BindContextVarConstructionNode exprBind = (BindContextVarConstructionNode)expr;
                     result = this.processAST(exprBind.lhs);
                     Node step = result;
                     if (result.type == SymbolType.path)
                     {
-                        step = ((PathNode)result).steps[^1];
+                        step = ((PathRuntimeNode)result).steps[^1];
                     }
                     // throw error if there are any predicates defined at this point
                     // at this point the only type of stages can be predicates
@@ -353,17 +353,17 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType._binary_bind_positional:
                 {
-                    BindPositionalVarNode exprBind = (BindPositionalVarNode)expr;
+                    BindPositionalVarConstructionNode exprBind = (BindPositionalVarConstructionNode)expr;
                     result = processAST(exprBind.lhs);
                     Node step;
                     if (result.type == SymbolType.path)
                     {
-                        step = ((PathNode)result).steps[^1];
+                        step = ((PathRuntimeNode)result).steps[^1];
                     }
                     else
                     {
                         step = result;
-                        result = new PathNode(new() { step });
+                        result = new PathRuntimeNode(new() { step });
                         if (step.predicate != null)
                         {
                             step.stages = step.predicate.OfType<StageNode>().ToList();
@@ -387,7 +387,7 @@ namespace Jsonata.Net.Native.New
                     // group-by
                     // LHS is a step or a predicated step
                     // RHS is the object constructor expr
-                    GroupByNode exprGroupby = (GroupByNode)expr;
+                    GroupByConstructionNode exprGroupby = (GroupByConstructionNode)expr;
                     result = this.processAST(exprGroupby.lhs);
                     if (result == null)
                     {
@@ -409,18 +409,18 @@ namespace Jsonata.Net.Native.New
                     // order-by
                     // LHS is the array to be ordered
                     // RHS defines the terms
-                    OrderbyNode exprOrderby = (OrderbyNode)expr;
+                    OrderbyConstructionNode exprOrderby = (OrderbyConstructionNode)expr;
                     Node res = this.processAST(exprOrderby.lhs);
-                    PathNode resultPath;
+                    PathRuntimeNode resultPath;
                     if (res.type == SymbolType.path)
                     {
-                        resultPath = (PathNode)res;
+                        resultPath = (PathRuntimeNode)res;
                     }
                     else
                     {
-                        resultPath = new PathNode(new() { res });
+                        resultPath = new PathRuntimeNode(new() { res });
                     }
-                    SortNode sortStep = new SortNode(expr.position, terms: new());
+                    SortStepNode sortStep = new SortStepNode(expr.position, terms: new());
                     foreach (SortTermNode term in exprOrderby.rhsTerms)
                     {
                         Node expression = this.processAST(term.expression!);
@@ -562,7 +562,7 @@ namespace Jsonata.Net.Native.New
                         Node item = exprBlock.expressions[i];
                         Node part = this.processAST(item);
                         this.pushAncestry(exprBlock, part);
-                        if (part.consarray || (part.type == SymbolType.path && ((PathNode)part).steps[0].consarray))
+                        if (part.consarray || (part.type == SymbolType.path && ((PathRuntimeNode)part).steps[0].consarray))
                         {
                             exprBlock.consarray = true;
                         }
@@ -575,7 +575,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.name:
                 {
-                    result = new PathNode(new() { (NameNode)expr }) {
+                    result = new PathRuntimeNode(new() { (NameNode)expr }) {
                         keepSingletonArray = expr.keepArray
                     };
                 }
@@ -583,7 +583,7 @@ namespace Jsonata.Net.Native.New
             case SymbolType._parent: //this one is parsed from Parser
                 {
                     SlotNode slot = new SlotNode(label: "!" + this.ancestorLabel++, ancestorIndex: this.ancestorIndex++, level: 1);
-                    ParentWithSlotNode slottedResult = new ParentWithSlotNode(expr.position, slot);
+                    ParentOptimizedNode slottedResult = new ParentOptimizedNode(expr.position, slot);
                     this.ancestry.Add(slottedResult);
                     result = slottedResult;
                 }

@@ -267,12 +267,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BinaryFilterNode : Node
+    public sealed class FilterConstructionNode : Node
     {
         public readonly Node lhs;
         public readonly Node rhs;
 
-        public BinaryFilterNode(int position, Node lhs, Node rhs)
+        public FilterConstructionNode(int position, Node lhs, Node rhs)
             : base(SymbolType._binary_filter_node, position)
         {
             this.lhs = lhs;
@@ -281,7 +281,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            BinaryFilterNode otherBinary = (BinaryFilterNode)other;
+            FilterConstructionNode otherBinary = (FilterConstructionNode)other;
             if (!this.lhs.Equals(otherBinary.lhs))
             {
                 return false;
@@ -307,12 +307,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BinaryPathNode : Node
+    public sealed class PathConstructionNode : Node
     {
         public readonly Node lhs;
         public readonly Node rhs;
 
-        public BinaryPathNode(int position, Node lhs, Node rhs)
+        public PathConstructionNode(int position, Node lhs, Node rhs)
             : base(SymbolType._binary_path_node, position)
         {
             this.lhs = lhs;
@@ -321,7 +321,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            BinaryPathNode otherBinary = (BinaryPathNode)other;
+            PathConstructionNode otherBinary = (PathConstructionNode)other;
             if (!this.lhs.Equals(otherBinary.lhs))
             {
                 return false;
@@ -370,9 +370,9 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class ParentNode : Node
+    public sealed class ParentConstructionNode : Node
     {
-        public ParentNode(int position)
+        public ParentConstructionNode(int position)
             : base(SymbolType._parent, position)
         {
         }
@@ -393,10 +393,10 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class ParentWithSlotNode : Node
+    public sealed class ParentOptimizedNode : Node
     {
         public readonly SlotNode slot;
-        public ParentWithSlotNode(int position, SlotNode slot)
+        public ParentOptimizedNode(int position, SlotNode slot)
             : base(SymbolType.parent, position)
         {
             this.slot = slot;
@@ -404,7 +404,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            ParentWithSlotNode otherParent = (ParentWithSlotNode)other;
+            ParentOptimizedNode otherParent = (ParentOptimizedNode)other;
             return this.slot.Equals(otherParent.slot);
         }
 
@@ -486,12 +486,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BindAssignVarNode : Node
+    public sealed class BindAssignVarConstructionNode : Node
     {
         public readonly VariableNode lhs;
         public readonly Node rhs;
 
-        public BindAssignVarNode(int position, VariableNode lhs, Node rhs)
+        public BindAssignVarConstructionNode(int position, VariableNode lhs, Node rhs)
             : base(SymbolType._binary_bind_assign, position)
         {
             this.lhs = lhs;
@@ -500,7 +500,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            BindAssignVarNode otherBind = (BindAssignVarNode)other;
+            BindAssignVarConstructionNode otherBind = (BindAssignVarConstructionNode)other;
             if (!this.lhs.Equals(otherBind.lhs))
             {
                 return false;
@@ -526,12 +526,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BindPositionalVarNode : Node
+    public sealed class BindPositionalVarConstructionNode : Node
     {
         public readonly Node lhs;
         public readonly VariableNode rhs;
 
-        public BindPositionalVarNode(int position, Node lhs, VariableNode rhs)
+        public BindPositionalVarConstructionNode(int position, Node lhs, VariableNode rhs)
             : base(SymbolType._binary_bind_positional, position)
         {
             this.lhs = lhs;
@@ -540,7 +540,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            BindPositionalVarNode otherBind = (BindPositionalVarNode)other;
+            BindPositionalVarConstructionNode otherBind = (BindPositionalVarConstructionNode)other;
             if (!this.lhs.Equals(otherBind.lhs))
             {
                 return false;
@@ -566,12 +566,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BindContextVarNode : Node
+    public sealed class BindContextVarConstructionNode : Node
     {
         public readonly Node lhs;
         public readonly VariableNode rhs;
 
-        public BindContextVarNode(int position, Node lhs, VariableNode rhs)
+        public BindContextVarConstructionNode(int position, Node lhs, VariableNode rhs)
             : base(SymbolType._binary_bind_context, position)
         {
             this.lhs = lhs;
@@ -580,7 +580,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            BindContextVarNode otherBind = (BindContextVarNode)other;
+            BindContextVarConstructionNode otherBind = (BindContextVarConstructionNode)other;
             if (!this.lhs.Equals(otherBind.lhs))
             {
                 return false;
@@ -984,11 +984,11 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class SortNode: Node
+    public sealed class SortStepNode: Node
     {
         public readonly List<SortTermNode> terms;
 
-        public SortNode(int position, List<SortTermNode> terms)
+        public SortStepNode(int position, List<SortTermNode> terms)
             :base(SymbolType.sort, position) 
         { 
             this.terms = terms;
@@ -996,7 +996,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            SortNode otherSort = (SortNode)other;
+            SortStepNode otherSort = (SortStepNode)other;
             return Enumerable.SequenceEqual(this.terms, otherSort.terms);
         }
 
@@ -1179,12 +1179,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BindNode : Node
+    public sealed class BindRuntimeNode : Node
     {
         public readonly VariableNode lhs;
         public readonly Node rhs;
 
-        public BindNode(int position, VariableNode lhs, Node rhs)
+        public BindRuntimeNode(int position, VariableNode lhs, Node rhs)
             : base(SymbolType.bind, position)
         {
             this.lhs = lhs;
@@ -1193,7 +1193,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            BindNode otherBind = (BindNode)other;
+            BindRuntimeNode otherBind = (BindRuntimeNode)other;
             if (!this.lhs.Equals(otherBind.lhs))
             {
                 return false;
@@ -1253,12 +1253,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class GroupByNode: Node
+    public sealed class GroupByConstructionNode: Node
     {
         public readonly Node lhs;
         public readonly List<Tuple<Node, Node>> rhsObject;
 
-        public GroupByNode(int position, Node lhs, List<Tuple<Node, Node>> rhsObject)
+        public GroupByConstructionNode(int position, Node lhs, List<Tuple<Node, Node>> rhsObject)
             : base(SymbolType._binary_groupby, position)
         {
             this.lhs = lhs;
@@ -1267,7 +1267,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            GroupByNode otherGroup = (GroupByNode)other;
+            GroupByConstructionNode otherGroup = (GroupByConstructionNode)other;
             return this.lhs.Equals(otherGroup.lhs) 
                 && Enumerable.SequenceEqual(this.rhsObject, otherGroup.rhsObject);
         }
@@ -1365,12 +1365,12 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class PathNode: Node
+    public sealed class PathRuntimeNode: Node
     {
         public readonly List<Node> steps;
         public bool keepSingletonArray { get; internal set; } = false;
 
-        public PathNode(List<Node> steps)
+        public PathRuntimeNode(List<Node> steps)
             :base(SymbolType.path, -1)
         {
             this.steps = steps;
@@ -1378,7 +1378,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            PathNode otherPath = (PathNode)other;
+            PathRuntimeNode otherPath = (PathRuntimeNode)other;
             return this.keepSingletonArray == otherPath.keepSingletonArray
                 && Enumerable.SequenceEqual(this.steps, otherPath.steps);
         }
@@ -1401,14 +1401,14 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class OrderbyNode: Node
+    public sealed class OrderbyConstructionNode: Node
     {
         // LHS is the array to be ordered
         // RHS defines the terms
         public readonly Node lhs;
         public readonly List<SortTermNode> rhsTerms;
 
-        public OrderbyNode(int position, Node lhs, List<SortTermNode> rhsTerms)
+        public OrderbyConstructionNode(int position, Node lhs, List<SortTermNode> rhsTerms)
             :base(SymbolType._binary_orderby, position)
         {
             this.rhsTerms = rhsTerms;
@@ -1417,7 +1417,7 @@ namespace Jsonata.Net.Native.New
 
         protected override bool EqualsSpecific(Node other)
         {
-            OrderbyNode orderbyNode = (OrderbyNode)other;
+            OrderbyConstructionNode orderbyNode = (OrderbyConstructionNode)other;
             return this.lhs.Equals(orderbyNode.lhs)
                 && Enumerable.SequenceEqual(this.rhsTerms, orderbyNode.rhsTerms);
         }

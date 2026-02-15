@@ -45,7 +45,7 @@ namespace Jsonata.Net.Native.New
             switch (expr.type)
             {
             case SymbolType.path:
-                result = JsonataQ.evaluatePath((PathNode)expr, input, environment);
+                result = JsonataQ.evaluatePath((PathRuntimeNode)expr, input, environment);
                 break;
             case SymbolType.binary:
                 result = JsonataQ.evaluateBinary((BinaryNode)expr, input, environment);
@@ -85,7 +85,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateDescendants((DescendantNode)expr, input); //, environment);
                 break;
             case SymbolType.parent:
-                result = environment.Lookup(((ParentWithSlotNode)expr).slot.label);
+                result = environment.Lookup(((ParentOptimizedNode)expr).slot.label);
                 break;
             case SymbolType.condition:
                 result = JsonataQ.evaluateCondition((ConditionNode)expr, input, environment);
@@ -94,7 +94,7 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateBlock((BlockNode)expr, input, environment);
                 break;
             case SymbolType.bind:
-                result = JsonataQ.evaluateBindExpression((BindNode)expr, input, environment);
+                result = JsonataQ.evaluateBindExpression((BindRuntimeNode)expr, input, environment);
                 break;
             case SymbolType.regex:
                 result = JsonataQ.evaluateRegex((RegexNode)expr); //, input, environment);
@@ -165,7 +165,7 @@ namespace Jsonata.Net.Native.New
         * @param {Object} environment - Environment
         * @returns {*} Evaluated input data
         */
-        private static JToken evaluatePath(PathNode expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluatePath(PathRuntimeNode expr, JToken input, EvaluationEnvironment environment)
         {
             JArray inputSequence;
             // expr is an array of steps
@@ -300,7 +300,7 @@ namespace Jsonata.Net.Native.New
         {
             if (expr.type == SymbolType.sort)
             {
-                JArray sortResult = JsonataQ.evaluateSortExpression((SortNode)expr, input, environment);
+                JArray sortResult = JsonataQ.evaluateSortExpression((SortStepNode)expr, input, environment);
                 if (expr.stages != null)
                 {
                     sortResult = JsonataQ.evaluateStages(expr.stages, sortResult, environment);
@@ -412,11 +412,11 @@ namespace Jsonata.Net.Native.New
             {
                 if (tupleBindings != null) 
                 {
-                    result = JsonataQ.evaluateSortExpression((SortNode)expr, tupleBindings, environment);
+                    result = JsonataQ.evaluateSortExpression((SortStepNode)expr, tupleBindings, environment);
                 } 
                 else 
                 {
-                    JArray sorted = JsonataQ.evaluateSortExpression((SortNode)expr, input, environment);
+                    JArray sorted = JsonataQ.evaluateSortExpression((SortStepNode)expr, input, environment);
                     result = JsonataArray.CreateSequence();
                     ((JsonataArray)result).tupleStream = true;
                     for (int ss = 0; ss < sorted.Count; ++ss) 
@@ -1449,7 +1449,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Evaluated input data
          */
-        private static JToken evaluateBindExpression(BindNode expr, JToken input, EvaluationEnvironment environment)
+        private static JToken evaluateBindExpression(BindRuntimeNode expr, JToken input, EvaluationEnvironment environment)
         {
             // The RHS is the expression to evaluate
             // The LHS is the name of the variable to bind to - should be a VARIABLE token (enforced by parser)
@@ -1549,7 +1549,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Ordered sequence
          */
-        private static JArray evaluateSortExpression(SortNode expr, JArray input, EvaluationEnvironment environment)
+        private static JArray evaluateSortExpression(SortStepNode expr, JArray input, EvaluationEnvironment environment)
         {
             // evaluate the lhs, then sort the results in order according to rhs expression
             bool isTupleSort = (input is JsonataArray jsonataInput) && jsonataInput.tupleStream;
@@ -1769,7 +1769,7 @@ namespace Jsonata.Net.Native.New
  
             if (proc.Type == JTokenType.Undefined 
                 && expr.procedure.type == SymbolType.path
-                && expr.procedure is PathNode exprPath
+                && expr.procedure is PathRuntimeNode exprPath
                 && exprPath.steps[0] is NodeWithStrValue valueStep
                 && environment.Lookup(valueStep.value).Type != JTokenType.Undefined
             ) 
@@ -1984,7 +1984,7 @@ namespace Jsonata.Net.Native.New
             JToken proc = JsonataQ.evaluate(expr.procedure, input, environment);
             if (proc.Type == JTokenType.Undefined
                 && expr.procedure.type == SymbolType.path
-                && expr.procedure is PathNode exprPath
+                && expr.procedure is PathRuntimeNode exprPath
                 && exprPath.steps[0] is NodeWithStrValue valueStep
                 && environment.Lookup(valueStep.value).Type != JTokenType.Undefined
             )

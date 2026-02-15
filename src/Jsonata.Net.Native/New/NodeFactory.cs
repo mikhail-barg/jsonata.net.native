@@ -104,7 +104,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node rhs = parser.expression(bp);
-            Node result = new BinaryPathNode(token.position, left, rhs);
+            Node result = new PathConstructionNode(token.position, left, rhs);
             return result;
         }
     }
@@ -224,7 +224,7 @@ namespace Jsonata.Net.Native.New
                 parser.advance(",");
             }
             parser.advance(")");
-            OrderbyNode result = new OrderbyNode(token.position, lhs: left, rhsTerms: terms);
+            OrderbyConstructionNode result = new OrderbyConstructionNode(token.position, lhs: left, rhsTerms: terms);
             return result;
         }
     }
@@ -246,7 +246,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             List<Tuple<Node, Node>> rhsObject = this.parseObject(parser);
-            Node result = new GroupByNode(token.position, left, rhsObject);
+            Node result = new GroupByConstructionNode(token.position, left, rhsObject);
             return result;
         }
 
@@ -288,7 +288,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new JException("S0214", rhs.position, "@");
             }
-            Node result = new BindContextVarNode(token.position, left, (VariableNode)rhs);
+            Node result = new BindContextVarConstructionNode(token.position, left, (VariableNode)rhs);
             return result;
         }
     }
@@ -307,7 +307,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new JException("S0214", rhs.position, "#");
             }
-            Node result = new BindPositionalVarNode(token.position, left, (VariableNode)rhs);
+            Node result = new BindPositionalVarConstructionNode(token.position, left, (VariableNode)rhs);
             return result;
         }
     }
@@ -465,7 +465,7 @@ namespace Jsonata.Net.Native.New
             {
                 // empty predicate means maintain singleton arrays in the output
                 Node? step = left;
-                while (step is BinaryFilterNode binaryStep)
+                while (step is FilterConstructionNode binaryStep)
                 {
                     step = binaryStep.lhs;
                 }
@@ -480,7 +480,7 @@ namespace Jsonata.Net.Native.New
             else
             {
                 Node rhs = parser.expression(Tokenizer.OPERATORS["]"]);
-                Node symbol = new BinaryFilterNode(token.position, left, rhs);
+                Node symbol = new FilterConstructionNode(token.position, left, rhs);
                 parser.advance("]", true);
                 return symbol;
             }
@@ -559,7 +559,7 @@ namespace Jsonata.Net.Native.New
                 throw new JException("S0212", left.position/*, left.value*/); //TODO: value
             }
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
-            Node result = new BindAssignVarNode(token.position, (VariableNode)left, rhs);
+            Node result = new BindAssignVarConstructionNode(token.position, (VariableNode)left, rhs);
             return result;
         }
     }
@@ -586,7 +586,7 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            return new ParentNode(token.position);
+            return new ParentConstructionNode(token.position);
         }
     }
 
