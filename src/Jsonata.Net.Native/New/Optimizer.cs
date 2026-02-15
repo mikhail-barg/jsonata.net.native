@@ -28,7 +28,7 @@ namespace Jsonata.Net.Native.New
         int ancestorIndex = 0;
         List<ParentOptimizedNode> ancestry = new();
 
-        private SlotNode seekParent(Node node, SlotNode slot)
+        private SlotRuntimeNode seekParent(Node node, SlotRuntimeNode slot)
         {
             switch (node.type)
             {
@@ -93,7 +93,7 @@ namespace Jsonata.Net.Native.New
             }
             if (value.seekingParent != null || value.type == SymbolType.parent)
             {
-                List<SlotNode> slots = value.seekingParent ?? new();
+                List<SlotRuntimeNode> slots = value.seekingParent ?? new();
                 if (value.type == SymbolType.parent)
                 {
                     slots.Add(((ParentOptimizedNode)value).slot);
@@ -113,14 +113,14 @@ namespace Jsonata.Net.Native.New
         {
             int index = path.steps.Count - 1;
             Node laststep = path.steps[index];
-            List<SlotNode> slots = laststep.seekingParent ?? new();
+            List<SlotRuntimeNode> slots = laststep.seekingParent ?? new();
             if (laststep.type == SymbolType.parent)
             {
                 slots.Add(((ParentOptimizedNode)laststep).slot);
             }
             for (int i = 0; i < slots.Count; ++i)
             {
-                SlotNode slot = slots[i];
+                SlotRuntimeNode slot = slots[i];
                 index = path.steps.Count - 2;
                 while (slot.level > 0)
                 {
@@ -182,7 +182,7 @@ namespace Jsonata.Net.Native.New
                     {
                         if (rest.predicate != null)
                         {
-                            rest.stages = rest.predicate.OfType<StageNode>().ToList();
+                            rest.stages = rest.predicate.OfType<StageRuntimeNode>().ToList();
                             rest.predicate = null;
                         }
                         resultPath.steps.Add(rest);
@@ -254,7 +254,7 @@ namespace Jsonata.Net.Native.New
                     Node predicate = this.processAST(exprBinaryFilter.rhs);
                     if (predicate.seekingParent != null)
                     {
-                        foreach (SlotNode slot in predicate.seekingParent)
+                        foreach (SlotRuntimeNode slot in predicate.seekingParent)
                         {
                             if (slot.level == 1)
                             {
@@ -267,7 +267,7 @@ namespace Jsonata.Net.Native.New
                         }
                         this.pushAncestry(step, predicate);
                     }
-                    FilterNode filter = new FilterNode(predicate, expr.position);
+                    FilterRuntimeNode filter = new FilterRuntimeNode(predicate, expr.position);
 
                     // if (typeof step[type] === 'undefined') {
                     //    step[type] = [];
@@ -312,7 +312,7 @@ namespace Jsonata.Net.Native.New
                 break; // binary
             case SymbolType._binary_bind_assign:
                 {
-                    BindAssignVarConstructionNode exprBind = (BindAssignVarConstructionNode)expr;
+                    AssignVarConstructionNode exprBind = (AssignVarConstructionNode)expr;
                     Node lhs = this.processAST(exprBind.lhs);
                     Node rhs = this.processAST(exprBind.rhs);
                     if (lhs.type != SymbolType.variable)
@@ -366,7 +366,7 @@ namespace Jsonata.Net.Native.New
                         result = new PathRuntimeNode(new() { step });
                         if (step.predicate != null)
                         {
-                            step.stages = step.predicate.OfType<StageNode>().ToList();
+                            step.stages = step.predicate.OfType<StageRuntimeNode>().ToList();
                             step.predicate = null;
                         }
                     }
@@ -376,7 +376,7 @@ namespace Jsonata.Net.Native.New
                     }
                     else
                     {
-                        IndexNode _res = new IndexNode(exprBind.rhs.value, expr.position);
+                        IndexRuntimeNode _res = new IndexRuntimeNode(exprBind.rhs.value, expr.position);
                         step.stages.Add(_res);
                     }
                     step.tuple = true;
@@ -420,7 +420,7 @@ namespace Jsonata.Net.Native.New
                     {
                         resultPath = new PathRuntimeNode(new() { res });
                     }
-                    SortStepNode sortStep = new SortStepNode(terms: new(), expr.position);
+                    SortStepRuntimeNode sortStep = new SortStepRuntimeNode(terms: new(), expr.position);
                     foreach (SortTermNode term in exprOrderby.rhsTerms)
                     {
                         Node expression = this.processAST(term.expression!);
@@ -491,7 +491,7 @@ namespace Jsonata.Net.Native.New
                     FunctionalNode functionalExpr = (FunctionalNode)expr;
                     Node procedure = processAST(functionalExpr.procedure);
                     List<Node> arguments = new();
-                    result = new FunctionalNode(functionalExpr.type == SymbolType.partial, procedure: procedure, arguments: arguments, position:expr.position);
+                    result = new FunctionalNode(procedure: procedure, arguments: arguments, partial: functionalExpr.partial, position:expr.position);
                     foreach (Node arg in functionalExpr.arguments)
                     {
                         Node argAST = this.processAST(arg);
@@ -509,7 +509,7 @@ namespace Jsonata.Net.Native.New
                     {
                         throw new Exception("IF this may happen then why not pass `lambdaExpr.thunk` as a `result.thunk`?");
                     }
-                    result = new LambdaNode(arguments: lambdaExpr.arguments, signature: lambdaExpr.signature, body: body, thunk: false, position: expr.position);
+                    result = new LambdaNode(arguments: lambdaExpr.arguments, body: body, signature: lambdaExpr.signature, position: expr.position);
                 }
                 break;
             case SymbolType.condition:
@@ -582,7 +582,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType._parent: //this one is parsed from Parser
                 {
-                    SlotNode slot = new SlotNode(label: "!" + this.ancestorLabel++, ancestorIndex: this.ancestorIndex++, level: 1);
+                    SlotRuntimeNode slot = new SlotRuntimeNode(label: "!" + this.ancestorLabel++, ancestorIndex: this.ancestorIndex++, level: 1);
                     ParentOptimizedNode slottedResult = new ParentOptimizedNode(slot, expr.position);
                     this.ancestry.Add(slottedResult);
                     result = slottedResult;
@@ -599,11 +599,12 @@ namespace Jsonata.Net.Native.New
             case SymbolType.descendant:
             case SymbolType.variable:
             case SymbolType.regex:
+            case SymbolType._partial_arg:
                 result = expr;
                 break;
             case SymbolType.@operator:
                 {
-                    SpecialOperatorNode exprOperator = (SpecialOperatorNode)expr;
+                    SpecialOperatorConstructionNode exprOperator = (SpecialOperatorConstructionNode)expr;
                     // the tokens 'and' and 'or' might have been used as a name rather than an operator
                     switch (exprOperator.value)
                     {
@@ -615,10 +616,6 @@ namespace Jsonata.Net.Native.New
                         break;
                     case SpecialOperatorType.@in:
                         result = this.processAST(new NameNode("in", expr.position));
-                        break;
-                    case SpecialOperatorType.partial:
-                        // partial application
-                        result = expr;
                         break;
                     default:
                         throw new JException("S0201", expr.position/*, expr.value*/); //TODO: value
@@ -659,7 +656,7 @@ namespace Jsonata.Net.Native.New
             Node result;
             if (expr.type == SymbolType.function && expr.predicate == null)
             {
-                Node thunk = new LambdaNode(arguments: new(), signature: null, body: expr, thunk: true, position: expr.position);
+                Node thunk = new LambdaNode(arguments: new(), body: expr, thunk: true, position: expr.position);
                 result = thunk;
             }
             else if (expr.type == SymbolType.condition)

@@ -53,6 +53,7 @@ namespace Jsonata.Net.Native.New
         _value_bool,        //was a part of 'value
         _value_null,        //was a part of 'value
         _parent,            // gets converted to 'parent' during processAST() phase
+        _partial_arg,       //was a part of @operator
     }
 
     public enum BinaryOperatorType
@@ -77,7 +78,6 @@ namespace Jsonata.Net.Native.New
 
     public enum SpecialOperatorType
     {
-        partial,    // "?" - partial function arg. TODO: why at all it's an operator?? let's make it specific type!
         and,
         or,
         @in
@@ -92,12 +92,12 @@ namespace Jsonata.Net.Native.New
         public bool consarray { get; internal set; } = false;
         public bool keepArray { get; internal set; }
         public GroupNode? group { get; internal set; }
-        public List<StageNode>? stages { get; internal set; }
-        public List<FilterNode>? predicate { get; internal set; }
+        public List<StageRuntimeNode>? stages { get; internal set; }
+        public List<FilterRuntimeNode>? predicate { get; internal set; }
 
         // Ancestor attributes
-        internal SlotNode? ancestor;
-        internal List<SlotNode>? seekingParent;
+        internal SlotRuntimeNode? ancestor;
+        internal List<SlotRuntimeNode>? seekingParent;
         internal string? index; // positional binding
         internal string? focus; // contextual binding
 
@@ -247,7 +247,7 @@ namespace Jsonata.Net.Native.New
             if (this.stages != null)
             {
                 this.PrintIndent(sb, indent + 1).Append("stages[").Append(this.stages.Count).Append("]\n");
-                foreach (StageNode stage in this.stages)
+                foreach (StageRuntimeNode stage in this.stages)
                 {
                     stage.PrintAstInternal(sb, indent + 2);
                 }
@@ -255,7 +255,7 @@ namespace Jsonata.Net.Native.New
             if (this.predicate != null)
             {
                 this.PrintIndent(sb, indent + 1).Append("predicate[").Append(this.predicate.Count).Append("]\n");
-                foreach (FilterNode stage in this.predicate)
+                foreach (FilterRuntimeNode stage in this.predicate)
                 {
                     stage.PrintAstInternal(sb, indent + 2);
                 }
@@ -452,8 +452,8 @@ namespace Jsonata.Net.Native.New
 
     public sealed class ParentOptimizedNode: Node, IEquatable<ParentOptimizedNode>
     {
-        public readonly SlotNode slot;
-        public ParentOptimizedNode(SlotNode slot, int position = -1)
+        public readonly SlotRuntimeNode slot;
+        public ParentOptimizedNode(SlotRuntimeNode slot, int position = -1)
             : base(SymbolType.parent, position)
         {
             this.slot = slot;
@@ -601,26 +601,34 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class BindAssignVarConstructionNode: Node, IEquatable<BindAssignVarConstructionNode>
+    public sealed class AssignVarConstructionNode: Node, IEquatable<AssignVarConstructionNode>
     {
         public readonly VariableNode lhs;
         public readonly Node rhs;
 
-        public BindAssignVarConstructionNode(VariableNode lhs, Node rhs, int position = -1)
+        public AssignVarConstructionNode(VariableNode lhs, Node rhs, int position = -1)
             : base(SymbolType._binary_bind_assign, position)
         {
             this.lhs = lhs;
             this.rhs = rhs;
         }
 
-        public bool Equals(BindAssignVarConstructionNode? other)
+        // convenience for manual construction
+        public AssignVarConstructionNode(string variable, Node rhs)
+            :this(new VariableNode(variable), rhs)
+        {
+
+        }
+
+
+        public bool Equals(AssignVarConstructionNode? other)
         {
             return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
         {
-            BindAssignVarConstructionNode otherBind = (BindAssignVarConstructionNode)other;
+            AssignVarConstructionNode otherBind = (AssignVarConstructionNode)other;
             if (!this.lhs.Equals(otherBind.lhs))
             {
                 return false;
@@ -656,6 +664,12 @@ namespace Jsonata.Net.Native.New
         {
             this.lhs = lhs;
             this.rhs = rhs;
+        }
+
+        public BindPositionalVarConstructionNode(Node lhs, string variable)
+            :this(lhs, new VariableNode(variable))
+        {
+
         }
 
         public bool Equals(BindPositionalVarConstructionNode? other)
@@ -703,6 +717,12 @@ namespace Jsonata.Net.Native.New
             this.rhs = rhs;
         }
 
+        public BindContextVarConstructionNode(Node lhs, string variable)
+            : this(lhs, new VariableNode(variable))
+        {
+
+        }
+
         public bool Equals(BindContextVarConstructionNode? other)
         {
             return this.EqualsImpl(other);
@@ -736,24 +756,52 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class SpecialOperatorNode: Node, IEquatable<SpecialOperatorNode>
+    public sealed class ArgumentPlaceholderNode: Node, IEquatable<ArgumentPlaceholderNode>
     {
-        public readonly SpecialOperatorType value;
-
-        public SpecialOperatorNode(SpecialOperatorType value, int position = -1)
-            : base(SymbolType.@operator, position)
+        public ArgumentPlaceholderNode(int position = -1)
+            : base(SymbolType._partial_arg, position)
         {
-            this.value = value;
         }
 
-        public bool Equals(SpecialOperatorNode? other)
+        public bool Equals(ArgumentPlaceholderNode? other)
         {
             return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
         {
-            SpecialOperatorNode otherOperator = (SpecialOperatorNode)other;
+            return true;
+        }
+
+        protected override void PrintAstSpecific(StringBuilder sb)
+        {
+            sb.Append(" `?`");
+        }
+
+        protected override void PrintAstChildren(StringBuilder sb, int indent)
+        {
+            //nothing to do
+        }
+    }
+
+    public sealed class SpecialOperatorConstructionNode: Node, IEquatable<SpecialOperatorConstructionNode>
+    {
+        public readonly SpecialOperatorType value;
+
+        public SpecialOperatorConstructionNode(SpecialOperatorType value, int position = -1)
+            : base(SymbolType.@operator, position)
+        {
+            this.value = value;
+        }
+
+        public bool Equals(SpecialOperatorConstructionNode? other)
+        {
+            return this.EqualsImpl(other);
+        }
+
+        protected override bool EqualsSpecific(Node other)
+        {
+            SpecialOperatorConstructionNode otherOperator = (SpecialOperatorConstructionNode)other;
             return this.value.ToString().Equals(otherOperator.value.ToString());
         }
 
@@ -802,7 +850,7 @@ namespace Jsonata.Net.Native.New
 
     public sealed class NullNode: Node, IEquatable<NullNode>
     {
-        public NullNode(int position)
+        public NullNode(int position = -1)
             : base(SymbolType._value_null, position)
         {
         }
@@ -930,7 +978,7 @@ namespace Jsonata.Net.Native.New
         public readonly Node body;
         public readonly bool thunk;
 
-        public LambdaNode(List<VariableNode> arguments, Signature? signature, Node body, bool thunk, int position = -1)
+        public LambdaNode(List<VariableNode> arguments, Node body, Signature? signature = null, bool thunk = false, int position = -1)
             :base(SymbolType.lambda, position)
         {
             this.arguments = arguments;
@@ -988,24 +1036,26 @@ namespace Jsonata.Net.Native.New
 
         protected override void PrintAstChildren(StringBuilder sb, int indent)
         {
+            this.PrintIndent(sb, indent).Append("body:\n");
+            this.body.PrintAstInternal(sb, indent + 1);
             this.PrintIndent(sb, indent).Append("args[").Append(this.arguments.Count).Append("]:\n");
             foreach (VariableNode arg in this.arguments)
             {
                 arg.PrintAstInternal(sb, indent + 1);
             }
-            this.PrintIndent(sb, indent).Append("body:\n");
-            this.body.PrintAstInternal(sb, indent + 1);
         }
     }
 
     public sealed class FunctionalNode: Node, IEquatable<FunctionalNode>
     {
+        public readonly bool partial;
         public readonly Node procedure;
         public readonly List<Node> arguments;
 
-        public FunctionalNode(bool partial, Node procedure, List<Node> arguments, int position = -1)
+        public FunctionalNode(Node procedure, List<Node> arguments, bool partial = false, int position = -1)
             :base(partial? SymbolType.partial : SymbolType.function, position)
         {
+            this.partial = partial;
             this.procedure = procedure;
             this.arguments = arguments;
         }
@@ -1031,7 +1081,10 @@ namespace Jsonata.Net.Native.New
 
         protected override void PrintAstSpecific(StringBuilder sb)
         {
-            //nothing to do
+            if (this.partial)
+            {
+                sb.Append(", `partial`");
+            }
         }
 
         protected override void PrintAstChildren(StringBuilder sb, int indent)
@@ -1047,13 +1100,13 @@ namespace Jsonata.Net.Native.New
 
     }
 
-    public sealed class SlotNode: Node, IEquatable<SlotNode>
+    public sealed class SlotRuntimeNode: Node, IEquatable<SlotRuntimeNode>
     {
         public string label;
         public int level;
         public readonly int ancestorIndex;
 
-        public SlotNode(string label, int ancestorIndex, int level)
+        public SlotRuntimeNode(string label, int ancestorIndex, int level)
             : base(SymbolType._slot, -1)
         {
             this.label = label;
@@ -1061,14 +1114,14 @@ namespace Jsonata.Net.Native.New
             this.level = level;
         }
 
-        public bool Equals(SlotNode? other)
+        public bool Equals(SlotRuntimeNode? other)
         {
             return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
         {
-            SlotNode otherSlot = (SlotNode)other;
+            SlotRuntimeNode otherSlot = (SlotRuntimeNode)other;
             return (this.label == otherSlot.label
                 && this.level == otherSlot.level
                 && this.ancestorIndex == otherSlot.ancestorIndex
@@ -1161,24 +1214,24 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class SortStepNode: Node, IEquatable<SortStepNode>
+    public sealed class SortStepRuntimeNode: Node, IEquatable<SortStepRuntimeNode>
     {
         public readonly List<SortTermNode> terms;
 
-        public SortStepNode(List<SortTermNode> terms, int position = -1)
+        public SortStepRuntimeNode(List<SortTermNode> terms, int position = -1)
             :base(SymbolType.sort, position) 
         { 
             this.terms = terms;
         }
 
-        public bool Equals(SortStepNode? other)
+        public bool Equals(SortStepRuntimeNode? other)
         {
             return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
         {
-            SortStepNode otherSort = (SortStepNode)other;
+            SortStepRuntimeNode otherSort = (SortStepRuntimeNode)other;
             return Enumerable.SequenceEqual(this.terms, otherSort.terms);
         }
 
@@ -1197,37 +1250,37 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public abstract class StageNode: Node, IEquatable<StageNode>
+    public abstract class StageRuntimeNode: Node, IEquatable<StageRuntimeNode>
     {
-        internal StageNode(SymbolType type, int position) 
+        internal StageRuntimeNode(SymbolType type, int position) 
             : base(type, position)
         {
         }
 
-        public bool Equals(StageNode? other)
+        public bool Equals(StageRuntimeNode? other)
         {
             return this.EqualsImpl(other);
         }
     }
 
-    public sealed class FilterNode: StageNode, IEquatable<FilterNode>
+    public sealed class FilterRuntimeNode: StageRuntimeNode, IEquatable<FilterRuntimeNode>
     {
         public readonly Node expr;
 
-        public FilterNode(Node expr, int position = -1)
+        public FilterRuntimeNode(Node expr, int position = -1)
             :base(SymbolType.filter, position)
         {
             this.expr = expr;
         }
 
-        public bool Equals(FilterNode? other)
+        public bool Equals(FilterRuntimeNode? other)
         {
             return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
         {
-            FilterNode otherFilt = (FilterNode)other;
+            FilterRuntimeNode otherFilt = (FilterRuntimeNode)other;
             return this.expr.Equals(otherFilt.expr);
         }
 
@@ -1242,24 +1295,24 @@ namespace Jsonata.Net.Native.New
         }
     }
 
-    public sealed class IndexNode: StageNode, IEquatable<IndexNode>
+    public sealed class IndexRuntimeNode: StageRuntimeNode, IEquatable<IndexRuntimeNode>
     {
         public readonly string indexValue;
 
-        public IndexNode(string indexValue, int position = -1)
+        public IndexRuntimeNode(string indexValue, int position = -1)
             : base(SymbolType.index, position)
         {
             this.indexValue = indexValue;
         }
 
-        public bool Equals(IndexNode? other)
+        public bool Equals(IndexRuntimeNode? other)
         {
             return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
         {
-            IndexNode otherIndex = (IndexNode)other;
+            IndexRuntimeNode otherIndex = (IndexRuntimeNode)other;
             return this.indexValue == otherIndex.indexValue;
         }
 

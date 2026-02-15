@@ -125,7 +125,7 @@ namespace Jsonata.Net.Native.New
 
             if (expr.predicate != null)
             {
-                foreach (FilterNode element in expr.predicate)
+                foreach (FilterRuntimeNode element in expr.predicate)
                 {
                     result = JsonataQ.evaluateFilter(element.expr, result, environment);
                 }
@@ -300,7 +300,7 @@ namespace Jsonata.Net.Native.New
         {
             if (expr.type == SymbolType.sort)
             {
-                JArray sortResult = JsonataQ.evaluateSortExpression((SortStepNode)expr, input, environment);
+                JArray sortResult = JsonataQ.evaluateSortExpression((SortStepRuntimeNode)expr, input, environment);
                 if (expr.stages != null)
                 {
                     sortResult = JsonataQ.evaluateStages(expr.stages, sortResult, environment);
@@ -315,7 +315,7 @@ namespace Jsonata.Net.Native.New
                 JToken res = JsonataQ.evaluate(expr, child, environment);
                 if (expr.stages != null)
                 {
-                    foreach (FilterNode stage in expr.stages)
+                    foreach (FilterRuntimeNode stage in expr.stages)
                     {
                         res = JsonataQ.evaluateFilter(stage.expr, res, environment);
                     }
@@ -357,7 +357,7 @@ namespace Jsonata.Net.Native.New
             return resultSequence;
         }
 
-        private static JArray evaluateStages(List<StageNode> stages, JArray input, EvaluationEnvironment environment)
+        private static JArray evaluateStages(List<StageRuntimeNode> stages, JArray input, EvaluationEnvironment environment)
         {
             JArray result = input;
             foreach (Node stage in stages) 
@@ -366,13 +366,13 @@ namespace Jsonata.Net.Native.New
                 {
                 case SymbolType.filter:
                     {
-                        FilterNode filter = (FilterNode)stage;
+                        FilterRuntimeNode filter = (FilterRuntimeNode)stage;
                         result = JsonataQ.evaluateFilter(filter.expr, result, environment);
                     }
                     break;
                 case SymbolType.index:
                     {
-                        IndexNode index = (IndexNode)stage;
+                        IndexRuntimeNode index = (IndexRuntimeNode)stage;
                         for (int ee = 0; ee < result.Count; ++ee)
                         {
                             JObject tuple = (JObject)result.ChildrenTokens[ee];
@@ -412,11 +412,11 @@ namespace Jsonata.Net.Native.New
             {
                 if (tupleBindings != null) 
                 {
-                    result = JsonataQ.evaluateSortExpression((SortStepNode)expr, tupleBindings, environment);
+                    result = JsonataQ.evaluateSortExpression((SortStepRuntimeNode)expr, tupleBindings, environment);
                 } 
                 else 
                 {
-                    JArray sorted = JsonataQ.evaluateSortExpression((SortStepNode)expr, input, environment);
+                    JArray sorted = JsonataQ.evaluateSortExpression((SortStepRuntimeNode)expr, input, environment);
                     result = JsonataArray.CreateSequence();
                     ((JsonataArray)result).tupleStream = true;
                     for (int ss = 0; ss < sorted.Count; ++ss) 
@@ -1549,7 +1549,7 @@ namespace Jsonata.Net.Native.New
          * @param {Object} environment - Environment
          * @returns {*} Ordered sequence
          */
-        private static JArray evaluateSortExpression(SortStepNode expr, JArray input, EvaluationEnvironment environment)
+        private static JArray evaluateSortExpression(SortStepRuntimeNode expr, JArray input, EvaluationEnvironment environment)
         {
             // evaluate the lhs, then sort the results in order according to rhs expression
             bool isTupleSort = (input is JsonataArray jsonataInput) && jsonataInput.tupleStream;
@@ -1971,7 +1971,7 @@ namespace Jsonata.Net.Native.New
             List<JToken?> evaluatedArgsOrPlaceholders = new ();
             foreach (Node arg in expr.arguments) 
             {
-                if (arg.type == SymbolType.@operator && ((SpecialOperatorNode)arg).value == SpecialOperatorType.partial) 
+                if (arg.type == SymbolType._partial_arg) 
                 {
                     evaluatedArgsOrPlaceholders.Add(null);
                 } 

@@ -121,7 +121,7 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node result = new SpecialOperatorNode(this.m_operatorType, token.position);
+            Node result = new SpecialOperatorConstructionNode(this.m_operatorType, token.position);
             return result;
         }
     }
@@ -333,8 +333,7 @@ namespace Jsonata.Net.Native.New
                         // partial function application
                         //type = SymbolType.partial;
                         isPartial = true;
-                        //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        arguments.Add(new SpecialOperatorNode(SpecialOperatorType.partial));
+                        arguments.Add(new ArgumentPlaceholderNode(parser.currentToken.position));
                         parser.advance("?");
                     }
                     else
@@ -394,13 +393,13 @@ namespace Jsonata.Net.Native.New
                 Node body = parser.expression(0);
                 parser.advance("}");
 
-                Node result = new LambdaNode(arguments: argVariables, signature: signature, body: body, thunk: false, position: token.position);
+                Node result = new LambdaNode(arguments: argVariables, body: body, signature: signature, position: token.position);
                 return result;
             }
             else
             {
                 // left is is what we are trying to invoke
-                Node result = new FunctionalNode(isPartial, procedure: left, arguments: arguments, position: token.position);
+                Node result = new FunctionalNode(procedure: left, arguments: arguments, partial: isPartial, position: token.position);
                 return result;
             }
         }
@@ -499,7 +498,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node procedure = new VariableNode(nameof(BuiltinFunctions.exists));     //TODO: probably should be 'name'??
-            FunctionalNode condition = new FunctionalNode(false, procedure: procedure, arguments: new() { left });
+            FunctionalNode condition = new FunctionalNode(procedure: procedure, arguments: new() { left });
             Node @else = parser.expression(0);
             ConditionNode result = new ConditionNode(condition: condition, then: left, @else: @else, position: token.position);
             return result;
@@ -561,7 +560,7 @@ namespace Jsonata.Net.Native.New
                 throw new JException("S0212", left.position/*, left.value*/); //TODO: value
             }
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
-            Node result = new BindAssignVarConstructionNode((VariableNode)left, rhs, token.position);
+            Node result = new AssignVarConstructionNode((VariableNode)left, rhs, token.position);
             return result;
         }
     }

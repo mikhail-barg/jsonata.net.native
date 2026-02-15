@@ -24,12 +24,11 @@ namespace Jsonata.Net.Native.Tests
             JsonataQuery expectedQuery = new JsonataQuery(expectedQueryStr);
             Console.WriteLine("expected query:");
             Console.WriteLine(expectedQuery.GetAst().PrintAst());
-            Node node = new BindAssignVarConstructionNode(
-                new VariableNode("x"),
+            Node node = new AssignVarConstructionNode(
+                "x",
                 new BinaryNode(
                     BinaryOperatorType.gt,
                     new FunctionalNode(
-                        false,
                         new VariableNode("count"),
                         new List<Node>() {
                             new VariableNode("foo")
@@ -64,11 +63,10 @@ namespace Jsonata.Net.Native.Tests
 
             Node node = new BlockNode(
                 new List<Node> {
-                    new BindAssignVarConstructionNode(
+                    new AssignVarConstructionNode(
                         new VariableNode("factorial"),
                         new LambdaNode(
                             arguments: new List<VariableNode>(){ new VariableNode("x") },
-                            signature: null,
                             body: new ConditionNode(
                                 new BinaryNode(
                                     BinaryOperatorType.le,
@@ -80,7 +78,6 @@ namespace Jsonata.Net.Native.Tests
                                     BinaryOperatorType.mul,
                                     new VariableNode("x"),
                                     new FunctionalNode(
-                                        false,
                                         new VariableNode("factorial"),
                                         new List<Node>() {
                                             new BinaryNode(
@@ -91,12 +88,10 @@ namespace Jsonata.Net.Native.Tests
                                         }
                                     )
                                 )
-                            ),
-                            thunk: false
+                            )
                         )
                     ),
                     new FunctionalNode(
-                        false,
                         new VariableNode("factorial"),
                         new List<Node>() {
                             new NumberIntNode(5)
