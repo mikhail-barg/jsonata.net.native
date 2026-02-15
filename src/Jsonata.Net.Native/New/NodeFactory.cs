@@ -121,7 +121,7 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node result = new OperatorNode(token.position, this.m_operatorType);
+            Node result = new SpecialOperatorNode(token.position, this.m_operatorType);
             return result;
         }
     }
@@ -332,7 +332,7 @@ namespace Jsonata.Net.Native.New
                         // partial function application
                         type = SymbolType.partial;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        arguments.Add(new OperatorNode(-1, SpecialOperatorType.partial));
+                        arguments.Add(new SpecialOperatorNode(-1, SpecialOperatorType.partial));
                         parser.advance("?");
                     }
                     else
@@ -650,7 +650,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._value_bool}");
             }
-            return new ValueBoolNode(token.position, (bool)token.value!);
+            return new BoolNode(token.position, (bool)token.value!);
         }
     }
 
@@ -666,7 +666,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._value_null}");
             }
-            return new ValueNullNode(token.position);
+            return new NullNode(token.position);
         }
     }
 

@@ -9,20 +9,21 @@ namespace Jsonata.Net.Native.Tests
     public class DomTests
     {
 
-        private void CheckStructure(string expectedQueryString, Node value)
+        private void CheckStructure(JsonataQuery expectedQuery, JsonataQuery constructedQuery)
         {
-            JsonataQuery expectedQuery = new JsonataQuery(expectedQueryString);
-            Assert.IsTrue(expectedQuery.GetAst().Equals(value), "Structural comparison failed");
+            Node expectedAst = expectedQuery.GetAst();
+            Node constructedAst = constructedQuery.GetAst();
+            Assert.IsTrue(expectedAst.Equals(constructedAst), "Structural comparison failed");
         }
 
 
         [Test] 
         public void TestSimple_1()
         {
-            //string expectedQuery = "$x := $count($foo) > 0";
-            //JsonataQuery query = new JsonataQuery(expectedQuery);
-            //Console.WriteLine(query.GetAst().PrintAst());
-            //throw new NotImplementedException();
+            string expectedQueryStr = "$x := $count($foo) > 0";
+            JsonataQuery expectedQuery = new JsonataQuery(expectedQueryStr);
+            Console.WriteLine("expected query:");
+            Console.WriteLine(expectedQuery.GetAst().PrintAst());
             Node node = new BindAssignVarConstructionNode(
                 -1,
                 new VariableNode(-1, "x"),
@@ -32,7 +33,7 @@ namespace Jsonata.Net.Native.Tests
                     new FunctionalNode(
                         SymbolType.function,
                         -1,
-                        new NameNode(-1, "count"),
+                        new VariableNode(-1, "count"),
                         new List<Node>() {
                             new VariableNode(-1, "foo")
                         }
@@ -40,22 +41,19 @@ namespace Jsonata.Net.Native.Tests
                     new NumberIntNode(-1, 0)
                 )
             );
-            throw new NotImplementedException();
-            /*
-            JsonataQuery query = new JsonataQuery.FromAst(node);
+            JsonataQuery query = JsonataQuery.FromAst(node);
+            Console.WriteLine("Built query:");
+            Console.WriteLine(query.GetAst().PrintAst());
             string result = query.Eval("{}");
             Assert.AreEqual("false", result);
-            CheckStructure(expectedQuery, node);
-            */
+            CheckStructure(expectedQuery, query);
         }
 
 
         [Test]
         public void TestSimple_2()
         {
-            throw new NotImplementedException();
-            /*
-            string expectedQuery = @"
+            string expectedQueryStr = @"
                 (
                   $factorial := function($x) {
                     $x <= 1 ? 1 : $x * $factorial($x-1)
@@ -63,50 +61,67 @@ namespace Jsonata.Net.Native.Tests
                   $factorial(5)
                 )             
             ";
+            JsonataQuery expectedQuery = new JsonataQuery(expectedQueryStr);
+            Console.WriteLine("expected query:");
+            Console.WriteLine(expectedQuery.GetAst().PrintAst());
 
             Node node = new BlockNode(
+                -1,
                 new List<Node> {
-                    new AssignmentNode(
-                        "factorial",
+                    new BindAssignVarConstructionNode(
+                        -1,
+                        new VariableNode(-1, "factorial"),
                         new LambdaNode(
-                            new List<string>(){ "x" },
-                            new ConditionalNode(
-                                new ComparisonOperatorNode(
-                                    ComparisonOperatorNode.Operator.LessEqual,
-                                    new VariableNode("x"),
-                                    new NumberIntNode(1)
+                            position: -1,
+                            arguments: new List<VariableNode>(){ new VariableNode(-1, "x") },
+                            signature: null,
+                            body: new ConditionNode(
+                                -1,
+                                new BinaryNode(
+                                    -1,
+                                    BinaryOperatorType.le,
+                                    new VariableNode(-1, "x"),
+                                    new NumberIntNode(-1, 1)
                                 ),
-                                new NumberIntNode(1),
-                                new NumericOperatorNode(
-                                    NumericOperatorNode.Operator.Multiply,
-                                    new VariableNode("x"),
-                                    new FunctionCallNode(
-                                        "factorial",
+                                new NumberIntNode(-1, 1),
+                                new BinaryNode(
+                                    -1,
+                                    BinaryOperatorType.mul,
+                                    new VariableNode(-1, "x"),
+                                    new FunctionalNode(
+                                        SymbolType.function,
+                                        -1,
+                                        new VariableNode(-1, "factorial"),
                                         new List<Node>() {
-                                            new NumericOperatorNode(
-                                                NumericOperatorNode.Operator.Subtract,
-                                                new VariableNode("x"),
-                                                new NumberIntNode(1)
+                                            new BinaryNode(
+                                                -1,
+                                                BinaryOperatorType.sub,
+                                                new VariableNode(-1, "x"),
+                                                new NumberIntNode(-1, 1)
                                             )
                                         }
                                     )
                                 )
-                            )
+                            ),
+                            thunk: false
                         )
                     ),
-                    new FunctionCallNode(
-                        "factorial",
+                    new FunctionalNode(
+                        SymbolType.function,
+                        -1,
+                        new VariableNode(-1, "factorial"),
                         new List<Node>() {
-                            new NumberIntNode(5)
+                            new NumberIntNode(-1, 5)
                         }
                     )
                 }
             );
-            JsonataQuery query = new JsonataQuery(node);
+            JsonataQuery query = JsonataQuery.FromAst(node);
+            Console.WriteLine("Built query:");
+            Console.WriteLine(query.GetAst().PrintAst());
             string result = query.Eval("{}");
             Assert.AreEqual("120", result);
-            CheckStructure(expectedQuery, node);
-            */
+            CheckStructure(expectedQuery, query);
         }
     }
 }

@@ -603,7 +603,7 @@ namespace Jsonata.Net.Native.New
                 break;
             case SymbolType.@operator:
                 {
-                    OperatorNode exprOperator = (OperatorNode)expr;
+                    SpecialOperatorNode exprOperator = (SpecialOperatorNode)expr;
                     // the tokens 'and' and 'or' might have been used as a name rather than an operator
                     switch (exprOperator.value)
                     {

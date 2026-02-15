@@ -67,10 +67,10 @@ namespace Jsonata.Net.Native.New
                 result = JsonataQ.evaluateStringLiteral((StringNode)expr); //, input, environment);
                 break;
             case SymbolType._value_bool:
-                result = JsonataQ.evaluateBoolLiteral((ValueBoolNode)expr); //, input, environment);
+                result = JsonataQ.evaluateBoolLiteral((BoolNode)expr); //, input, environment);
                 break;
             case SymbolType._value_null:
-                result = JsonataQ.evaluateNullLiteral((ValueNullNode)expr); //, input, environment);
+                result = JsonataQ.evaluateNullLiteral((NullNode)expr); //, input, environment);
                 break;
             case SymbolType._number_int:
                 result = JsonataQ.evaluateLiteralInt((NumberIntNode)expr); //, input, environment);
@@ -762,12 +762,12 @@ namespace Jsonata.Net.Native.New
             return new JValue(expr.value);
         }
 
-        private static JToken evaluateBoolLiteral(ValueBoolNode expr)
+        private static JToken evaluateBoolLiteral(BoolNode expr)
         {
             return new JValue(expr.value);
         }
 
-        private static JToken evaluateNullLiteral(ValueNullNode expr)
+        private static JToken evaluateNullLiteral(NullNode expr)
         {
             return JValue.CreateNull();
         }
@@ -1971,7 +1971,7 @@ namespace Jsonata.Net.Native.New
             List<JToken?> evaluatedArgsOrPlaceholders = new ();
             foreach (Node arg in expr.arguments) 
             {
-                if (arg.type == SymbolType.@operator && ((OperatorNode)arg).value == SpecialOperatorType.partial) 
+                if (arg.type == SymbolType.@operator && ((SpecialOperatorNode)arg).value == SpecialOperatorType.partial) 
                 {
                     evaluatedArgsOrPlaceholders.Add(null);
                 } 

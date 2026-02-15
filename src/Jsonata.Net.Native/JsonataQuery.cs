@@ -1,7 +1,6 @@
-﻿using Jsonata.Net.Native.Json;
+﻿using System;
+using Jsonata.Net.Native.Json;
 using Jsonata.Net.Native.New;
-using System;
-using System.Text;
 
 namespace Jsonata.Net.Native
 {
