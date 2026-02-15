@@ -13,7 +13,7 @@ namespace Jsonata.Net.Native.SystemTextJson.Tests
         {
             JToken token = JsonataExtensions.FromObjectViaSystemTextJson(testData.SourceObject);
             string result = token.ToFlatString();
-            Assert.That(result, Is.EqualTo(testData.ExpectedJson));
+            Assert.That(result, Is.EqualTo(testData.ExpectedJsonSystemText));
         }
 
         public static List<TestCaseData> GetTestCases()

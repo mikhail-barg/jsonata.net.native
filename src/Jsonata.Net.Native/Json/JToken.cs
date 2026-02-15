@@ -183,6 +183,12 @@ namespace Jsonata.Net.Native.Json
                 return new JValue(value);
             case decimal value:
                 return new JValue(value);
+            case DateTimeOffset value:
+                return new JValue(value);
+            case DateTime value:
+                return new JValue(value);
+            case TimeSpan value:
+                return new JValue(value);
             case System.Collections.IDictionary dictionary:
                 return FromDictionary(dictionary);
             case System.Collections.ICollection list:

@@ -35,6 +35,9 @@ namespace Jsonata.Net.Native.Json
         public JValue(string value) : this(JTokenType.String, value) { }
         public JValue(char value) : this(JTokenType.String, value.ToString()) { }
         public JValue(bool value) : this(JTokenType.Boolean, value) { }
+        public JValue(DateTimeOffset value) : this(JTokenType.String, value.ToString("O", CultureInfo.InvariantCulture)) { }   
+        public JValue(DateTime value) : this(JTokenType.String, value.ToString("O", CultureInfo.InvariantCulture)) { }
+        public JValue(TimeSpan value) : this(JTokenType.String, value.ToString("c", CultureInfo.InvariantCulture)) { }
 
         private static object DoubleToDecimal(double value)
         {
