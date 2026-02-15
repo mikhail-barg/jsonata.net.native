@@ -13,7 +13,7 @@ namespace Jsonata.Net.Native.JsonNet.Tests
         {
             JToken token = JsonataExtensions.FromObjectViaNewtonsoft(testData.SourceObject);
             string result = token.ToFlatString();
-            Assert.That(result, Is.EqualTo(testData.ExpectedJson));
+            Assert.That(result, Is.EqualTo(testData.ExpectedJsonNewtonsoft));
         }
 
         public static List<TestCaseData> GetTestCases()
