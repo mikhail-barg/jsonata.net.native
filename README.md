@@ -46,14 +46,14 @@ Debug.Assert(result.ToFlatString() == "\"b\"");
 ```
 
 ### [JSON.Net](https://www.newtonsoft.com/json) 
-In case you work with [JSON.Net](https://www.newtonsoft.com/json) you may use a separate binding package Jsonata.Net.Native.JsonNet and its single class [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.JsonNet/JsonataExtensions.cs) to:
+In case you work with [JSON.Net](https://www.newtonsoft.com/json) you may use a separate binding package `Jsonata.Net.Native.JsonNet` and its single class [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.JsonNet/JsonataExtensions.cs) to:
 * convert token hierarchy to and from Json.Net (`ToNewtonsoft()` and `FromNewtonsoft()`, note the overload version with formatting overrides)
 * evaluate Jsonata queries via various `EvalNewtonsoft()` overloads
 * bind values to `EvaluationEnvironment` (`BindValue()`)
 
 ### [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview)
 Same goes for when you use [System.Text.Json](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview). 
-Separate binding package Jsonata.Net.Native.SystemTextJson provides similar [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.SystemTextJson/JsonataExtensions.cs) class with similar wrappers for both `JsonDocument`/`JsonElement` (static DOM) and `JsonNode` (dynamic DOM).
+Separate binding package `Jsonata.Net.Native.SystemTextJson` provides similar [`JsonataExtensions`](https://github.com/mikhail-barg/jsonata.net.native/blob/master/src/Jsonata.Net.Native.SystemTextJson/JsonataExtensions.cs) class with similar wrappers for both `JsonDocument`/`JsonElement` (static DOM) and `JsonNode` (dynamic DOM).
 
 ### Querying C# objects
 It is also possible to create a JToken tree representation of existing C# object via `Jsonata.Net.Native.Json.JToken.FromObject()` and then query it with JSONata as a regular JSON.

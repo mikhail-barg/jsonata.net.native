@@ -442,6 +442,28 @@ namespace Jsonata.Net.Native.Tests
         }
 
         [Test]
+        public void Test_Issue43_Sorting_WorksOnSmallSets()
+        {
+            Check(
+                @"$sort($, function($l, $r) {$l.Properties[Name='age'].Value > $r.Properties[Name='age'].Value})",
+                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]",
+                @"[{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
+            );
+        }
+
+
+
+        [Test]
+        public void Test_Issue43_SortingWithManyItems()
+        {
+            Check(
+                @"$sort($, function($l, $r) {$l.Properties[Name='age'].Value > $r.Properties[Name='age'].Value})",
+                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]",
+                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
+            );
+        }
+
+        [Test]
         public void Test_Sort()
         {
             Check(
