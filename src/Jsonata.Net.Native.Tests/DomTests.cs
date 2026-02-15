@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Jsonata.Net.Native;
-using Jsonata.Net.Native.New;
+using Jsonata.Net.Native.Impl;
 using NUnit.Framework;
 
 namespace Jsonata.Net.Native.Tests

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Jsonata.Net.Native.Json;
-using Jsonata.Net.Native.New;
+using Jsonata.Net.Native.Impl;
 
 namespace Jsonata.Net.Native.Eval
 {

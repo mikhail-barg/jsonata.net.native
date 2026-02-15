@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Jsonata.Net.Native.Json;
-using Jsonata.Net.Native.New;
+using Jsonata.Net.Native.Impl;
 
 namespace Jsonata.Net.Native.Eval
 {

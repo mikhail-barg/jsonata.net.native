@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 { 
     internal sealed class Parser 
     {

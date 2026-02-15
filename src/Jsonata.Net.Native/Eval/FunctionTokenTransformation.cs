@@ -1,8 +1,5 @@
-﻿using Jsonata.Net.Native.Dom;
-using Jsonata.Net.Native.Json;
-using Jsonata.Net.Native.New;
-using Jsonata.Net.Native.Parsing;
-using System;
+﻿using Jsonata.Net.Native.Json;
+using Jsonata.Net.Native.Impl;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -20,12 +17,12 @@ namespace Jsonata.Net.Native.Eval
     // this one is also registered as _jsonata_function
     internal sealed class FunctionTokenTransformation : FunctionToken
 	{
-		internal readonly New.Node pattern;
-		internal readonly New.Node update;
-		internal readonly New.Node? delete;
+		internal readonly Node pattern;
+		internal readonly Node update;
+		internal readonly Node? delete;
 		internal readonly EvaluationEnvironment environment;
 
-		public FunctionTokenTransformation(New.Node pattern, New.Node update, New.Node? delete, EvaluationEnvironment environment)
+		public FunctionTokenTransformation(Node pattern, Node update, Node? delete, EvaluationEnvironment environment)
 			: base("transform", 1, signature: new Signature("<(oa):o>"))
 		{
             this.pattern = pattern;

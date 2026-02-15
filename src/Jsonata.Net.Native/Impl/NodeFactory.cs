@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Jsonata.Net.Native.Eval;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 {
     internal abstract class NodeFactoryBase
     {

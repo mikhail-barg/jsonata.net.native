@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 {
     // was part of Parser
     internal sealed class Optimizer

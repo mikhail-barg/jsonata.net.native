@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Jsonata.Net.Native.Json;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 {
     public sealed class Signature:IEquatable<Signature>
     {

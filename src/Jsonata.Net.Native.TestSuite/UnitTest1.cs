@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Jsonata.Net.Native.New;
+using Jsonata.Net.Native.Impl;
 using System.Linq;
 
 namespace Jsonata.Net.Native.TestSuite

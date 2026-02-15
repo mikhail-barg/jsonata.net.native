@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 {
 
     public sealed class JException : Exception

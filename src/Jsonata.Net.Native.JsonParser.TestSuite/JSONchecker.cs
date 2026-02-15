@@ -310,6 +310,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
         {
             List<TestCaseData> results = new List<TestCaseData>();
             string casesDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, TEST_SUITE_ROOT);
+            casesDirectory = Path.GetFullPath(casesDirectory);
             foreach (string testFile in Directory.EnumerateFiles(casesDirectory, "*.json"))
             {
                 //dot works like path separator in NUnit
@@ -344,6 +345,12 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
                 };
                 ProcessAndAddCaseData(results, caseInfo);
             }
+
+            if (results.Count == 0)
+            {
+                throw new Exception($"Failed to find any samples in {casesDirectory}");
+            }
+
             return results;
         }
     }

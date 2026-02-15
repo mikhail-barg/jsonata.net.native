@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 {
     public enum SymbolType
     {

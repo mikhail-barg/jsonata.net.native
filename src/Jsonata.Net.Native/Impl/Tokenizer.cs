@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System.Globalization;
 
-namespace Jsonata.Net.Native.New
+namespace Jsonata.Net.Native.Impl
 {
     internal sealed class Token
     {

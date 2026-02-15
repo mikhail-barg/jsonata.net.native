@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Jsonata.Net.Native.Json;
-using Jsonata.Net.Native.New;
+using Jsonata.Net.Native.Impl;
 
 namespace Jsonata.Net.Native.Eval
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Jsonata.Net.Native.Json;
-using Jsonata.Net.Native.New;
+using Jsonata.Net.Native.Impl;
 
 namespace Jsonata.Net.Native.Eval
 {
