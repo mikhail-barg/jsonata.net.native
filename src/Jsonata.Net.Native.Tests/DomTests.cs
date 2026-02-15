@@ -28,12 +28,7 @@ namespace Jsonata.Net.Native.Tests
                 "x",
                 new BinaryNode(
                     BinaryOperatorType.gt,
-                    new FunctionalNode(
-                        new VariableNode("count"),
-                        new List<Node>() {
-                            new VariableNode("foo")
-                        }
-                    ),
+                    new FunctionalNode("count", [ new VariableNode("foo") ]),
                     new NumberIntNode(0)
                 )
             );
@@ -62,42 +57,37 @@ namespace Jsonata.Net.Native.Tests
             Console.WriteLine(expectedQuery.GetAst().PrintAst());
 
             Node node = new BlockNode(
-                new List<Node> {
+                [
                     new AssignVarConstructionNode(
-                        new VariableNode("factorial"),
+                        "factorial",
                         new LambdaNode(
-                            arguments: new List<VariableNode>(){ new VariableNode("x") },
+                            arguments: [ new VariableNode("x") ],
                             body: new ConditionNode(
-                                new BinaryNode(
+                                condition: new BinaryNode(
                                     BinaryOperatorType.le,
                                     new VariableNode("x"),
                                     new NumberIntNode(1)
                                 ),
-                                new NumberIntNode(1),
-                                new BinaryNode(
+                                then: new NumberIntNode(1),
+                                @else: new BinaryNode(
                                     BinaryOperatorType.mul,
                                     new VariableNode("x"),
                                     new FunctionalNode(
-                                        new VariableNode("factorial"),
-                                        new List<Node>() {
+                                        "factorial",
+                                        [
                                             new BinaryNode(
                                                 BinaryOperatorType.sub,
                                                 new VariableNode("x"),
                                                 new NumberIntNode(1)
                                             )
-                                        }
+                                        ]
                                     )
                                 )
                             )
                         )
                     ),
-                    new FunctionalNode(
-                        new VariableNode("factorial"),
-                        new List<Node>() {
-                            new NumberIntNode(5)
-                        }
-                    )
-                }
+                    new FunctionalNode("factorial", [ new NumberIntNode(5) ] )
+                ]
             );
             JsonataQuery query = JsonataQuery.FromAst(node);
             Console.WriteLine("Built query:");

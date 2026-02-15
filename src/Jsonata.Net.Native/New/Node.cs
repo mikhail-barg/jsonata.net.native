@@ -1060,6 +1060,12 @@ namespace Jsonata.Net.Native.New
             this.arguments = arguments;
         }
 
+        public FunctionalNode(string function, List<Node> arguments)
+            :this(new VariableNode(function), arguments)
+        {
+
+        }
+
         public bool Equals(FunctionalNode? other)
         {
             return this.EqualsImpl(other);
