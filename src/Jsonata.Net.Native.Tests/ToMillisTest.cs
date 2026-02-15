@@ -1,8 +1,5 @@
 using System;
-using System.Globalization;
 using Jsonata.Net.Native.Eval;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Jsonata.Net.Native.Tests

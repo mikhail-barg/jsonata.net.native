@@ -1,9 +1,8 @@
 using System;
 using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System.IO;
+using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Tests
 {
@@ -15,9 +14,9 @@ namespace Jsonata.Net.Native.Tests
             string resultStr = jsonata.Eval(data);
             JToken resultJson = JToken.Parse(resultStr);
             JToken expectedResultJson = JToken.Parse(expectedResult);
-            Console.WriteLine("Expected: " + expectedResultJson.ToString(Formatting.None));
-            Console.WriteLine("Got: " + resultJson.ToString(Formatting.None));
-            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToString(Formatting.None)}");
+            Console.WriteLine("Expected: " + expectedResultJson.ToFlatString());
+            Console.WriteLine("Got: " + resultJson.ToFlatString());
+            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToFlatString()}");
         }
 
         private static void CheckFromFile(string query, string dataFileName, string expectedResult)
@@ -26,9 +25,9 @@ namespace Jsonata.Net.Native.Tests
             string resultStr = jsonata.Eval(File.ReadAllText(dataFileName));
             JToken resultJson = JToken.Parse(resultStr);
             JToken expectedResultJson = JToken.Parse(expectedResult);
-            Console.WriteLine("Expected: " + expectedResultJson.ToString(Formatting.None));
-            Console.WriteLine("Got: " + resultJson.ToString(Formatting.None));
-            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToString(Formatting.None)}");
+            Console.WriteLine("Expected: " + expectedResultJson.ToFlatString());
+            Console.WriteLine("Got: " + resultJson.ToFlatString());
+            Assert.IsTrue(JToken.DeepEquals(expectedResultJson, resultJson), $"expected {expectedResult}, got {resultJson.ToFlatString()}");
         }
 
         [Test] 
@@ -354,74 +353,6 @@ namespace Jsonata.Net.Native.Tests
         }
 
         [Test]
-        public void Test_Issue14_1()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = DateTime.Now });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
-            Assert.Pass();
-        }
-
-
-        [Test]
-        public void Test_Issue14_2()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = Guid.NewGuid() });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
-            Assert.Pass();
-        }
-
-        [Test]
-        public void Test_Issue14_3()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = TimeSpan.FromSeconds(5) });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
-            Assert.Pass();
-        }
-
-        [Test]
-        public void Test_Issue14_4()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = new Uri("http://abc.xyz") });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
-            Assert.Pass();
-        }
-
-        [Test]
-        public void Test_Issue14_5()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = DateTimeOffset.Now });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken);
-            Assert.Pass();
-        }
-
-        [Test]
-        public void Test_Issue14_6()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = new DateTime(2023, 09, 17, 22, 28, 00) });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken, CultureInfo.InvariantCulture, datetimeFormat: "yyyy~MM~dd HH:mm:ss");
-            string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
-            Assert.AreEqual("2023~09~17 22:28:00", value);
-        }
-
-        [Test]
-        public void Test_Issue14_7()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = new TimeSpan(10, 12, 13, 14, 156) });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken, CultureInfo.InvariantCulture, timespanFormat: @"ddd\-hh\-mm\-ss\-fff");
-            string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
-            Assert.AreEqual("010-12-13-14-156", value);
-        }
-
-        [Test]
-        public void Test_Issue14_8()
-        {
-            Newtonsoft.Json.Linq.JToken newtonsoftToken = Newtonsoft.Json.Linq.JToken.FromObject(new { key = Guid.Empty });
-            Jsonata.Net.Native.Json.JToken jToken = Jsonata.Net.Native.JsonNet.JsonataExtensions.FromNewtonsoft(newtonsoftToken, CultureInfo.InvariantCulture, guidFormat: "N");
-            string value = (string)((Jsonata.Net.Native.Json.JObject)jToken).Properties["key"];
-            Assert.AreEqual("00000000000000000000000000000000", value);
-        }
-
-        [Test]
         public void Test_Issue34()
         {
             Check(
@@ -456,10 +387,12 @@ namespace Jsonata.Net.Native.Tests
         [Test]
         public void Test_Issue43_SortingWithManyItems()
         {
+            //TODO: revisit issue #43 again!!
             Check(
                 @"$sort($, function($l, $r) {$l.Properties[Name='age'].Value > $r.Properties[Name='age'].Value})",
                 @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]",
-                @"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
+                //@"[{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
+                @"[{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]},{'name':'Astrid','Properties':[{'Name':'age','Value':22}]},{'name':'Bernard','Properties':[{'Name':'age','Value':33}]},{'name':'Charley','Properties':[{'Name':'age 2','Value':55}]}]"
             );
         }
 

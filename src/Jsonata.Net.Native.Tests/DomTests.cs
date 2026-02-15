@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Jsonata.Net.Native;
 using Jsonata.Net.Native.New;
 using NUnit.Framework;
 
@@ -18,22 +19,29 @@ namespace Jsonata.Net.Native.Tests
         [Test] 
         public void TestSimple_1()
         {
-            string expectedQuery = "$x := $count($foo) > 0";
-            JsonataQuery query = new JsonataQuery(expectedQuery);
-            Console.WriteLine(query.GetAst().PrintAst());
-            throw new NotImplementedException();
-            /*
-            Node node = new AssignmentNode(
-                "x",
-                new ComparisonOperatorNode(
-                    ComparisonOperatorNode.Operator.Greater,
-                    new FunctionCallNode(
-                        "count",
-                        new List<Node>() { new VariableNode("foo") }
+            //string expectedQuery = "$x := $count($foo) > 0";
+            //JsonataQuery query = new JsonataQuery(expectedQuery);
+            //Console.WriteLine(query.GetAst().PrintAst());
+            //throw new NotImplementedException();
+            Node node = new BindAssignVarConstructionNode(
+                -1,
+                new VariableNode(-1, "x"),
+                new BinaryNode(
+                    -1,
+                    BinaryOperatorType.gt,
+                    new FunctionalNode(
+                        SymbolType.function,
+                        -1,
+                        new NameNode(-1, "count"),
+                        new List<Node>() {
+                            new VariableNode(-1, "foo")
+                        }
                     ),
-                    new NumberIntNode(0)
+                    new NumberIntNode(-1, 0)
                 )
             );
+            throw new NotImplementedException();
+            /*
             JsonataQuery query = new JsonataQuery.FromAst(node);
             string result = query.Eval("{}");
             Assert.AreEqual("false", result);
