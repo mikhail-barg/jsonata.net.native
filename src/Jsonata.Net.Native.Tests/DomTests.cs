@@ -31,7 +31,7 @@ namespace Jsonata.Net.Native.Tests
                     -1,
                     BinaryOperatorType.gt,
                     new FunctionalNode(
-                        SymbolType.function,
+                        false,
                         -1,
                         new VariableNode(-1, "count"),
                         new List<Node>() {
@@ -89,7 +89,7 @@ namespace Jsonata.Net.Native.Tests
                                     BinaryOperatorType.mul,
                                     new VariableNode(-1, "x"),
                                     new FunctionalNode(
-                                        SymbolType.function,
+                                        false,
                                         -1,
                                         new VariableNode(-1, "factorial"),
                                         new List<Node>() {
@@ -107,7 +107,7 @@ namespace Jsonata.Net.Native.Tests
                         )
                     ),
                     new FunctionalNode(
-                        SymbolType.function,
+                        false,
                         -1,
                         new VariableNode(-1, "factorial"),
                         new List<Node>() {

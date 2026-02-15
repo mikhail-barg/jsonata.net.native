@@ -491,7 +491,7 @@ namespace Jsonata.Net.Native.New
                     FunctionalNode functionalExpr = (FunctionalNode)expr;
                     Node procedure = processAST(functionalExpr.procedure);
                     List<Node> arguments = new();
-                    result = new FunctionalNode(expr.type, expr.position, procedure: procedure, arguments: arguments);
+                    result = new FunctionalNode(functionalExpr.type == SymbolType.partial, expr.position, procedure: procedure, arguments: arguments);
                     foreach (Node arg in functionalExpr.arguments)
                     {
                         Node argAST = this.processAST(arg);

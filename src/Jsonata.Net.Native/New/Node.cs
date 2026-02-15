@@ -970,17 +970,9 @@ namespace Jsonata.Net.Native.New
         public readonly Node procedure;
         public readonly List<Node> arguments;
 
-        public FunctionalNode(SymbolType type, int position, Node procedure, List<Node> arguments)
-            :base(type, position)
+        public FunctionalNode(bool partial, int position, Node procedure, List<Node> arguments)
+            :base(partial? SymbolType.partial : SymbolType.function, position)
         {
-            switch (type)
-            {
-            case SymbolType.function:
-            case SymbolType.partial:
-                break;
-            default:
-                throw new Exception($"Unexpected function type {type}");
-            }
             this.procedure = procedure;
             this.arguments = arguments;
         }

@@ -321,7 +321,8 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            SymbolType type = SymbolType.function;
+            //SymbolType type = SymbolType.function;
+            bool isPartial = false;
             List<Node> arguments = new();
             if (parser.currentNodeFactory.id != ")")
             {
@@ -330,7 +331,8 @@ namespace Jsonata.Net.Native.New
                     if (parser.currentToken.type == SymbolType.@operator && parser.currentNodeFactory.id == "?")
                     {
                         // partial function application
-                        type = SymbolType.partial;
+                        //type = SymbolType.partial;
+                        isPartial = true;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
                         arguments.Add(new SpecialOperatorNode(-1, SpecialOperatorType.partial));
                         parser.advance("?");
@@ -398,7 +400,7 @@ namespace Jsonata.Net.Native.New
             else
             {
                 // left is is what we are trying to invoke
-                Node result = new FunctionalNode(type, token.position, procedure: left, arguments: arguments);
+                Node result = new FunctionalNode(isPartial, token.position, procedure: left, arguments: arguments);
                 return result;
             }
         }
@@ -497,7 +499,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node procedure = new VariableNode(-1, nameof(BuiltinFunctions.exists));     //TODO: probably should be 'name'??
-            FunctionalNode condition = new FunctionalNode(SymbolType.function, -1, procedure: procedure, arguments: new() { left });
+            FunctionalNode condition = new FunctionalNode(false, -1, procedure: procedure, arguments: new() { left });
             Node @else = parser.expression(0);
             ConditionNode result = new ConditionNode(token.position, condition: condition, then: left, @else: @else);
             return result;
