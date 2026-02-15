@@ -203,7 +203,7 @@ namespace Jsonata.Net.Native.New
                         if (step.type == SymbolType.@string)
                         {
                             //step.type = SymbolType.name;
-                            resultPath.steps[i] = new NameNode(step.position, ((StringNode)step).value);
+                            resultPath.steps[i] = new NameNode(((StringNode)step).value, step.position);
                         }
                     }
 
@@ -267,7 +267,7 @@ namespace Jsonata.Net.Native.New
                         }
                         this.pushAncestry(step, predicate);
                     }
-                    FilterNode filter = new FilterNode(expr.position, predicate);
+                    FilterNode filter = new FilterNode(predicate, expr.position);
 
                     // if (typeof step[type] === 'undefined') {
                     //    step[type] = [];
@@ -296,7 +296,7 @@ namespace Jsonata.Net.Native.New
                     ApplyNode exprApply = (ApplyNode)expr;
                     Node lhs = this.processAST(exprApply.lhs);
                     Node rhs = this.processAST(exprApply.rhs);
-                    result = new ApplyNode(exprApply.position, lhs, rhs);
+                    result = new ApplyNode(lhs, rhs, exprApply.position);
                     result.keepArray = lhs.keepArray || rhs.keepArray;
                 }
                 break; // apply
@@ -305,7 +305,7 @@ namespace Jsonata.Net.Native.New
                     BinaryNode exprBinary = (BinaryNode)expr;
                     Node lhs = this.processAST(exprBinary.lhs);
                     Node rhs = this.processAST(exprBinary.rhs);
-                    result = new BinaryNode(expr.position, exprBinary.value, lhs, rhs);
+                    result = new BinaryNode(exprBinary.value, lhs, rhs, expr.position);
                     this.pushAncestry(result, lhs);
                     this.pushAncestry(result, rhs);
                 }
@@ -319,7 +319,7 @@ namespace Jsonata.Net.Native.New
                     {
                         throw new Exception("Should not happen, because exprBind.lhs was variable!");
                     }
-                    result = new BindRuntimeNode(exprBind.position, (VariableNode)lhs, rhs);
+                    result = new BindRuntimeNode((VariableNode)lhs, rhs, exprBind.position);
                     this.pushAncestry(result, rhs);
                 }
                 break;
@@ -376,7 +376,7 @@ namespace Jsonata.Net.Native.New
                     }
                     else
                     {
-                        IndexNode _res = new IndexNode(expr.position, exprBind.rhs.value);
+                        IndexNode _res = new IndexNode(exprBind.rhs.value, expr.position);
                         step.stages.Add(_res);
                     }
                     step.tuple = true;
@@ -401,7 +401,7 @@ namespace Jsonata.Net.Native.New
                     List<Tuple<Node, Node>> lhsObject = exprGroupby.rhsObject
                         .Select(pair => Tuple.Create(this.processAST(pair.Item1), this.processAST(pair.Item2)))
                         .ToList();
-                    result.group = new GroupNode(expr.position, lhsObject);
+                    result.group = new GroupNode(lhsObject, expr.position);
                 }
                 break; // _binary_groupby
             case SymbolType._binary_orderby:
@@ -420,12 +420,12 @@ namespace Jsonata.Net.Native.New
                     {
                         resultPath = new PathRuntimeNode(new() { res });
                     }
-                    SortStepNode sortStep = new SortStepNode(expr.position, terms: new());
+                    SortStepNode sortStep = new SortStepNode(terms: new(), expr.position);
                     foreach (SortTermNode term in exprOrderby.rhsTerms)
                     {
                         Node expression = this.processAST(term.expression!);
                         this.pushAncestry(sortStep, expression);
-                        SortTermNode newTerm = new SortTermNode(term.position, expression, term.descending);
+                        SortTermNode newTerm = new SortTermNode(expression, term.descending, term.position);
                         sortStep.terms.Add(newTerm);
                     }
                     resultPath.steps.Add(sortStep);
@@ -456,15 +456,15 @@ namespace Jsonata.Net.Native.New
                     // if unary minus on a number, then pre-process
                     if (expression.type == SymbolType._number_double)
                     {
-                        result = new NumberDoubleNode(expression.position, -((NumberDoubleNode)expression).value);
+                        result = new NumberDoubleNode(-((NumberDoubleNode)expression).value, expression.position);
                     }
                     else if (expression.type == SymbolType._number_int)
                     {
-                        result = new NumberIntNode(expression.position, -((NumberIntNode)expression).value);
+                        result = new NumberIntNode(-((NumberIntNode)expression).value, expression.position);
                     }
                     else
                     {
-                        result = new UnaryMinusNode(expr.position, expression);
+                        result = new UnaryMinusNode(expression, expr.position);
                         this.pushAncestry(result, expression);
                     }
                 }
@@ -491,7 +491,7 @@ namespace Jsonata.Net.Native.New
                     FunctionalNode functionalExpr = (FunctionalNode)expr;
                     Node procedure = processAST(functionalExpr.procedure);
                     List<Node> arguments = new();
-                    result = new FunctionalNode(functionalExpr.type == SymbolType.partial, expr.position, procedure: procedure, arguments: arguments);
+                    result = new FunctionalNode(functionalExpr.type == SymbolType.partial, procedure: procedure, arguments: arguments, position:expr.position);
                     foreach (Node arg in functionalExpr.arguments)
                     {
                         Node argAST = this.processAST(arg);
@@ -509,7 +509,7 @@ namespace Jsonata.Net.Native.New
                     {
                         throw new Exception("IF this may happen then why not pass `lambdaExpr.thunk` as a `result.thunk`?");
                     }
-                    result = new LambdaNode(expr.position, arguments: lambdaExpr.arguments, signature: lambdaExpr.signature, body: body, thunk: false);
+                    result = new LambdaNode(arguments: lambdaExpr.arguments, signature: lambdaExpr.signature, body: body, thunk: false, position: expr.position);
                 }
                 break;
             case SymbolType.condition:
@@ -527,7 +527,7 @@ namespace Jsonata.Net.Native.New
                     {
                         @else = null;
                     }
-                    ConditionNode resultCondition = new ConditionNode(expr.position, condition, then, @else);
+                    ConditionNode resultCondition = new ConditionNode(condition, then, @else, expr.position);
                     this.pushAncestry(resultCondition, resultCondition.condition);
                     this.pushAncestry(resultCondition, resultCondition.then);
                     if (resultCondition.@else != null)
@@ -551,7 +551,7 @@ namespace Jsonata.Net.Native.New
                     {
                         delete = null;
                     }
-                    result = new TransformNode(expr.position, pattern, update, delete);
+                    result = new TransformNode(pattern, update, delete, expr.position);
                 }
                 break;
             case SymbolType.block:
@@ -583,7 +583,7 @@ namespace Jsonata.Net.Native.New
             case SymbolType._parent: //this one is parsed from Parser
                 {
                     SlotNode slot = new SlotNode(label: "!" + this.ancestorLabel++, ancestorIndex: this.ancestorIndex++, level: 1);
-                    ParentOptimizedNode slottedResult = new ParentOptimizedNode(expr.position, slot);
+                    ParentOptimizedNode slottedResult = new ParentOptimizedNode(slot, expr.position);
                     this.ancestry.Add(slottedResult);
                     result = slottedResult;
                 }
@@ -608,13 +608,13 @@ namespace Jsonata.Net.Native.New
                     switch (exprOperator.value)
                     {
                     case SpecialOperatorType.and:
-                        result = this.processAST(new NameNode(expr.position, "and"));
+                        result = this.processAST(new NameNode("and", expr.position));
                         break;
                     case SpecialOperatorType.or:
-                        result = this.processAST(new NameNode(expr.position, "or"));
+                        result = this.processAST(new NameNode("or", expr.position));
                         break;
                     case SpecialOperatorType.@in:
-                        result = this.processAST(new NameNode(expr.position, "in"));
+                        result = this.processAST(new NameNode("in", expr.position));
                         break;
                     case SpecialOperatorType.partial:
                         // partial application
@@ -659,7 +659,7 @@ namespace Jsonata.Net.Native.New
             Node result;
             if (expr.type == SymbolType.function && expr.predicate == null)
             {
-                Node thunk = new LambdaNode(expr.position, arguments: new(), signature: null, body: expr, thunk: true);
+                Node thunk = new LambdaNode(arguments: new(), signature: null, body: expr, thunk: true, position: expr.position);
                 result = thunk;
             }
             else if (expr.type == SymbolType.condition)
@@ -676,7 +676,7 @@ namespace Jsonata.Net.Native.New
                 {
                     @else = null;
                 }
-                result = new ConditionNode(conditionExpr.position, conditionExpr.condition, then, @else);
+                result = new ConditionNode(conditionExpr.condition, then, @else, conditionExpr.position);
             }
             else if (expr.type == SymbolType.block)
             {

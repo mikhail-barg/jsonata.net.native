@@ -72,7 +72,7 @@ namespace Jsonata.Net.Native.New
                 "in" => BinaryOperatorType.@in,
                 _ => throw new Exception("Unexpected binary operator: " + (string)token.value!)
             };
-            Node result = new BinaryNode(token.position, value, left, rhs);
+            Node result = new BinaryNode(value, left, rhs, token.position);
             return result;
         }
     }
@@ -88,7 +88,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node rhs = parser.expression(bp);
-            Node result = new ApplyNode(token.position, left, rhs);
+            Node result = new ApplyNode(left, rhs, token.position);
             return result;
         }
     }
@@ -104,7 +104,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node rhs = parser.expression(bp);
-            Node result = new PathConstructionNode(token.position, left, rhs);
+            Node result = new PathConstructionNode(left, rhs, token.position);
             return result;
         }
     }
@@ -121,7 +121,7 @@ namespace Jsonata.Net.Native.New
 
         internal override Node nud(Parser parser, Token token)
         {
-            Node result = new SpecialOperatorNode(token.position, this.m_operatorType);
+            Node result = new SpecialOperatorNode(this.m_operatorType, token.position);
             return result;
         }
     }
@@ -149,7 +149,7 @@ namespace Jsonata.Net.Native.New
                 delete = null;
             }
             parser.advance("|");
-            TransformNode result = new TransformNode(token.position, pattern, update, delete);
+            TransformNode result = new TransformNode(pattern, update, delete, token.position);
             return result;
         }
     }
@@ -179,7 +179,7 @@ namespace Jsonata.Net.Native.New
         internal override Node nud(Parser parser, Token token)
         {
             Node expression = parser.expression(70);
-            Node result = new UnaryMinusNode(token.position, expression);
+            Node result = new UnaryMinusNode(expression, token.position);
             return result;
         }
     }
@@ -215,7 +215,7 @@ namespace Jsonata.Net.Native.New
                     //unspecified - default to ascending
                 }
                 Node expression = parser.expression(0);
-                SortTermNode term = new SortTermNode(token.position, expression, descending);
+                SortTermNode term = new SortTermNode(expression, descending, token.position);
                 terms.Add(term);
                 if (parser.currentNodeFactory.id != ",")
                 {
@@ -224,7 +224,7 @@ namespace Jsonata.Net.Native.New
                 parser.advance(",");
             }
             parser.advance(")");
-            OrderbyConstructionNode result = new OrderbyConstructionNode(token.position, lhs: left, rhsTerms: terms);
+            OrderbyConstructionNode result = new OrderbyConstructionNode(lhs: left, rhsTerms: terms, position: token.position);
             return result;
         }
     }
@@ -239,14 +239,14 @@ namespace Jsonata.Net.Native.New
         internal override Node nud(Parser parser, Token token)
         {
             List<Tuple<Node, Node>> lhsObject = this.parseObject(parser);
-            Node result = new GroupNode(token.position, lhsObject);
+            Node result = new GroupNode(lhsObject, token.position);
             return result;
         }
 
         internal override Node led(Node left, Parser parser, Token token)
         {
             List<Tuple<Node, Node>> rhsObject = this.parseObject(parser);
-            Node result = new GroupByConstructionNode(token.position, left, rhsObject);
+            Node result = new GroupByConstructionNode(left, rhsObject, token.position);
             return result;
         }
 
@@ -288,7 +288,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new JException("S0214", rhs.position, "@");
             }
-            Node result = new BindContextVarConstructionNode(token.position, left, (VariableNode)rhs);
+            Node result = new BindContextVarConstructionNode(left, (VariableNode)rhs, token.position);
             return result;
         }
     }
@@ -307,7 +307,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new JException("S0214", rhs.position, "#");
             }
-            Node result = new BindPositionalVarConstructionNode(token.position, left, (VariableNode)rhs);
+            Node result = new BindPositionalVarConstructionNode(left, (VariableNode)rhs, token.position);
             return result;
         }
     }
@@ -334,7 +334,7 @@ namespace Jsonata.Net.Native.New
                         //type = SymbolType.partial;
                         isPartial = true;
                         //symbol.arguments.Add(parser.current_symbol); //TODO:convert to symbol!
-                        arguments.Add(new SpecialOperatorNode(-1, SpecialOperatorType.partial));
+                        arguments.Add(new SpecialOperatorNode(SpecialOperatorType.partial));
                         parser.advance("?");
                     }
                     else
@@ -394,13 +394,13 @@ namespace Jsonata.Net.Native.New
                 Node body = parser.expression(0);
                 parser.advance("}");
 
-                Node result = new LambdaNode(token.position, arguments: argVariables, signature: signature, body: body, thunk: false);
+                Node result = new LambdaNode(arguments: argVariables, signature: signature, body: body, thunk: false, position: token.position);
                 return result;
             }
             else
             {
                 // left is is what we are trying to invoke
-                Node result = new FunctionalNode(isPartial, token.position, procedure: left, arguments: arguments);
+                Node result = new FunctionalNode(isPartial, procedure: left, arguments: arguments, position: token.position);
                 return result;
             }
         }
@@ -418,7 +418,7 @@ namespace Jsonata.Net.Native.New
                 parser.advance(";");
             }
             parser.advance(")", true);
-            BlockNode result = new BlockNode(token.position, expressions);
+            BlockNode result = new BlockNode(expressions, token.position);
             return result;
         }
     }
@@ -445,7 +445,7 @@ namespace Jsonata.Net.Native.New
                         int pos = parser.currentToken.position;
                         parser.advance("..");
                         Node rhs = parser.expression(0);
-                        Node range = new BinaryNode(pos, BinaryOperatorType.range, lhs, rhs);
+                        Node range = new BinaryNode(BinaryOperatorType.range, lhs, rhs, pos);
                         item = range;
                     }
                     a.Add(item);
@@ -457,7 +457,7 @@ namespace Jsonata.Net.Native.New
                 }
             }
             parser.advance("]", true);
-            Node result = new ArrayNode(token.position, a);
+            Node result = new ArrayNode(a, token.position);
             return result;
         }
 
@@ -482,7 +482,7 @@ namespace Jsonata.Net.Native.New
             else
             {
                 Node rhs = parser.expression(Tokenizer.OPERATORS["]"]);
-                Node symbol = new FilterConstructionNode(token.position, left, rhs);
+                Node symbol = new FilterConstructionNode(left, rhs, token.position);
                 parser.advance("]", true);
                 return symbol;
             }
@@ -498,10 +498,10 @@ namespace Jsonata.Net.Native.New
 
         internal override Node led(Node left, Parser parser, Token token)
         {
-            Node procedure = new VariableNode(-1, nameof(BuiltinFunctions.exists));     //TODO: probably should be 'name'??
-            FunctionalNode condition = new FunctionalNode(false, -1, procedure: procedure, arguments: new() { left });
+            Node procedure = new VariableNode(nameof(BuiltinFunctions.exists));     //TODO: probably should be 'name'??
+            FunctionalNode condition = new FunctionalNode(false, procedure: procedure, arguments: new() { left });
             Node @else = parser.expression(0);
-            ConditionNode result = new ConditionNode(token.position, condition: condition, then: left, @else: @else);
+            ConditionNode result = new ConditionNode(condition: condition, then: left, @else: @else, position: token.position);
             return result;
         }
     }
@@ -527,7 +527,7 @@ namespace Jsonata.Net.Native.New
             {
                 @else = null;
             }
-            ConditionNode result = new ConditionNode(token.position, condition: left, then: then, @else: @else);
+            ConditionNode result = new ConditionNode(condition: left, then: then, @else: @else, position: token.position);
             return result;
         }
     }
@@ -542,7 +542,7 @@ namespace Jsonata.Net.Native.New
         internal override Node led(Node left, Parser parser, Token token)
         {
             Node @else = parser.expression(0);
-            ConditionNode result = new ConditionNode(token.position, condition: left, then: left, @else: @else);
+            ConditionNode result = new ConditionNode(condition: left, then: left, @else: @else, position: token.position);
             return result;
         }
     }
@@ -561,7 +561,7 @@ namespace Jsonata.Net.Native.New
                 throw new JException("S0212", left.position/*, left.value*/); //TODO: value
             }
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
-            Node result = new BindAssignVarConstructionNode(token.position, (VariableNode)left, rhs);
+            Node result = new BindAssignVarConstructionNode((VariableNode)left, rhs, token.position);
             return result;
         }
     }
@@ -604,7 +604,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._number_int}");
             }
-            return new NumberIntNode(token.position, (long)token.value!);
+            return new NumberIntNode((long)token.value!, token.position);
         }
     }
 
@@ -620,7 +620,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._number_double}");
             }
-            return new NumberDoubleNode(token.position, (double)token.value!);
+            return new NumberDoubleNode((double)token.value!, token.position);
         }
     }
 
@@ -636,7 +636,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.@string}");
             }
-            return new StringNode(token.position, (string)token.value!);
+            return new StringNode((string)token.value!, token.position);
         }
     }
 
@@ -652,7 +652,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType._value_bool}");
             }
-            return new BoolNode(token.position, (bool)token.value!);
+            return new BoolNode((bool)token.value!, token.position);
         }
     }
 
@@ -684,7 +684,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.variable}");
             }
-            return new VariableNode(token.position, (string)token.value!);
+            return new VariableNode((string)token.value!, token.position);
         }
     }
 
@@ -700,7 +700,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.name}");
             }
-            return new NameNode(token.position, (string)token.value!);
+            return new NameNode((string)token.value!, token.position);
         }
     }
 
@@ -716,7 +716,7 @@ namespace Jsonata.Net.Native.New
             {
                 throw new Exception($"Should not happen: got {token.type}, expected {SymbolType.regex}");
             }
-            return new RegexNode(token.position, (Regex)token.value!);
+            return new RegexNode((Regex)token.value!, token.position);
         }
     }
     internal sealed class TerminalFactoryEnd : NodeFactoryBase
