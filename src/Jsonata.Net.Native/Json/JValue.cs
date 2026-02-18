@@ -57,12 +57,6 @@ namespace Jsonata.Net.Native.Json
                     return value;
                 }
             }
-            /*
-            catch (Exception ex)
-            {
-                throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
-            }
-            */
             catch (Exception)
             {
                 return value;

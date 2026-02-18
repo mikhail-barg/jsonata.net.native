@@ -6,7 +6,6 @@
 		<Nullable>enable</Nullable>
 		<WarningsAsErrors></WarningsAsErrors>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,10 +22,5 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\sgKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectCapability Remove="TestContainer" />
-  </ItemGroup>
-
 
 </Project>

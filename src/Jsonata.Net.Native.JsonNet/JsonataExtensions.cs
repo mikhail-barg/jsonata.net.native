@@ -50,7 +50,6 @@ namespace Jsonata.Net.Native.JsonNet
                 }
                 catch (OverflowException)
                 {
-                    //throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
                     return new JValue((double)value);
                 }
             case Newtonsoft.Json.Linq.JTokenType.Integer:
@@ -146,7 +145,6 @@ namespace Jsonata.Net.Native.JsonNet
                 }
                 catch (OverflowException)
                 {
-                    //throw new JsonataException("S0102", $"Number out of range: {value} ({ex.Message})");
                     return new Newtonsoft.Json.Linq.JValue((double)value);
                 }
             case JTokenType.Integer:
