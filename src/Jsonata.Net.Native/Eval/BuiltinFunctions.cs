@@ -44,7 +44,7 @@ namespace Jsonata.Net.Native.Eval
                     double value = (double)arg;
                     if (Double.IsNaN(value) || Double.IsInfinity(value))
                     {
-                        throw new JsonataException("D3001", "Attempting to invoke string function on Infinity or NaN");
+                        throw new JsonataException(JsonataErrorCode.D3001, "Attempting to invoke string function on Infinity or NaN");
                     };
                     return new JValue(arg.ToFlatString());
                 };
@@ -249,10 +249,10 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.String:
                 return str.Contains((string)pattern!);
             case JTokenType.Function:
-                JToken matches = evaluateMatcher(jsThis, (FunctionToken)pattern, new JValue(str));
+                JToken matches = evaluateMatcher(jsThis, (FunctionToken)pattern, new JValue(str), nameof(contains));
                 return matches.Type != JTokenType.Undefined;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(contains)} should be either string or function. Passed {pattern.Type} ({pattern.ToFlatString()})");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 2 of function {nameof(contains)} should be either string or function. Passed {pattern.Type} ({pattern.ToFlatString()})");
             }
         }
 
@@ -281,7 +281,7 @@ namespace Jsonata.Net.Native.Eval
             // limit, if specified, must be a non-negative number
             if (limit < 0)
             {
-                throw new JException("D3020");
+                throw new JsonataException(JsonataErrorCode.D3020, $"Third argument of {nameof(split)} function must evaluate to a non-negative number");
             }
 
             switch (separator.Type)
@@ -317,7 +317,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     JToken strToken = new JValue(str);
                     FunctionToken separatorFunc = (FunctionToken)separator;
-                    JToken matches = evaluateMatcher(jsThis, separatorFunc, strToken);
+                    JToken matches = evaluateMatcher(jsThis, separatorFunc, strToken, nameof(split));
                     if (matches.Type != JTokenType.Undefined)
                     {
                         int count = 0;
@@ -327,7 +327,7 @@ namespace Jsonata.Net.Native.Eval
                             JObject matchesObj = (JObject)matches;
                             result.Add(new JValue(str.Substring(start, matchesObj.GetPropertyAsInt("start")- start)));
                             start = matchesObj.GetPropertyAsInt("end");
-                            matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"]);
+                            matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"], nameof(split));
                             ++count;
                         }
                         if (count < limit)
@@ -342,7 +342,7 @@ namespace Jsonata.Net.Native.Eval
                 }
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 2 of function {nameof(split)} should be either string or function. Passed {separator.Type} ({separator.ToFlatString()})");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 2 of function {nameof(split)} should be either string or function. Passed {separator.Type} ({separator.ToFlatString()})");
             }
             return result;
         }
@@ -373,7 +373,7 @@ namespace Jsonata.Net.Native.Eval
                     separatorString = (string)separator!;
                     break;
                 default:
-                    throw new JsonataException("T0410", $"Argument 2 of function {nameof(join)} is expected to be string. Specified {separator.Type}");
+                    throw new JsonataException(JsonataErrorCode.T0410, $"Argument 2 of function {nameof(join)} is expected to be string. Specified {separator.Type}");
                 }
             };
 
@@ -388,7 +388,7 @@ namespace Jsonata.Net.Native.Eval
                 {
                     if (element.Type != JTokenType.String)
                     {
-                        throw new JsonataException("T0412", $"Argument 1 of function {nameof(join)} must be an array of strings");
+                        throw new JsonataException(JsonataErrorCode.T0412, $"Argument 1 of function {nameof(join)} must be an array of strings");
                     }
                     else
                     {
@@ -397,7 +397,7 @@ namespace Jsonata.Net.Native.Eval
                 }
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 1 of function {nameof(join)} is expected to be an Array. Specified {array.Type}");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 1 of function {nameof(join)} is expected to be an Array. Specified {array.Type}");
             }
             return String.Join(separatorString, elements);
         }
@@ -428,11 +428,11 @@ namespace Jsonata.Net.Native.Eval
 
             if (pattern is not FunctionToken patternFunc)
             {
-                throw new JException("TODO: ???");
+                throw new JsonataException(JsonataErrorCode.N0001, $"Pattern argument of the {nameof(match)} function is not a regex");
             }
 
             int count = 0;
-            JToken matches = evaluateMatcher(jsThis, patternFunc, new JValue(str));
+            JToken matches = evaluateMatcher(jsThis, patternFunc, new JValue(str), nameof(match));
             while (matches.Type != JTokenType.Undefined && count < limit)
             {
                 JObject matchesObj = (JObject)matches;
@@ -441,7 +441,7 @@ namespace Jsonata.Net.Native.Eval
                 matchObj.Add("index", matchesObj.Properties["start"]);
                 matchObj.Add("groups", matchesObj.Properties["groups"]);
                 result.Add(matchObj);
-                matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"]);
+                matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"], nameof(match));
                 ++count;
             }
             return result;
@@ -480,13 +480,13 @@ namespace Jsonata.Net.Native.Eval
             // pattern cannot be an empty string
             if (pattern.Type == JTokenType.String && (string)(JValue)pattern == "")
             {
-                throw new JsonataException("D3010", $"Second argument of {nameof(replace)} function cannot be an empty string");
+                throw new JsonataException(JsonataErrorCode.D3010, $"Second argument of {nameof(replace)} function cannot be an empty string");
             }
 
             // limit, if specified, must be a non-negative number
             if (limit < 0)
             {
-                throw new JsonataException("D3011", $"Fourth argument of {nameof(replace)} function must evaluate to a positive number");
+                throw new JsonataException(JsonataErrorCode.D3011, $"Fourth argument of {nameof(replace)} function must evaluate to a positive number");
             }
 
             FunctionToken replacer;
@@ -499,7 +499,7 @@ namespace Jsonata.Net.Native.Eval
                 replacer = (FunctionToken)replacement;
                 break;
             default:
-                throw new JsonataException("T0410", "replacement should be either func or string");
+                throw new JsonataException(JsonataErrorCode.T0410, "replacement should be either func or string");
             }
 
             if (limit == 0)
@@ -530,7 +530,7 @@ namespace Jsonata.Net.Native.Eval
                 int position = 0;
                 int count = 0;
                 FunctionToken patternFunc = (FunctionToken)pattern; //assumed in js-code
-                JToken matches = evaluateMatcher(jsThis, patternFunc, new JValue(str));
+                JToken matches = evaluateMatcher(jsThis, patternFunc, new JValue(str), nameof(replace));
                 if (matches.Type != JTokenType.Undefined)
                 {
                     while (matches.Type != JTokenType.Undefined && count < limit)
@@ -549,11 +549,11 @@ namespace Jsonata.Net.Native.Eval
                         else
                         {
                             // not a string - throw error
-                            throw new JException("D3012", -1, replacedWith);
+                            throw new JsonataException(JsonataErrorCode.D3012, $"Attempted to replace a matched string with a non-string value ({replacedWith})");
                         }
                         position = start + ((string)matchesObj.Properties["match"]).Length;
                         ++count;
-                        matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"]);
+                        matches = evaluateMatcher(jsThis, (FunctionToken)matchesObj.Properties["next"], nameof(replace));
                     }
                     result.Append(str.Substring(position));
                 }
@@ -594,7 +594,7 @@ namespace Jsonata.Net.Native.Eval
             }
             catch (Exception ex)
             {
-                throw new JsonataException("D3120", "Caused by " + ex.Message);
+                throw new JsonataException(JsonataErrorCode.D3120, $"Syntax error in expression passed to function {nameof(eval)}: {ex.Message}", -1, ex);
             }
 
             try
@@ -603,7 +603,7 @@ namespace Jsonata.Net.Native.Eval
             }
             catch (Exception ex)
             {
-                throw new JsonataException("D3121", "Caused by " + ex.Message);
+                throw new JsonataException(JsonataErrorCode.D3121, $"Dynamic error evaluating the expression passed to function {nameof(eval)}: {ex.Message}", -1, ex);
             }
         }
 
@@ -717,7 +717,7 @@ namespace Jsonata.Net.Native.Eval
                         }
                         else
                         {
-                            throw new JsonataException("D3030", $"Failed to parse string to Hex number: '{str}'");
+                            throw new JsonataException(JsonataErrorCode.D3030, $"Failed to parse string to Hex number: '{str}'");
                         }
                     }
                     else if (str.StartsWith("0b") || str.StartsWith("0B"))
@@ -729,7 +729,7 @@ namespace Jsonata.Net.Native.Eval
                         }
                         catch (Exception ex)
                         {
-                            throw new JsonataException("D3030", $"Failed to parse string to Binary number: '{str}' ({ex.Message})");
+                            throw new JsonataException(JsonataErrorCode.D3030, $"Failed to parse string to Binary number: '{str}' ({ex.Message})");
                         }
                     }
                     else if (str.StartsWith("0o") || str.StartsWith("0O"))
@@ -741,7 +741,7 @@ namespace Jsonata.Net.Native.Eval
                         }
                         catch (Exception ex)
                         {
-                            throw new JsonataException("D3030", $"Failed to parse string to Oct number: '{str}' ({ex.Message})");
+                            throw new JsonataException(JsonataErrorCode.D3030, $"Failed to parse string to Oct number: '{str}' ({ex.Message})");
                         }
                     }
                     else if (Int64.TryParse(str, out long longValue))
@@ -765,12 +765,12 @@ namespace Jsonata.Net.Native.Eval
                         }
                         else
                         {
-                            throw new JsonataException("D3030", "Jsonata does not support NaNs or Infinity values");
+                            throw new JsonataException(JsonataErrorCode.D3030, "Jsonata does not support NaNs or Infinity values");
                         }
                     }
                     else
                     {
-                        throw new JsonataException("D3030", $"Failed to parse string to number: '{str}'");
+                        throw new JsonataException(JsonataErrorCode.D3030, $"Failed to parse string to number: '{str}'");
                     }
                 };
             case JTokenType.Boolean:
@@ -778,7 +778,7 @@ namespace Jsonata.Net.Native.Eval
                 return new JValue((bool)arg ? 1 : 0);
             default:
                 //All other values cause an error to be thrown.
-                throw new JsonataException("D3030", $"Unable to cast value to a number. Value type is {arg.Type}");
+                throw new JsonataException(JsonataErrorCode.D3030, $"Unable to cast value to a number. Value type is {arg.Type}");
             }
         }
 
@@ -862,7 +862,7 @@ namespace Jsonata.Net.Native.Eval
 
             if (Double.IsNaN(result) || Double.IsInfinity(result))
             {
-                throw new JException("D3061");
+                throw new JsonataException(JsonataErrorCode.D3061, $"The {nameof(power)} function has resulted in a value that cannot be represented as a JSON number: base={@base}, exponent={exponent}");
             }
 
             return result;
@@ -879,7 +879,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (number < 0)
             {
-                throw new JException("D3060");
+                throw new JsonataException(JsonataErrorCode.D3060, $"The {nameof(sqrt)} function cannot be applied to a negative number: {number}");
             }
 
             return Math.Sqrt(number);
@@ -922,7 +922,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (radix < 2 || radix > 36)
             {
-                throw new JsonataException("D3100", $"The radix of the {nameof(formatBase)} function must be between 2 and 36. It was given {radix}");
+                throw new JsonataException(JsonataErrorCode.D3100, $"The radix of the {nameof(formatBase)} function must be between 2 and 36. It was given {radix}");
             };
 
             if (number < 0)
@@ -1009,7 +1009,7 @@ namespace Jsonata.Net.Native.Eval
                 //continue handling below
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 1 of function {nameof(sum)} should be an array of numbers, but specified {arg.Type}");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 1 of function {nameof(sum)} should be an array of numbers, but specified {arg.Type}");
             }
 
             decimal result = Helpers.EnumerateNumericArray((JArray)arg, nameof(sum), 1).Sum();
@@ -1033,7 +1033,7 @@ namespace Jsonata.Net.Native.Eval
                 //continue handling below
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 1 of function {nameof(max)} should be an array of numbers, but specified {arg.Type}");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 1 of function {nameof(max)} should be an array of numbers, but specified {arg.Type}");
             }
 
             decimal result = Decimal.MinValue;
@@ -1072,7 +1072,7 @@ namespace Jsonata.Net.Native.Eval
                 //continue handling below
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 1 of function {nameof(min)} should be an array of numbers, but specified {arg.Type}");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 1 of function {nameof(min)} should be an array of numbers, but specified {arg.Type}");
             }
 
             decimal result = Decimal.MaxValue;
@@ -1110,7 +1110,7 @@ namespace Jsonata.Net.Native.Eval
                 //continue handling below
                 break;
             default:
-                throw new JsonataException("T0410", $"Argument 1 of function {nameof(average)} should be an array of numbers, but specified {arg.Type}");
+                throw new JsonataException(JsonataErrorCode.T0410, $"Argument 1 of function {nameof(average)} should be an array of numbers, but specified {arg.Type}");
             }
 
             decimal result = 0;
@@ -1317,7 +1317,7 @@ namespace Jsonata.Net.Native.Eval
                 }
                 else
                 {
-                    throw new JsonataException("D3070", $"The single argument form of the {nameof(sort)} function can only be applied to an array of strings or an array of numbers.  Use the second argument to specify a comparison function");
+                    throw new JsonataException(JsonataErrorCode.D3070, $"The single argument form of the {nameof(sort)} function can only be applied to an array of strings or an array of numbers.  Use the second argument to specify a comparison function");
                 }
             }
             else if (function.Type == JTokenType.Function)
@@ -1332,7 +1332,7 @@ namespace Jsonata.Net.Native.Eval
             else
             {
                 //TODO: get proper code
-                throw new JsonataException("????", $"Argument 2 of function {nameof(sort)} should be a function(left, right) returning boolean");
+                throw new JsonataException(JsonataErrorCode.N0002, $"Argument 2 of function {nameof(sort)} should be a function(left, right) returning boolean");
             }
             return sort_internal(arrayToken, comparator);
         }
@@ -1762,7 +1762,7 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.Array:
                 break;
             default:
-                throw new JsonataException("T0412", $"Argument 1 of function \"{nameof(merge)}\" must be an array of \"objects\"");
+                throw new JsonataException(JsonataErrorCode.T0412, $"Argument 1 of function {nameof(merge)} must be an array of objects");
             };
             JArray array = (JArray)arg;
             JObject result = new JObject();
@@ -1782,7 +1782,7 @@ namespace Jsonata.Net.Native.Eval
                     }
                     break;
                 default:
-                    throw new JsonataException("T0412", $"Argument 1 of function \"{nameof(merge)}\" must be an array of \"objects\"");
+                    throw new JsonataException(JsonataErrorCode.T0412, $"Argument 1 of function {nameof(merge)} must be an array of objects");
                 }
             }
             return result;
@@ -1822,7 +1822,7 @@ namespace Jsonata.Net.Native.Eval
         [FunctionSignature("<s?:x>")]
         public static JToken error([OptionalArgument(null)] string message)
         {
-            throw new JsonataException("D3137", message ?? "$error() function evaluated");
+            throw new JsonataException(JsonataErrorCode.D3137, message ?? "$error() function evaluated");
         }
 
         /**
@@ -1926,7 +1926,7 @@ namespace Jsonata.Net.Native.Eval
             {
                 if (!Int32.TryParse(timezone, out int offsetHhMm))
                 {
-                    throw new JsonataException("D3134", $"Failed to parse timezone offset value from '{timezone}'");
+                    throw new JsonataException(JsonataErrorCode.D3134, $"Failed to parse timezone offset value from '{timezone}'");
                 }
                 date = date.ToOffset(new TimeSpan(offsetHhMm / 100, offsetHhMm % 100, 0));
             }
@@ -1950,14 +1950,14 @@ namespace Jsonata.Net.Native.Eval
             {
                 if (!DateTimeOffset.TryParse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out result))
                 {
-                    throw new JsonataException("D3136", $"Failed to parse date/time from '{timestamp}'");
+                    throw new JsonataException(JsonataErrorCode.D3136, $"Failed to parse date/time from '{timestamp}'");
                 }
             }
             else
             {
                 if (!DateTimeOffset.TryParseExact(timestamp, picture, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out result))
                 {
-                    throw new JsonataException("D3136", $"Failed to parse date/time from '{timestamp}' using picture format '{picture}'");
+                    throw new JsonataException(JsonataErrorCode.D3136, $"Failed to parse date/time from '{timestamp}' using picture format '{picture}'");
                 }
             }
 
@@ -2060,7 +2060,7 @@ namespace Jsonata.Net.Native.Eval
                     }
                     else
                     {
-                        throw new JException(error: "D3138");
+                        throw new JsonataException(JsonataErrorCode.D3138, $"The ${nameof(single)}() function expected exactly 1 matching result. Instead it matched more.");
                         // index: i
                     }
                 }
@@ -2068,7 +2068,7 @@ namespace Jsonata.Net.Native.Eval
 
             if (result == null)
             {
-                throw new JException("D3139");
+                throw new JsonataException(JsonataErrorCode.D3139, $"The ${nameof(single)}() function expected exactly 1 matching result.  Instead it matched 0.");
             }
             else
             {
@@ -2095,7 +2095,7 @@ namespace Jsonata.Net.Native.Eval
             int arity = func.ArgumentsCount;
             if (arity < 2)
             {
-                throw new JException("D3050");
+                throw new JsonataException(JsonataErrorCode.D3050, $"The second argument of {nameof(reduce)} function must be a function with at least two arguments");
                 //index: 1
             }
 
@@ -2183,7 +2183,7 @@ namespace Jsonata.Net.Native.Eval
         }
 
 
-        private static JToken evaluateMatcher(JsThisArgument jsThis, FunctionToken matcher, JToken str)
+        private static JToken evaluateMatcher(JsThisArgument jsThis, FunctionToken matcher, JToken str, string functionName)
         {
             JToken result = matcher.Apply(jsThis, new List<JToken>() { str });
             if (result.Type == JTokenType.Undefined)
@@ -2197,12 +2197,12 @@ namespace Jsonata.Net.Native.Eval
                 && resultObj.HasPropertyOfType("next", JTokenType.Function)
             ))
             {
-                throw new JException("T1010");
+                throw new JsonataException(JsonataErrorCode.T1010, $"The matcher function argument passed to function {functionName} does not return the correct object structure");
             }
             return result;
         }
 
-        private static JToken evaluateMatcher(JsThisArgument jsThis, FunctionToken matcher)
+        private static JToken evaluateMatcher(JsThisArgument jsThis, FunctionToken matcher, string functionName)
         {
             JToken result = matcher.Apply(jsThis, new List<JToken>() {});
             if (result.Type == JTokenType.Undefined)
@@ -2216,7 +2216,7 @@ namespace Jsonata.Net.Native.Eval
                 && resultObj.HasPropertyOfType("next", JTokenType.Function)
             ))
             {
-                throw new JException("T1010");
+                throw new JsonataException(JsonataErrorCode.T1010, $"The matcher function argument passed to function {functionName} does not return the correct object structure");
             }
             return result;
         }

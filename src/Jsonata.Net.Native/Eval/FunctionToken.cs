@@ -61,7 +61,7 @@ namespace Jsonata.Net.Native.Eval
         {
             if (Double.IsNaN(resultDouble) || Double.IsInfinity(resultDouble))
             {
-                throw new JsonataException("D3030", "Jsonata does not support NaNs or Infinity values");
+                throw new JsonataException(JsonataErrorCode.D3030, $"Unable to cast value to a number: {resultDouble} (Jsonata does not support NaNs or Infinity values)");
             };
 
             long resultLong = (long)resultDouble;

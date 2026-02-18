@@ -8,7 +8,7 @@ using Jsonata.Net.Native.Json;
 
 namespace Jsonata.Net.Native.Impl
 {
-    public sealed class Signature:IEquatable<Signature>
+    public sealed class Signature : IEquatable<Signature>
     {
         private sealed class Param
         {
@@ -108,7 +108,7 @@ namespace Jsonata.Net.Native.Impl
                     else
                     {
                         // TODO harder
-                        throw new JException("S0402");
+                        throw new JsonataException(JsonataErrorCode.S0402, $"Choice groups containing parameterized types are not supported: '{choice}'", position);
                     }
                     param.type = "(" + choice + ")";
                     position = endParen;
@@ -124,7 +124,7 @@ namespace Jsonata.Net.Native.Impl
                     }
                     else
                     {
-                        throw new JException("S0401");
+                        throw new JsonataException(JsonataErrorCode.S0401, $"Type parameters can only be applied to functions and arrays: {prevParam.type}", position);
                     }
                     break;
                 }
@@ -143,7 +143,7 @@ namespace Jsonata.Net.Native.Impl
             this.m_params = @params;
         }
 
-        
+
 
         private static int FindClosingBracket(string str, int start, char openSymbol, char closeSymbol)
         {
@@ -172,9 +172,9 @@ namespace Jsonata.Net.Native.Impl
             return position;
         }
 
-        private static char GetSymbol(JToken value) 
+        private static char GetSymbol(JToken value)
         {
-            switch (value.Type) 
+            switch (value.Type)
             {
             case JTokenType.Function:
                 return 'f';
@@ -198,7 +198,16 @@ namespace Jsonata.Net.Native.Impl
             }
         }
 
-        internal List<JToken> Validate(List<JToken> args, JToken context)
+        private static Dictionary<string, string> s_arraySignatureMapping = new() {
+            { "a", "arrays" },
+            { "b", "booleans" },
+            { "f", "functions" },
+            { "n", "numbers" },
+            { "o", "objects" },
+            { "s", "strings" }
+        };
+
+        internal List<JToken> Validate(List<JToken> args, JToken context, string functionName)
         {
             StringBuilder builder = new StringBuilder();
             foreach (JToken arg in args)
@@ -239,7 +248,7 @@ namespace Jsonata.Net.Native.Impl
                             else
                             {
                                 // context value not compatible with this argument
-                                throw new JException("T0411");
+                                throw new JsonataException(JsonataErrorCode.T0411, $"Context value is not a compatible type with argument {argIndex + 1} of function {functionName}");
                             }
                         }
                         else
@@ -298,7 +307,7 @@ namespace Jsonata.Net.Native.Impl
                                     }
                                     if (!arrayOK)
                                     {
-                                        throw new JsonataException("T0412", "Argument {{index}} of object {{token}} must be an array of {{type}}");
+                                        throw new JsonataException(JsonataErrorCode.T0412, $"Argument {argIndex + 1} of function {functionName} must be an array of {s_arraySignatureMapping[param.subtype!]}");
                                     }
 
                                     if (single != 'a')
@@ -324,9 +333,11 @@ namespace Jsonata.Net.Native.Impl
             }
             else
             {
+                // TODO: implement proper error search
+                throw new JsonataException(JsonataErrorCode.T0410, $"Some argument of function {functionName} does not match function signature");
+
                 // throwValidationError(args, suppliedSig);
                 // var throwValidationError = function (badArgs, badSig) {
-                throw new JsonataException("T0410", "TODO: implement proper error search");
 
                 // to figure out where this went wrong we need apply each component of the
                 // regex to each argument until we get to the one that fails to match

@@ -130,7 +130,7 @@ namespace Jsonata.Net.Native.Impl
                     pattern = path.Substring(start, this.position - start);
                     if (pattern == "") 
                     {
-                        throw new JException("S0301", this.position);
+                        throw new JsonataException(JsonataErrorCode.S0301, "Empty regular expressions are not allowed", this.position);
                     }
                     ++this.position;
                     currentChar = this.path[this.position];
@@ -170,7 +170,7 @@ namespace Jsonata.Net.Native.Impl
                 }
                 ++this.position;
             }
-            throw new JException("S0302", position);
+            throw new JsonataException(JsonataErrorCode.S0302, "No terminating / in regular expression", position);
         }
 
         internal Token? next(bool prefix) 
@@ -200,7 +200,7 @@ namespace Jsonata.Net.Native.Impl
                     if (this.position + 1 >= this.length)
                     {
                         // no closing tag
-                        throw new JException("S0106", commentStart);
+                        throw new JsonataException(JsonataErrorCode.S0106, "Comment has no closing tag", commentStart);
                     }
                     if (this.path[this.position] == '*' && this.path[this.position + 1] == '/')
                     {
@@ -303,7 +303,7 @@ namespace Jsonata.Net.Native.Impl
                             //  u should be followed by 4 hex digits
                             if (this.position + 1 + 4 > length)
                             {
-                                throw new JException("S0104", this.position);
+                                throw new JsonataException(JsonataErrorCode.S0104, "The escape sequence \\u must be followed by 4 hex digits", this.position);
                             }
 
                             string octets = this.path.Substring(this.position + 1, 4);
@@ -315,13 +315,13 @@ namespace Jsonata.Net.Native.Impl
                             } 
                             else 
                             {
-                                throw new JException("S0104", this.position);
+                                throw new JsonataException(JsonataErrorCode.S0104, "The escape sequence \\u must be followed by 4 hex digits", this.position);
                             }
                         } 
                         else 
                         {
                             // illegal escape sequence
-                            throw new JException("S0103", this.position, currentChar);
+                            throw new JsonataException(JsonataErrorCode.S0103, $"Unsupported escape sequence: \\{currentChar}", this.position);
                         }
                     } 
                     else if (currentChar == quoteType) 
@@ -335,7 +335,7 @@ namespace Jsonata.Net.Native.Impl
                     }
                     ++this.position;
                 }
-                throw new JException("S0101", position);
+                throw new JsonataException(JsonataErrorCode.S0101, "String literal must be terminated by a matching quote", position);
             }
             // test for numbers
             Match match = s_numregex.Match(this.path.Substring(position));
@@ -368,12 +368,12 @@ namespace Jsonata.Net.Native.Impl
                     }
                     else
                     {
-                        throw new JException("S0102", position); //, match.group[0]);
+                        throw new JsonataException(JsonataErrorCode.S0102, $"Number out of range: {match.Groups[0].Value}", position);
                     }
                 }
                 else
                 {
-                    throw new JException("S0102", position); //, match.group[0]);
+                    throw new JsonataException(JsonataErrorCode.S0102, $"Number out of range: {match.Groups[0].Value}", position);
                 }
             }
 
@@ -391,7 +391,7 @@ namespace Jsonata.Net.Native.Impl
                     return create(SymbolType.name, name);
                 }
                 this.position = this.length;
-                throw new JException("S0105", this.position);
+                throw new JsonataException(JsonataErrorCode.S0105, "Quoted property name must be terminated with a backquote (`)", this.position);
             }
             // test for names
             int i = this.position;

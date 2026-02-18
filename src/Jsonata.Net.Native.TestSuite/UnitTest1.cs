@@ -1,4 +1,3 @@
-#define IGNORE_FAILED
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
@@ -171,31 +170,9 @@ namespace Jsonata.Net.Native.TestSuite
                         Json.JToken resultToken = query.Eval(dataToken, environment);
                         result = JsonNet.JsonataExtensions.ToNewtonsoft(resultToken);
                     }
-                    catch (JException)
+                    catch (JsonataException)
                     {
                         throw; //forward to next catch
-                    }
-                    catch (JsonataException ex)
-                    {
-                        throw new JException(ex, error: ex.Code, location: -1, currentToken: null, expected: null);
-                    }
-                    catch (NotImplementedException niEx)
-                    {
-#if IGNORE_FAILED
-                        Assert.Ignore($"Failed with exception: {niEx.Message}\n({niEx.GetType().Name})\n{niEx.StackTrace}");
-                        return;
-#else
-                        throw;
-#endif
-                    }
-                    catch (Exception ex) //TODO: remove after removing BaseException
-                    {
-#if IGNORE_FAILED
-                        Assert.Ignore($"Failed with exception: {ex.Message}\n({ex.GetType().Name})\n{ex.StackTrace}");
-                        return;
-#else
-                        throw;
-#endif
                     }
 
                     Console.WriteLine($"Result: '{result.ToString(Formatting.None)}'");
@@ -232,17 +209,15 @@ namespace Jsonata.Net.Native.TestSuite
                         Assert.Fail("Bad test case?");
                     }
                 }
-                catch (JException jsonataEx)
+                catch (JsonataException jsonataEx)
                 {
                     if (caseInfo.code != null)
                     {
-                        Assert.AreEqual(caseInfo.code, jsonataEx.error);
-                        //Assert.Equals(caseInfo.code, jsonataEx.Code); //TODO: enable code checking later
-                        //Assert.Pass($"Expected to throw error with code {caseInfo.code}.\nActually thrown {jsonataEx.error}.\nNot checking codes yet");
+                        Assert.AreEqual(caseInfo.code, jsonataEx.Code.ToString(), $"Expected to throw error with code {caseInfo.code}.\nActually thrown {jsonataEx.Code}.");
                     }
                     else if (caseInfo.error != null)
                     {
-                        Assert.AreEqual(caseInfo.error.code, jsonataEx.error);
+                        Assert.AreEqual(caseInfo.error.code, jsonataEx.Code.ToString(), $"Expected to throw error with code {caseInfo.error.code}.\nActually thrown {jsonataEx.Code}.");
                         if (caseInfo.error.message != null)
                         {
                             //TODO: maybe later?

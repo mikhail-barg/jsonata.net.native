@@ -17,7 +17,7 @@ namespace Jsonata.Net.Native.Impl
             if (result.type == SymbolType.parent || result.seekingParent != null)
             {
                 // error - trying to derive ancestor at top level
-                throw new JException("S0217", result.position, result.type);
+                throw new JsonataException(JsonataErrorCode.S0217, $"The object representing the 'parent' cannot be derived from this expression", result.position);
             }
 
             return result;
@@ -80,7 +80,7 @@ namespace Jsonata.Net.Native.Impl
                 break;
             default:
                 // error - can't derive ancestor
-                throw new JException("S0217", node.position, node.type);
+                throw new JsonataException(JsonataErrorCode.S0217, $"The object representing the 'parent' cannot be derived from this expression", node.position);
             }
             return slot;
         }
@@ -198,7 +198,7 @@ namespace Jsonata.Net.Native.Impl
                         )
                         {
                             // don't allow steps to be numbers or the values true/false/null
-                            throw new JException("S0213", step.position, null /*step.value*/);
+                            throw new JsonataException(JsonataErrorCode.S0213, $"The literal value '{((NodeWithValue)step).GetValue()}' cannot be used as a step within a path expression", step.position);
                         }
                         if (step.type == SymbolType.@string)
                         {
@@ -248,7 +248,7 @@ namespace Jsonata.Net.Native.Impl
                     }
                     if (step.group != null)
                     {
-                        throw new JException("S0209", expr.position);
+                        throw new JsonataException(JsonataErrorCode.S0209, "A predicate cannot follow a grouping expression in a step", expr.position);
                     }
 
                     Node predicate = this.processAST(exprBinaryFilter.rhs);
@@ -336,12 +336,12 @@ namespace Jsonata.Net.Native.Impl
                     // at this point the only type of stages can be predicates
                     if (step.stages != null || step.predicate != null)
                     {
-                        throw new JException("S0215", exprBind.position);
+                        throw new JsonataException(JsonataErrorCode.S0215, "A context variable binding must precede any predicates on a step", exprBind.position);
                     }
                     // also throw if this is applied after an 'order-by' clause
                     if (step.type == SymbolType.sort)
                     {
-                        throw new JException("S0216", exprBind.position);
+                        throw new JsonataException(JsonataErrorCode.S0216, "A context variable binding must precede the 'order-by' clause on a step", exprBind.position);
                     }
                     if (exprBind.keepArray)
                     {
@@ -395,7 +395,7 @@ namespace Jsonata.Net.Native.Impl
                     }
                     if (result.group != null)
                     {
-                        throw new JException("S0210", expr.position);
+                        throw new JsonataException(JsonataErrorCode.S0210, "Each step can only have one grouping expression", expr.position);
                     }
                     // object constructor - process each pair
                     List<Tuple<Node, Node>> lhsObject = exprGroupby.rhsObject
@@ -618,7 +618,7 @@ namespace Jsonata.Net.Native.Impl
                         result = this.processAST(new NameNode("in", expr.position));
                         break;
                     default:
-                        throw new JException("S0201", expr.position/*, expr.value*/); //TODO: value
+                        throw new JsonataException(JsonataErrorCode.S0201, $"Syntax error: {exprOperator.value}", expr.position);
                     }
                 }
                 break;
@@ -631,12 +631,15 @@ namespace Jsonata.Net.Native.Impl
             //     break;
             default:
                 {
-                    string code = "S0206";
                     if (expr.type == SymbolType._end)
                     {
-                        code = "S0207";
+                        throw new JsonataException(JsonataErrorCode.S0207, "Unexpected end of expression", expr.position);
                     }
-                    throw new JException(code, expr.position/*, expr.value*/); //TODO: value
+                    else
+                    {
+                        throw new JsonataException(JsonataErrorCode.S0206, $"Unknown expression type: {expr.type}", expr.position);
+                    }
+                    
                 }
             }
             if (expr.keepArray)

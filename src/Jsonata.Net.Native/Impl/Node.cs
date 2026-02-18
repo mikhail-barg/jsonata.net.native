@@ -113,7 +113,6 @@ namespace Jsonata.Net.Native.Impl
         }
 
         //used for DOM comparison only
-
         protected static bool IsNullMatches(object? a, object? b)
         {
             return (a == null) == (b == null);
@@ -202,7 +201,6 @@ namespace Jsonata.Net.Native.Impl
             }
 
             // TODO: should check ancestor attributes??
-
             if (!this.EqualsSpecific(other))
             {
                 return false;
@@ -848,7 +846,18 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class NullNode: Node, IEquatable<NullNode>
+    public abstract class NodeWithValue : Node
+    {
+        protected NodeWithValue(SymbolType type, int position)
+            : base(type, position)
+        {
+
+        }
+
+        public abstract object? GetValue();
+    }
+
+    public sealed class NullNode: NodeWithValue, IEquatable<NullNode>
     {
         public NullNode(int position = -1)
             : base(SymbolType._value_null, position)
@@ -865,6 +874,11 @@ namespace Jsonata.Net.Native.Impl
             return true;
         }
 
+        public override object? GetValue()
+        {
+            return null;
+        }
+
         protected override void PrintAstChildren(StringBuilder sb, int indent)
         {
             //nothing to do
@@ -876,7 +890,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BoolNode: Node, IEquatable<BoolNode>
+    public sealed class BoolNode: NodeWithValue, IEquatable<BoolNode>
     {
         public readonly bool value;
 
@@ -897,6 +911,11 @@ namespace Jsonata.Net.Native.Impl
             return this.value.ToString().Equals(otherBool.value.ToString());
         }
 
+        public override object? GetValue()
+        {
+            return this.value;
+        }
+
         protected override void PrintAstSpecific(StringBuilder sb)
         {
             sb.Append(" `").Append(this.value).Append("`");
@@ -908,7 +927,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class NumberIntNode: Node, IEquatable<NumberIntNode>
+    public sealed class NumberIntNode: NodeWithValue, IEquatable<NumberIntNode>
     {
         public readonly long value;
 
@@ -929,6 +948,11 @@ namespace Jsonata.Net.Native.Impl
             return this.value.ToString().Equals(otherInt.value.ToString());
         }
 
+        public override object? GetValue()
+        {
+            return this.value;
+        }
+
         protected override void PrintAstSpecific(StringBuilder sb)
         {
             sb.Append(" `").Append(this.value).Append("`");
@@ -940,7 +964,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class NumberDoubleNode: Node, IEquatable<NumberDoubleNode>
+    public sealed class NumberDoubleNode: NodeWithValue, IEquatable<NumberDoubleNode>
     {
         public readonly double value;
 
@@ -959,6 +983,11 @@ namespace Jsonata.Net.Native.Impl
         {
             NumberDoubleNode otherDouble = (NumberDoubleNode)other;
             return this.value.ToString().Equals(otherDouble.value.ToString());
+        }
+
+        public override object? GetValue()
+        {
+            return this.value;
         }
 
         protected override void PrintAstSpecific(StringBuilder sb)

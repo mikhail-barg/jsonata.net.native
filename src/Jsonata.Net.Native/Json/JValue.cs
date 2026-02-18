@@ -43,7 +43,7 @@ namespace Jsonata.Net.Native.Json
         {
             if (Double.IsInfinity(value) || Double.IsNaN(value))
             {
-                throw new JsonataException("S0102", "Number out of range: " + value);
+                throw new JsonataException(JsonataErrorCode.S0102, "Number out of range: " + value);
             }
             try
             {

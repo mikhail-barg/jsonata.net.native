@@ -40,22 +40,15 @@ namespace Jsonata.Net.Native.Impl
         {
             if (id != null && this.currentNodeFactory.id != id) 
             {
-                String code;
                 if (this.currentNodeFactory == Parser.s_terminalFactoryEnd) 
                 {
                     // unexpected end of buffer
-                    code = "S0203";
+                    throw new JsonataException(JsonataErrorCode.S0203, $"Expected {id} before end of expression", this.currentToken.position);
                 } 
                 else 
                 {
-                    code = "S0202";
+                    throw new JsonataException(JsonataErrorCode.S0202, $"Expected {id}, got {this.currentToken.value}", this.currentToken.position);
                 }
-                throw new JException(
-                    code,
-                    this.currentToken.position,
-                    id,
-                    this.currentToken.value
-                );
             }
             Token? next_token = lexer.next(infix);
             NodeFactoryBase factory;
@@ -77,7 +70,7 @@ namespace Jsonata.Net.Native.Impl
             case SymbolType.@operator:
                 if (!Parser.s_binaryFactoryTable.TryGetValue(this.currentToken.value!.ToString()!, out NodeFactoryBase? foundFactory))
                 {
-                    throw new JException("S0204", this.currentToken.position, this.currentToken.value);
+                    throw new JsonataException(JsonataErrorCode.S0204, $"Unknown operator: {this.currentToken.value}", this.currentToken.position);
                 }
                 else
                 {
@@ -103,7 +96,7 @@ namespace Jsonata.Net.Native.Impl
                 factory = Parser.s_terminalFactoryRegex;
                 break;
             default:
-                throw new JException("S0205", this.currentToken.position, this.currentToken.value);
+                throw new JsonataException(JsonataErrorCode.S0205, $"Unexpected token: {this.currentToken.value}", this.currentToken.position);
             }
 
             this.currentNodeFactory = factory;
@@ -134,7 +127,7 @@ namespace Jsonata.Net.Native.Impl
             Node expr = parser.expression(0);
             if (parser.currentNodeFactory != Parser.s_terminalFactoryEnd) 
             {
-                throw new JException("S0201", parser.currentToken.position, parser.currentToken.value);
+                throw new JsonataException(JsonataErrorCode.S0201, $"Syntax error: {parser.currentToken.value}", parser.currentToken.position);
             }
 
             Node result = Optimizer.OptimizeAst(expr);

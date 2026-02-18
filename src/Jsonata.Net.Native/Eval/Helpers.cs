@@ -132,7 +132,7 @@ namespace Jsonata.Net.Native.Eval
                     //just skip
                     break;
                 default:
-                    throw new JsonataException("T0412", $"Argument {argIndex} of function {functionName} must be an array of numbers. Got {token.Type}");
+                    throw new JsonataException(JsonataErrorCode.T0412, $"Argument {argIndex} of function {functionName} must be an array of numbers. Got {token.Type}");
                 }
             }
         }

@@ -56,7 +56,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
             catch (JsonataException jsEx)
             {
-                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                if (jsEx.Code == JsonataErrorCode.S0102 && caseInfo.expectedResult == null)
                 {
                     Assert.Ignore("Skipping ambigous test with integer overflows");
                     return;
@@ -117,7 +117,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
             catch (JsonataException jsEx)
             {
-                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                if (jsEx.Code == JsonataErrorCode.S0102 && caseInfo.expectedResult == null)
                 {
                     Assert.Ignore("Skipping ambigous test with integer overflows");
                     return;
@@ -181,7 +181,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
             catch (JsonataException jsEx)
             {
-                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                if (jsEx.Code == JsonataErrorCode.S0102 && caseInfo.expectedResult == null)
                 {
                     Assert.Ignore("Skipping ambigous test with integer overflows");
                     return;
@@ -244,7 +244,7 @@ namespace Jsonata.Net.Native.JsonParser.TestSuite
             }
             catch (JsonataException jsEx)
             {
-                if (jsEx.Code == "S0102" && caseInfo.expectedResult == null)
+                if (jsEx.Code == JsonataErrorCode.S0102 && caseInfo.expectedResult == null)
                 {
                     Assert.Ignore("Skipping ambigous test with integer overflows");
                     return;

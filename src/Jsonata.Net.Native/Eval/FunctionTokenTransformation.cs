@@ -87,7 +87,7 @@ namespace Jsonata.Net.Native.Eval
 						if (update.Type != JTokenType.Object)
 						{
 							// throw type error
-							throw new JException("T2011", this.update.position, update);
+							throw new JsonataException(JsonataErrorCode.T2011, $"The insert/update clause of the transform expression must evaluate to an object: {update.ToFlatString()} ({update.Type})", this.update.position);
 						}
 
                         // merge the update
@@ -111,7 +111,7 @@ namespace Jsonata.Net.Native.Eval
 							if (!Helpers.IsArrayOfStrings(deletionsArray))
 							{
 								// throw type error
-								throw new JException("T2012", this.delete.position, deletions);
+								throw new JsonataException(JsonataErrorCode.T2012, $"The delete clause of the transform expression must evaluate to a string or array of strings: {deletionsArray.ToFlatString()}", this.delete.position);
 							}
 							foreach (JToken del in deletionsArray.ChildrenTokens)
 							{

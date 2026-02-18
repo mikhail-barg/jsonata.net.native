@@ -130,7 +130,7 @@ namespace Jsonata.Net.Native
             int depth = this.GetEvaluationSupplement().IncDepth();
             if (depth > this.MaxDepth)
             {
-                throw new JsonataException("U1001", "Stack overflow error: Check for non-terminating recursive function.  Consider rewriting as tail-recursive.");
+                throw new JsonataException(JsonataErrorCode.U1001, "Stack overflow error: Check for non-terminating recursive function.  Consider rewriting as tail-recursive.");
             }
         }
 

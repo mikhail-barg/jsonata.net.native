@@ -23,7 +23,7 @@ namespace Jsonata.Net.Native.Impl
 
         virtual internal Node nud(Parser parser, Token token)
         {
-            throw new JException("S0211", token.position, token.value);
+            throw new JsonataException(JsonataErrorCode.S0211, $"The symbol '{token.value}' cannot be used as a unary operator", token.position);
         }
 
         virtual internal Node led(Node left, Parser parser, Token token)
@@ -286,7 +286,7 @@ namespace Jsonata.Net.Native.Impl
             Node rhs = parser.expression(Tokenizer.OPERATORS["@"]);
             if (rhs.type != SymbolType.variable)
             {
-                throw new JException("S0214", rhs.position, "@");
+                throw new JsonataException(JsonataErrorCode.S0214, $"The right side of @ must be a variable name (start with $)", rhs.position);
             }
             Node result = new BindContextVarConstructionNode(left, (VariableNode)rhs, token.position);
             return result;
@@ -305,7 +305,7 @@ namespace Jsonata.Net.Native.Impl
             Node rhs = parser.expression(Tokenizer.OPERATORS["#"]);
             if (rhs.type != SymbolType.variable)
             {
-                throw new JException("S0214", rhs.position, "#");
+                throw new JsonataException(JsonataErrorCode.S0214, $"The right side of # must be a variable name (start with $)", rhs.position);
             }
             Node result = new BindPositionalVarConstructionNode(left, (VariableNode)rhs, token.position);
             return result;
@@ -360,7 +360,7 @@ namespace Jsonata.Net.Native.Impl
                 {
                     if (arg.type != SymbolType.variable)
                     {
-                        throw new JException("S0208", arg.position/*, arg.value*/); //TODO: value
+                        throw new JsonataException(JsonataErrorCode.S0208, $"Parameter of function definition must be a variable name (start with $)", arg.position);
                     }
                     argVariables.Add((VariableNode)arg);
                 }
@@ -557,7 +557,7 @@ namespace Jsonata.Net.Native.Impl
         {
             if (left.type != SymbolType.variable)
             {
-                throw new JException("S0212", left.position/*, left.value*/); //TODO: value
+                throw new JsonataException(JsonataErrorCode.S0212, "The left side of := must be a variable name (start with $)", left.position); //TODO: value
             }
             Node rhs = parser.expression(Tokenizer.OPERATORS[":="] - 1); // subtract 1 from bindingPower for right associative operators
             Node result = new AssignVarConstructionNode((VariableNode)left, rhs, token.position);

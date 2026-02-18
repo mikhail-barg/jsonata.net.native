@@ -111,14 +111,13 @@ namespace Jsonata.Net.Native.Eval
 			}
 			catch (TargetInvocationException ti)
 			{
-				if (ti.InnerException is JsonataException 
-					|| ti.InnerException is JException)
+				if (ti.InnerException is JsonataException)
                 {
 					ExceptionDispatchInfo.Capture(ti.InnerException).Throw();
 				}
 				else
 				{
-					throw new Exception($"Error evaluating function '{this.m_functionName}': {(ti.InnerException?.Message ?? "?")}", ti);
+					throw new JsonataException(JsonataErrorCode.N0004, $"Error evaluating function '{this.m_functionName}': {(ti.InnerException?.Message ?? "?")}", -1, ti);
 				}
 				throw;
 			}
@@ -147,7 +146,7 @@ namespace Jsonata.Net.Native.Eval
 					}
 					else
 					{
-						throw new JsonataException("T0410", $"Function '{this.m_functionName}' requires {this.m_parameters.Count + (this.m_hasJsThisParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
+						throw new JsonataException(JsonataErrorCode.T0410, $"Function '{this.m_functionName}' requires {this.m_parameters.Count + (this.m_hasJsThisParameter? -1 : 0)} arguments. Passed {args.Count} arguments");
 					}
 				}
 				else if (argumentInfo.isVariableArgumentsArray)
@@ -175,7 +174,7 @@ namespace Jsonata.Net.Native.Eval
 
 			if (sourceIndex < args.Count)
 			{
-				throw new JsonataException("T0410", $"Function '{this.m_functionName}' requires {this.m_parameters.Count + (this.m_hasJsThisParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
+				throw new JsonataException(JsonataErrorCode.T0410, $"Function '{this.m_functionName}' requires {this.m_parameters.Count + (this.m_hasJsThisParameter ? -1 : 0)} arguments. Passed {args.Count} arguments");
 			};
 
 			return result;
@@ -271,7 +270,7 @@ namespace Jsonata.Net.Native.Eval
 					return (bool)argToken;
 				}
 			}
-			throw new JsonataException("T0410", $"Argument {parameterIndex + 1} ('{argumentInfo.name}') of function {this.m_functionName} should be {argumentInfo.parameterType.Name} but incompatible value of type {argToken.Type} was specified");
+			throw new JsonataException(JsonataErrorCode.T0410, $"Argument {parameterIndex + 1} ('{argumentInfo.name}') of function {this.m_functionName} should be {argumentInfo.parameterType.Name} but incompatible value of type {argToken.Type} was specified");
 		}
 
 		private JToken ConvertFunctionResult(object? resultObj)

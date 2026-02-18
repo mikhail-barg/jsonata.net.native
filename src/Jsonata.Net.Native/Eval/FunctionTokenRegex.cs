@@ -70,7 +70,7 @@ namespace Jsonata.Net.Native.Eval
             case JTokenType.String:
                 break;
             default:
-                throw new JsonataException("????", $"Argument 1 of regex should be String, got {arg.Type}");
+                throw new JsonataException(JsonataErrorCode.N0003, $"Argument 1 of regex should be String, got {arg.Type}");
             }
 
             string str = (string)arg!;
@@ -113,7 +113,7 @@ namespace Jsonata.Net.Native.Eval
                 JObject nextMatch = (JObject)next;
                 if ((string)nextMatch.Properties["match"] == "")
                 {
-                    throw new JException("D1004");
+                    throw new JsonataException(JsonataErrorCode.D1004, "Regular expression matches zero length string");
                 }
                 return next;
             }
