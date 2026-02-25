@@ -971,7 +971,7 @@ namespace Jsonata.Net.Native.Eval
         [FunctionSignature("<n-s:s>")]
         public static string formatInteger([PropagateUndefined] long number, string picture)
         {
-            //TODO: try implementing or using proper XPath fn:format-integer
+            //TODO? try implementing or using proper XPath fn:format-integer
             //picture = Regex.Replace(picture, @"[1-9]", "0");
             //picture = Regex.Replace(picture, @",", @"\,");
             return number.ToString(picture, CultureInfo.InvariantCulture);
@@ -986,7 +986,7 @@ namespace Jsonata.Net.Native.Eval
         [FunctionSignature("<s-s:n>")]
         public static long parseInteger([PropagateUndefined] string str, [OptionalArgument(null)] string? picture)
         {
-            //TODO: try implementing properly
+            //TODO?: try implementing properly
             return Int64.Parse(str);
         }
         #endregion
@@ -1331,7 +1331,7 @@ namespace Jsonata.Net.Native.Eval
             }
             else
             {
-                //TODO: get proper code
+                //Failed to find a proper code
                 throw new JsonataException(JsonataErrorCode.N0002, $"Argument 2 of function {nameof(sort)} should be a function(left, right) returning boolean");
             }
             return sort_internal(arrayToken, comparator);
@@ -2014,7 +2014,6 @@ namespace Jsonata.Net.Native.Eval
                 JToken entry = arr.ChildrenTokens[i];
                 List<JToken> func_args = hofFuncArgs(func, entry, new JValue(i), arr);
                 //var res = func.apply(this, func_args);
-                //TODO: no way to pass `this` for now
                 JToken res = func.Apply(jsThis, func_args);
                 if (Helpers.Booleanize(res))
                 {

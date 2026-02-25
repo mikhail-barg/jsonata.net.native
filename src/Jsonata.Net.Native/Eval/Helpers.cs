@@ -67,7 +67,7 @@ namespace Jsonata.Net.Native.Eval
             }
         }
 
-        //TODO: think of using BuiltinFunctions.boolean
+        //TODO? think of using BuiltinFunctions.boolean
         public static bool Booleanize(JToken value)
         {
             // cast arg to its effective boolean value

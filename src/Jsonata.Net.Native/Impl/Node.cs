@@ -200,7 +200,8 @@ namespace Jsonata.Net.Native.Impl
                 return false;
             }
 
-            // TODO: should check ancestor attributes??
+            //Currently not checking ancestor attributes for equality
+
             if (!this.EqualsSpecific(other))
             {
                 return false;

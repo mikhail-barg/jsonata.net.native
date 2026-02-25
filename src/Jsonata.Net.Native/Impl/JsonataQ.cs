@@ -181,9 +181,8 @@ namespace Jsonata.Net.Native.Impl
                 inputSequence = JsonataArray.CreateSequence(input);
             }
 
-            JArray resultSequence = default!;   //to suppress unitinialized error later
+            JArray? resultSequence = default!;   //to suppress unitinialized error later
             bool isTupleStream = false;
-
             JArray? tupleBindings = null;
 
             // evaluate each step in turn
@@ -249,11 +248,9 @@ namespace Jsonata.Net.Native.Impl
 
             if (expr.keepSingletonArray)
             {
-                //TODO: fix magic based on jsonata-js code
-                // If we only got an ArrayList, convert it so we can set the keepSingleton flag
                 if (resultSequence is not JsonataArray resultSequenceAsJsonataArray)
                 {
-                    resultSequenceAsJsonataArray = new JsonataArray(resultSequence!.ChildrenTokens);
+                    resultSequenceAsJsonataArray = new JsonataArray(resultSequence.ChildrenTokens);
                     resultSequence = resultSequenceAsJsonataArray;
                 }
 

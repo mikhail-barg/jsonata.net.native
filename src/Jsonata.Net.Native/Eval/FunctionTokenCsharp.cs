@@ -152,7 +152,7 @@ namespace Jsonata.Net.Native.Eval
 				else if (argumentInfo.isVariableArgumentsArray)
 				{
 					//pack all remaining args to vararg.
-					//TODO: Will not work if this is not last one in parameters list...
+					//TODO? Will not work if this is not last one in parameters list...
 					JArray vararg = new JArray(args.Count);
 					while (sourceIndex < args.Count)
                     {
@@ -182,7 +182,6 @@ namespace Jsonata.Net.Native.Eval
 
 		private object? ConvertFunctionArg(int parameterIndex, JToken argToken, ArgumentInfo argumentInfo, out bool returnUndefined)
 		{
-			//TODO: place all this reflection into FunctionTokenCsharp
 			if (argToken.Type == JTokenType.Undefined)
 			{
 				if (argumentInfo.propagateUndefined)
@@ -199,7 +198,7 @@ namespace Jsonata.Net.Native.Eval
 			};
 			returnUndefined = false;
 
-			//TODO: add support for broadcasting Undefined
+			//TODO? add support for broadcasting Undefined
 			if (argumentInfo.parameterType.IsAssignableFrom(argToken.GetType()))
 			{
 				return argToken;
