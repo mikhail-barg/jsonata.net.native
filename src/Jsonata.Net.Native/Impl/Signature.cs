@@ -259,7 +259,7 @@ namespace Jsonata.Net.Native.Impl
                     }
                     else
                     {
-                        // may have matched multiple args (if the regex ends with a '+'
+                        // may have matched multiple args (if the regex ends with a '+')
                         // split into single tokens
                         foreach (char single in match.Value)
                         {

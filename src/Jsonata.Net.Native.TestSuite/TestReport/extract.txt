@@ -458,6 +458,7 @@ function-formatBase.case004;Passed
 function-formatBase.case005;Passed
 function-formatBase.case006;Passed
 function-formatBase.case007;Passed
+function-formatBase.case008;Passed
 function-formatInteger.formatInteger[1];Passed
 function-formatInteger.formatInteger[2];Passed
 function-formatInteger.formatInteger[3];Passed
@@ -988,6 +989,7 @@ function-string.case026;Passed
 function-string.case027;Passed
 function-string.case028;Passed
 function-string.case029;Passed
+function-string.case030;Passed
 function-substring.case000;Passed
 function-substring.case001;Passed
 function-substring.case002;Passed
