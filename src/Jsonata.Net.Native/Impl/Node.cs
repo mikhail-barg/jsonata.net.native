@@ -141,9 +141,6 @@ namespace Jsonata.Net.Native.Impl
         }
 
         // actual implementation
-        // all the descendant classes would have to implement IEquatable<Decendant>
-        // because EqualityComparer<Descendant>.Default will not consider base Node implementing IEquatable<Node>
-        // and EqualityComparer.Default is being used for example by Enumerable.SequenceEqual
         protected bool EqualsImpl(Node? other) 
         {
             if (other == null)
@@ -274,16 +271,11 @@ namespace Jsonata.Net.Native.Impl
         protected abstract void PrintAstChildren(StringBuilder sb, int indent);
     }
 
-    public sealed class EndNode: Node, IEquatable<EndNode>
+    public sealed class EndNode: Node
     {
         public EndNode(int position)
             : base(SymbolType._end, position)
         {
-        }
-
-        public bool Equals(EndNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -302,7 +294,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class FilterConstructionNode: Node, IEquatable<FilterConstructionNode>
+    public sealed class FilterConstructionNode: Node
     {
         public readonly Node lhs;
         public readonly Node rhs;
@@ -312,11 +304,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.lhs = lhs;
             this.rhs = rhs;
-        }
-
-        public bool Equals(FilterConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -347,7 +334,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class PathConstructionNode: Node, IEquatable<PathConstructionNode>
+    public sealed class PathConstructionNode: Node
     {
         public readonly Node lhs;
         public readonly Node rhs;
@@ -357,11 +344,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.lhs = lhs;
             this.rhs = rhs;
-        }
-
-        public bool Equals(PathConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -393,18 +375,13 @@ namespace Jsonata.Net.Native.Impl
 
     }
 
-    public sealed class DescendantNode: Node, IEquatable<DescendantNode>
+    public sealed class DescendantNode: Node
     {
         public DescendantNode(int position = -1)
             : base(SymbolType.descendant, position)
         {
         }
 
-        public bool Equals(DescendantNode? other)
-        {
-            return this.EqualsImpl(other);
-        }
-
         protected override bool EqualsSpecific(Node other)
         {
             return true;
@@ -421,18 +398,13 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class ParentConstructionNode: Node, IEquatable<ParentConstructionNode>
+    public sealed class ParentConstructionNode: Node
     {
         public ParentConstructionNode(int position = -1)
             : base(SymbolType._parent, position)
         {
         }
 
-        public bool Equals(ParentConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
-        }
-
         protected override bool EqualsSpecific(Node other)
         {
             return true;
@@ -449,18 +421,13 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class ParentOptimizedNode: Node, IEquatable<ParentOptimizedNode>
+    public sealed class ParentOptimizedNode: Node
     {
         public readonly SlotRuntimeNode slot;
         public ParentOptimizedNode(SlotRuntimeNode slot, int position = -1)
             : base(SymbolType.parent, position)
         {
             this.slot = slot;
-        }
-
-        public bool Equals(ParentOptimizedNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -481,16 +448,11 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class WildcardNode: Node, IEquatable<WildcardNode>
+    public sealed class WildcardNode: Node
     {
         public WildcardNode(int position = -1)
             : base(SymbolType.wildcard, position)
         {
-        }
-
-        public bool Equals(WildcardNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -509,7 +471,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class RegexNode: Node, IEquatable<RegexNode>
+    public sealed class RegexNode: Node
     {
         public readonly Regex regex;
 
@@ -517,11 +479,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType.regex, position)
         {
             this.regex = regex;
-        }
-
-        public bool Equals(RegexNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -541,7 +498,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public abstract class NodeWithStrValue : Node, IEquatable<NodeWithStrValue>
+    public abstract class NodeWithStrValue : Node
     {
         public readonly string value;
 
@@ -549,11 +506,6 @@ namespace Jsonata.Net.Native.Impl
             : base(type, position)
         {
             this.value = value;
-        }
-
-        public bool Equals(NodeWithStrValue? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -574,33 +526,23 @@ namespace Jsonata.Net.Native.Impl
     }
 
 
-    public sealed class NameNode: NodeWithStrValue, IEquatable<NameNode>
+    public sealed class NameNode: NodeWithStrValue
     {
         public NameNode(string value, int position = -1)
             : base(SymbolType.name, value, position)
         {
         }
-
-        public bool Equals(NameNode? other)
-        {
-            return this.EqualsImpl(other);
-        }
     }
 
-    public sealed class VariableNode: NodeWithStrValue, IEquatable<VariableNode>
+    public sealed class VariableNode: NodeWithStrValue
     {
         public VariableNode(string value, int position = -1)
             : base(SymbolType.variable, value, position)
         {
         }
-
-        public bool Equals(VariableNode? other)
-        {
-            return this.EqualsImpl(other);
-        }
     }
 
-    public sealed class AssignVarConstructionNode: Node, IEquatable<AssignVarConstructionNode>
+    public sealed class AssignVarConstructionNode: Node
     {
         public readonly VariableNode lhs;
         public readonly Node rhs;
@@ -617,12 +559,6 @@ namespace Jsonata.Net.Native.Impl
             :this(new VariableNode(variable), rhs)
         {
 
-        }
-
-
-        public bool Equals(AssignVarConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -653,7 +589,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BindPositionalVarConstructionNode: Node, IEquatable<BindPositionalVarConstructionNode>
+    public sealed class BindPositionalVarConstructionNode: Node
     {
         public readonly Node lhs;
         public readonly VariableNode rhs;
@@ -669,11 +605,6 @@ namespace Jsonata.Net.Native.Impl
             :this(lhs, new VariableNode(variable))
         {
 
-        }
-
-        public bool Equals(BindPositionalVarConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -704,7 +635,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BindContextVarConstructionNode: Node, IEquatable<BindContextVarConstructionNode>
+    public sealed class BindContextVarConstructionNode: Node
     {
         public readonly Node lhs;
         public readonly VariableNode rhs;
@@ -720,11 +651,6 @@ namespace Jsonata.Net.Native.Impl
             : this(lhs, new VariableNode(variable))
         {
 
-        }
-
-        public bool Equals(BindContextVarConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -755,16 +681,11 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class ArgumentPlaceholderNode: Node, IEquatable<ArgumentPlaceholderNode>
+    public sealed class ArgumentPlaceholderNode: Node
     {
         public ArgumentPlaceholderNode(int position = -1)
             : base(SymbolType._partial_arg, position)
         {
-        }
-
-        public bool Equals(ArgumentPlaceholderNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -783,7 +704,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class SpecialOperatorConstructionNode: Node, IEquatable<SpecialOperatorConstructionNode>
+    public sealed class SpecialOperatorConstructionNode: Node
     {
         public readonly SpecialOperatorType value;
 
@@ -791,11 +712,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType.@operator, position)
         {
             this.value = value;
-        }
-
-        public bool Equals(SpecialOperatorConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -815,7 +731,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class StringNode: Node, IEquatable<StringNode>
+    public sealed class StringNode: Node
     {
         public readonly string value;
 
@@ -823,11 +739,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType.@string, position)
         {
             this.value = value;
-        }
-
-        public bool Equals(StringNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -858,16 +769,11 @@ namespace Jsonata.Net.Native.Impl
         public abstract object? GetValue();
     }
 
-    public sealed class NullNode: NodeWithValue, IEquatable<NullNode>
+    public sealed class NullNode: NodeWithValue
     {
         public NullNode(int position = -1)
             : base(SymbolType._value_null, position)
         {
-        }
-
-        public bool Equals(NullNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -891,7 +797,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BoolNode: NodeWithValue, IEquatable<BoolNode>
+    public sealed class BoolNode: NodeWithValue
     {
         public readonly bool value;
 
@@ -899,11 +805,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType._value_bool, position)
         {
             this.value = value;
-        }
-
-        public bool Equals(BoolNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -928,7 +829,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class NumberIntNode: NodeWithValue, IEquatable<NumberIntNode>
+    public sealed class NumberIntNode: NodeWithValue
     {
         public readonly long value;
 
@@ -936,11 +837,6 @@ namespace Jsonata.Net.Native.Impl
             :base(SymbolType._number_int, position)
         {
             this.value = value;
-        }
-
-        public bool Equals(NumberIntNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -965,7 +861,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class NumberDoubleNode: NodeWithValue, IEquatable<NumberDoubleNode>
+    public sealed class NumberDoubleNode: NodeWithValue
     {
         public readonly double value;
 
@@ -973,11 +869,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType._number_double, position)
         {
             this.value = value;
-        }
-
-        public bool Equals(NumberDoubleNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1001,7 +892,7 @@ namespace Jsonata.Net.Native.Impl
             //nothing to do
         }
     }
-    public sealed class LambdaNode: Node, IEquatable<LambdaNode>
+    public sealed class LambdaNode: Node
     {
         public readonly List<VariableNode> arguments;
         public readonly Signature? signature;
@@ -1015,11 +906,6 @@ namespace Jsonata.Net.Native.Impl
             this.signature = signature;
             this.body = body;
             this.thunk = thunk;
-        }
-
-        public bool Equals(LambdaNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1076,7 +962,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class FunctionalNode: Node, IEquatable<FunctionalNode>
+    public sealed class FunctionalNode: Node
     {
         public readonly bool partial;
         public readonly Node procedure;
@@ -1094,11 +980,6 @@ namespace Jsonata.Net.Native.Impl
             :this(new VariableNode(function), arguments)
         {
 
-        }
-
-        public bool Equals(FunctionalNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1136,7 +1017,7 @@ namespace Jsonata.Net.Native.Impl
 
     }
 
-    public sealed class SlotRuntimeNode: Node, IEquatable<SlotRuntimeNode>
+    public sealed class SlotRuntimeNode: Node
     {
         public string label;
         public int level;
@@ -1148,11 +1029,6 @@ namespace Jsonata.Net.Native.Impl
             this.label = label;
             this.ancestorIndex = ancestorIndex;
             this.level = level;
-        }
-
-        public bool Equals(SlotRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1175,7 +1051,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class UnaryMinusNode: Node, IEquatable<UnaryMinusNode>
+    public sealed class UnaryMinusNode: Node
     {
         public readonly Node expression;
 
@@ -1183,11 +1059,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType._unary_minus, position)
         {
             this.expression = expression;
-        }
-
-        public bool Equals(UnaryMinusNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1207,7 +1078,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class SortTermNode: Node, IEquatable<SortTermNode>
+    public sealed class SortTermNode: Node
     {
         public readonly Node expression;
         public readonly bool descending;
@@ -1217,11 +1088,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.expression = expression;
             this.descending = descending;
-        }
-
-        public bool Equals(SortTermNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1250,7 +1116,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class SortStepRuntimeNode: Node, IEquatable<SortStepRuntimeNode>
+    public sealed class SortStepRuntimeNode: Node
     {
         public readonly List<SortTermNode> terms;
 
@@ -1258,11 +1124,6 @@ namespace Jsonata.Net.Native.Impl
             :base(SymbolType.sort, position) 
         { 
             this.terms = terms;
-        }
-
-        public bool Equals(SortStepRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1286,20 +1147,15 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public abstract class StageRuntimeNode: Node, IEquatable<StageRuntimeNode>
+    public abstract class StageRuntimeNode: Node
     {
         internal StageRuntimeNode(SymbolType type, int position) 
             : base(type, position)
         {
         }
-
-        public bool Equals(StageRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
-        }
     }
 
-    public sealed class FilterRuntimeNode: StageRuntimeNode, IEquatable<FilterRuntimeNode>
+    public sealed class FilterRuntimeNode: StageRuntimeNode
     {
         public readonly Node expr;
 
@@ -1307,11 +1163,6 @@ namespace Jsonata.Net.Native.Impl
             :base(SymbolType.filter, position)
         {
             this.expr = expr;
-        }
-
-        public bool Equals(FilterRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1331,7 +1182,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class IndexRuntimeNode: StageRuntimeNode, IEquatable<IndexRuntimeNode>
+    public sealed class IndexRuntimeNode: StageRuntimeNode
     {
         public readonly string indexValue;
 
@@ -1339,11 +1190,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType.index, position)
         {
             this.indexValue = indexValue;
-        }
-
-        public bool Equals(IndexRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1363,7 +1209,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BlockNode: Node, IEquatable<BlockNode>
+    public sealed class BlockNode: Node
     {
         public readonly List<Node> expressions;
 
@@ -1371,11 +1217,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType.block, position)
         {
             this.expressions = expressions;
-        }
-
-        public bool Equals(BlockNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1399,7 +1240,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class ArrayNode: Node, IEquatable<ArrayNode>
+    public sealed class ArrayNode: Node
     {
         public readonly List<Node> expressions;
 
@@ -1407,11 +1248,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType._unary_array, position)
         {
             this.expressions = expressions;
-        }
-
-        public bool Equals(ArrayNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1435,7 +1271,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class ApplyNode: Node, IEquatable<ApplyNode>
+    public sealed class ApplyNode: Node
     {
         public readonly Node lhs;
         public readonly Node rhs;
@@ -1445,11 +1281,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.lhs = lhs;
             this.rhs = rhs;
-        }
-
-        public bool Equals(ApplyNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1480,7 +1311,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BindRuntimeNode: Node, IEquatable<BindRuntimeNode>
+    public sealed class BindRuntimeNode: Node
     {
         public readonly VariableNode lhs;
         public readonly Node rhs;
@@ -1490,11 +1321,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.lhs = lhs;
             this.rhs = rhs;
-        }
-
-        public bool Equals(BindRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1525,7 +1351,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class GroupNode: Node, IEquatable<GroupNode>
+    public sealed class GroupNode: Node
     {
         public readonly List<Tuple<Node, Node>> lhsObject;
 
@@ -1533,11 +1359,6 @@ namespace Jsonata.Net.Native.Impl
             : base(SymbolType._unary_group, position)
         {
             this.lhsObject = lhsObject;
-        }
-
-        public bool Equals(GroupNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1564,7 +1385,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class GroupByConstructionNode: Node, IEquatable<GroupByConstructionNode>
+    public sealed class GroupByConstructionNode: Node
     {
         public readonly Node lhs;
         public readonly List<Tuple<Node, Node>> rhsObject;
@@ -1574,11 +1395,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.lhs = lhs;
             this.rhsObject = rhsObject;
-        }
-
-        public bool Equals(GroupByConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1608,7 +1424,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class BinaryNode: Node, IEquatable<BinaryNode>
+    public sealed class BinaryNode: Node
     {
         public readonly Node lhs;
         public readonly Node rhs;
@@ -1620,11 +1436,6 @@ namespace Jsonata.Net.Native.Impl
             this.lhs = lhs;
             this.rhs = rhs;
             this.value = value;
-        }
-
-        public bool Equals(BinaryNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1660,7 +1471,7 @@ namespace Jsonata.Net.Native.Impl
     }
 
 
-    public sealed class PathRuntimeNode: Node, IEquatable<PathRuntimeNode>
+    public sealed class PathRuntimeNode: Node
     {
         public readonly List<Node> steps;
         public bool keepSingletonArray { get; internal set; } = false;
@@ -1669,11 +1480,6 @@ namespace Jsonata.Net.Native.Impl
             :base(SymbolType.path, -1)
         {
             this.steps = steps;
-        }
-
-        public bool Equals(PathRuntimeNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1701,7 +1507,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class OrderbyConstructionNode: Node, IEquatable<OrderbyConstructionNode>
+    public sealed class OrderbyConstructionNode: Node
     {
         // LHS is the array to be ordered
         // RHS defines the terms
@@ -1713,11 +1519,6 @@ namespace Jsonata.Net.Native.Impl
         {
             this.rhsTerms = rhsTerms;
             this.lhs = lhs;
-        }
-
-        public bool Equals(OrderbyConstructionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1744,7 +1545,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class TransformNode: Node, IEquatable<TransformNode>
+    public sealed class TransformNode: Node
     {
         public readonly Node pattern;
         public readonly Node update;
@@ -1756,11 +1557,6 @@ namespace Jsonata.Net.Native.Impl
             this.pattern = pattern;
             this.update = update;
             this.delete = delete;
-        }
-
-        public bool Equals(TransformNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
@@ -1805,7 +1601,7 @@ namespace Jsonata.Net.Native.Impl
         }
     }
 
-    public sealed class ConditionNode: Node, IEquatable<ConditionNode>
+    public sealed class ConditionNode: Node
     {
         // Ternary operator:
         public readonly Node condition;
@@ -1818,11 +1614,6 @@ namespace Jsonata.Net.Native.Impl
             this.condition = condition;
             this.then = then;
             this.@else = @else;
-        }
-
-        public bool Equals(ConditionNode? other)
-        {
-            return this.EqualsImpl(other);
         }
 
         protected override bool EqualsSpecific(Node other)
