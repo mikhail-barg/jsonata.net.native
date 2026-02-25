@@ -31,7 +31,7 @@ namespace Jsonata.Net.Native
 
         public override string ToString()
         {
-            return this.m_ast.ToString()!;
+            return this.m_ast.ToString();
         }
 
         public Node GetAst() 
