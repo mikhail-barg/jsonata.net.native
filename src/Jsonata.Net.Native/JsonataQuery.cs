@@ -7,21 +7,23 @@ namespace Jsonata.Net.Native
     public sealed class JsonataQuery
     {
         private readonly Node m_ast;
+        private readonly string? m_query; 
 
         public static JsonataQuery FromAst(Node ast)
         {
             Node optimized = Optimizer.OptimizeAst(ast);
-            return new JsonataQuery(optimized);
+            return new JsonataQuery(optimized, null);
         }
 
         public JsonataQuery(string queryText)
-            : this(Parser.Parse(queryText))
+            : this(Parser.Parse(queryText), queryText)
         {
         }
 
-        private JsonataQuery(Node ast)
+        private JsonataQuery(Node ast, string? query)
         {
             this.m_ast = ast;
+            this.m_query = query;
         }
 
         public JToken Eval(JToken data, EvaluationEnvironment environment)
@@ -31,7 +33,7 @@ namespace Jsonata.Net.Native
 
         public override string ToString()
         {
-            return this.m_ast.ToString();
+            return this.m_query ?? this.m_ast.PrintAst();
         }
 
         public Node GetAst() 
