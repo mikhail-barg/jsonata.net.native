@@ -263,6 +263,16 @@ namespace Jsonata.Net.Native.Impl
                         // split into single tokens
                         foreach (char single in match.Value)
                         {
+                            if (argIndex < args.Count)
+                            {
+                                arg = args[argIndex];
+                            }
+                            else
+                            {
+                                //arg = JsonataQ.UNDEFINED;
+                                throw new Exception("Should not happen!");
+                            }
+
                             if (param.type == "a")
                             {
                                 if (single == 'm')

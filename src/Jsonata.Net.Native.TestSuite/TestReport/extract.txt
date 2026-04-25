@@ -77,6 +77,8 @@ coalescing-operator.case009;Passed
 coalescing-operator.case010;Passed
 coalescing-operator.case011;Passed
 coalescing-operator.case012;Passed
+coalescing-operator.case013;Passed
+coalescing-operator.case014;Passed
 comments.case000;Passed
 comments.case001;Passed
 comments.case002;Passed
@@ -921,6 +923,12 @@ function-signatures.case031;Passed
 function-signatures.case032;Passed
 function-signatures.case033;Passed
 function-signatures.case034;Passed
+function-signatures.case035;Passed
+function-signatures.case036;Passed
+function-signatures.case037;Passed
+function-signatures.case038;Passed
+function-signatures.case039;Passed
+function-signatures.case040;Failed
 function-sort.case000;Passed
 function-sort.case001;Passed
 function-sort.case002;Passed

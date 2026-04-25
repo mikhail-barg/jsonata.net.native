@@ -131,7 +131,7 @@ const data = {
 };
 
 (async () => {
-    const expression = jsonata(`$zip([1,2,3],[4,5,6])`);
+    const expression = jsonata(`λ($arg1, $arg2)<s?n+:a<n>>{[$arg1, $arg2]}(1, 2, 3)`);
     //Format(expression.ast(), null, 0);
     //console.log('\n');
     const result = await expression.evaluate(data);  // returns 24
