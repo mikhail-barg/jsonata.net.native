@@ -50,6 +50,7 @@ namespace JsonataExerciser
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.outputModeComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.jsonlButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)this.DatasetFctb).BeginInit();
             ((System.ComponentModel.ISupportInitialize)this.splitContainer1).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -98,7 +99,6 @@ namespace JsonataExerciser
             this.DatasetFctb.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.DatasetFctb.DisabledColor = System.Drawing.Color.FromArgb(100, 180, 180, 180);
             this.DatasetFctb.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DatasetFctb.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.DatasetFctb.Hotkeys = resources.GetString("DatasetFctb.Hotkeys");
             this.DatasetFctb.IsReplaceMode = false;
             this.DatasetFctb.Language = FastColoredTextBoxNS.Language.JS;
@@ -169,7 +169,7 @@ namespace JsonataExerciser
             // toolStrip1
             // 
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.formatDatasetJsonButton, this.toolStripSeparator1, this.sampleComboBox, this.toolStripLabel1 });
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { this.formatDatasetJsonButton, this.toolStripSeparator1, this.sampleComboBox, this.toolStripLabel1, this.jsonlButton });
             this.toolStrip1.Location = new System.Drawing.Point(3, 19);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(339, 25);
@@ -244,7 +244,6 @@ namespace JsonataExerciser
             this.BindingsFctb.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.BindingsFctb.DisabledColor = System.Drawing.Color.FromArgb(100, 180, 180, 180);
             this.BindingsFctb.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BindingsFctb.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.BindingsFctb.Hotkeys = resources.GetString("BindingsFctb.Hotkeys");
             this.BindingsFctb.IsReplaceMode = false;
             this.BindingsFctb.Language = FastColoredTextBoxNS.Language.JS;
@@ -317,7 +316,6 @@ namespace JsonataExerciser
             this.QueryFctb.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.QueryFctb.DisabledColor = System.Drawing.Color.FromArgb(100, 180, 180, 180);
             this.QueryFctb.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.QueryFctb.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.QueryFctb.Hotkeys = resources.GetString("QueryFctb.Hotkeys");
             this.QueryFctb.IsReplaceMode = false;
             this.QueryFctb.Language = FastColoredTextBoxNS.Language.JS;
@@ -372,7 +370,6 @@ namespace JsonataExerciser
             this.ResultFctb.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.ResultFctb.DisabledColor = System.Drawing.Color.FromArgb(100, 180, 180, 180);
             this.ResultFctb.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ResultFctb.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.ResultFctb.Hotkeys = resources.GetString("ResultFctb.Hotkeys");
             this.ResultFctb.IsReplaceMode = false;
             this.ResultFctb.Language = FastColoredTextBoxNS.Language.JS;
@@ -414,6 +411,17 @@ namespace JsonataExerciser
             this.toolStripLabel2.Name = "toolStripLabel2";
             this.toolStripLabel2.Size = new System.Drawing.Size(109, 22);
             this.toolStripLabel2.Text = "Output conversion:";
+            // 
+            // jsonlButton
+            // 
+            this.jsonlButton.CheckOnClick = true;
+            this.jsonlButton.Image = (System.Drawing.Image)resources.GetObject("jsonlButton.Image");
+            this.jsonlButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.jsonlButton.Name = "jsonlButton";
+            this.jsonlButton.Size = new System.Drawing.Size(61, 22);
+            this.jsonlButton.Text = "JSONL";
+            this.jsonlButton.ToolTipText = "Treat text as JSON-Lines, instead of a plain JSON";
+            this.jsonlButton.CheckStateChanged += jsonlButton_CheckStateChanged;
             // 
             // Form1
             // 
@@ -475,5 +483,6 @@ namespace JsonataExerciser
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripComboBox outputModeComboBox;
         private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripButton jsonlButton;
     }
 }

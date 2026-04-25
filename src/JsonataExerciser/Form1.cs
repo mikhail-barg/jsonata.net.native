@@ -71,24 +71,71 @@ namespace JsonataExerciser
         {
             if (this.m_datasetJson != null)
             {
-                this.DatasetFctb.Text = this.m_datasetJson.ToIndentedString();
+                try
+                {
+                    this.m_ignoreTextChanges = true;
+                    this.DatasetFctb.Text = this.m_datasetJson.ToIndentedString();
+                    this.jsonlButton.Checked = false;
+                }
+                finally
+                {
+                    this.m_ignoreTextChanges = false;
+                }
             }
         }
 
         private void TryParseDataset()
         {
-            try
+            if (!this.jsonlButton.Checked)
             {
-                this.m_datasetJson = JToken.Parse(this.DatasetFctb.Text);
+                try
+                {
+                    this.m_datasetJson = JToken.Parse(this.DatasetFctb.Text);
+                }
+                catch (Exception ex)
+                {
+                    this.m_datasetJson = null;
+                    this.ResultFctb.Text = "Failed to parse input JSON: " + ex.Message;
+                    this.ResultFctb.WordWrap = true;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                this.m_datasetJson = null;
-                this.ResultFctb.Text = "Failed to parse input JSON: " + ex.Message;
-                this.ResultFctb.WordWrap = true;
+                try
+                {
+                    this.m_datasetJson = this.ParseJsonl();
+                }
+                catch (Exception ex)
+                {
+                    this.m_datasetJson = null;
+                    this.ResultFctb.Text = "Failed to parse input as JSONL: " + ex.Message;
+                    this.ResultFctb.WordWrap = true;
+                }
             }
-            ;
             TryApplyQuery();
+        }
+
+        private JToken? ParseJsonl()
+        {
+            JArray result = new JArray(this.DatasetFctb.LinesCount);
+            for (int lineIndex = 0; lineIndex < this.DatasetFctb.LinesCount; ++lineIndex)
+            {
+                string line = this.DatasetFctb.Lines[lineIndex];
+                if (String.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
+                try
+                {
+                    JToken token = JToken.Parse(line);
+                    result.Add(token);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Error on line {lineIndex + 1}: {ex.Message}", ex);
+                }
+            }
+            return result;
         }
 
         private void TryParseBindings()
@@ -108,7 +155,6 @@ namespace JsonataExerciser
                 this.ResultFctb.Text = "Failed to parse bindings JSON: " + ex.Message;
                 this.ResultFctb.WordWrap = true;
             }
-            ;
             TryApplyQuery();
         }
 
@@ -237,6 +283,14 @@ namespace JsonataExerciser
             public override string ToString()
             {
                 return this.m_name;
+            }
+        }
+
+        private void jsonlButton_CheckStateChanged(object sender, EventArgs e)
+        {
+            if (!this.m_ignoreTextChanges)
+            {
+                TryParseDataset();
             }
         }
     }
