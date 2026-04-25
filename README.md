@@ -77,6 +77,7 @@ Since v2.2.0 there's also a (limited) support for converting JTokens back to C# 
 
 We also provide an [Exerciser app](https://github.com/mikhail-barg/jsonata.net.native/tree/master/src/JsonataExerciser) with same functionality as in original [JSONata Exerciser](https://try.jsonata.org/):
 ![Exerciser](/misc/exerciser.png)
+
 And even some more features, like supporting JSONL for input.
 
 ## Parsing JSON with Jsonata.Net.Native.Json
